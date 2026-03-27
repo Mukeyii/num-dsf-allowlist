@@ -1,0 +1,71 @@
+/**
+ * organization.service.ts – CRUD for Organization (1:1 per instance)
+ * Deletion only via Request-for-Removal → Approval workflow
+ */
+import { db } from '../db/connection';
+import { writeAuditLog } from './audit.service';
+
+export async function getOrganization(instanceId: string) {
+  return db('organizations').where({ instance_id: instanceId }).first() ?? null;
+}
+
+export async function upsertOrganization(
+  instanceId: string,
+  data: {
+    identifier: string;
+    name: string;
+    active: boolean;
+    email: string;
+    addressLine?: string;
+    postalCode?: string;
+    city?: string;
+    countryCode?: string;
+  },
+  userEmail: string,
+  ipAddress: string
+) {
+  const existing = await getOrganization(instanceId);
+  const now = new Date();
+
+  if (existing) {
+    const before = { ...existing };
+    await db('organizations')
+      .where({ instance_id: instanceId })
+      .update({
+        name: data.name,
+        active: data.active,
+        email: data.email,
+        address_line: data.addressLine ?? null,
+        postal_code: data.postalCode ?? null,
+        city: data.city ?? null,
+        country_code: data.countryCode ?? null,
+        updated_at: now,
+      });
+    await writeAuditLog({
+      userEmail, instanceId, resourceType: 'ORGANIZATION',
+      resourceId: existing.identifier, operation: 'UPDATE',
+      diffJson: { before, after: data }, ipAddress,
+    });
+    return getOrganization(instanceId);
+  } else {
+    await db('organizations').insert({
+      identifier: data.identifier,
+      instance_id: instanceId,
+      name: data.name,
+      active: data.active ? 1 : 0,
+      email: data.email,
+      address_line: data.addressLine ?? null,
+      postal_code: data.postalCode ?? null,
+      city: data.city ?? null,
+      country_code: data.countryCode ?? null,
+      created_at: now,
+      updated_at: now,
+    });
+    await writeAuditLog({
+      userEmail, instanceId, resourceType: 'ORGANIZATION',
+      resourceId: data.identifier, operation: 'CREATE',
+      diffJson: { after: data }, ipAddress,
+    });
+    return getOrganization(instanceId);
+  }
+}
