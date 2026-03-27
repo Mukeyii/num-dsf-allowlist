@@ -1,0 +1,38 @@
+import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.middleware';
+import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import * as svc from '../services/contacts.service';
+
+export const contactsRouter = Router({ mergeParams: true });
+contactsRouter.use(requireAuth, requireInstanceOwnership);
+
+contactsRouter.get('/', async (req, res) => {
+  res.json({ data: await svc.getContacts(req.instance!.id) });
+});
+
+contactsRouter.post('/', async (req, res) => {
+  try {
+    const contact = await svc.createContact(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
+    res.status(201).json({ data: contact });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: err.message, message: err.message } });
+  }
+});
+
+contactsRouter.put('/:cid', async (req, res) => {
+  try {
+    const contact = await svc.updateContact(req.instance!.id, req.params.cid, req.body, req.user!.email, req.ip || 'unknown');
+    res.json({ data: contact });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: err.message, message: err.message } });
+  }
+});
+
+contactsRouter.delete('/:cid', async (req, res) => {
+  try {
+    await svc.deleteContact(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
+    res.json({ data: { deleted: true } });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: err.message, message: err.message } });
+  }
+});
