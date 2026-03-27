@@ -1,20 +1,23 @@
 /**
- * main.tsx – Minimal React mount (placeholder for Phase 4)
+ * main.tsx – App bootstrap
  */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { router } from './router';
+import './index.css';
 
-function App() {
-  return (
-    <div style={{ fontFamily: 'Inter, sans-serif', padding: '2rem', color: '#181c20' }}>
-      <h1>DSF Allow List Management</h1>
-      <p>Phase 1 – Fundament loaded. Frontend will be built in Phase 4.</p>
-    </div>
-  );
-}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30_000 },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </React.StrictMode>
 );
