@@ -2,6 +2,7 @@ import { useContacts }     from '../../hooks/useContacts';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useOrganization } from '../../hooks/useOrganization';
+import { useModals }       from '../../hooks/useModals';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
   MEDIC:     { bg: '#ede9ff', color: '#4a42cc' },
@@ -19,7 +20,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
       title="Contacts"
       borderColor="#9b59b6"
       icon="contact_phone"
-      onAdd={() => {/* Phase 6 */}}
+      onAdd={() => useModals.getState().openModal('contact-add')}
     >
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 

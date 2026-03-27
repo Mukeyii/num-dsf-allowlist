@@ -1,5 +1,6 @@
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { EntityCard } from './EntityCard';
+import { useModals } from '../../hooks/useModals';
 
 export function ApprovalCard({ instanceId }: { instanceId: string }) {
   const { data: status }       = useApprovalStatus(instanceId);
@@ -11,7 +12,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
       title="Approval Summary"
       borderColor="#e05c5c"
       icon="rule"
-      onAdd={() => {/* Phase 6: submitApproval */}}
+      onAdd={() => useModals.getState().openModal('approval')}
       addLabel="Submit"
     >
       <div style={{ marginBottom: '24px' }}>

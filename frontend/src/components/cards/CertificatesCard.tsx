@@ -1,6 +1,7 @@
 import { useCertificates }  from '../../hooks/useCertificates';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { EntityCard }       from './EntityCard';
+import { useModals }        from '../../hooks/useModals';
 
 function daysUntil(dateStr: string): number {
   return Math.floor((new Date(dateStr).getTime() - Date.now()) / 86400000);
@@ -19,7 +20,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
       headerRight={
         <span className="material-symbols-outlined text-emerald-500" style={{ fontSize: '20px' }}>lock</span>
       }
-      onAdd={() => {/* Phase 6 */}}
+      onAdd={() => useModals.getState().openModal('certificate-add')}
     >
       {org && <p className="text-[10px] text-slate-400 mb-4">FK: Organization {org.identifier}</p>}
 

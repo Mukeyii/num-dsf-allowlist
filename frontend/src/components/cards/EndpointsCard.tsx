@@ -2,6 +2,7 @@ import { useEndpoints }    from '../../hooks/useEndpoints';
 import { useOrganization } from '../../hooks/useOrganization';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
+import { useModals }       from '../../hooks/useModals';
 
 export function EndpointsCard({ instanceId }: { instanceId: string }) {
   const { data: endpoints = [], isLoading } = useEndpoints(instanceId);
@@ -13,7 +14,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
       title="Endpoints"
       borderColor="#3ecfb2"
       icon="hub"
-      onAdd={() => {/* Phase 6 */}}
+      onAdd={() => useModals.getState().openModal('endpoint-add')}
     >
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
