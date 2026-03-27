@@ -5,6 +5,7 @@
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
+import { notifyGeckoOnSubmit, notifySiteOnApproval } from './approval-reminder.service';
 
 async function buildSnapshot(instanceId: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
@@ -30,6 +31,9 @@ export async function submitApproval(instanceId: string, userEmail: string, ipAd
   const now = new Date();
   await db('approval_requests').insert({ id, instance_id: instanceId, status: 'PENDING', created_at: now, submitted_at: now, snapshot_json: JSON.stringify(snapshot) });
   await writeAuditLog({ userEmail, instanceId, resourceType: 'APPROVAL', resourceId: id, operation: 'CREATE', ipAddress });
+  // Notify GECKO (non-blocking)
+  const org = await db('organizations').where({ instance_id: instanceId }).first();
+  notifyGeckoOnSubmit(id, instanceId, org?.identifier || instanceId, org?.name || 'Unknown', userEmail).catch(err => console.error('[ApprovalNotify]', err));
   return db('approval_requests').where({ id }).first();
 }
 
@@ -50,6 +54,7 @@ export async function approveRequest(requestId: string, resolvedBy: string, ipAd
   if (!request) throw new Error('REQUEST_NOT_FOUND');
   await db('approval_requests').where({ id: requestId }).update({ status: 'APPROVED', resolved_at: new Date(), resolved_by: resolvedBy });
   await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id, resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
+  notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(err => console.error('[ApprovalNotify]', err));
   return db('approval_requests').where({ id: requestId }).first();
 }
 
@@ -58,5 +63,6 @@ export async function rejectRequest(requestId: string, resolvedBy: string, comme
   if (!request) throw new Error('REQUEST_NOT_FOUND');
   await db('approval_requests').where({ id: requestId }).update({ status: 'REJECTED', resolved_at: new Date(), resolved_by: resolvedBy, comment });
   await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id, resourceType: 'APPROVAL', resourceId: requestId, operation: 'REJECT', diffJson: { comment }, ipAddress });
+  notifySiteOnApproval(requestId, request.instance_id, 'REJECTED', comment, resolvedBy).catch(err => console.error('[ApprovalNotify]', err));
   return db('approval_requests').where({ id: requestId }).first();
 }
