@@ -1,12 +1,48 @@
+# Env files
 .env
+.env.prod
+.env.local
+.env.*.local
+
+# Dependencies
 node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build artifacts
 dist/
 build/
+frontend/dist/
+backend/dist/
+
+# Logs
 *.log
+logs/
+nginx_logs/
+
+# OS
 .DS_Store
-coverage/
-.nyc_output/
-redis-data/
+Thumbs.db
+
+# Docker volumes (locally generated)
 mysql-data/
+redis-data/
+
+# TLS certificates (never commit)
 certs/server.*
 certs/ca.*
+
+# Bundle report
+dist/bundle-report.html
+
+# IDE
+.idea/
+.vscode/settings.json
+*.iml
+
+# TypeScript
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
