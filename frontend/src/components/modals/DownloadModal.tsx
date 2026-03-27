@@ -14,7 +14,7 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
   const [downloading, setDownloading] = useState(false);
 
   const bundleUrl = selectedEndpoint
-    ? `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/instances/${instanceId}/download/bundle?endpointId=${selectedEndpoint}`
+    ? `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/instances/${instanceId}/download/bundle?endpointId=${selectedEndpoint}`
     : '';
 
   async function downloadBundle() {

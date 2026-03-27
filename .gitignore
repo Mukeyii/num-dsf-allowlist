@@ -46,3 +46,4 @@ dist/bundle-report.html
 # Test coverage
 coverage/
 .nyc_output/
+MASTERPROMPT*.md
