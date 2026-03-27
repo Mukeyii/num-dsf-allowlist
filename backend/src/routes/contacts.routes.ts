@@ -36,3 +36,12 @@ contactsRouter.delete('/:cid', async (req, res) => {
     res.status(400).json({ error: { code: err.message, message: err.message } });
   }
 });
+
+contactsRouter.post('/:cid/resend-verification', async (req, res) => {
+  try {
+    await svc.resendVerification(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
+    res.json({ data: { message: 'Verification email sent.' } });
+  } catch (err: any) {
+    res.status(400).json({ error: { code: err.message, message: err.message } });
+  }
+});
