@@ -1,3 +1,12 @@
 .env
 node_modules/
-node_modules/
+dist/
+build/
+*.log
+.DS_Store
+coverage/
+.nyc_output/
+redis-data/
+mysql-data/
+certs/server.*
+certs/ca.*
