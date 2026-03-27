@@ -9,6 +9,7 @@ import { authApi } from './api/auth.api';
 import { useAuthStore } from './stores/auth.store';
 import { ToastProvider } from './components/ToastProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { AuthBootstrap } from './components/AuthBootstrap';
 import './index.css';
 
 // Axios 401 interceptor – silent token refresh
@@ -60,7 +61,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <AuthBootstrap>
+          <RouterProvider router={router} />
+        </AuthBootstrap>
         <ToastProvider />
       </QueryClientProvider>
     </ErrorBoundary>

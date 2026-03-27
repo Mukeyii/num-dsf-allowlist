@@ -17,8 +17,13 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RootRedirect() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return <Navigate to={isAuthenticated ? '/app' : '/login'} replace />;
+}
+
 export const router = createBrowserRouter([
-  { path: '/',          element: <Navigate to="/login" replace /> },
+  { path: '/',          element: <RootRedirect /> },
   { path: '/login',     element: <LoginPage /> },
   { path: '/otp',       element: <OtpPage /> },
   { path: '/totp-setup',element: <TotpSetupPage /> },
