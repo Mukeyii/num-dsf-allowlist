@@ -18,7 +18,8 @@
     "@hookform/resolvers": "^3.3.4",
     "axios": "^1.6.5",
     "jwt-decode": "^4.0.0",
-    "zustand": "^4.4.7"
+    "zustand": "^4.4.7",
+    "sonner": "^1.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.48",
