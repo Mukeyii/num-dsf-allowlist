@@ -3,6 +3,7 @@ import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useOrganization } from '../../hooks/useOrganization';
 import { useModals }       from '../../hooks/useModals';
+import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { api } from '../../api/entities.api';
 import { toast } from 'sonner';
 
@@ -53,7 +54,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                 {c.name || '—'}
               </div>
               <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                {JSON.parse(c.types || '[]').map((t: string) => (
+                {parseJsonArray(c.types).map((t: string) => (
                   <span key={t} style={{
                     fontSize: '10px', padding: '1px 6px', borderRadius: '99px',
                     background: TYPE_COLORS[t]?.bg || '#f0f2f8',

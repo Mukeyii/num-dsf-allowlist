@@ -3,6 +3,7 @@ import { useOrganization }  from '../../hooks/useOrganization';
 import { useEndpoints }     from '../../hooks/useEndpoints';
 import { useCanvasStore }   from '../../stores/canvas.store';
 import { EntityCard }       from './EntityCard';
+import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
 
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
@@ -41,7 +42,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {isLoading && <p style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</p>}
         {memberships.map((ms: any) => {
-          const roles = JSON.parse(ms.roles || '[]');
+          const roles = parseJsonArray(ms.roles);
           return (
             <div
               key={ms.id}

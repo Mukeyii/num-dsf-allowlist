@@ -3,6 +3,7 @@ import React from 'react';
 import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { ModalFooter } from './FormField';
+import { parseJsonArray } from '../../lib/parseJsonArray';
 import { useSubmitApproval } from '../../hooks/useApproval';
 import { useOrganization } from '../../hooks/useOrganization';
 import { useContacts } from '../../hooks/useContacts';
@@ -67,7 +68,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           {contacts.length === 0 && <p className="text-xs text-slate-400">No contacts.</p>}
           {contacts.map((c: any) => (<div key={c.id} className="p-2 bg-slate-50 rounded-lg">
             <p className="text-xs font-bold text-slate-700">{c.name || '—'}</p>
-            <p className="text-[10px] text-slate-400">{JSON.parse(c.types || '[]').join(' · ')} · {c.email_validated ? '✓ validated' : '⚠ not validated'}</p>
+            <p className="text-[10px] text-slate-400">{parseJsonArray(c.types).join(' · ')} · {c.email_validated ? '✓ validated' : '⚠ not validated'}</p>
           </div>))}
         </Section>
         <Section title={`Endpoints (${endpoints.length})`}>
@@ -91,7 +92,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           {memberships.length === 0 && <p className="text-xs text-slate-400">No memberships.</p>}
           {memberships.map((ms: any) => (<div key={ms.id} className="p-2 bg-slate-50 rounded-lg flex items-center justify-between">
             <div><p className="text-xs font-bold text-slate-700">{ms.parent_organization}</p>
-            <p className="text-[10px] text-blue-600 font-bold">{JSON.parse(ms.roles || '[]').join(' · ')}</p></div>
+            <p className="text-[10px] text-blue-600 font-bold">{parseJsonArray(ms.roles).join(' · ')}</p></div>
           </div>))}
         </Section>
       </div>
