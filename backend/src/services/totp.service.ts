@@ -60,7 +60,7 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
     secret,
     encoding: 'base32',
     token: code.replace(/\s/g, ''),
-    window: 1,
+    window: 2,
   });
 }
 
