@@ -2,20 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { router } from './router';
-import { ToastProvider } from './components/ToastProvider';
-import './index.css';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { router } from './router';
 import { authApi } from './api/auth.api';
 import { useAuthStore } from './stores/auth.store';
+import { ToastProvider } from './components/ToastProvider';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import './index.css';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: 1, staleTime: 30_000 },
-  },
-});
-
+// Axios 401 interceptor – silent token refresh
 axios.interceptors.response.use(
   response => response,
   async error => {
@@ -38,11 +34,35 @@ axios.interceptors.response.use(
   }
 );
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: any) => {
+        if ([401, 403, 404].includes(error?.response?.status)) return false;
+        return failureCount < 2;
+      },
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      onError: (error: any) => {
+        const msg = error?.response?.data?.error?.message;
+        if (msg && !msg.includes('ALREADY_')) {
+          console.error('[Mutation]', msg);
+        }
+      },
+    },
+  },
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <ToastProvider />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ToastProvider />
+      </QueryClientProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

@@ -2,6 +2,7 @@
  * EntityCanvas.tsx – 2×3 grid with all entity cards + SVG overlay
  */
 import { useRef } from 'react';
+import { CardSkeleton } from '../ui/Skeleton';
 import { RelationLines }    from './RelationLines';
 import { OrganizationCard } from '../cards/OrganizationCard';
 import { ContactsCard }     from '../cards/ContactsCard';
