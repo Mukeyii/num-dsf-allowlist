@@ -4,7 +4,8 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth.store';
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// VITE_API_URL already includes /api/v1 (e.g. http://localhost/api/v1)
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 function authHeader() {
   const token = useAuthStore.getState().accessToken;
@@ -12,12 +13,12 @@ function authHeader() {
 }
 
 function api(instanceId: string) {
-  const base = `${BASE}/api/v1/instances/${instanceId}`;
+  const base = `${BASE}/instances/${instanceId}`;
   return {
     getInstances: () =>
-      axios.get(`${BASE}/api/v1/instances`, { headers: authHeader() }),
+      axios.get(`${BASE}/instances`, { headers: authHeader() }),
     createInstance: (data: { label: string }) =>
-      axios.post(`${BASE}/api/v1/instances`, data, { headers: authHeader() }),
+      axios.post(`${BASE}/instances`, data, { headers: authHeader() }),
 
     getOrganization: () =>
       axios.get(`${base}/organization`, { headers: authHeader() }),
@@ -70,7 +71,7 @@ function api(instanceId: string) {
         headers: authHeader(), responseType: 'blob',
       }),
     downloadIpList: () =>
-      axios.get(`${BASE}/api/v1/download/ip-address-list`, {
+      axios.get(`${BASE}/download/ip-address-list`, {
         headers: authHeader(), responseType: 'blob',
       }),
 

@@ -4,8 +4,10 @@
  */
 import axios from 'axios';
 
+// Auth routes are at /auth/*, not under /api/v1/
+const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: baseOrigin,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
