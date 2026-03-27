@@ -2,6 +2,7 @@ import { useOrganization }   from '../../hooks/useOrganization';
 import { useContacts }       from '../../hooks/useContacts';
 import { useApprovalStatus } from '../../hooks/useApproval';
 import { EntityCard }        from './EntityCard';
+import { useModals }         from '../../hooks/useModals';
 
 interface Props {
   instanceId: string;
@@ -42,7 +43,7 @@ export function OrganizationCard({ instanceId }: Props) {
       borderColor="#4d41df"
       icon="corporate_fare"
       addLabel="Edit"
-      onAdd={() => {/* Phase 6: openModal('org') */}}
+      onAdd={() => useModals.getState().openModal('org-edit')}
     >
       {contacts.length > 0 && (
         <div style={{ marginBottom: '10px' }}>

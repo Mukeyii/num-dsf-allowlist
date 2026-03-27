@@ -3,6 +3,7 @@ import { useOrganization }  from '../../hooks/useOrganization';
 import { useEndpoints }     from '../../hooks/useEndpoints';
 import { useCanvasStore }   from '../../stores/canvas.store';
 import { EntityCard }       from './EntityCard';
+import { useModals }        from '../../hooks/useModals';
 
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { data: memberships = [], isLoading } = useMemberships(instanceId);
@@ -16,7 +17,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
       title="Memberships"
       borderColor="#4a90d9"
       icon="groups"
-      onAdd={() => {/* Phase 6 */}}
+      onAdd={() => useModals.getState().openModal('membership-add')}
     >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
         {org && (
