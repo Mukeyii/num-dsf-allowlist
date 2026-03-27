@@ -1,54 +1,47 @@
 /**
- * AppPage.tsx – Placeholder until Phase 5
- * Shows only the identity of the logged-in user.
+ * AppPage.tsx – Main page: Sidebar + Canvas + RightPanel
+ * Replaces the Phase 4 placeholder completely.
  */
-import { useAuthStore } from '../stores/auth.store';
-import { useNavigate }  from 'react-router-dom';
-import { authApi }      from '../api/auth.api';
+import { useCanvasStore }  from '../stores/canvas.store';
+import { useInstances }    from '../hooks/useInstance';
+import { Sidebar }         from '../components/layout/Sidebar';
+import { TopBar }          from '../components/layout/TopBar';
+import { RightPanel }      from '../components/layout/RightPanel';
+import { EntityCanvas }    from '../components/canvas/EntityCanvas';
 
 export function AppPage() {
-  const { user, clearAuth } = useAuthStore();
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    await authApi.logout(user?.email || '').catch(() => {});
-    clearAuth();
-    navigate('/login', { replace: true });
-  }
+  const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
+  useInstances(); // Load instances + auto-select first
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center"
-      style={{ background: '#f0f2f8', fontFamily: 'Inter, system-ui, sans-serif' }}
-    >
-      <div
-        className="bg-white p-8 text-center"
-        style={{ borderRadius: '16px', boxShadow: '0 2px 8px rgba(108,99,255,0.07)', border: '1px solid #e8eaf0' }}
-      >
-        <div
-          className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4"
-          style={{ background: '#ede9ff', color: '#6c63ff' }}
-        >
-          {user?.email?.[0]?.toUpperCase()}
-        </div>
-        <p className="text-sm font-medium mb-1" style={{ color: '#1a1a2e' }}>{user?.email}</p>
-        <p className="text-xs mb-6" style={{ color: '#9b9fad' }}>
-          Authentication successful · Phase 5 coming soon
-        </p>
-        <button
-          onClick={handleLogout}
-          className="text-xs px-4 py-2"
-          style={{
-            border: '1px solid #e8eaf0',
-            borderRadius: '8px',
-            color: '#9b9fad',
-            background: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          Sign out
-        </button>
+    <div style={{
+      display: 'flex', height: '100vh', overflow: 'hidden',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      background: '#f0f2f8',
+    }}>
+      <Sidebar />
+
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        marginLeft: '220px', marginRight: '280px',
+      }}>
+        <TopBar
+          onDownload={() => {/* Phase 6 */}}
+          onApproval={() => {/* Phase 6 */}}
+        />
+        {activeInstanceId ? (
+          <EntityCanvas instanceId={activeInstanceId} />
+        ) : (
+          <div style={{
+            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#9b9fad', fontSize: '14px',
+          }}>
+            Loading instance…
+          </div>
+        )}
       </div>
+
+      <RightPanel instanceId={activeInstanceId} />
     </div>
   );
 }
