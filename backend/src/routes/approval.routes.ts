@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import { requireGeckoAdmin } from '../middleware/admin.middleware';
 import * as svc from '../services/approval.service';
 
 export const approvalRouter = Router({ mergeParams: true });
@@ -22,11 +23,11 @@ approvalRouter.get('/history', requireAuth, requireInstanceOwnership, async (req
   res.json({ data: await svc.getApprovalHistory(req.instance!.id) });
 });
 
-approvalRouter.get('/admin/pending', requireAuth, async (req, res) => {
+approvalRouter.get('/admin/pending', requireAuth, requireGeckoAdmin, async (req, res) => {
   res.json({ data: await svc.getPendingApprovals() });
 });
 
-approvalRouter.post('/admin/:rid/approve', requireAuth, async (req, res) => {
+approvalRouter.post('/admin/:rid/approve', requireAuth, requireGeckoAdmin, async (req, res) => {
   try {
     const result = await svc.approveRequest(req.params.rid, req.user!.email, req.ip || 'unknown');
     res.json({ data: result });
@@ -35,7 +36,7 @@ approvalRouter.post('/admin/:rid/approve', requireAuth, async (req, res) => {
   }
 });
 
-approvalRouter.post('/admin/:rid/reject', requireAuth, async (req, res) => {
+approvalRouter.post('/admin/:rid/reject', requireAuth, requireGeckoAdmin, async (req, res) => {
   try {
     const result = await svc.rejectRequest(req.params.rid, req.user!.email, req.body.comment || '', req.ip || 'unknown');
     res.json({ data: result });
