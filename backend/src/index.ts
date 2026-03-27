@@ -1,7 +1,6 @@
 /**
  * index.ts – Express App Bootstrap
  * Starts the server, registers middleware and all routes
- * Depends on: dotenv, express, helmet, cors, cookie-parser, db/connection, services/redis.service
  */
 import 'dotenv/config';
 import express from 'express';
@@ -10,6 +9,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/auth.routes';
 import { instancesRouter } from './routes/instances.routes';
+import { organizationRouter } from './routes/organization.routes';
+import { contactsRouter } from './routes/contacts.routes';
+import { endpointsRouter } from './routes/endpoints.routes';
+import { certificatesRouter } from './routes/certificates.routes';
+import { membershipsRouter } from './routes/memberships.routes';
+import { approvalRouter } from './routes/approval.routes';
+import { downloadRouter } from './routes/download.routes';
+import { auditRouter } from './routes/audit.routes';
 import { testDbConnection } from './db/connection';
 import { testRedisConnection } from './services/redis.service';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
@@ -49,6 +56,22 @@ app.use('/api', apiRateLimit);
 // Routes
 app.use('/auth', authRouter);
 app.use('/api/v1/instances', instancesRouter);
+
+// Entity routes under /api/v1/instances/:instanceId/
+app.use('/api/v1/instances/:instanceId/organization', organizationRouter);
+app.use('/api/v1/instances/:instanceId/contacts', contactsRouter);
+app.use('/api/v1/instances/:instanceId/endpoints', endpointsRouter);
+app.use('/api/v1/instances/:instanceId/certificates', certificatesRouter);
+app.use('/api/v1/instances/:instanceId/memberships', membershipsRouter);
+app.use('/api/v1/instances/:instanceId/approval', approvalRouter);
+app.use('/api/v1/instances/:instanceId/download', downloadRouter);
+app.use('/api/v1/instances/:instanceId/audit', auditRouter);
+
+// Download without instance scope (IP address list for all orgs)
+app.use('/api/v1/download', downloadRouter);
+
+// Admin (GECKO operator)
+app.use('/api/v1/admin', approvalRouter);
 
 // Health Check
 app.get('/health', (_req, res) => {
