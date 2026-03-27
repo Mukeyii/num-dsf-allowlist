@@ -5,6 +5,18 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: '#f7f9ff',
+        surface: '#f7f9ff',
+        'surface-container-low': '#f1f3f9',
+        'surface-container-lowest': '#ffffff',
+        'on-surface': '#181c20',
+        'on-surface-variant': '#464555',
+        'outline-variant': '#c7c4d8',
+        primary: '#4d41df',
+        'primary-container': '#675df9',
+        secondary: '#006b5a',
+        tertiary: '#805200',
+        error: '#ba1a1a',
         brand: {
           50:  '#ede9ff',
           100: '#d4ccff',
@@ -13,7 +25,7 @@ export default {
           700: '#5a52d5',
           900: '#2d2880',
         },
-        surface: '#f0f2f8',
+        canvas: '#f0f2f8',
         card:    '#ffffff',
         border:  '#e8eaf0',
         muted:   '#9b9fad',
@@ -30,6 +42,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
     },
   },
