@@ -29,7 +29,7 @@ export function OrganizationCard({ instanceId }: Props) {
 
   if (!org) return (
     <EntityCard id="organization" title="Organization" borderColor="#4d41df" icon="corporate_fare"
-      onAdd={() => {}} addLabel="Set up">
+      onAdd={() => useModals.getState().openModal('org-edit')} addLabel="Set up">
       <div style={{ color: '#9b9fad', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>
         No organization yet.<br />Click "Set up" to begin.
       </div>
