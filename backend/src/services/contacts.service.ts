@@ -69,3 +69,23 @@ export async function deleteContact(instanceId: string, contactId: string, userE
   await db('contacts').where({ id: contactId }).delete();
   await writeAuditLog({ userEmail, instanceId, resourceType: 'CONTACT', resourceId: contactId, operation: 'DELETE', ipAddress });
 }
+
+export async function resendVerification(
+  instanceId: string,
+  contactId: string,
+  userEmail: string,
+  ipAddress: string
+): Promise<void> {
+  const org = await db('organizations').where({ instance_id: instanceId }).first();
+  if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
+  const contact = await db('contacts').where({ id: contactId, organization_id: org.identifier }).first();
+  if (!contact) throw new Error('CONTACT_NOT_FOUND');
+  if (contact.email_validated) throw new Error('ALREADY_VALIDATED');
+
+  // In production, this would send a real verification email.
+  // For now, log the action.
+  await writeAuditLog({
+    userEmail, instanceId, resourceType: 'CONTACT',
+    resourceId: contactId, operation: 'UPDATE', ipAddress,
+  });
+}
