@@ -73,6 +73,15 @@ function api(instanceId: string) {
       axios.get(`${BASE}/api/v1/download/ip-address-list`, {
         headers: authHeader(), responseType: 'blob',
       }),
+
+    getAuditLog: (params: string) =>
+      axios.get(`${base}/audit?${params}`, { headers: authHeader() }),
+
+    getExpiringCerts: () =>
+      axios.get(`${base}/certificates/expiring`, { headers: authHeader() }),
+
+    resendVerification: (contactId: string) =>
+      axios.post(`${base}/contacts/${contactId}/resend-verification`, {}, { headers: authHeader() }),
   };
 }
 
