@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useInstances }   from '../../hooks/useInstance';
+import { InstanceCreateModal } from '../modals/InstanceCreateModal';
 
 const NAV_ITEMS = [
   { id: 'organization', label: 'Organization', icon: 'corporate_fare' },
@@ -21,6 +22,7 @@ export function Sidebar() {
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const [activeNav, setActiveNav] = useState<string>('organization');
+  const [showCreate, setShowCreate] = useState(false);
 
   const initials = (user?.email || 'KY').slice(0, 2).toUpperCase();
 
@@ -65,6 +67,11 @@ export function Sidebar() {
 
       {/* User Identity + Instance Settings */}
       <div className="px-3 mt-auto">
+        <button onClick={() => setShowCreate(true)}
+          className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors mb-2 px-4">
+          + New instance
+        </button>
+        <InstanceCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
         {/* Instance-Switcher */}
         <div className="px-4 mb-2">
           <select
