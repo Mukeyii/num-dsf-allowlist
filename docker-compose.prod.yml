@@ -2,21 +2,37 @@ version: '3.9'
 
 services:
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.prod
     ports:
+      - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - backend
+      - frontend
     restart: always
+    networks:
+      - frontend-net
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
   frontend:
     build:
       context: ./frontend
       target: prod
     restart: always
+    networks:
+      - frontend-net
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
   backend:
     build:
@@ -27,6 +43,13 @@ services:
       - db
       - redis
     restart: always
+    networks:
+      - frontend-net
+      - backend-net
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   db:
     image: mysql:8.0
@@ -39,6 +62,12 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     restart: always
+    networks:
+      - backend-net
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   redis:
     image: redis:7-alpine
@@ -46,7 +75,18 @@ services:
     volumes:
       - redis-data:/data
     restart: always
+    networks:
+      - backend-net
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
 volumes:
   mysql-data:
   redis-data:
+
+networks:
+  frontend-net:
+  backend-net:
+    internal: true
