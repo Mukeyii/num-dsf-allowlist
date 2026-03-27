@@ -3,6 +3,8 @@ import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useOrganization } from '../../hooks/useOrganization';
 import { useModals }       from '../../hooks/useModals';
+import { api } from '../../api/entities.api';
+import { toast } from 'sonner';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
   MEDIC:     { bg: '#ede9ff', color: '#4a42cc' },
@@ -63,6 +65,20 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               <div style={{ fontSize: '11px', color: c.email_validated ? '#4caf8a' : '#f5a623' }}>
                 {c.email_validated ? '✓ validated' : '⚠ not validated'}
               </div>
+              {!c.email_validated && (
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    try {
+                      await api(instanceId).resendVerification(c.id);
+                      toast.success('Verification email sent.');
+                    } catch { toast.error('Failed to send verification email.'); }
+                  }}
+                  className="text-[9px] text-primary underline hover:no-underline mt-0.5 block"
+                >
+                  Resend verification
+                </button>
+              )}
             </div>
           </div>
         ))}
