@@ -47,3 +47,5 @@ dist/bundle-report.html
 coverage/
 .nyc_output/
 MASTERPROMPT*.md
+.claude/settings.local.json
+.claude/settings.local.json
