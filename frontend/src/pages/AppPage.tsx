@@ -13,6 +13,7 @@ import { CertificateModal } from '../components/modals/CertificateModal';
 import { MembershipModal } from '../components/modals/MembershipModal';
 import { ApprovalModal } from '../components/modals/ApprovalModal';
 import { DownloadModal } from '../components/modals/DownloadModal';
+import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -37,6 +38,7 @@ export function AppPage() {
           onDownload={() => openModal('download')}
           onApproval={() => openModal('approval')}
         />
+        <ExpiryWarningBanner />
         {activeInstanceId ? (
           <EntityCanvas instanceId={activeInstanceId} />
         ) : (
