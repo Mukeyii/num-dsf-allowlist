@@ -15,6 +15,7 @@ import { endpointsRouter } from './routes/endpoints.routes';
 import { certificatesRouter } from './routes/certificates.routes';
 import { membershipsRouter } from './routes/memberships.routes';
 import { approvalRouter } from './routes/approval.routes';
+import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
 import { auditRouter } from './routes/audit.routes';
 import { testDbConnection } from './db/connection';
@@ -31,9 +32,17 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
     },
   },
-  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  hsts: { maxAge: 63072000, includeSubDomains: true, preload: true },
+  frameguard: { action: 'deny' },
+  noSniff: true,
+  xssFilter: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'same-origin' },
 }));
 
 app.use(cors({
@@ -43,8 +52,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(cookieParser());
 
 // Trust nginx proxy
@@ -70,8 +79,9 @@ app.use('/api/v1/instances/:instanceId/audit', auditRouter);
 // Download without instance scope (IP address list for all orgs)
 app.use('/api/v1/download', downloadRouter);
 
-// Admin (GECKO operator)
-app.use('/api/v1/admin', approvalRouter);
+// Admin routes
+app.use('/api/v1/admin/approval', approvalRouter);
+app.use('/api/v1/admin', adminRouter);
 
 // Health Check
 app.get('/health', (_req, res) => {
