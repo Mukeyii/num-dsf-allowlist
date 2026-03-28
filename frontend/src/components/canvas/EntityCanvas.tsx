@@ -3,6 +3,7 @@
  */
 import { useRef } from 'react';
 import { RelationLines }    from './RelationLines';
+import { OnboardingWizard } from './OnboardingWizard';
 import { OrganizationCard } from '../cards/OrganizationCard';
 import { ContactsCard }     from '../cards/ContactsCard';
 import { EndpointsCard }    from '../cards/EndpointsCard';
@@ -31,6 +32,7 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
       style={{ position: 'relative', padding: '20px', flex: 1, overflowY: 'auto' }}
     >
       <RelationLines cardRefs={refs} containerRef={containerRef} />
+      <OnboardingWizard instanceId={instanceId} />
       <div
         style={{
           display: 'grid',
