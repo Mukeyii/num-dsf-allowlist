@@ -21,25 +21,25 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {isLoading && <div style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</div>}
+        {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</div>}
         {endpoints.map((ep: any) => (
           <div key={ep.identifier} style={{
-            background: '#f8f9fc', border: '1px solid #e8eaf0',
+            background: 'var(--bg-hover)', border: '1px solid var(--border)',
             borderRadius: '10px', padding: '10px 12px',
             transition: 'border-color 0.15s',
             display: 'flex', alignItems: 'flex-start', gap: '10px',
           }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = '#6c63ff44')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#e8eaf0')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a2e', marginBottom: '2px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
                 {ep.name || ep.identifier}
               </div>
-              <div className="mono-id" style={{ fontSize: '11px', color: '#9b9fad', marginBottom: '4px' }}>
+              <div className="mono-id" style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
                 {ep.identifier}
               </div>
-              <div style={{ fontSize: '11px', color: '#9b9fad', marginBottom: '6px',
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {ep.address}
               </div>
@@ -47,7 +47,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
                 {(ep.ipAddresses || []).map((ip: any) => (
                   <span key={ip.id} style={{
                     fontSize: '10px', padding: '1px 6px', borderRadius: '99px',
-                    background: '#f0f2f8', color: '#9b9fad',
+                    background: 'var(--bg-page)', color: 'var(--text-muted)',
                     display: 'flex', alignItems: 'center', gap: '3px',
                   }}>
                     {ip.ip}
@@ -86,7 +86,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
           </div>
         ))}
         {!isLoading && endpoints.length === 0 && (
-          <div style={{ color: '#9b9fad', fontSize: '12px', textAlign: 'center', padding: '12px 0' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '12px 0' }}>
             No endpoints yet.
           </div>
         )}

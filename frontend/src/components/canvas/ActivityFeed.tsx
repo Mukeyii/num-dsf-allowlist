@@ -14,7 +14,7 @@ const OP_STYLES: Record<string, { icon: string; color: string }> = {
   APPROVE: { icon: 'check_circle', color: '#22c55e' },
   REJECT: { icon: 'cancel', color: '#ef4444' },
   LOGIN: { icon: 'login', color: '#4a90d9' },
-  DEFAULT: { icon: 'info', color: '#9b9fad' },
+  DEFAULT: { icon: 'info', color: 'var(--text-muted)' },
 };
 
 function relTime(dateStr: string): string {
@@ -58,15 +58,15 @@ export function ActivityFeed() {
       {expanded && (
         <div style={{
           width: '280px', marginBottom: '8px',
-          background: '#fff', borderRadius: '12px', border: '1px solid #e8eaf0',
+          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
           boxShadow: '0 4px 16px rgba(0,0,0,0.08)', overflow: 'hidden',
         }}>
           <div style={{
-            padding: '10px 14px', borderBottom: '1px solid #f0f2f8',
+            padding: '10px 14px', borderBottom: '1px solid var(--bg-page)',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#1a1a2e' }}>Recent Activity</span>
-            <span style={{ fontSize: '10px', color: '#9b9fad' }}>{entries.length} entries</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>Recent Activity</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{entries.length} entries</span>
           </div>
           <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
             {entries.map((log) => {
@@ -74,7 +74,7 @@ export function ActivityFeed() {
               return (
                 <div key={log.id} style={{
                   display: 'flex', gap: '8px', padding: '8px 14px',
-                  borderBottom: '1px solid #f8f9fc',
+                  borderBottom: '1px solid var(--bg-hover)',
                 }}>
                   <span
                     className="material-symbols-outlined"
@@ -83,16 +83,16 @@ export function ActivityFeed() {
                     {style.icon}
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '10px', color: '#1a1a2e' }}>
+                    <p style={{ margin: 0, fontSize: '10px', color: 'var(--text-primary)' }}>
                       <strong>{log.operation}</strong> {log.resource_type}
                     </p>
-                    <p style={{ margin: 0, fontSize: '9px', color: '#9b9fad' }}>{relTime(log.timestamp)}</p>
+                    <p style={{ margin: 0, fontSize: '9px', color: 'var(--text-muted)' }}>{relTime(log.timestamp)}</p>
                   </div>
                 </div>
               );
             })}
             {entries.length === 0 && (
-              <p style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: '#9b9fad', margin: 0 }}>
+              <p style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
                 No activity yet.
               </p>
             )}

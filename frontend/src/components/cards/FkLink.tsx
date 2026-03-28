@@ -21,9 +21,9 @@ export function FkLink({ label, targetEntity, value }: FkLinkProps) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '4px 0', borderBottom: '1px solid #f0f2f8', fontSize: '12px',
+      padding: '4px 0', borderBottom: '1px solid var(--bg-page)', fontSize: '12px',
     }}>
-      <span style={{ color: '#9b9fad' }}>{label}</span>
+      <span style={{ color: 'var(--text-muted)' }}>{label}</span>
       <span
         onClick={handleClick}
         style={{
