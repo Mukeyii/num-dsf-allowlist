@@ -9,7 +9,7 @@ const config: Config = {
   testEnvironment: 'node',
   rootDir: './src',
   testMatch: ['**/__tests__/**/*.test.ts'],
-  setupFilesAfterSetup: ['./__tests__/setup.ts'],
+  setupFilesAfterEnv: ['./__tests__/setup.ts'],
   testTimeout: 15000,
   verbose: true,
   forceExit: true,
