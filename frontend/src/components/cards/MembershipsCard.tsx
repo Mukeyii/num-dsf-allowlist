@@ -27,7 +27,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {isLoading && <p style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</p>}
+        {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</p>}
         {memberships.map((ms: any) => {
           const roles = parseJsonArray(ms.roles);
           return (
@@ -76,7 +76,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
           );
         })}
         {!isLoading && memberships.length === 0 && (
-          <p style={{ color: '#9b9fad', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>No memberships yet.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>No memberships yet.</p>
         )}
       </div>
     </EntityCard>

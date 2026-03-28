@@ -22,7 +22,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
     >
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>{currentInstance?.label || 'Instance'}</span>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>{currentInstance?.label || 'Instance'}</span>
           {status?.status === 'PENDING' && (
             <span style={{ padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }}>
               1 Pending
@@ -53,7 +53,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
               }} />
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: '12px', fontWeight: 700 }}>Request #{history.length - i}</p>
-                <p style={{ fontSize: '10px', color: '#64748b' }}>
+                <p style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
                   {Math.floor((Date.now() - new Date(req.submitted_at || req.created_at).getTime()) / 86400000)}d ago
                 </p>
               </div>
@@ -66,7 +66,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
             </div>
           ))}
           {history.length === 0 && (
-            <p style={{ color: '#9b9fad', fontSize: '12px' }}>No history yet.</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>No history yet.</p>
           )}
         </div>
       </div>

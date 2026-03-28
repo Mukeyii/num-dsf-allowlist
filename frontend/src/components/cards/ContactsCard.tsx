@@ -29,18 +29,18 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {isLoading && <div style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</div>}
+        {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</div>}
         {contacts.map((c: any) => (
           <div
             key={c.id}
             style={{
-              background: '#f8f9fc', border: '1px solid #e8eaf0',
+              background: 'var(--bg-hover)', border: '1px solid var(--border)',
               borderRadius: '10px', padding: '10px 12px',
               cursor: 'pointer', transition: 'border-color 0.15s',
               display: 'flex', alignItems: 'flex-start', gap: '10px',
             }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = '#6c63ff44')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#e8eaf0')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >
             <div style={{
               width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
@@ -51,15 +51,15 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               {(c.name || c.email)?.[0]?.toUpperCase()}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a2e', marginBottom: '4px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
                 {c.name || '—'}
               </div>
               <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '4px' }}>
                 {parseJsonArray(c.types).map((t: string) => (
                   <span key={t} style={{
                     fontSize: '10px', padding: '1px 6px', borderRadius: '99px',
-                    background: TYPE_COLORS[t]?.bg || '#f0f2f8',
-                    color:      TYPE_COLORS[t]?.color || '#9b9fad',
+                    background: TYPE_COLORS[t]?.bg || 'var(--bg-page)',
+                    color:      TYPE_COLORS[t]?.color || 'var(--text-muted)',
                     fontWeight: 500,
                   }}>{t}</span>
                 ))}
@@ -111,7 +111,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
           </div>
         ))}
         {!isLoading && contacts.length === 0 && (
-          <div style={{ color: '#9b9fad', fontSize: '12px', textAlign: 'center', padding: '12px 0' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '12px 0' }}>
             No contacts yet.
           </div>
         )}
