@@ -42,6 +42,9 @@ coverage/
 # === Claude Code (machine-specific) ===
 .claude/settings.local.json
 
+# === Sensitive data exports (NEVER commit) ===
+scripts/*.json
+
 # === Internal docs (not part of the product) ===
 docs/superpowers/
 docs/stitch/
