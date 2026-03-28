@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -36,4 +37,10 @@ export default defineConfig({
     },
   },
   preview: { port: 4173, host: '0.0.0.0' },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/__tests__/setup.ts'],
+    include: ['src/__tests__/**/*.test.{ts,tsx}'],
+  },
 });
