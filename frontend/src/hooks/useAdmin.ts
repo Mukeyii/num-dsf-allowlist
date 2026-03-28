@@ -17,7 +17,8 @@ export function usePendingApprovals() {
 export function useApproveRequest() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (requestId: string) => adminApi.approveRequest(requestId),
+    mutationFn: ({ requestId, totpCode }: { requestId: string; totpCode: string }) =>
+      adminApi.approveRequest(requestId, totpCode),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'pending-approvals'] }),
   });
 }
@@ -25,8 +26,8 @@ export function useApproveRequest() {
 export function useRejectRequest() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ requestId, comment }: { requestId: string; comment: string }) =>
-      adminApi.rejectRequest(requestId, comment),
+    mutationFn: ({ requestId, comment, totpCode }: { requestId: string; comment: string; totpCode: string }) =>
+      adminApi.rejectRequest(requestId, comment, totpCode),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'pending-approvals'] }),
   });
 }

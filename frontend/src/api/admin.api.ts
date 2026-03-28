@@ -16,9 +16,9 @@ export const adminApi = {
   getPendingApprovals: () =>
     axios.get(`${BASE}/admin/approval/admin/pending`, { headers: authHeader() }),
 
-  approveRequest: (requestId: string) =>
-    axios.post(`${BASE}/admin/approval/admin/${requestId}/approve`, {}, { headers: authHeader() }),
+  approveRequest: (requestId: string, totpCode: string) =>
+    axios.post(`${BASE}/admin/approval/admin/${requestId}/approve`, { totpCode }, { headers: authHeader() }),
 
-  rejectRequest: (requestId: string, comment: string) =>
-    axios.post(`${BASE}/admin/approval/admin/${requestId}/reject`, { comment }, { headers: authHeader() }),
+  rejectRequest: (requestId: string, comment: string, totpCode: string) =>
+    axios.post(`${BASE}/admin/approval/admin/${requestId}/reject`, { comment, totpCode }, { headers: authHeader() }),
 };
