@@ -4,7 +4,6 @@
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { useMemberships }   from '../../hooks/useMemberships';
 import { useCertificates }  from '../../hooks/useCertificates';
-import { useModals }        from '../../hooks/useModals';
 
 function relativeTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
@@ -103,13 +102,6 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
         </div>
       </div>
 
-      <button
-        className="w-full py-3 px-6 rounded-xl text-white font-bold text-sm"
-        style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
-        onClick={() => useModals.getState().openModal('approval')}
-      >
-        Send for Approval
-      </button>
     </aside>
   );
 }
