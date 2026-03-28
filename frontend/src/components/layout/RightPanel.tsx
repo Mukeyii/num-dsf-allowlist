@@ -5,6 +5,7 @@ import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { useMemberships }   from '../../hooks/useMemberships';
 import { useCertificates }  from '../../hooks/useCertificates';
 import { ExpiryTimeline }   from './ExpiryTimeline';
+import { useI18n }          from '../../stores/i18n.store';
 
 function relativeTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
@@ -14,6 +15,7 @@ function relativeTime(dateStr: string): string {
 }
 
 export function RightPanel({ instanceId }: { instanceId: string | null }) {
+  const { t } = useI18n();
   const { data: approval }          = useApprovalStatus(instanceId);
   const { data: history = [] }      = useApprovalHistory(instanceId);
   const { data: memberships = [] }  = useMemberships(instanceId);
@@ -22,8 +24,8 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
   return (
     <aside className="w-[280px] h-screen fixed right-0 top-0 flex flex-col p-6 gap-6 z-50" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
       <div>
-        <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Approval Status</h2>
-        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Operational Overview</p>
+        <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>{t('approvalStatus')}</h2>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('overview')}</p>
       </div>
 
       <div className="space-y-4">
@@ -34,17 +36,17 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
             </span>
             {approval?.status === 'PENDING' && (
               <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold">
-                1 PENDING
+                1 {t('pending').toUpperCase()}
               </span>
             )}
             {approval?.status === 'APPROVED' && (
               <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                APPROVED
+                {t('approved').toUpperCase()}
               </span>
             )}
             {!approval && (
               <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
-                NO REQUEST
+                {t('noRequest').toUpperCase()}
               </span>
             )}
           </div>
@@ -57,22 +59,22 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
       </div>
 
       <div className="space-y-2">
-        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Overview</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{t('overview')}</p>
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl text-center" style={{ background: 'var(--bg-hover)' }}>
             <p className="text-lg font-bold text-primary">{certificates.length}</p>
-            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Certificates</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{t('certificates')}</p>
           </div>
           <div className="p-3 rounded-xl text-center" style={{ background: 'var(--bg-hover)' }}>
             <p className="text-lg font-bold text-secondary">{memberships.length}</p>
-            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Members</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{t('memberships')}</p>
           </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
-          Recent Activity
+          {t('recentActivity')}
         </p>
         <div className="space-y-3">
           {history.slice(0, 5).map((req: any) => (
@@ -98,7 +100,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
             </div>
           ))}
           {history.length === 0 && (
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No requests yet.</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('noData')}</p>
           )}
         </div>
       </div>

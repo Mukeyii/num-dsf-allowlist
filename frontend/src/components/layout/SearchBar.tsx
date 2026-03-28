@@ -9,6 +9,7 @@ import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
 import { useOrganization } from '../../hooks/useOrganization';
 import { useCanvasStore } from '../../stores/canvas.store';
+import { useI18n } from '../../stores/i18n.store';
 
 interface SearchResult {
   type: 'organization' | 'contact' | 'endpoint' | 'certificate' | 'membership';
@@ -26,6 +27,7 @@ const TYPE_ICONS: Record<string, { icon: string; color: string }> = {
 };
 
 export function SearchBar() {
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -114,7 +116,7 @@ export function SearchBar() {
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          placeholder="Search entities… (Ctrl+K)"
+          placeholder={`${t('searchEntities')} (Ctrl+K)`}
           style={{
             border: 'none', outline: 'none', background: 'transparent',
             fontSize: '12px', color: 'var(--text-primary)', width: '100%',
