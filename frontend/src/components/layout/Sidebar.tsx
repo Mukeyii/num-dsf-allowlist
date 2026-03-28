@@ -21,6 +21,18 @@ export function Sidebar() {
   const { dark, toggleTheme } = useThemeStore();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
+  const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('dsf-pinned-instances') || '[]'); }
+    catch { return []; }
+  });
+
+  function togglePin(id: string) {
+    setPinnedIds(prev => {
+      const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+      localStorage.setItem('dsf-pinned-instances', JSON.stringify(next));
+      return next;
+    });
+  }
 
   const initials = (user?.email || '??').slice(0, 2).toUpperCase();
   const activeLabel = instances.find((i: any) => i.id === activeInstanceId)?.label || 'No instance selected';
@@ -54,24 +66,67 @@ export function Sidebar() {
 
       {/* Instance Switcher */}
       <div className="px-3 mb-2">
-        <button
-          onClick={() => setShowCreate(true)}
-          className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors mb-2 px-4"
-        >
-          + New instance
-        </button>
         <InstanceCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
-        <div className="px-4">
-          <select
-            value={activeInstanceId || ''}
-            onChange={e => setActiveInstance(e.target.value)}
-            className="w-full text-xs text-slate-600 bg-slate-50 border border-slate-100
-                       rounded-lg px-2 py-1.5 outline-none focus:border-indigo-300"
-          >
-            {instances.map((inst: any) => (
-              <option key={inst.id} value={inst.id}>{inst.label}</option>
-            ))}
-          </select>
+
+        {/* Instance List with pin support */}
+        <div style={{ padding: '0 4px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', padding: '0 4px' }}>
+            <label style={{ fontSize: '9px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Instances
+            </label>
+            <button
+              onClick={() => setShowCreate(true)}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '11px', fontWeight: 600, color: '#6c63ff', padding: '0' }}
+            >
+              + New
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', maxHeight: '200px', overflowY: 'auto' }}>
+            {[...instances].sort((a: any, b: any) => {
+              const aPinned = pinnedIds.includes(a.id);
+              const bPinned = pinnedIds.includes(b.id);
+              if (aPinned && !bPinned) return -1;
+              if (!aPinned && bPinned) return 1;
+              return 0;
+            }).map((inst: any) => {
+              const isPinned = pinnedIds.includes(inst.id);
+              const isActive = inst.id === activeInstanceId;
+              return (
+                <div
+                  key={inst.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    padding: '6px 8px', borderRadius: '8px', cursor: 'pointer',
+                    background: isActive ? '#ede9ff' : 'transparent',
+                    transition: 'background 0.1s',
+                  }}
+                  onClick={() => setActiveInstance(inst.id)}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#f8f9fc'; }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {isPinned && (
+                    <span className="material-symbols-outlined" style={{ fontSize: '12px', color: '#f5a623', flexShrink: 0 }}>push_pin</span>
+                  )}
+                  <span style={{
+                    flex: 1, fontSize: '11px', fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#6c63ff' : '#1a1a2e',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {inst.label}
+                  </span>
+                  <button
+                    onClick={e => { e.stopPropagation(); togglePin(inst.id); }}
+                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', display: 'flex', flexShrink: 0 }}
+                    title={isPinned ? 'Unpin' : 'Pin to top'}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: isPinned ? '#f5a623' : '#d4d8e8' }}>
+                      push_pin
+                    </span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
