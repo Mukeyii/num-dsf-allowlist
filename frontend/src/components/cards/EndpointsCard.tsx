@@ -6,6 +6,7 @@ import { FkLink }          from './FkLink';
 import { useModals }       from '../../hooks/useModals';
 import { toast } from 'sonner';
 import { IpDiffBadge } from './IpDiffBadge';
+import { useI18n } from '../../stores/i18n.store';
 
 function HealthDot({ url }: { url: string }) {
   const [status, setStatus] = useState<'checking' | 'up' | 'down'>('checking');
@@ -38,6 +39,7 @@ function HealthDot({ url }: { url: string }) {
 }
 
 export function EndpointsCard({ instanceId }: { instanceId: string }) {
+  const { t } = useI18n();
   const { data: endpoints = [], isLoading } = useEndpoints(instanceId);
   const { data: org } = useOrganization(instanceId);
   const deleteMut = useDeleteEndpoint(instanceId);
@@ -45,7 +47,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
   return (
     <EntityCard
       id="endpoints"
-      title="Endpoints"
+      title={t('endpoints')}
       borderColor="#3ecfb2"
       icon="hub"
       onAdd={() => useModals.getState().openModal('endpoint-add')}
@@ -53,7 +55,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</div>}
+        {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>}
         {endpoints.map((ep: any) => (
           <div key={ep.identifier} style={{
             background: 'var(--bg-hover)', border: '1px solid var(--border)',
@@ -122,7 +124,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
         ))}
         {!isLoading && endpoints.length === 0 && (
           <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '12px 0' }}>
-            No endpoints yet.
+            {t('noData')}
           </div>
         )}
       </div>

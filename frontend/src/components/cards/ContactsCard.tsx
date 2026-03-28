@@ -6,6 +6,7 @@ import { useModals }       from '../../hooks/useModals';
 import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { api } from '../../api/entities.api';
 import { toast } from 'sonner';
+import { useI18n } from '../../stores/i18n.store';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
   MEDIC:     { bg: '#ede9ff', color: '#4a42cc' },
@@ -14,6 +15,7 @@ const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 export function ContactsCard({ instanceId }: { instanceId: string }) {
+  const { t } = useI18n();
   const { data: contacts = [], isLoading } = useContacts(instanceId);
   const { data: org } = useOrganization(instanceId);
   const deleteMut = useDeleteContact(instanceId);
@@ -21,7 +23,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
   return (
     <EntityCard
       id="contacts"
-      title="Contacts"
+      title={t('contacts')}
       borderColor="#9b59b6"
       icon="contact_phone"
       onAdd={() => useModals.getState().openModal('contact-add')}
@@ -29,7 +31,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</div>}
+        {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>}
         {contacts.map((c: any) => (
           <div
             key={c.id}
@@ -112,7 +114,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
         ))}
         {!isLoading && contacts.length === 0 && (
           <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '12px 0' }}>
-            No contacts yet.
+            {t('noData')}
           </div>
         )}
       </div>

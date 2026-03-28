@@ -6,8 +6,10 @@ import { FkLink }           from './FkLink';
 import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
 import { toast } from 'sonner';
+import { useI18n } from '../../stores/i18n.store';
 
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
+  const { t } = useI18n();
   const { data: memberships = [], isLoading } = useMemberships(instanceId);
   const { data: org }       = useOrganization(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
@@ -16,7 +18,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
   return (
     <EntityCard
       id="memberships"
-      title="Memberships"
+      title={t('memberships')}
       borderColor="#4a90d9"
       icon="groups"
       onAdd={() => useModals.getState().openModal('membership-add')}
@@ -27,7 +29,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</p>}
+        {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</p>}
         {memberships.map((ms: any) => {
           const roles = parseJsonArray(ms.roles);
           return (
@@ -76,7 +78,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
           );
         })}
         {!isLoading && memberships.length === 0 && (
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>No memberships yet.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>{t('noData')}</p>
         )}
       </div>
     </EntityCard>

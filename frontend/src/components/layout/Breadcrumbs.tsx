@@ -3,14 +3,15 @@
  * Dependencies: react-router-dom
  */
 import { Link, useLocation } from 'react-router-dom';
-
-const ROUTE_LABELS: Record<string, string> = {
-  app: 'Dashboard',
-  admin: 'Approval Review',
-  audit: 'Audit Log',
-};
+import { useI18n } from '../../stores/i18n.store';
 
 export function Breadcrumbs() {
+  const { t } = useI18n();
+  const ROUTE_LABELS: Record<string, string> = {
+    app: 'Dashboard',
+    admin: t('approvalReview'),
+    audit: t('auditLog'),
+  };
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);
 
