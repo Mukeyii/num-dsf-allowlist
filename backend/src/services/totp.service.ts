@@ -38,7 +38,7 @@ function decryptSecret(ciphertext: string): string {
 export async function generateTotpSetup(email: string): Promise<{ qrCodeUrl: string; secret: string }> {
   const secret = speakeasy.generateSecret({
     name: `DSF Allow List (${email})`,
-    issuer: 'GECKO-HS-Heilbronn',
+    issuer: 'IMI-Uni-Muenster',
     length: 32,
   });
 
