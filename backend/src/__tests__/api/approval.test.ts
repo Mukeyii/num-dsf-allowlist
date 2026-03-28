@@ -16,7 +16,7 @@ describe('Approval API', () => {
     await seedAdminUser();
     await seedOrganization();
     userToken = getTestToken(email);
-    adminToken = getTestToken(TEST_ADMIN_EMAIL);
+    adminToken = getTestToken(TEST_ADMIN_EMAIL, '00000000-0000-0000-0000-000000000002');
     process.env.IMI_ADMIN_EMAILS = TEST_ADMIN_EMAIL;
   });
 
