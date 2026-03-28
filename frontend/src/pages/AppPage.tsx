@@ -31,7 +31,7 @@ export function AppPage() {
     <div style={{
       display: 'flex', height: '100vh', overflow: 'hidden',
       fontFamily: 'Inter, system-ui, sans-serif',
-      background: '#f0f2f8',
+      background: 'var(--bg-page)',
     }}>
       <Sidebar />
 
@@ -51,7 +51,7 @@ export function AppPage() {
           ) : (
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#9b9fad', fontSize: '14px',
+              color: 'var(--text-muted)', fontSize: '14px',
             }}>
               Loading instance…
             </div>

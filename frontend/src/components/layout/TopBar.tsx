@@ -12,7 +12,7 @@ export function TopBar({ onDownload, onApproval }: {
   onApproval: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-100 flex-shrink-0 z-40">
+    <div className="flex items-center justify-between px-6 py-3 flex-shrink-0 z-40" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3">
         <button className="text-slate-400 hover:text-slate-600 transition-colors">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
