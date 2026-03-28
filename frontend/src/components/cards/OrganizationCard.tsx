@@ -1,8 +1,13 @@
-import { useOrganization }   from '../../hooks/useOrganization';
+// OrganizationCard – displays org summary with inline-editable name & email
+// Dependencies: useOrganization, useContacts, useApprovalStatus, EntityCard, useModals
+
+import { useState, useRef, useEffect } from 'react';
+import { useOrganization, useUpdateOrganization } from '../../hooks/useOrganization';
 import { useContacts }       from '../../hooks/useContacts';
 import { useApprovalStatus } from '../../hooks/useApproval';
 import { EntityCard }        from './EntityCard';
 import { useModals }         from '../../hooks/useModals';
+import { toast }             from 'sonner';
 
 interface Props {
   instanceId: string;
@@ -12,6 +17,31 @@ export function OrganizationCard({ instanceId }: Props) {
   const { data: org, isLoading }   = useOrganization(instanceId);
   const { data: contacts = [] }    = useContacts(instanceId);
   const { data: approval }         = useApprovalStatus(instanceId);
+
+  const updateMut = useUpdateOrganization(instanceId);
+  const [editing, setEditing]     = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) inputRef.current.focus();
+  }, [editing]);
+
+  async function saveInline(field: string) {
+    if (!org || !editValue.trim()) { setEditing(null); return; }
+    try {
+      await updateMut.mutateAsync({
+        identifier: org.identifier,
+        name:  field === 'name'  ? editValue : org.name,
+        email: field === 'email' ? editValue : org.email,
+        active: org.active,
+      });
+      toast.success('Updated.');
+    } catch {
+      toast.error('Failed to update.');
+    }
+    setEditing(null);
+  }
 
   const approvalStatus = (approval?.status ?? 'none') as 'APPROVED' | 'PENDING' | 'REJECTED' | 'none';
   const statusMap = {
@@ -36,6 +66,12 @@ export function OrganizationCard({ instanceId }: Props) {
       </div>
     </EntityCard>
   );
+
+  // Shared row style
+  const rowStyle: React.CSSProperties = {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '4px 0', borderBottom: '1px solid #f0f2f8', fontSize: '12px',
+  };
 
   return (
     <EntityCard
@@ -66,17 +102,13 @@ export function OrganizationCard({ instanceId }: Props) {
         </div>
       )}
 
+      {/* Static fields: Identifier, City, Address */}
       {[
         { label: 'Identifier', value: org.identifier, mono: true },
-        { label: 'Name',       value: org.name },
-        { label: 'Email',      value: org.email },
         { label: 'City',       value: `${org.city || '—'} · ${org.country_code || '—'}` },
         { label: 'Address',    value: org.address_line || '—' },
       ].map(({ label, value, mono }) => (
-        <div key={label} style={{
-          display: 'flex', justifyContent: 'space-between',
-          padding: '4px 0', borderBottom: '1px solid #f0f2f8', fontSize: '12px',
-        }}>
+        <div key={label} style={rowStyle}>
           <span style={{ color: '#9b9fad' }}>{label}</span>
           <span style={{
             color: mono ? '#6c63ff' : '#1a1a2e',
@@ -88,10 +120,80 @@ export function OrganizationCard({ instanceId }: Props) {
         </div>
       ))}
 
-      <div style={{
-        display: 'flex', justifyContent: 'space-between',
-        padding: '4px 0', borderBottom: '1px solid #f0f2f8', fontSize: '12px',
-      }}>
+      {/* Inline-editable: Name */}
+      <div style={rowStyle}>
+        <span style={{ color: '#9b9fad' }}>Name</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
+          {editing === 'name' ? (
+            <input
+              ref={inputRef}
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              onBlur={() => saveInline('name')}
+              onKeyDown={e => {
+                if (e.key === 'Enter')  saveInline('name');
+                if (e.key === 'Escape') setEditing(null);
+              }}
+              style={{
+                fontSize: '12px', fontWeight: 700, color: '#1a1a2e',
+                border: 'none', borderBottom: '2px solid #6c63ff',
+                outline: 'none', background: 'transparent',
+                width: '100%', padding: '2px 0', textAlign: 'right',
+              }}
+            />
+          ) : (
+            <span
+              style={{ color: '#1a1a2e', cursor: 'pointer', fontWeight: 600 }}
+              onDoubleClick={() => { setEditing('name'); setEditValue(org.name || ''); }}
+              title="Double-click to edit"
+            >
+              {org.name}
+            </span>
+          )}
+          {editing !== 'name' && (
+            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>Double-click to edit</span>
+          )}
+        </div>
+      </div>
+
+      {/* Inline-editable: Email */}
+      <div style={rowStyle}>
+        <span style={{ color: '#9b9fad' }}>Email</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
+          {editing === 'email' ? (
+            <input
+              ref={inputRef}
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              onBlur={() => saveInline('email')}
+              onKeyDown={e => {
+                if (e.key === 'Enter')  saveInline('email');
+                if (e.key === 'Escape') setEditing(null);
+              }}
+              style={{
+                fontSize: '12px', fontWeight: 700, color: '#1a1a2e',
+                border: 'none', borderBottom: '2px solid #6c63ff',
+                outline: 'none', background: 'transparent',
+                width: '100%', padding: '2px 0', textAlign: 'right',
+              }}
+            />
+          ) : (
+            <span
+              style={{ color: '#1a1a2e', cursor: 'pointer' }}
+              onDoubleClick={() => { setEditing('email'); setEditValue(org.email || ''); }}
+              title="Double-click to edit"
+            >
+              {org.email}
+            </span>
+          )}
+          {editing !== 'email' && (
+            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>Double-click to edit</span>
+          )}
+        </div>
+      </div>
+
+      {/* Active status pill */}
+      <div style={rowStyle}>
         <span style={{ color: '#9b9fad' }}>Status</span>
         <span style={{
           background: org.active ? '#e8f5ee' : '#fff0f0',
@@ -102,6 +204,7 @@ export function OrganizationCard({ instanceId }: Props) {
         </span>
       </div>
 
+      {/* Approval status pill */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         marginTop: '10px', paddingTop: '8px',
