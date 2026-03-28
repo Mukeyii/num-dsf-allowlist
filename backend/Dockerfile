@@ -8,7 +8,7 @@ COPY . .
 CMD ["npm", "run", "dev"]
 
 FROM base AS build
-RUN npm ci --only=production
+RUN npm install --omit=dev
 COPY . .
 RUN npm run build
 
