@@ -43,7 +43,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
   async function handleSubmit() {
     try {
       await mutateAsync();
-      toast.success('Approval request submitted to GECKO.');
+      toast.success('Approval request submitted to IMI.');
       onClose();
     } catch (err: any) {
       const msg = err?.response?.data?.error?.message || '';
@@ -53,10 +53,10 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
   }
 
   return (
-    <Modal open={open} onClose={onClose} width="max-w-2xl" title="Submit for Approval" subtitle="Review all data carefully. Changes will be sent to GECKO for verification.">
+    <Modal open={open} onClose={onClose} width="max-w-2xl" title="Submit for Approval" subtitle="Review all data carefully. Changes will be sent to IMI for verification.">
       <div className="space-y-3">
         <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-          <p className="text-xs text-indigo-700">Once submitted, the request status will show as <strong>PENDING</strong> until GECKO approves or rejects it.</p>
+          <p className="text-xs text-indigo-700">Once submitted, the request status will show as <strong>PENDING</strong> until IMI approves or rejects it.</p>
         </div>
         {org && (<Section title="Organization">
           <KV k="Identifier" v={<span className="mono-id text-primary">{org.identifier}</span>} />
