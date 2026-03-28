@@ -1,12 +1,10 @@
 import { useCertificates, useDeleteCertificate } from '../../hooks/useCertificates';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { EntityCard }       from './EntityCard';
+import { FkLink }           from './FkLink';
 import { useModals }        from '../../hooks/useModals';
+import { daysUntil }        from '../../lib/dateUtils';
 import { toast } from 'sonner';
-
-function daysUntil(dateStr: string): number {
-  return Math.floor((new Date(dateStr).getTime() - Date.now()) / 86400000);
-}
 
 export function CertificatesCard({ instanceId }: { instanceId: string }) {
   const { data: certs = [], isLoading } = useCertificates(instanceId);
@@ -24,7 +22,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
       }
       onAdd={() => useModals.getState().openModal('certificate-add')}
     >
-      {org && <p className="text-[10px] text-slate-400 mb-4">FK: Organization {org.identifier}</p>}
+      {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {isLoading && <p style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</p>}
