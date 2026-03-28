@@ -1,8 +1,9 @@
 /**
  * TopBar.tsx – Canvas top bar
- * Dependencies: SearchBar
+ * Dependencies: SearchBar, NotificationCenter
  */
 import { SearchBar } from './SearchBar';
+import { NotificationCenter } from './NotificationCenter';
 
 const ENV = import.meta.env.VITE_DSF_ENVIRONMENT || 'TEST';
 
@@ -29,6 +30,7 @@ export function TopBar({ onDownload, onApproval }: {
       <SearchBar />
 
       <div className="flex items-center gap-3">
+        <NotificationCenter />
         <button
           onClick={onDownload}
           className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
