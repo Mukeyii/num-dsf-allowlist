@@ -7,6 +7,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useThemeStore }  from '../../stores/theme.store';
+import { useI18n }        from '../../stores/i18n.store';
 import { useInstances }   from '../../hooks/useInstance';
 import { authApi }        from '../../api/auth.api';
 import { InstanceCreateModal } from '../modals/InstanceCreateModal';
@@ -19,6 +20,7 @@ export function Sidebar() {
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const { dark, toggleTheme } = useThemeStore();
+  const { lang, setLang } = useI18n();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
@@ -170,6 +172,26 @@ export function Sidebar() {
             {dark ? 'light_mode' : 'dark_mode'}
           </span>
           {dark ? 'Light Mode' : 'Dark Mode'}
+        </button>
+      </div>
+
+      {/* Language Toggle */}
+      <div style={{ padding: '0 16px', marginTop: '4px' }}>
+        <button
+          onClick={() => setLang(lang === 'en' ? 'de' : 'en')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 10px', borderRadius: '8px',
+            fontSize: '12px', fontWeight: 600, width: '100%',
+            border: 'none', cursor: 'pointer',
+            color: 'var(--text-secondary)', background: 'transparent',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>translate</span>
+          {lang === 'en' ? 'Deutsch' : 'English'}
         </button>
       </div>
 
