@@ -1,16 +1,18 @@
-import { useMemberships }   from '../../hooks/useMemberships';
+import { useMemberships, useDeleteMembership } from '../../hooks/useMemberships';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { useEndpoints }     from '../../hooks/useEndpoints';
 import { useCanvasStore }   from '../../stores/canvas.store';
 import { EntityCard }       from './EntityCard';
 import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
+import { toast } from 'sonner';
 
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { data: memberships = [], isLoading } = useMemberships(instanceId);
   const { data: org }       = useOrganization(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
   const highlightEntity     = useCanvasStore((s) => s.highlightEntity);
+  const deleteMut = useDeleteMembership(instanceId);
 
   return (
     <EntityCard
@@ -59,9 +61,32 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                   <span key={r} style={{ fontSize: '9px', fontWeight: 700, color: '#2563eb', marginRight: '4px' }}>{r} </span>
                 ))}
               </div>
-              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#22c55e' }}>
-                check_circle
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('membership-edit', ms.id); }}
+                  title="Edit membership"
+                  style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
+                </button>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (confirm('Delete this membership?')) {
+                      try { await deleteMut.mutateAsync(ms.id); toast.success('Membership deleted.'); }
+                      catch { toast.error('Failed to delete membership.'); }
+                    }
+                  }}
+                  title="Delete membership"
+                  style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>delete</span>
+                </button>
+              </div>
             </div>
           );
         })}
