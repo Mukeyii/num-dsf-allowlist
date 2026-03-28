@@ -76,6 +76,16 @@ The portal uses **passwordless authentication** designed for a small, known admi
 
 Sessions use RS256 JWT (15 min) with httpOnly refresh token cookies (7 days).
 
+## Admin Review
+
+IMI administrators can review and approve/reject pending requests at `/app/admin`. Approval actions require TOTP re-confirmation for security.
+
+Admins are configured via the `IMI_ADMIN_EMAILS` environment variable (comma-separated).
+
+Notification flow:
+- On submission: All admins receive email notification immediately
+- On approve/reject: Admins notified immediately, site contacts notified after 30-minute delay
+
 ## Project Structure
 
 ```
@@ -105,6 +115,20 @@ cd backend && npm install && npm run dev
 # Run type checks
 cd frontend && npx tsc --noEmit
 cd backend && npx tsc --noEmit
+```
+
+## Testing
+
+```bash
+# Backend integration tests (requires running Docker DB + Redis)
+docker compose exec backend npm test
+
+# Frontend unit tests
+cd frontend && npm test
+
+# Watch mode
+docker compose exec backend npm run test:watch
+cd frontend && npm run test:watch
 ```
 
 ## API
