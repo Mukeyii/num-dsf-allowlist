@@ -16,6 +16,7 @@ import { ApprovalModal } from '../components/modals/ApprovalModal';
 import { DownloadModal } from '../components/modals/DownloadModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
+import { ActivityFeed } from '../components/canvas/ActivityFeed';
 
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -60,6 +61,7 @@ export function AppPage() {
       </div>
 
       <RightPanel instanceId={activeInstanceId} />
+      <ActivityFeed />
 
       {activeInstanceId && (
         <>
