@@ -1,7 +1,7 @@
 /**
- * RelationLines.tsx – SVG overlay with Bezier curves between entity cards.
- * Redraws on mount, resize, scroll, and via ResizeObserver on cards.
- * Uses container-scroll-aware positioning so lines stay aligned after scroll.
+ * RelationLines.tsx – SVG orthogonal connectors between entity cards
+ * Uses right-angle paths (not curves) for clear, readable connections.
+ * Redraws on mount, resize, scroll, and card size changes.
  */
 import { useEffect, useRef, useCallback } from 'react';
 
@@ -20,49 +20,82 @@ interface RelationLinesProps {
 }
 
 const RELATIONS = [
-  { from: 'organization', to: 'contacts',     color: '#9b59b6', opacity: 0.45 },
-  { from: 'organization', to: 'endpoints',    color: '#3ecfb2', opacity: 0.45 },
-  { from: 'organization', to: 'certificates', color: '#f5a623', opacity: 0.45 },
-  { from: 'organization', to: 'memberships',  color: '#4a90d9', opacity: 0.45 },
-  { from: 'endpoints',    to: 'memberships',  color: '#4a90d9', opacity: 0.30 },
-  { from: 'memberships',  to: 'approval',     color: '#e05c5c', opacity: 0.30 },
+  { from: 'organization', to: 'contacts',     color: '#9b59b6', opacity: 0.4 },
+  { from: 'organization', to: 'endpoints',    color: '#3ecfb2', opacity: 0.4 },
+  { from: 'organization', to: 'certificates', color: '#f5a623', opacity: 0.4 },
+  { from: 'organization', to: 'memberships',  color: '#4a90d9', opacity: 0.4 },
+  { from: 'endpoints',    to: 'memberships',  color: '#4a90d9', opacity: 0.25 },
+  { from: 'memberships',  to: 'approval',     color: '#e05c5c', opacity: 0.25 },
 ] as const;
 
-/**
- * Get the midpoint of a card edge, relative to the container's CONTENT (not viewport).
- * Accounts for container scroll so lines stay correct after scrolling.
- */
-function getEdgePoint(
-  el: HTMLDivElement,
-  container: HTMLDivElement,
-  side: 'right' | 'left' | 'bottom' | 'top',
-) {
+function getRect(el: HTMLDivElement, container: HTMLDivElement) {
   const er = el.getBoundingClientRect();
   const cr = container.getBoundingClientRect();
-  const scrollTop = container.scrollTop;
-  const scrollLeft = container.scrollLeft;
-
-  const relX = (pos: number) => pos - cr.left + scrollLeft;
-  const relY = (pos: number) => pos - cr.top + scrollTop;
-
-  switch (side) {
-    case 'right':  return { x: relX(er.right),                    y: relY((er.top + er.bottom) / 2) };
-    case 'left':   return { x: relX(er.left),                     y: relY((er.top + er.bottom) / 2) };
-    case 'bottom': return { x: relX((er.left + er.right) / 2),    y: relY(er.bottom) };
-    case 'top':    return { x: relX((er.left + er.right) / 2),    y: relY(er.top) };
-  }
+  const st = container.scrollTop;
+  const sl = container.scrollLeft;
+  return {
+    left: er.left - cr.left + sl,
+    right: er.right - cr.left + sl,
+    top: er.top - cr.top + st,
+    bottom: er.bottom - cr.top + st,
+    cx: (er.left + er.right) / 2 - cr.left + sl,
+    cy: (er.top + er.bottom) / 2 - cr.top + st,
+  };
 }
 
-function bezierPath(x1: number, y1: number, x2: number, y2: number): string {
-  const dx = Math.abs(x2 - x1);
-  const dy = Math.abs(y2 - y1);
+/**
+ * Build an orthogonal (right-angle) path between two rectangles.
+ * Picks the best edge pair and routes with a single midpoint bend.
+ */
+function orthogonalPath(fromRect: ReturnType<typeof getRect>, toRect: ReturnType<typeof getRect>): string {
+  const gap = 10;
 
-  if (dx > dy) {
-    const cpOffset = Math.min(dx * 0.4, 60);
-    return `M${x1},${y1} C${x1 + cpOffset},${y1} ${x2 - cpOffset},${y2} ${x2},${y2}`;
+  // Determine relative position
+  const isRight = fromRect.right + gap < toRect.left;
+  const isLeft = toRect.right + gap < fromRect.left;
+  const isBelow = fromRect.bottom + gap < toRect.top;
+  const isAbove = toRect.bottom + gap < fromRect.top;
+
+  let x1: number, y1: number, x2: number, y2: number;
+
+  if (isRight) {
+    // From right edge → To left edge, horizontal-first
+    x1 = fromRect.right;
+    y1 = fromRect.cy;
+    x2 = toRect.left;
+    y2 = toRect.cy;
+    const mx = (x1 + x2) / 2;
+    return `M${x1},${y1} H${mx} V${y2} H${x2}`;
+  } else if (isLeft) {
+    x1 = fromRect.left;
+    y1 = fromRect.cy;
+    x2 = toRect.right;
+    y2 = toRect.cy;
+    const mx = (x1 + x2) / 2;
+    return `M${x1},${y1} H${mx} V${y2} H${x2}`;
+  } else if (isBelow) {
+    // From bottom edge → To top edge, vertical-first
+    x1 = fromRect.cx;
+    y1 = fromRect.bottom;
+    x2 = toRect.cx;
+    y2 = toRect.top;
+    const my = (y1 + y2) / 2;
+    return `M${x1},${y1} V${my} H${x2} V${y2}`;
+  } else if (isAbove) {
+    x1 = fromRect.cx;
+    y1 = fromRect.top;
+    x2 = toRect.cx;
+    y2 = toRect.bottom;
+    const my = (y1 + y2) / 2;
+    return `M${x1},${y1} V${my} H${x2} V${y2}`;
   } else {
-    const cpOffset = Math.min(dy * 0.4, 60);
-    return `M${x1},${y1} C${x1},${y1 + cpOffset} ${x2},${y2 - cpOffset} ${x2},${y2}`;
+    // Overlapping — fallback to right→left
+    x1 = fromRect.right;
+    y1 = fromRect.cy;
+    x2 = toRect.left;
+    y2 = toRect.cy;
+    const mx = (x1 + x2) / 2;
+    return `M${x1},${y1} H${mx} V${y2} H${x2}`;
   }
 }
 
@@ -80,48 +113,52 @@ export function RelationLines({ cardRefs, containerRef }: RelationLinesProps) {
 
     RELATIONS.forEach(({ from, to, color, opacity }) => {
       const fromEl = cardRefs[from as keyof CardRefs].current;
-      const toEl   = cardRefs[to   as keyof CardRefs].current;
+      const toEl = cardRefs[to as keyof CardRefs].current;
       if (!fromEl || !toEl) return;
 
-      const fromR = fromEl.getBoundingClientRect();
-      const toR   = toEl.getBoundingClientRect();
+      const fromRect = getRect(fromEl, container);
+      const toRect = getRect(toEl, container);
 
-      let p1, p2;
-      if (fromR.right + 10 < toR.left) {
-        p1 = getEdgePoint(fromEl, container, 'right');
-        p2 = getEdgePoint(toEl,   container, 'left');
-      } else if (toR.right + 10 < fromR.left) {
-        p1 = getEdgePoint(fromEl, container, 'left');
-        p2 = getEdgePoint(toEl,   container, 'right');
-      } else if (fromR.bottom < toR.top) {
-        p1 = getEdgePoint(fromEl, container, 'bottom');
-        p2 = getEdgePoint(toEl,   container, 'top');
-      } else if (toR.bottom < fromR.top) {
-        p1 = getEdgePoint(fromEl, container, 'top');
-        p2 = getEdgePoint(toEl,   container, 'bottom');
-      } else {
-        p1 = getEdgePoint(fromEl, container, 'right');
-        p2 = getEdgePoint(toEl,   container, 'left');
-      }
+      const d = orthogonalPath(fromRect, toRect);
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', bezierPath(p1.x, p1.y, p2.x, p2.y));
+      path.setAttribute('d', d);
       path.setAttribute('stroke', color);
       path.setAttribute('stroke-width', '1.5');
-      path.setAttribute('stroke-dasharray', '5 4');
+      path.setAttribute('stroke-dasharray', '6 4');
       path.setAttribute('fill', 'none');
       path.setAttribute('opacity', String(opacity));
+      path.setAttribute('stroke-linejoin', 'round');
       svg.appendChild(path);
 
-      [p1, p2].forEach(p => {
+      // Start and end dots
+      const startMatch = d.match(/^M([\d.]+),([\d.]+)/);
+      if (startMatch) {
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', String(p.x));
-        dot.setAttribute('cy', String(p.y));
+        dot.setAttribute('cx', startMatch[1]);
+        dot.setAttribute('cy', startMatch[2]);
         dot.setAttribute('r', '3');
         dot.setAttribute('fill', color);
         dot.setAttribute('opacity', String(Math.min(1, opacity + 0.2)));
         svg.appendChild(dot);
-      });
+      }
+
+      // End dot — parse the last coordinates from the path
+      const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathEl.setAttribute('d', d);
+      svg.appendChild(pathEl);
+      const totalLen = pathEl.getTotalLength();
+      if (totalLen > 0) {
+        const endPt = pathEl.getPointAtLength(totalLen);
+        const endDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        endDot.setAttribute('cx', String(endPt.x));
+        endDot.setAttribute('cy', String(endPt.y));
+        endDot.setAttribute('r', '3');
+        endDot.setAttribute('fill', color);
+        endDot.setAttribute('opacity', String(Math.min(1, opacity + 0.2)));
+        svg.appendChild(endDot);
+      }
+      svg.removeChild(pathEl);
     });
   }, [cardRefs, containerRef]);
 
