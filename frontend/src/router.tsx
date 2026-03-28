@@ -3,7 +3,7 @@
  * Public routes: /login, /otp, /totp-setup, /totp
  * Protected routes: /app (canvas), /app/audit
  */
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage }     from './pages/LoginPage';
 import { OtpPage }       from './pages/OtpPage';
 import { TotpSetupPage } from './pages/TotpSetupPage';

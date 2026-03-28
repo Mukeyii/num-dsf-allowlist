@@ -13,7 +13,7 @@ type ModalType =
 interface ModalState {
   open: ModalType;
   editId: string | null;
-  openModal: (type: ModalType, editId?: string) => void;
+  openModal: (type: ModalType, editId?: string | null) => void;
   closeModal: () => void;
 }
 

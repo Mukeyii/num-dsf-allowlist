@@ -15,7 +15,7 @@ export function TotpSetupPage() {
   const location  = useLocation();
   const setTokens = useAuthStore((s) => s.setTokens);
 
-  const { tempToken, email } = (location.state as any) || {};
+  const { tempToken } = (location.state as any) || {};
 
   const [step, setStep]           = useState<'qr' | 'confirm' | 'backup'>('qr');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
