@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCanvasStore } from '../stores/canvas.store';
 import { api } from '../api/entities.api';
+import { useI18n } from '../stores/i18n.store';
 
 const RESOURCE_TYPES = ['ALL', 'ORGANIZATION', 'CONTACT', 'ENDPOINT', 'CERTIFICATE', 'MEMBERSHIP', 'AUTH', 'APPROVAL'];
 const OPERATIONS = ['ALL', 'CREATE', 'UPDATE', 'DELETE', 'APPROVE', 'REJECT', 'LOGIN', 'LOGOUT', 'OTP_REQUEST'];
@@ -22,6 +23,7 @@ function relTime(dateStr: string): string {
 }
 
 export function AuditPage() {
+  const { t } = useI18n();
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
   const [resource, setResource] = useState('ALL');
   const [operation, setOperation] = useState('ALL');
@@ -47,7 +49,7 @@ export function AuditPage() {
     <div className="flex-1 p-8 overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Audit Log</h1>
+          <h1 className="text-xl font-bold text-slate-900">{t('auditLog')}</h1>
           <p className="text-xs text-slate-400 mt-0.5">All changes to this instance · {meta.total} entries</p>
         </div>
       </div>

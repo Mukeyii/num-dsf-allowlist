@@ -8,12 +8,14 @@ import { useApprovalStatus } from '../../hooks/useApproval';
 import { EntityCard }        from './EntityCard';
 import { useModals }         from '../../hooks/useModals';
 import { toast }             from 'sonner';
+import { useI18n }           from '../../stores/i18n.store';
 
 interface Props {
   instanceId: string;
 }
 
 export function OrganizationCard({ instanceId }: Props) {
+  const { t } = useI18n();
   const { data: org, isLoading }   = useOrganization(instanceId);
   const { data: contacts = [] }    = useContacts(instanceId);
   const { data: approval }         = useApprovalStatus(instanceId);
@@ -53,16 +55,16 @@ export function OrganizationCard({ instanceId }: Props) {
   const statusPill = statusMap[approvalStatus] ?? { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: 'draft' };
 
   if (isLoading) return (
-    <EntityCard id="organization" title="Organization" borderColor="#4d41df" icon="corporate_fare">
-      <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</div>
+    <EntityCard id="organization" title={t('organization')} borderColor="#4d41df" icon="corporate_fare">
+      <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>
     </EntityCard>
   );
 
   if (!org) return (
-    <EntityCard id="organization" title="Organization" borderColor="#4d41df" icon="corporate_fare"
+    <EntityCard id="organization" title={t('organization')} borderColor="#4d41df" icon="corporate_fare"
       onAdd={() => useModals.getState().openModal('org-edit')} addLabel="Set up">
       <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>
-        No organization yet.<br />Click "Set up" to begin.
+        {t('noData')}<br />Click "Set up" to begin.
       </div>
     </EntityCard>
   );
@@ -76,7 +78,7 @@ export function OrganizationCard({ instanceId }: Props) {
   return (
     <EntityCard
       id="organization"
-      title="Organization"
+      title={t('organization')}
       borderColor="#4d41df"
       icon="corporate_fare"
       addLabel="Edit"

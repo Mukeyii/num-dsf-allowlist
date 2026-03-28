@@ -3,8 +3,10 @@ import { EntityCard } from './EntityCard';
 import { useModals } from '../../hooks/useModals';
 import { useInstances } from '../../hooks/useInstance';
 import { useCanvasStore } from '../../stores/canvas.store';
+import { useI18n } from '../../stores/i18n.store';
 
 export function ApprovalCard({ instanceId }: { instanceId: string }) {
+  const { t } = useI18n();
   const { data: status }       = useApprovalStatus(instanceId);
   const { data: history = [] } = useApprovalHistory(instanceId);
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -14,7 +16,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
   return (
     <EntityCard
       id="approval"
-      title="Approval Summary"
+      title={t('approval')}
       borderColor="#e05c5c"
       icon="rule"
       onAdd={() => useModals.getState().openModal('approval')}
@@ -66,7 +68,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
             </div>
           ))}
           {history.length === 0 && (
-            <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>No history yet.</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('noData')}</p>
           )}
         </div>
       </div>

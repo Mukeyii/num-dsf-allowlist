@@ -5,8 +5,10 @@ import { FkLink }           from './FkLink';
 import { useModals }        from '../../hooks/useModals';
 import { daysUntil }        from '../../lib/dateUtils';
 import { toast } from 'sonner';
+import { useI18n } from '../../stores/i18n.store';
 
 export function CertificatesCard({ instanceId }: { instanceId: string }) {
+  const { t } = useI18n();
   const { data: certs = [], isLoading } = useCertificates(instanceId);
   const { data: org } = useOrganization(instanceId);
   const deleteMut = useDeleteCertificate(instanceId);
@@ -14,7 +16,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
   return (
     <EntityCard
       id="certificates"
-      title="Certificates"
+      title={t('certificates')}
       borderColor="#f5a623"
       icon="verified_user"
       headerRight={
@@ -25,7 +27,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</p>}
+        {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</p>}
         {certs.map((cert: any) => {
           const days = daysUntil(cert.valid_until);
           const pct  = Math.max(0, Math.min(100, (days / 365) * 100));
@@ -69,7 +71,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
           );
         })}
         {!isLoading && certs.length === 0 && (
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>No certificates yet.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>{t('noData')}</p>
         )}
       </div>
     </EntityCard>

@@ -41,6 +41,13 @@ const translations = {
     gettingStarted: 'Getting Started',
     pageNotFound: 'Page Not Found',
     backToDashboard: 'Back to Dashboard',
+    approvalStatus: 'Approval Status',
+    overview: 'Overview',
+    recentActivity: 'Recent Activity',
+    noRequest: 'No request',
+    pending: 'Pending',
+    approved: 'Approved',
+    rejected: 'Rejected',
   },
   de: {
     signIn: 'Anmelden',
@@ -76,6 +83,13 @@ const translations = {
     gettingStarted: 'Erste Schritte',
     pageNotFound: 'Seite nicht gefunden',
     backToDashboard: 'Zurück zum Dashboard',
+    approvalStatus: 'Genehmigungsstatus',
+    overview: 'Übersicht',
+    recentActivity: 'Letzte Aktivitäten',
+    noRequest: 'Kein Antrag',
+    pending: 'Ausstehend',
+    approved: 'Genehmigt',
+    rejected: 'Abgelehnt',
   },
 } as const;
 
