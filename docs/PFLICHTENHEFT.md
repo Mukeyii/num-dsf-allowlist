@@ -2,7 +2,7 @@
 
 **Version:** 1.0
 **Datum:** 2026-03-28
-**Auftraggeber:** GECKO-Institut, Hochschule Heilbronn
+**Auftraggeber:** Institute of Medical Informatics Muenster (IMI), Universität Münster
 **Projektbezeichnung:** DSF Allow List Management Portal (Rewrite)
 
 ---
@@ -24,7 +24,7 @@
 
 ## 1 Zielbestimmung
 
-Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation für das *Data Sharing Framework* (DSF) medizinischer Forschungsnetze (MII, NUM, Medizininformatik-Initiative). Das Portal ermöglicht dem GECKO-Institut der Hochschule Heilbronn, ein zentrales Verzeichnis teilnehmender Institutionen zu pflegen, Änderungsanträge zu prüfen und freigegebene Datenpakete (FHIR Bundles, IP-Listen) zu publizieren.
+Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation für das *Data Sharing Framework* (DSF) medizinischer Forschungsnetze (MII, NUM, Medizininformatik-Initiative). Das Portal ermöglicht dem Institute of Medical Informatics Muenster (IMI) der Universität Münster, ein zentrales Verzeichnis teilnehmender Institutionen zu pflegen, Änderungsanträge zu prüfen und freigegebene Datenpakete (FHIR Bundles, IP-Listen) zu publizieren.
 
 ### 1.1 Musskriterien
 
@@ -72,7 +72,7 @@ Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation
 | /M080/ | Das System muss das Einreichen eines Änderungsantrags (Approval Request) mit vollständigem Daten-Snapshot ermöglichen. |
 | /M081/ | Der Approval-Workflow muss folgende Zustände implementieren: DRAFT → PENDING → APPROVED / REJECTED. |
 | /M082/ | Das System muss eine vollständige Antragshistorie pro Instanz anzeigen. |
-| /M083/ | GECKO-Admins müssen ausstehende Anträge einsehen, genehmigen oder ablehnen können (mit Kommentarfeld). |
+| /M083/ | IMI-Admins müssen ausstehende Anträge einsehen, genehmigen oder ablehnen können (mit Kommentarfeld). |
 | /M084/ | Das System muss den Approval-Status auf der Hauptseite sichtbar darstellen. |
 | **Downloads** | |
 | /M090/ | Das System muss ein FHIR R4 Bundle im JSON-Format für eine Instanz generieren und zum Download bereitstellen. |
@@ -120,7 +120,7 @@ Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation
 
 ### 2.1 Anwendungsbereiche
 
-Das Portal wird vom GECKO-Institut der Hochschule Heilbronn betrieben und dient als zentrales Verwaltungswerkzeug für das Data Sharing Framework medizinischer Forschungsnetze. Konkrete Anwendungsbereiche:
+Das Portal wird vom Institute of Medical Informatics Muenster (IMI) der Universität Münster betrieben und dient als zentrales Verwaltungswerkzeug für das Data Sharing Framework medizinischer Forschungsnetze. Konkrete Anwendungsbereiche:
 
 - **Onboarding neuer DSF-Teilnehmer:** Erfassung und Pflege aller technischen und organisatorischen Daten einer neuen Institution.
 - **Zertifikatsverwaltung:** Überwachung von Zertifikat-Ablaufdaten und Verwaltung von PEM-Uploads.
@@ -133,12 +133,12 @@ Das Portal wird vom GECKO-Institut der Hochschule Heilbronn betrieben und dient 
 | Gruppe | Beschreibung | Zugang |
 |--------|--------------|--------|
 | **DSF-Teilnehmer** | IT-Administratoren und medizinisches Personal medizinischer Einrichtungen (Universitätskliniken, Forschungseinrichtungen), die eine DSF-Instanz betreiben | Über E-Mail-Whitelist eingeladen |
-| **GECKO-Admins** | Mitarbeiter des GECKO-Instituts, die Änderungsanträge prüfen und genehmigen, und die Allow List pflegen | Eigene Admin-Rolle in der Whitelist |
+| **IMI-Admins** | Mitarbeiter des IMI, die Änderungsanträge prüfen und genehmigen, und die Allow List pflegen | Eigene Admin-Rolle in der Whitelist |
 | **DSF-Operatoren** | Technisches Personal, das FHIR Bundles und IP-Listen für die Infrastrukturkonfiguration benötigt | Download-Endpunkte, ggf. ohne Login |
 
 ### 2.3 Betriebsbedingungen
 
-- **Betriebsumgebung:** Containerisierter Betrieb via Docker Compose auf einem Linux-Server (Hochschule Heilbronn).
+- **Betriebsumgebung:** Containerisierter Betrieb via Docker Compose auf einem Linux-Server (Universität Münster).
 - **Netzwerk:** Hinter einem nginx Reverse Proxy; SSL-Terminierung am nginx; Zugang nur über HTTPS.
 - **Verfügbarkeit:** Nicht-kritische Anwendung; kein SLA für Hochverfügbarkeit. Wartungsfenster können tagsüber eingeplant werden.
 - **Nutzungszeit:** Kein 24/7-Betrieb erforderlich, jedoch während der Geschäftszeiten verfügbar.
@@ -277,8 +277,8 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | /F080/ | Änderungsantrag einreichen | Aktuellen Daten-Snapshot einfrieren und zur Prüfung einreichen | Instanz-ID | Approval Request (PENDING) |
 | /F081/ | Antragsstatus abrufen | Aktuellen Approval-Status der Instanz anzeigen | Instanz-ID | Status-Objekt |
 | /F082/ | Antragshistorie abrufen | Alle vergangenen Approval Requests einer Instanz | Instanz-ID | Liste von Approval-Requests |
-| /F083/ | Antrag genehmigen (Admin) | GECKO-Admin genehmigt einen ausstehenden Antrag | Request-ID | Status → APPROVED |
-| /F084/ | Antrag ablehnen (Admin) | GECKO-Admin lehnt Antrag ab mit Kommentar | Request-ID, Kommentar | Status → REJECTED |
+| /F083/ | Antrag genehmigen (Admin) | IMI-Admin genehmigt einen ausstehenden Antrag | Request-ID | Status → APPROVED |
+| /F084/ | Antrag ablehnen (Admin) | IMI-Admin lehnt Antrag ab mit Kommentar | Request-ID, Kommentar | Status → REJECTED |
 | /F090/ | FHIR Bundle downloaden | FHIR R4 Bundle für eine Instanz generieren | Instanz-ID, (Endpoint-ID optional) | JSON-Datei |
 | /F091/ | IP-Adressliste exportieren | Alle Endpoint-IPs als Excel-Datei exportieren | — | .xlsx-Datei |
 
@@ -434,7 +434,7 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | Begriff | Definition |
 |---------|------------|
 | **Allow List** | Zentrales Verzeichnis aller zugelassenen DSF-Teilnehmer mit technischen und organisatorischen Daten |
-| **Approval Request** | Formeller Änderungsantrag eines DSF-Teilnehmers, der durch einen GECKO-Admin geprüft und genehmigt oder abgelehnt wird |
+| **Approval Request** | Formeller Änderungsantrag eines DSF-Teilnehmers, der durch einen IMI-Admin geprüft und genehmigt oder abgelehnt wird |
 | **AMS** | Allowlisting Management System – eine der möglichen DSF-Rollen einer Mitgliedschaft |
 | **Backup-Code** | Einmalig verwendbarer Wiederherstellungscode als Alternative zu TOTP bei verlorenem Authenticator |
 | **BPE** | Business Process Engine – Komponente im DSF; Endpoint-IP-Flag `is_bpe` kennzeichnet IPs für BPE-Traffic |
@@ -448,7 +448,7 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | **FHIR Bundle** | Zusammenstellung mehrerer FHIR-Ressourcen in einem JSON-Dokument; hier: Allow-List-Paket einer Instanz |
 | **FK-Highlight** | Visuelles Hervorheben von Entitätskarten, die über einen Fremdschlüssel mit der hovered Karte verbunden sind |
 | **FQDN** | Fully Qualified Domain Name – vollständiger Domainname, z.B. `ukm.de` oder `fhir.ukm.de` |
-| **GECKO-Institut** | Forschungseinrichtung an der Hochschule Heilbronn; Betreiber des DSF Allow List Management Portals |
+| **IMI** | Institute of Medical Informatics Muenster; Betreiber des DSF Allow List Management Portals an der Universität Münster |
 | **HRP** | High-Level Routing Platform – eine der möglichen DSF-Rollen einer Mitgliedschaft |
 | **httpOnly Cookie** | Browser-Cookie, das nicht per JavaScript ausgelesen werden kann; erhöht Session-Sicherheit |
 | **Instanz** | Repräsentation einer DSF-Installation (einer Einrichtung) im Portal; enthält alle zugehörigen Entitäten |

@@ -1,6 +1,6 @@
 # DSF Allow List Management Portal
 
-A web application for managing participants in the **Data Sharing Framework (DSF)** of the German Medical Informatics Initiative (MII/NUM). Operated by the GECKO Institute at Heilbronn University of Applied Sciences.
+A web application for managing participants in the **Data Sharing Framework (DSF)** of the German Medical Informatics Initiative (MII/NUM). Operated by the Institute of Medical Informatics Muenster (IMI) at the University of Muenster.
 
 ## Overview
 
@@ -152,4 +152,4 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ## License
 
-Proprietary — GECKO Institute, Heilbronn University of Applied Sciences.
+Proprietary — Institute of Medical Informatics Muenster (IMI), University of Muenster.
