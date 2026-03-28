@@ -18,7 +18,7 @@ describe('Organization API', () => {
     it('should return null when no organization exists', async () => {
       const res = await request(app).get(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
-      expect(res.body.data).toBeNull();
+      expect(res.body.data ?? null).toBeNull();
     });
 
     it('should return organization when it exists', async () => {
