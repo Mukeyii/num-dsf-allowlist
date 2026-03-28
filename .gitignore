@@ -49,5 +49,3 @@ docs/NOTEBOOKLM_DIFF.md
 SPEC.md
 MASTERPROMPT*.md
 
-# === Lock files (regenerated per environment) ===
-package-lock.json
