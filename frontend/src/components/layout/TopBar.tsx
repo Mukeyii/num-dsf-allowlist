@@ -1,6 +1,9 @@
 /**
  * TopBar.tsx – Canvas top bar
+ * Dependencies: SearchBar
  */
+import { SearchBar } from './SearchBar';
+
 const ENV = import.meta.env.VITE_DSF_ENVIRONMENT || 'TEST';
 
 export function TopBar({ onDownload, onApproval }: {
@@ -22,6 +25,8 @@ export function TopBar({ onDownload, onApproval }: {
           <span className="text-sm text-primary font-medium">{ENV}-Environment</span>
         </div>
       </div>
+
+      <SearchBar />
 
       <div className="flex items-center gap-3">
         <button
