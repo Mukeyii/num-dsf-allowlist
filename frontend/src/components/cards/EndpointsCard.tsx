@@ -1,12 +1,14 @@
-import { useEndpoints }    from '../../hooks/useEndpoints';
+import { useEndpoints, useDeleteEndpoint } from '../../hooks/useEndpoints';
 import { useOrganization } from '../../hooks/useOrganization';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useModals }       from '../../hooks/useModals';
+import { toast } from 'sonner';
 
 export function EndpointsCard({ instanceId }: { instanceId: string }) {
   const { data: endpoints = [], isLoading } = useEndpoints(instanceId);
   const { data: org } = useOrganization(instanceId);
+  const deleteMut = useDeleteEndpoint(instanceId);
 
   return (
     <EntityCard
@@ -25,32 +27,61 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
             background: '#f8f9fc', border: '1px solid #e8eaf0',
             borderRadius: '10px', padding: '10px 12px',
             transition: 'border-color 0.15s',
+            display: 'flex', alignItems: 'flex-start', gap: '10px',
           }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = '#6c63ff44')}
             onMouseLeave={e => (e.currentTarget.style.borderColor = '#e8eaf0')}
           >
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a2e', marginBottom: '2px' }}>
-              {ep.name || ep.identifier}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a2e', marginBottom: '2px' }}>
+                {ep.name || ep.identifier}
+              </div>
+              <div className="mono-id" style={{ fontSize: '11px', color: '#9b9fad', marginBottom: '4px' }}>
+                {ep.identifier}
+              </div>
+              <div style={{ fontSize: '11px', color: '#9b9fad', marginBottom: '6px',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {ep.address}
+              </div>
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                {(ep.ipAddresses || []).map((ip: any) => (
+                  <span key={ip.id} style={{
+                    fontSize: '10px', padding: '1px 6px', borderRadius: '99px',
+                    background: '#f0f2f8', color: '#9b9fad',
+                    display: 'flex', alignItems: 'center', gap: '3px',
+                  }}>
+                    {ip.ip}
+                    {ip.isFhir && <span style={{ color: '#3ecfb2', fontWeight: 600 }}>F</span>}
+                    {ip.isBpe  && <span style={{ color: '#4a90d9', fontWeight: 600 }}>B</span>}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="mono-id" style={{ fontSize: '11px', color: '#9b9fad', marginBottom: '4px' }}>
-              {ep.identifier}
-            </div>
-            <div style={{ fontSize: '11px', color: '#9b9fad', marginBottom: '6px',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {ep.address}
-            </div>
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-              {(ep.ipAddresses || []).map((ip: any) => (
-                <span key={ip.id} style={{
-                  fontSize: '10px', padding: '1px 6px', borderRadius: '99px',
-                  background: '#f0f2f8', color: '#9b9fad',
-                  display: 'flex', alignItems: 'center', gap: '3px',
-                }}>
-                  {ip.ip}
-                  {ip.isFhir && <span style={{ color: '#3ecfb2', fontWeight: 600 }}>F</span>}
-                  {ip.isBpe  && <span style={{ color: '#4a90d9', fontWeight: 600 }}>B</span>}
-                </span>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('endpoint-edit', ep.identifier); }}
+                title="Edit endpoint"
+                style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (confirm('Delete this endpoint?')) {
+                    try { await deleteMut.mutateAsync(ep.identifier); toast.success('Endpoint deleted.'); }
+                    catch { toast.error('Failed to delete endpoint.'); }
+                  }
+                }}
+                title="Delete endpoint"
+                style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>delete</span>
+              </button>
             </div>
           </div>
         ))}
