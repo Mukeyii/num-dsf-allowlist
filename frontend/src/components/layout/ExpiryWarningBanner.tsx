@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { api } from '../../api/entities.api';
+import { daysUntil } from '../../lib/dateUtils';
 
 export function ExpiryWarningBanner() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -12,10 +13,6 @@ export function ExpiryWarningBanner() {
   });
 
   if (expiring.length === 0) return null;
-
-  function daysUntil(dateStr: string): number {
-    return Math.floor((new Date(dateStr).getTime() - Date.now()) / 86400000);
-  }
 
   return (
     <div className="mx-8 mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
