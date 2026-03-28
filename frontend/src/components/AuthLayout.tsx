@@ -63,23 +63,25 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         {children}
       </div>
 
-      {/* Partner Logos */}
-      <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', maxWidth: '520px' }}>
-        {/* Row 1: IMI + MeDIC (primary, linked) */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px' }}>
-          <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
-            <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ height: '60px', opacity: 0.85, transition: 'opacity 0.2s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.85')} />
-          </a>
-          <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
-            <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '55px', opacity: 0.85, transition: 'opacity 0.2s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.85')} />
-          </a>
-        </div>
-        {/* Row 2: UKM, NUM, DSF */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '32px' }}>
-          <img src="/logos/Logo UKM Münster.PNG" alt="UKM Münster" style={{ height: '44px', opacity: 0.7 }} />
-          <img src="/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" style={{ height: '40px', opacity: 0.7 }} />
-          <img src="/logos/dsf-logo.svg" alt="DSF" style={{ height: '40px', opacity: 0.7 }} />
-        </div>
+      {/* Partner Logos — single row */}
+      <div style={{
+        marginTop: '36px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '28px',
+        flexWrap: 'wrap',
+        maxWidth: '560px',
+      }}>
+        <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
+          <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ height: '44px', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.8')} />
+        </a>
+        <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
+          <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '40px', opacity: 0.8, transition: 'opacity 0.2s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.8')} />
+        </a>
+        <img src="/logos/Logo UKM Münster.PNG" alt="UKM Münster" style={{ height: '36px', opacity: 0.65 }} />
+        <img src="/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" style={{ height: '32px', opacity: 0.65 }} />
+        <img src="/logos/dsf-logo.svg" alt="DSF" style={{ height: '32px', opacity: 0.65 }} />
       </div>
 
       {/* Footer text */}
