@@ -22,7 +22,7 @@ bash scripts/generate-keys.sh
 
 # 4. Seed admin email
 docker compose -f docker-compose.prod.yml run --rm backend \
-  npx ts-node src/db/seed-whitelist.ts admin@gecko.hs-heilbronn.de
+  npx ts-node src/db/seed-whitelist.ts admin@imi.uni-muenster.de
 
 # 5. Start
 docker compose -f docker-compose.prod.yml up -d --build
@@ -48,5 +48,5 @@ docker compose -f docker-compose.prod.yml exec db \
 ## Health Check
 
 ```bash
-curl https://allowlist.gecko.hs-heilbronn.de/health
+curl https://allowlist.imi.uni-muenster.de/health
 ```
