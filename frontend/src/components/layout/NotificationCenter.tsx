@@ -43,7 +43,7 @@ export function NotificationCenter() {
         onClick={handleToggle}
         style={{ position: 'relative', border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px' }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#64748b' }}>notifications</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-secondary)' }}>notifications</span>
         {unread > 0 && (
           <span style={{
             position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px',
@@ -56,27 +56,27 @@ export function NotificationCenter() {
       {open && (
         <div style={{
           position: 'absolute', top: '100%', right: 0, marginTop: '8px', width: '320px',
-          background: '#fff', borderRadius: '12px', border: '1px solid #e8eaf0',
+          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
           boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 100, maxHeight: '400px', overflow: 'hidden',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #e8eaf0' }}>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: '#1a1a2e' }}>Notifications</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Notifications</span>
             {notifications.length > 0 && (
-              <button onClick={clear} style={{ fontSize: '10px', color: '#9b9fad', border: 'none', background: 'transparent', cursor: 'pointer' }}>Clear all</button>
+              <button onClick={clear} style={{ fontSize: '10px', color: 'var(--text-muted)', border: 'none', background: 'transparent', cursor: 'pointer' }}>Clear all</button>
             )}
           </div>
           <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
             {notifications.length === 0 ? (
-              <p style={{ padding: '24px', textAlign: 'center', fontSize: '12px', color: '#9b9fad' }}>No notifications yet.</p>
+              <p style={{ padding: '24px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>No notifications yet.</p>
             ) : (
               notifications.map(n => {
                 const { icon, color } = TYPE_ICON[n.type];
                 return (
-                  <div key={n.id} style={{ display: 'flex', gap: '10px', padding: '10px 16px', borderBottom: '1px solid #f0f2f8' }}>
+                  <div key={n.id} style={{ display: 'flex', gap: '10px', padding: '10px 16px', borderBottom: '1px solid var(--bg-page)' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px', color, flexShrink: 0, marginTop: '1px' }}>{icon}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '12px', color: '#1a1a2e', lineHeight: 1.4 }}>{n.message}</p>
-                      <p style={{ fontSize: '10px', color: '#9b9fad', marginTop: '2px' }}>{relTime(n.timestamp)}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-primary)', lineHeight: 1.4 }}>{n.message}</p>
+                      <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{relTime(n.timestamp)}</p>
                     </div>
                   </div>
                 );

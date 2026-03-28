@@ -31,8 +31,8 @@ export function Modal({ open, onClose, title, subtitle, children, width = 'max-w
       onClick={onClose}
     >
       <div
-        className={`w-full ${width} bg-white rounded-2xl shadow-2xl overflow-hidden`}
-        style={{ boxShadow: '0 24px 64px rgba(77,65,223,0.12)' }}
+        className={`w-full ${width} rounded-2xl shadow-2xl overflow-hidden`}
+        style={{ background: 'var(--bg-card)', boxShadow: '0 24px 64px rgba(77,65,223,0.12)' }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">

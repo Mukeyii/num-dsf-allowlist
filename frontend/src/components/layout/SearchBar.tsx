@@ -106,9 +106,9 @@ export function SearchBar() {
       <div style={{
         display: 'flex', alignItems: 'center', gap: '6px',
         padding: '6px 12px', borderRadius: '10px',
-        border: '1px solid #e8eaf0', background: '#f8f9fc', width: '240px',
+        border: '1px solid var(--border)', background: 'var(--bg-hover)', width: '240px',
       }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#9b9fad' }}>search</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>search</span>
         <input
           type="text"
           value={query}
@@ -117,7 +117,7 @@ export function SearchBar() {
           placeholder="Search entities… (Ctrl+K)"
           style={{
             border: 'none', outline: 'none', background: 'transparent',
-            fontSize: '12px', color: '#1a1a2e', width: '100%',
+            fontSize: '12px', color: 'var(--text-primary)', width: '100%',
           }}
         />
         {query && (
@@ -125,7 +125,7 @@ export function SearchBar() {
             onClick={() => { setQuery(''); setOpen(false); }}
             style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#9b9fad' }}>close</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--text-muted)' }}>close</span>
           </button>
         )}
       </div>
@@ -133,7 +133,7 @@ export function SearchBar() {
       {open && results.length > 0 && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px',
-          background: '#fff', borderRadius: '12px', border: '1px solid #e8eaf0',
+          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
           boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100,
           maxHeight: '300px', overflowY: 'auto',
         }}>
@@ -148,25 +148,25 @@ export function SearchBar() {
                   padding: '10px 14px', border: 'none', background: 'transparent',
                   cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#f8f9fc')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color }}>{icon}</span>
                 <div style={{ minWidth: 0 }}>
                   <p style={{
-                    fontSize: '12px', fontWeight: 600, color: '#1a1a2e', margin: 0,
+                    fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>{r.label}</p>
                   {r.detail && (
                     <p style={{
-                      fontSize: '10px', color: '#9b9fad', margin: 0,
+                      fontSize: '10px', color: 'var(--text-muted)', margin: 0,
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>{r.detail}</p>
                   )}
                 </div>
                 <span style={{
-                  marginLeft: 'auto', fontSize: '10px', color: '#9b9fad',
-                  background: '#f0f2f8', borderRadius: '4px', padding: '2px 6px',
+                  marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)',
+                  background: 'var(--bg-page)', borderRadius: '4px', padding: '2px 6px',
                   whiteSpace: 'nowrap', flexShrink: 0,
                 }}>{r.type}</span>
               </button>
@@ -178,11 +178,11 @@ export function SearchBar() {
       {open && q.length >= 2 && results.length === 0 && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px',
-          background: '#fff', borderRadius: '12px', border: '1px solid #e8eaf0',
+          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
           boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100,
           padding: '16px 14px', textAlign: 'center',
         }}>
-          <p style={{ fontSize: '12px', color: '#9b9fad', margin: 0 }}>No results for "{query}"</p>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>No results for "{query}"</p>
         </div>
       )}
     </div>
