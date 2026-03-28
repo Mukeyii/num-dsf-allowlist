@@ -1,51 +1,53 @@
-# Env files
+# === Environment ===
 .env
 .env.prod
 .env.local
 .env.*.local
 
-# Dependencies
+# === Dependencies ===
 node_modules/
-frontend/node_modules/
-backend/node_modules/
 
-# Build artifacts
+# === Build artifacts ===
 dist/
 build/
-frontend/dist/
-backend/dist/
 
-# Logs
+# === Logs ===
 *.log
 logs/
 nginx_logs/
 
-# OS
+# === OS ===
 .DS_Store
 Thumbs.db
 
-# Docker volumes (locally generated)
+# === Docker volumes ===
 mysql-data/
 redis-data/
 
-# TLS certificates (never commit)
-certs/server.*
-certs/ca.*
+# === TLS certificates ===
+certs/
 
-# Bundle report
-dist/bundle-report.html
-
-# IDE
+# === IDE ===
 .idea/
-.vscode/settings.json
+.vscode/
 *.iml
 
-# TypeScript
+# === TypeScript ===
 *.tsbuildinfo
 
-# Test coverage
+# === Test coverage ===
 coverage/
 .nyc_output/
+
+# === Claude Code (machine-specific) ===
+.claude/settings.local.json
+
+# === Internal docs (not part of the product) ===
+docs/superpowers/
+docs/stitch/
+docs/NOTEBOOKLM_DIFF.md
+SPEC.md
 MASTERPROMPT*.md
-.claude/settings.local.json
-.claude/settings.local.json
+
+# === Lock files (regenerated per environment) ===
+package-lock.json
