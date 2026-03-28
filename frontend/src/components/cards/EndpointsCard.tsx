@@ -5,6 +5,7 @@ import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useModals }       from '../../hooks/useModals';
 import { toast } from 'sonner';
+import { IpDiffBadge } from './IpDiffBadge';
 
 function HealthDot({ url }: { url: string }) {
   const [status, setStatus] = useState<'checking' | 'up' | 'down'>('checking');
@@ -125,6 +126,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
           </div>
         )}
       </div>
+      <IpDiffBadge instanceId={instanceId} />
     </EntityCard>
   );
 }
