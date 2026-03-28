@@ -15,6 +15,7 @@ import { MembershipModal } from '../components/modals/MembershipModal';
 import { ApprovalModal } from '../components/modals/ApprovalModal';
 import { DownloadModal } from '../components/modals/DownloadModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
+import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -41,6 +42,7 @@ export function AppPage() {
           onApproval={() => openModal('approval')}
         />
         <ExpiryWarningBanner />
+        <Breadcrumbs />
         {isCanvasRoute ? (
           activeInstanceId ? (
             <EntityCanvas instanceId={activeInstanceId} />
