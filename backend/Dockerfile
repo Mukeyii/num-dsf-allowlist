@@ -8,9 +8,10 @@ COPY . .
 CMD ["npm", "run", "dev"]
 
 FROM base AS build
-RUN npm install --omit=dev
+RUN npm install
 COPY . .
 RUN npm run build
+RUN npm prune --omit=dev
 
 FROM node:20-alpine AS prod
 WORKDIR /app
