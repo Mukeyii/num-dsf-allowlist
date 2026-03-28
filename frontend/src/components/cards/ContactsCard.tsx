@@ -1,4 +1,4 @@
-import { useContacts }     from '../../hooks/useContacts';
+import { useContacts, useDeleteContact } from '../../hooks/useContacts';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useOrganization } from '../../hooks/useOrganization';
@@ -16,6 +16,7 @@ const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
 export function ContactsCard({ instanceId }: { instanceId: string }) {
   const { data: contacts = [], isLoading } = useContacts(instanceId);
   const { data: org } = useOrganization(instanceId);
+  const deleteMut = useDeleteContact(instanceId);
 
   return (
     <EntityCard
@@ -80,6 +81,32 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                   Resend verification
                 </button>
               )}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('contact-edit', c.id); }}
+                title="Edit contact"
+                style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (confirm('Delete this contact?')) {
+                    try { await deleteMut.mutateAsync(c.id); toast.success('Contact deleted.'); }
+                    catch { toast.error('Failed to delete contact.'); }
+                  }
+                }}
+                title="Delete contact"
+                style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>delete</span>
+              </button>
             </div>
           </div>
         ))}

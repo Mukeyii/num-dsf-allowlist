@@ -1,7 +1,8 @@
-import { useCertificates }  from '../../hooks/useCertificates';
+import { useCertificates, useDeleteCertificate } from '../../hooks/useCertificates';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { EntityCard }       from './EntityCard';
 import { useModals }        from '../../hooks/useModals';
+import { toast } from 'sonner';
 
 function daysUntil(dateStr: string): number {
   return Math.floor((new Date(dateStr).getTime() - Date.now()) / 86400000);
@@ -10,6 +11,7 @@ function daysUntil(dateStr: string): number {
 export function CertificatesCard({ instanceId }: { instanceId: string }) {
   const { data: certs = [], isLoading } = useCertificates(instanceId);
   const { data: org } = useOrganization(instanceId);
+  const deleteMut = useDeleteCertificate(instanceId);
 
   return (
     <EntityCard
@@ -47,6 +49,23 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
                   <div style={{ width: `${pct}%`, height: '100%', borderRadius: '99px', background: barColor }} />
                 </div>
                 <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b' }}>{days}d left</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                <button
+                  onClick={async () => {
+                    if (confirm('Delete this certificate? This cannot be undone.')) {
+                      try { await deleteMut.mutateAsync(cert.id); toast.success('Certificate deleted.'); }
+                      catch { toast.error('Failed to delete certificate.'); }
+                    }
+                  }}
+                  title="Delete certificate"
+                  style={{ fontSize: '10px', color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '6px', fontWeight: 600, transition: 'background 0.15s', display: 'flex', alignItems: 'center' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>delete</span>
+                  Remove
+                </button>
               </div>
             </div>
           );
