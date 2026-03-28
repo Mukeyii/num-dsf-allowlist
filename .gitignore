@@ -54,3 +54,6 @@ MASTERPROMPT*.md
 
 # Backups
 backups/
+
+# === Lock files (regenerated per environment) ===
+package-lock.json
