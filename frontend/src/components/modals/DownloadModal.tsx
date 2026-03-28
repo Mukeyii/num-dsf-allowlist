@@ -4,6 +4,7 @@ import { Modal } from './Modal';
 import { selectClass } from './FormField';
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { api } from '../../api/entities.api';
+import { BundlePreview } from './BundlePreview';
 
 interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
@@ -99,6 +100,7 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
             {downloading ? 'Downloading…' : 'Download IP Address List (Excel)'}
           </button>
         </div>
+        <BundlePreview instanceId={instanceId} />
         {/* DSF Web UI Integration */}
         <div className="pt-5 border-t border-slate-100 space-y-3">
           <div className="flex items-center gap-2">
