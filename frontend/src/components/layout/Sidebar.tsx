@@ -51,7 +51,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-[220px] h-screen fixed left-0 top-0 bg-white border-r border-slate-100 flex flex-col py-6 z-50">
+    <aside className="w-[220px] h-screen fixed left-0 top-0 flex flex-col py-6 z-50" style={{ background: 'var(--bg-card)', borderRight: '1px solid var(--border)' }}>
 
       {/* Logo / Title */}
       <div className="px-6 mb-8">
@@ -101,7 +101,7 @@ export function Sidebar() {
                     transition: 'background 0.1s',
                   }}
                   onClick={() => setActiveInstance(inst.id)}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#f8f9fc'; }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)'; }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                 >
                   {isPinned && (
@@ -109,7 +109,7 @@ export function Sidebar() {
                   )}
                   <span style={{
                     flex: 1, fontSize: '11px', fontWeight: isActive ? 700 : 500,
-                    color: isActive ? '#6c63ff' : '#1a1a2e',
+                    color: isActive ? '#6c63ff' : 'var(--text-primary)',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>
                     {inst.label}
@@ -139,12 +139,12 @@ export function Sidebar() {
             padding: '8px 10px', borderRadius: '8px',
             fontSize: '12px', fontWeight: 600,
             textDecoration: 'none',
-            color: '#64748b',
+            color: 'var(--text-secondary)',
             background: 'transparent',
             transition: 'all 0.15s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#f0f2f8'; e.currentTarget.style.color = '#6c63ff'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>admin_panel_settings</span>
           Approval Review
@@ -160,10 +160,10 @@ export function Sidebar() {
             padding: '8px 10px', borderRadius: '8px',
             fontSize: '12px', fontWeight: 600, width: '100%',
             border: 'none', cursor: 'pointer',
-            color: '#64748b', background: 'transparent',
+            color: 'var(--text-secondary)', background: 'transparent',
             transition: 'all 0.15s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#f0f2f8'; }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -195,7 +195,7 @@ export function Sidebar() {
       {/* User Identity + Logout */}
       <div className="px-3">
         {/* User Card */}
-        <div className="p-4 bg-slate-50 rounded-xl mb-3">
+        <div className="p-4 rounded-xl mb-3" style={{ background: 'var(--bg-hover)' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
               {initials}
@@ -214,9 +214,9 @@ export function Sidebar() {
           onMouseLeave={() => setLogoutHover(false)}
           className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-left transition-colors duration-200"
           style={{
-            background: 'white',
-            border: `1px solid ${logoutHover ? '#ef4444' : '#e2e8f0'}`,
-            color: logoutHover ? '#ef4444' : '#64748b',
+            background: 'var(--bg-card)',
+            border: `1px solid ${logoutHover ? '#ef4444' : 'var(--border)'}`,
+            color: logoutHover ? '#ef4444' : 'var(--text-secondary)',
           }}
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>

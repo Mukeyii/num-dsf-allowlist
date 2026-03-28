@@ -36,6 +36,8 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
 }
 
 .entity-card-shadow {
@@ -53,7 +55,7 @@ body {
 }
 
 .canvas-bg {
-  background-color: #f0f2f8;
+  background-color: var(--bg-page);
 }
 
 @keyframes pulse-teal {
@@ -65,3 +67,14 @@ body {
 .status-pulse {
   animation: pulse-teal 2s infinite;
 }
+
+/* Dark mode overrides for Tailwind utility classes */
+:root.dark .bg-white { background-color: var(--bg-card) !important; }
+:root.dark .text-slate-900 { color: var(--text-primary) !important; }
+:root.dark .border-slate-100 { border-color: var(--border) !important; }
+:root.dark .border-slate-200 { border-color: var(--border) !important; }
+:root.dark .bg-slate-50 { background-color: var(--bg-hover) !important; }
+:root.dark .text-slate-400,
+:root.dark .text-slate-500 { color: var(--text-muted) !important; }
+:root.dark .text-slate-600,
+:root.dark .text-slate-700 { color: var(--text-secondary) !important; }

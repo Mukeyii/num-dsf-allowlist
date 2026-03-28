@@ -40,7 +40,7 @@ export function LoginPage() {
           <label
             htmlFor="email"
             className="block text-xs font-medium mb-1.5"
-            style={{ color: '#9b9fad' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             Email address
           </label>
@@ -55,13 +55,13 @@ export function LoginPage() {
             placeholder="you@hospital.de"
             className="w-full px-3 py-2.5 text-sm outline-none transition-all"
             style={{
-              border: '1px solid #e8eaf0',
+              border: '1px solid var(--border)',
               borderRadius: '10px',
-              color: '#1a1a2e',
-              background: '#fff',
+              color: 'var(--text-primary)',
+              background: 'var(--bg-input)',
             }}
             onFocus={(e) => (e.target.style.borderColor = '#6c63ff')}
-            onBlur={(e) => (e.target.style.borderColor = '#e8eaf0')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
           />
         </div>
 

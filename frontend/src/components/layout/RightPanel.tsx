@@ -19,10 +19,10 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
   const { data: certificates = [] } = useCertificates(instanceId);
 
   return (
-    <aside className="w-[280px] h-screen fixed right-0 top-0 bg-white border-l border-slate-100 flex flex-col p-6 gap-6 z-50">
+    <aside className="w-[280px] h-screen fixed right-0 top-0 flex flex-col p-6 gap-6 z-50" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
       <div>
-        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Approval Status</h2>
-        <p className="text-xs text-slate-500">Operational Overview</p>
+        <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Approval Status</h2>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Operational Overview</p>
       </div>
 
       <div className="space-y-4">
@@ -56,21 +56,21 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
       </div>
 
       <div className="space-y-2">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Overview</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Overview</p>
         <div className="grid grid-cols-2 gap-2">
-          <div className="p-3 bg-slate-50 rounded-xl text-center">
+          <div className="p-3 rounded-xl text-center" style={{ background: 'var(--bg-hover)' }}>
             <p className="text-lg font-bold text-primary">{certificates.length}</p>
-            <p className="text-[10px] text-slate-500">Certificates</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Certificates</p>
           </div>
-          <div className="p-3 bg-slate-50 rounded-xl text-center">
+          <div className="p-3 rounded-xl text-center" style={{ background: 'var(--bg-hover)' }}>
             <p className="text-lg font-bold text-secondary">{memberships.length}</p>
-            <p className="text-[10px] text-slate-500">Members</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Members</p>
           </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
           Recent Activity
         </p>
         <div className="space-y-3">
@@ -83,7 +83,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
               }`} />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold">Request #{req.id.slice(-4)}</p>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                   {relativeTime(req.submitted_at || req.created_at)}
                 </p>
               </div>
@@ -97,7 +97,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
             </div>
           ))}
           {history.length === 0 && (
-            <p className="text-xs text-slate-400">No requests yet.</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No requests yet.</p>
           )}
         </div>
       </div>

@@ -18,7 +18,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4"
-      style={{ background: '#f0f2f8', fontFamily: 'Inter, system-ui, sans-serif' }}
+      style={{ background: 'var(--bg-page)', fontFamily: 'Inter, system-ui, sans-serif' }}
     >
       {/* Logo */}
       <div className="mb-8 text-center">
@@ -41,21 +41,22 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
       {/* Card */}
       <div
-        className="w-full max-w-md bg-white p-8"
+        className="w-full max-w-md p-8"
         style={{
           borderRadius: '16px',
+          background: 'var(--bg-card)',
           boxShadow: '0 2px 8px rgba(108,99,255,0.07)',
-          border: '1px solid #e8eaf0',
+          border: '1px solid var(--border)',
         }}
       >
         <h1
           className="text-xl font-semibold mb-1"
-          style={{ color: '#1a1a2e' }}
+          style={{ color: 'var(--text-primary)' }}
         >
           {title}
         </h1>
         {subtitle && (
-          <p className="text-sm mb-6" style={{ color: '#9b9fad' }}>
+          <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
             {subtitle}
           </p>
         )}
@@ -82,7 +83,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       </div>
 
       {/* Footer text */}
-      <p className="mt-4 text-xs" style={{ color: '#9b9fad' }}>
+      <p className="mt-4 text-xs" style={{ color: 'var(--text-muted)' }}>
         Institute of Medical Informatics · University of Muenster
       </p>
     </div>
