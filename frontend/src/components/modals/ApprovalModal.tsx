@@ -82,7 +82,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
                 <span className="material-symbols-outlined" style={{ fontSize: '16px', color: c.ok ? '#22c55e' : '#ef4444' }}>
                   {c.ok ? 'check_circle' : 'cancel'}
                 </span>
-                <span style={{ fontSize: '12px', color: c.ok ? '#1a1a2e' : '#991b1b' }}>{c.label}</span>
+                <span style={{ fontSize: '12px', color: c.ok ? 'var(--text-primary)' : '#991b1b' }}>{c.label}</span>
               </div>
             ))}
           </div>

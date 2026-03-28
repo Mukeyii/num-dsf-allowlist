@@ -20,7 +20,7 @@ export function Breadcrumbs() {
   return (
     <nav style={{
       display: 'flex', alignItems: 'center', gap: '6px',
-      padding: '8px 24px', fontSize: '12px', color: '#9b9fad',
+      padding: '8px 24px', fontSize: '12px', color: 'var(--text-muted)',
     }}>
       {segments.map((seg, i) => {
         const path = '/' + segments.slice(0, i + 1).join('/');
@@ -29,9 +29,9 @@ export function Breadcrumbs() {
 
         return (
           <span key={path} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {i > 0 && <span style={{ color: '#d4d8e8' }}>/</span>}
+            {i > 0 && <span style={{ color: 'var(--border)' }}>/</span>}
             {isLast ? (
-              <span style={{ fontWeight: 600, color: '#1a1a2e' }}>{label}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{label}</span>
             ) : (
               <Link
                 to={path}
