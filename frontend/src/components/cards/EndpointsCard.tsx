@@ -1,9 +1,40 @@
+import { useState, useEffect } from 'react';
 import { useEndpoints, useDeleteEndpoint } from '../../hooks/useEndpoints';
 import { useOrganization } from '../../hooks/useOrganization';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useModals }       from '../../hooks/useModals';
 import { toast } from 'sonner';
+
+function HealthDot({ url }: { url: string }) {
+  const [status, setStatus] = useState<'checking' | 'up' | 'down'>('checking');
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    // Try to fetch the FHIR endpoint — expect CORS to block, but if we get ANY response it's "up"
+    fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
+      .then(() => { if (!cancelled) setStatus('up'); })
+      .catch(() => { if (!cancelled) setStatus('down'); });
+
+    return () => { cancelled = true; controller.abort(); };
+  }, [url]);
+
+  const colors = { checking: '#d4d8e8', up: '#22c55e', down: '#ef4444' };
+  const titles = { checking: 'Checking…', up: 'Reachable', down: 'Unreachable' };
+
+  return (
+    <span
+      title={titles[status]}
+      style={{
+        display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%',
+        background: colors[status], flexShrink: 0,
+        boxShadow: status === 'up' ? '0 0 4px #22c55e44' : 'none',
+      }}
+    />
+  );
+}
 
 export function EndpointsCard({ instanceId }: { instanceId: string }) {
   const { data: endpoints = [], isLoading } = useEndpoints(instanceId);
@@ -33,8 +64,11 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
-                {ep.name || ep.identifier}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                <HealthDot url={ep.address} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {ep.name || ep.identifier}
+                </span>
               </div>
               <div className="mono-id" style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
                 {ep.identifier}
