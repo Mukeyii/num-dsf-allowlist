@@ -46,6 +46,7 @@ function RequestCard({ request }: RequestCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [comment, setComment] = useState('');
+  const [totpCode, setTotpCode] = useState('');
 
   const approveMut = useApproveRequest();
   const rejectMut = useRejectRequest();
@@ -56,27 +57,38 @@ function RequestCard({ request }: RequestCardProps) {
   const timeStr = request.submitted_at ?? request.created_at ?? '';
 
   async function handleApprove() {
-    if (!confirm(`Approve request for "${orgName}" (${orgId})?`)) return;
+    if (!totpCode || totpCode.length !== 6) {
+      toast.error('Please enter your 6-digit authenticator code.');
+      return;
+    }
     try {
-      await approveMut.mutateAsync(request.id);
-      toast.success(`Approved request for ${orgName}`);
-    } catch {
-      toast.error('Failed to approve request');
+      await approveMut.mutateAsync({ requestId: request.id, totpCode });
+      toast.success('Request approved.');
+      setTotpCode('');
+    } catch (err: any) {
+      const msg = err?.response?.data?.error?.message || 'Failed to approve request.';
+      toast.error(msg);
     }
   }
 
   async function handleReject() {
     if (!comment.trim()) {
-      toast.error('A comment is required to reject a request');
+      toast.error('Please provide a reason for rejection.');
+      return;
+    }
+    if (!totpCode || totpCode.length !== 6) {
+      toast.error('Please enter your 6-digit authenticator code.');
       return;
     }
     try {
-      await rejectMut.mutateAsync({ requestId: request.id, comment: comment.trim() });
-      toast.success(`Rejected request for ${orgName}`);
+      await rejectMut.mutateAsync({ requestId: request.id, comment: comment.trim(), totpCode });
+      toast.success('Request rejected.');
       setRejecting(false);
       setComment('');
-    } catch {
-      toast.error('Failed to reject request');
+      setTotpCode('');
+    } catch (err: any) {
+      const msg = err?.response?.data?.error?.message || 'Failed to reject request.';
+      toast.error(msg);
     }
   }
 
@@ -244,6 +256,24 @@ function RequestCard({ request }: RequestCardProps) {
           </div>
         </div>
       )}
+
+      {/* TOTP confirmation input */}
+      <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#6c63ff' }}>lock</span>
+        <input
+          type="text"
+          value={totpCode}
+          onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          placeholder="6-digit authenticator code"
+          maxLength={6}
+          style={{
+            width: '180px', padding: '8px 12px', borderRadius: '10px',
+            border: '1px solid #e2e8f0', fontSize: '14px', fontFamily: 'monospace',
+            letterSpacing: '4px', textAlign: 'center', outline: 'none',
+          }}
+        />
+        <span style={{ fontSize: '10px', color: '#9b9fad' }}>Required for approve/reject</span>
+      </div>
 
       {/* Expand toggle */}
       <button
