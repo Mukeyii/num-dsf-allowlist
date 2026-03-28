@@ -1,3 +1,27 @@
+:root {
+  --bg-page: #f0f2f8;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --bg-hover: #f8f9fc;
+  --border: #e8eaf0;
+  --text-primary: #1a1a2e;
+  --text-secondary: #64748b;
+  --text-muted: #9b9fad;
+  --shadow: rgba(108, 99, 255, 0.07);
+}
+
+:root.dark {
+  --bg-page: #0f1117;
+  --bg-card: #1a1c25;
+  --bg-input: #22242e;
+  --bg-hover: #252830;
+  --border: #2d3040;
+  --text-primary: #e4e5eb;
+  --text-secondary: #9b9fad;
+  --text-muted: #64687a;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1');
 @tailwind base;

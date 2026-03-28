@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
+import { useThemeStore }  from '../../stores/theme.store';
 import { useInstances }   from '../../hooks/useInstance';
 import { authApi }        from '../../api/auth.api';
 import { InstanceCreateModal } from '../modals/InstanceCreateModal';
@@ -17,6 +18,7 @@ export function Sidebar() {
   const { data: instances = [] } = useInstances();
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
+  const { dark, toggleTheme } = useThemeStore();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
 
@@ -92,6 +94,28 @@ export function Sidebar() {
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>admin_panel_settings</span>
           Approval Review
         </Link>
+      </div>
+
+      {/* Dark Mode Toggle */}
+      <div style={{ padding: '0 16px', marginTop: '4px' }}>
+        <button
+          onClick={toggleTheme}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 10px', borderRadius: '8px',
+            fontSize: '12px', fontWeight: 600, width: '100%',
+            border: 'none', cursor: 'pointer',
+            color: '#64748b', background: 'transparent',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#f0f2f8'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+            {dark ? 'light_mode' : 'dark_mode'}
+          </span>
+          {dark ? 'Light Mode' : 'Dark Mode'}
+        </button>
       </div>
 
       {/* Spacer */}
