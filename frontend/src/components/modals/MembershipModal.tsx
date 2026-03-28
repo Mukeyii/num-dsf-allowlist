@@ -1,10 +1,11 @@
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { FormField, selectClass, ModalFooter } from './FormField';
 import { membershipSchema, MembershipFormData } from '../../schemas/membership.schema';
-import { useCreateMembership, useUpdateMembership } from '../../hooks/useMemberships';
+import { useCreateMembership, useUpdateMembership, useMemberships } from '../../hooks/useMemberships';
 import { useEndpoints } from '../../hooks/useEndpoints';
 
 const PARENT_ORGS = ['medizininformatik-initiative.de', 'netzwerk-universitaetsmedizin.de', 'eyematics.org', 'dktk.dkfz.de'];
@@ -22,10 +23,28 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
   const createMut = useCreateMembership(instanceId);
   const updateMut = useUpdateMembership(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
-  const { register, handleSubmit, control, formState: { errors } } = useForm<MembershipFormData>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<MembershipFormData>({
     resolver: zodResolver(membershipSchema),
     defaultValues: { roles: [], ...defaultValues },
   });
+
+  const { data: memberships = [] } = useMemberships(instanceId);
+
+  useEffect(() => {
+    if (open && membershipId) {
+      const ms = memberships.find((m: any) => m.id === membershipId);
+      if (ms) {
+        const roles = Array.isArray(ms.roles) ? ms.roles : JSON.parse(ms.roles || '[]');
+        reset({
+          parentOrganization: ms.parent_organization,
+          endpointId: ms.endpoint_id || '',
+          roles,
+        });
+      }
+    } else if (open && !membershipId) {
+      reset({ parentOrganization: '', endpointId: '', roles: [] });
+    }
+  }, [open, membershipId, memberships, reset]);
 
   async function onSubmit(data: MembershipFormData) {
     try {
