@@ -42,29 +42,6 @@ interface RequestCardProps {
   };
 }
 
-function DiffBadge({ label, current, previous }: { label: string; current: string | undefined; previous: string | undefined }) {
-  if (!current && !previous) return null;
-  const changed = current !== previous;
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', marginBottom: '2px' }}>
-      <span style={{ color: '#64748b', minWidth: '60px' }}>{label}:</span>
-      <span style={{ color: changed ? '#1a1a2e' : '#9b9fad', fontWeight: changed ? 600 : 400 }}>
-        {current || '—'}
-      </span>
-      {changed && previous && (
-        <span style={{ fontSize: '10px', color: '#ef4444', textDecoration: 'line-through', marginLeft: '4px' }}>
-          {previous}
-        </span>
-      )}
-      {changed && (
-        <span style={{
-          fontSize: '8px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px',
-          background: '#fef3c7', color: '#92400e',
-        }}>CHANGED</span>
-      )}
-    </div>
-  );
-}
 
 function RequestCard({ request }: RequestCardProps) {
   const [expanded, setExpanded] = useState(false);
