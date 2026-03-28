@@ -15,7 +15,7 @@ function relTime(dateStr: string): string {
 }
 
 interface SnapshotData {
-  organization?: { name?: string; identifier?: string; [key: string]: unknown };
+  organization?: { name?: string; identifier?: string; email?: string; city?: string; country_code?: string; active?: boolean; address_line?: string; postal_code?: string };
   endpoints?: Array<{ identifier?: string; address?: string; name?: string; ips?: Array<{ ip: string; is_fhir?: boolean; is_bpe?: boolean }> }>;
   certificates?: Array<{ subject?: string; thumbprint?: string; valid_until?: string }>;
   memberships?: Array<{ parent_organization?: string; roles?: string[]; endpoint_id?: string }>;

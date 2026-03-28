@@ -14,7 +14,7 @@ export function TotpPage() {
   const location  = useLocation();
   const setTokens = useAuthStore((s) => s.setTokens);
 
-  const { tempToken, email } = (location.state as any) || {};
+  const { tempToken } = (location.state as any) || {};
 
   const [code, setCode]         = useState('');
   const [loading, setLoading]   = useState(false);

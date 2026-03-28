@@ -13,13 +13,14 @@ export function OrganizationCard({ instanceId }: Props) {
   const { data: contacts = [] }    = useContacts(instanceId);
   const { data: approval }         = useApprovalStatus(instanceId);
 
-  const approvalStatus = approval?.status ?? 'none';
-  const statusPill = {
+  const approvalStatus = (approval?.status ?? 'none') as 'APPROVED' | 'PENDING' | 'REJECTED' | 'none';
+  const statusMap = {
     APPROVED: { bg: '#e8f5ee', color: '#2d7a57', label: 'approved' },
     PENDING:  { bg: '#fff8e8', color: '#854f0b', label: 'pending'  },
     REJECTED: { bg: '#fff0f0', color: '#9b2335', label: 'rejected' },
     none:     { bg: '#f0f2f8', color: '#9b9fad', label: 'no request' },
-  }[approvalStatus] ?? { bg: '#f0f2f8', color: '#9b9fad', label: 'draft' };
+  };
+  const statusPill = statusMap[approvalStatus] ?? { bg: '#f0f2f8', color: '#9b9fad', label: 'draft' };
 
   if (isLoading) return (
     <EntityCard id="organization" title="Organization" borderColor="#4d41df" icon="corporate_fare">
