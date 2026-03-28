@@ -1,14 +1,16 @@
 /**
  * router.tsx – React Router v6 configuration
  * Public routes: /login, /otp, /totp-setup, /totp
- * Protected routes: /app/* (Phase 5)
+ * Protected routes: /app (canvas), /app/audit
  */
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { LoginPage }     from './pages/LoginPage';
 import { OtpPage }       from './pages/OtpPage';
 import { TotpSetupPage } from './pages/TotpSetupPage';
 import { TotpPage }      from './pages/TotpPage';
 import { AppPage }       from './pages/AppPage';
+import { AuditPage }     from './pages/AuditPage';
+import { NotFoundPage }  from './pages/NotFoundPage';
 import { useAuthStore }  from './stores/auth.store';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -23,13 +25,18 @@ function RootRedirect() {
 }
 
 export const router = createBrowserRouter([
-  { path: '/',          element: <RootRedirect /> },
-  { path: '/login',     element: <LoginPage /> },
-  { path: '/otp',       element: <OtpPage /> },
-  { path: '/totp-setup',element: <TotpSetupPage /> },
-  { path: '/totp',      element: <TotpPage /> },
+  { path: '/',           element: <RootRedirect /> },
+  { path: '/login',      element: <LoginPage /> },
+  { path: '/otp',        element: <OtpPage /> },
+  { path: '/totp-setup', element: <TotpSetupPage /> },
+  { path: '/totp',       element: <TotpPage /> },
   {
-    path: '/app/*',
+    path: '/app',
     element: <RequireAuth><AppPage /></RequireAuth>,
+    children: [
+      { index: true, element: null },
+      { path: 'audit', element: <AuditPage /> },
+    ],
   },
+  { path: '*', element: <NotFoundPage /> },
 ]);

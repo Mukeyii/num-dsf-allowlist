@@ -1,3 +1,4 @@
+import { useMatch, Outlet } from 'react-router-dom';
 import { useCanvasStore } from '../stores/canvas.store';
 import { useInstances } from '../hooks/useInstance';
 import { useModals } from '../hooks/useModals';
@@ -17,6 +18,7 @@ import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
+  const isCanvasRoute = useMatch('/app');
   useInstances();
 
   const { open, editId, openModal, closeModal } = useModals();
@@ -39,15 +41,19 @@ export function AppPage() {
           onApproval={() => openModal('approval')}
         />
         <ExpiryWarningBanner />
-        {activeInstanceId ? (
-          <EntityCanvas instanceId={activeInstanceId} />
+        {isCanvasRoute ? (
+          activeInstanceId ? (
+            <EntityCanvas instanceId={activeInstanceId} />
+          ) : (
+            <div style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#9b9fad', fontSize: '14px',
+            }}>
+              Loading instance…
+            </div>
+          )
         ) : (
-          <div style={{
-            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#9b9fad', fontSize: '14px',
-          }}>
-            Loading instance…
-          </div>
+          <Outlet />
         )}
       </div>
 
