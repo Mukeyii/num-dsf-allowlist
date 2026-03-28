@@ -4,6 +4,7 @@
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { useMemberships }   from '../../hooks/useMemberships';
 import { useCertificates }  from '../../hooks/useCertificates';
+import { useModals }        from '../../hooks/useModals';
 
 function relativeTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
@@ -13,10 +14,10 @@ function relativeTime(dateStr: string): string {
 }
 
 export function RightPanel({ instanceId }: { instanceId: string | null }) {
-  const { data: approval }          = useApprovalStatus(instanceId || '');
-  const { data: history = [] }      = useApprovalHistory(instanceId || '');
-  const { data: memberships = [] }  = useMemberships(instanceId || '');
-  const { data: certificates = [] } = useCertificates(instanceId || '');
+  const { data: approval }          = useApprovalStatus(instanceId);
+  const { data: history = [] }      = useApprovalHistory(instanceId);
+  const { data: memberships = [] }  = useMemberships(instanceId);
+  const { data: certificates = [] } = useCertificates(instanceId);
 
   return (
     <aside className="w-[280px] h-screen fixed right-0 top-0 bg-white border-l border-slate-100 flex flex-col p-6 gap-6 z-50">
@@ -105,6 +106,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
       <button
         className="w-full py-3 px-6 rounded-xl text-white font-bold text-sm"
         style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
+        onClick={() => useModals.getState().openModal('approval')}
       >
         Send for Approval
       </button>

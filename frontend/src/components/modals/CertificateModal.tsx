@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -10,9 +11,11 @@ interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
 export function CertificateModal({ open, onClose, instanceId }: Props) {
   const { mutateAsync, isPending } = useCreateCertificate(instanceId);
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<CertificateFormData>({ resolver: zodResolver(certificateSchema) });
-  const pemValue = watch('pem') || '';
-  const hasPrivateKey = pemValue.includes('PRIVATE KEY');
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CertificateFormData>({ resolver: zodResolver(certificateSchema) });
+
+  useEffect(() => {
+    if (open) reset({ pem: '' });
+  }, [open, reset]);
 
   async function onSubmit(data: CertificateFormData) {
     try {
@@ -40,11 +43,6 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
             </div>
           </div>
         </div>
-        {hasPrivateKey && (
-          <div className="p-3 bg-red-100 rounded-xl border border-red-200">
-            <p className="text-xs font-bold text-red-800">Private key material detected in the input above. Remove it before saving.</p>
-          </div>
-        )}
         <FormField label="Certificate PEM" required error={errors.pem?.message} hint="Paste the PEM block starting with -----BEGIN CERTIFICATE-----">
           <textarea {...register('pem')} rows={10}
             className="w-full px-3 py-2 text-[11px] font-mono bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none"

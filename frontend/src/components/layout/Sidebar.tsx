@@ -41,13 +41,12 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 space-y-1">
-        <a
-          href="#"
-          className="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors duration-200"
+        <button
+          className="w-full flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors duration-200 text-left"
         >
           <span className="material-symbols-outlined text-[20px]">home</span>
           <span className="text-sm">My Instance</span>
-        </a>
+        </button>
 
         {NAV_ITEMS.map(({ id, label, icon }) => (
           <button
@@ -95,16 +94,16 @@ export function Sidebar() {
             <div className="overflow-hidden">
               <p className="text-xs font-bold truncate">{user?.email}</p>
               <p className="text-[10px] text-slate-500 truncate mono-id">
-                dsf-bpe.ukmuenster.de
+                {instances.find((i: any) => i.id === activeInstanceId)?.label || 'No instance selected'}
               </p>
             </div>
           </div>
         </div>
 
-        <a href="#" className="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">
+        <button className="w-full flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg text-left">
           <span className="material-symbols-outlined text-[20px]">settings</span>
           <span className="text-sm">Instance Settings</span>
-        </a>
+        </button>
       </div>
     </aside>
   );
