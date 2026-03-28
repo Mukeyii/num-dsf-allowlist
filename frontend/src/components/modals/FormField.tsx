@@ -37,21 +37,23 @@ export const selectClass =
   'text-slate-900 outline-none focus:border-primary focus:ring-2 ' +
   'focus:ring-primary/10 transition-all';
 
-export function ModalFooter({ onCancel, onSubmit, submitLabel, loading }: {
+export function ModalFooter({ onCancel, onSubmit, submitLabel, loading, disabled }: {
   onCancel: () => void;
   onSubmit?: () => void;
   submitLabel?: string;
   loading?: boolean;
+  disabled?: boolean;
 }) {
+  const isDisabled = loading || disabled;
   return (
     <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-100">
       <button type="button" onClick={onCancel}
         className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
         Cancel
       </button>
-      <button type={onSubmit ? 'button' : 'submit'} onClick={onSubmit} disabled={loading}
+      <button type={onSubmit ? 'button' : 'submit'} onClick={onSubmit} disabled={isDisabled}
         className="px-5 py-2 text-sm font-bold text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
-        style={{ background: loading ? '#a0a0a0' : 'linear-gradient(135deg, #4d41df, #675df9)' }}>
+        style={{ background: isDisabled ? '#a0a0a0' : 'linear-gradient(135deg, #4d41df, #675df9)' }}>
         {loading ? 'Saving…' : (submitLabel || 'Save')}
       </button>
     </div>

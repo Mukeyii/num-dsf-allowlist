@@ -40,6 +40,19 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
   const { data: certs = [] } = useCertificates(instanceId);
   const { data: memberships = [] } = useMemberships(instanceId);
 
+  const checks = [
+    { label: 'Organization configured', ok: !!org, icon: 'corporate_fare' },
+    { label: 'At least 1 endpoint', ok: endpoints.length > 0, icon: 'hub' },
+    { label: 'At least 1 certificate', ok: certs.length > 0, icon: 'verified_user' },
+    { label: 'MEDIC contact assigned', ok: contacts.some((c: any) => {
+      const types = Array.isArray(c.types) ? c.types : JSON.parse(c.types || '[]');
+      return types.includes('MEDIC');
+    }), icon: 'contact_phone' },
+    { label: 'At least 1 membership', ok: memberships.length > 0, icon: 'groups' },
+  ];
+
+  const allPassed = checks.every(c => c.ok);
+
   async function handleSubmit() {
     try {
       await mutateAsync();
@@ -57,6 +70,22 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
       <div className="space-y-3">
         <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
           <p className="text-xs text-indigo-700">Once submitted, the request status will show as <strong>PENDING</strong> until IMI approves or rejects it.</p>
+        </div>
+        {/* Validation Checklist */}
+        <div style={{ marginBottom: '16px', padding: '12px 16px', background: allPassed ? '#f0fdf4' : '#fef2f2', borderRadius: '12px', border: `1px solid ${allPassed ? '#bbf7d0' : '#fecaca'}` }}>
+          <p style={{ fontSize: '11px', fontWeight: 700, color: allPassed ? '#15803d' : '#991b1b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {allPassed ? 'All checks passed' : 'Some checks failed'}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {checks.map((c, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: c.ok ? '#22c55e' : '#ef4444' }}>
+                  {c.ok ? 'check_circle' : 'cancel'}
+                </span>
+                <span style={{ fontSize: '12px', color: c.ok ? '#1a1a2e' : '#991b1b' }}>{c.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
         {org && (<Section title="Organization">
           <KV k="Identifier" v={<span className="mono-id text-primary">{org.identifier}</span>} />
@@ -96,7 +125,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           </div>))}
         </Section>
       </div>
-      <ModalFooter onCancel={onClose} onSubmit={handleSubmit} loading={isPending} submitLabel="Send Request for Approval" />
+      <ModalFooter onCancel={onClose} onSubmit={handleSubmit} loading={isPending} submitLabel="Send Request for Approval" disabled={!allPassed} />
     </Modal>
   );
 }
