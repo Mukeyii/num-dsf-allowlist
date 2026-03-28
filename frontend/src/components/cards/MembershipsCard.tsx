@@ -1,8 +1,8 @@
 import { useMemberships, useDeleteMembership } from '../../hooks/useMemberships';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { useEndpoints }     from '../../hooks/useEndpoints';
-import { useCanvasStore }   from '../../stores/canvas.store';
 import { EntityCard }       from './EntityCard';
+import { FkLink }           from './FkLink';
 import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
 import { toast } from 'sonner';
@@ -11,7 +11,6 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { data: memberships = [], isLoading } = useMemberships(instanceId);
   const { data: org }       = useOrganization(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
-  const highlightEntity     = useCanvasStore((s) => s.highlightEntity);
   const deleteMut = useDeleteMembership(instanceId);
 
   return (
@@ -23,22 +22,8 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
       onAdd={() => useModals.getState().openModal('membership-add')}
     >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-        {org && (
-          <span
-            style={{ fontSize: '9px', color: '#94a3b8', cursor: 'pointer' }}
-            onClick={() => { highlightEntity('organization'); document.getElementById('card-organization')?.scrollIntoView({ behavior: 'smooth' }); }}
-          >
-            FK: {org.identifier}
-          </span>
-        )}
-        {endpoints[0] && (
-          <span
-            style={{ fontSize: '9px', color: '#94a3b8', cursor: 'pointer' }}
-            onClick={() => { highlightEntity('endpoints'); document.getElementById('card-endpoints')?.scrollIntoView({ behavior: 'smooth' }); }}
-          >
-            FK: {endpoints[0].identifier}
-          </span>
-        )}
+        {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
+        {endpoints[0] && <FkLink label="Endpoint" targetEntity="endpoints" value={endpoints[0].identifier} />}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
