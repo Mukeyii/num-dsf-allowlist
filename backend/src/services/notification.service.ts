@@ -9,6 +9,10 @@
  */
 import nodemailer from 'nodemailer';
 
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail',
   port: parseInt(process.env.SMTP_PORT || '1025'),
@@ -68,13 +72,13 @@ export async function sendAdminNewRequestEmail(
     <p>A new approval request has been submitted and requires your review.</p>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
       <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Organization</td>
-          <td style="padding:6px 0;font-weight:bold;">${orgName}</td></tr>
+          <td style="padding:6px 0;font-weight:bold;">${esc(orgName)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666;">Identifier</td>
-          <td style="padding:6px 0;">${orgIdentifier}</td></tr>
+          <td style="padding:6px 0;">${esc(orgIdentifier)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666;">Submitted by</td>
-          <td style="padding:6px 0;">${submittedBy}</td></tr>
+          <td style="padding:6px 0;">${esc(submittedBy)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666;">Request ID</td>
-          <td style="padding:6px 0;font-family:monospace;font-size:12px;">${requestId}</td></tr>
+          <td style="padding:6px 0;font-family:monospace;font-size:12px;">${esc(requestId)}</td></tr>
     </table>
     <p style="margin-top:20px;">
       <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/approvals"
@@ -113,20 +117,20 @@ export async function sendAdminApprovalResultEmail(
 
   const commentHtml = comment
     ? `<tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Comment</td>
-           <td style="padding:6px 0;">${comment}</td></tr>`
+           <td style="padding:6px 0;">${esc(comment)}</td></tr>`
     : '';
 
   const html = baseHtml(`Request ${status.charAt(0) + status.slice(1).toLowerCase()}`, `
     <p>An approval request has been resolved.</p>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
       <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Organization</td>
-          <td style="padding:6px 0;font-weight:bold;">${orgName}</td></tr>
+          <td style="padding:6px 0;font-weight:bold;">${esc(orgName)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666;">Identifier</td>
-          <td style="padding:6px 0;">${orgIdentifier}</td></tr>
+          <td style="padding:6px 0;">${esc(orgIdentifier)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666;">Status</td>
           <td style="padding:6px 0;">${statusBadge(status)}</td></tr>
       <tr><td style="padding:6px 12px 6px 0;color:#666;">Resolved by</td>
-          <td style="padding:6px 0;">${resolvedBy}</td></tr>
+          <td style="padding:6px 0;">${esc(resolvedBy)}</td></tr>
       ${commentHtml}
     </table>
   `);
@@ -157,7 +161,7 @@ export async function sendSiteApprovalResultEmail(
   const commentHtml = comment
     ? `<div style="margin-top:16px;padding:12px;background:#f8f8fb;border-left:4px solid #ddd;border-radius:4px;">
          <p style="margin:0 0 4px 0;color:#666;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Reviewer comment</p>
-         <p style="margin:0;">${comment}</p>
+         <p style="margin:0;">${esc(comment)}</p>
        </div>`
     : '';
 
