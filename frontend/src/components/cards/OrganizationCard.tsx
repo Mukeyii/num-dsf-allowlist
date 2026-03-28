@@ -48,20 +48,20 @@ export function OrganizationCard({ instanceId }: Props) {
     APPROVED: { bg: '#e8f5ee', color: '#2d7a57', label: 'approved' },
     PENDING:  { bg: '#fff8e8', color: '#854f0b', label: 'pending'  },
     REJECTED: { bg: '#fff0f0', color: '#9b2335', label: 'rejected' },
-    none:     { bg: '#f0f2f8', color: '#9b9fad', label: 'no request' },
+    none:     { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: 'no request' },
   };
-  const statusPill = statusMap[approvalStatus] ?? { bg: '#f0f2f8', color: '#9b9fad', label: 'draft' };
+  const statusPill = statusMap[approvalStatus] ?? { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: 'draft' };
 
   if (isLoading) return (
     <EntityCard id="organization" title="Organization" borderColor="#4d41df" icon="corporate_fare">
-      <div style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</div>
+      <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</div>
     </EntityCard>
   );
 
   if (!org) return (
     <EntityCard id="organization" title="Organization" borderColor="#4d41df" icon="corporate_fare"
       onAdd={() => useModals.getState().openModal('org-edit')} addLabel="Set up">
-      <div style={{ color: '#9b9fad', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>
+      <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>
         No organization yet.<br />Click "Set up" to begin.
       </div>
     </EntityCard>
@@ -70,7 +70,7 @@ export function OrganizationCard({ instanceId }: Props) {
   // Shared row style
   const rowStyle: React.CSSProperties = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '4px 0', borderBottom: '1px solid #f0f2f8', fontSize: '12px',
+    padding: '4px 0', borderBottom: '1px solid var(--bg-page)', fontSize: '12px',
   };
 
   return (
@@ -84,7 +84,7 @@ export function OrganizationCard({ instanceId }: Props) {
     >
       {contacts.length > 0 && (
         <div style={{ marginBottom: '10px' }}>
-          <div style={{ fontSize: '10px', color: '#9b9fad', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '.05em' }}>
             Shared with
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
@@ -109,9 +109,9 @@ export function OrganizationCard({ instanceId }: Props) {
         { label: 'Address',    value: org.address_line || '—' },
       ].map(({ label, value, mono }) => (
         <div key={label} style={rowStyle}>
-          <span style={{ color: '#9b9fad' }}>{label}</span>
+          <span style={{ color: 'var(--text-muted)' }}>{label}</span>
           <span style={{
-            color: mono ? '#6c63ff' : '#1a1a2e',
+            color: mono ? '#6c63ff' : 'var(--text-primary)',
             fontFamily: mono ? "'JetBrains Mono', monospace" : 'inherit',
             fontSize: mono ? '11px' : '12px',
           }}>
@@ -122,7 +122,7 @@ export function OrganizationCard({ instanceId }: Props) {
 
       {/* Inline-editable: Name */}
       <div style={rowStyle}>
-        <span style={{ color: '#9b9fad' }}>Name</span>
+        <span style={{ color: 'var(--text-muted)' }}>Name</span>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
           {editing === 'name' ? (
             <input
@@ -135,7 +135,7 @@ export function OrganizationCard({ instanceId }: Props) {
                 if (e.key === 'Escape') setEditing(null);
               }}
               style={{
-                fontSize: '12px', fontWeight: 700, color: '#1a1a2e',
+                fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)',
                 border: 'none', borderBottom: '2px solid #6c63ff',
                 outline: 'none', background: 'transparent',
                 width: '100%', padding: '2px 0', textAlign: 'right',
@@ -143,7 +143,7 @@ export function OrganizationCard({ instanceId }: Props) {
             />
           ) : (
             <span
-              style={{ color: '#1a1a2e', cursor: 'pointer', fontWeight: 600 }}
+              style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 600 }}
               onDoubleClick={() => { setEditing('name'); setEditValue(org.name || ''); }}
               title="Double-click to edit"
             >
@@ -158,7 +158,7 @@ export function OrganizationCard({ instanceId }: Props) {
 
       {/* Inline-editable: Email */}
       <div style={rowStyle}>
-        <span style={{ color: '#9b9fad' }}>Email</span>
+        <span style={{ color: 'var(--text-muted)' }}>Email</span>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
           {editing === 'email' ? (
             <input
@@ -171,7 +171,7 @@ export function OrganizationCard({ instanceId }: Props) {
                 if (e.key === 'Escape') setEditing(null);
               }}
               style={{
-                fontSize: '12px', fontWeight: 700, color: '#1a1a2e',
+                fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)',
                 border: 'none', borderBottom: '2px solid #6c63ff',
                 outline: 'none', background: 'transparent',
                 width: '100%', padding: '2px 0', textAlign: 'right',
@@ -179,7 +179,7 @@ export function OrganizationCard({ instanceId }: Props) {
             />
           ) : (
             <span
-              style={{ color: '#1a1a2e', cursor: 'pointer' }}
+              style={{ color: 'var(--text-primary)', cursor: 'pointer' }}
               onDoubleClick={() => { setEditing('email'); setEditValue(org.email || ''); }}
               title="Double-click to edit"
             >
@@ -194,7 +194,7 @@ export function OrganizationCard({ instanceId }: Props) {
 
       {/* Active status pill */}
       <div style={rowStyle}>
-        <span style={{ color: '#9b9fad' }}>Status</span>
+        <span style={{ color: 'var(--text-muted)' }}>Status</span>
         <span style={{
           background: org.active ? '#e8f5ee' : '#fff0f0',
           color:      org.active ? '#2d7a57' : '#9b2335',
@@ -208,9 +208,9 @@ export function OrganizationCard({ instanceId }: Props) {
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         marginTop: '10px', paddingTop: '8px',
-        borderTop: '1px solid #f0f2f8', fontSize: '12px',
+        borderTop: '1px solid var(--bg-page)', fontSize: '12px',
       }}>
-        <span style={{ color: '#9b9fad' }}>Approval</span>
+        <span style={{ color: 'var(--text-muted)' }}>Approval</span>
         <span style={{
           background: statusPill.bg, color: statusPill.color,
           padding: '2px 8px', borderRadius: '99px', fontSize: '11px',

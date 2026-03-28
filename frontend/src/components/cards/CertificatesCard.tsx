@@ -25,7 +25,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
       {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {isLoading && <p style={{ color: '#9b9fad', fontSize: '12px' }}>Loading…</p>}
+        {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Loading…</p>}
         {certs.map((cert: any) => {
           const days = daysUntil(cert.valid_until);
           const pct  = Math.max(0, Math.min(100, (days / 365) * 100));
@@ -46,7 +46,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
                 <div style={{ flex: 1, height: '6px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
                   <div style={{ width: `${pct}%`, height: '100%', borderRadius: '99px', background: barColor }} />
                 </div>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b' }}>{days}d left</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)' }}>{days}d left</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button
@@ -69,7 +69,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
           );
         })}
         {!isLoading && certs.length === 0 && (
-          <p style={{ color: '#9b9fad', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>No certificates yet.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '16px 0' }}>No certificates yet.</p>
         )}
       </div>
     </EntityCard>

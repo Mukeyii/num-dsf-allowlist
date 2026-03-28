@@ -27,8 +27,9 @@ export function EntityCard({
   return (
     <div
       id={`card-${id}`}
-      className="bg-white rounded-[16px] p-6 entity-card-shadow group transition-all duration-300 hover:-translate-y-1"
+      className="rounded-[16px] p-6 entity-card-shadow group transition-all duration-300 hover:-translate-y-1"
       style={{
+        background: 'var(--bg-card)',
         borderLeft: `4px solid ${borderColor}`,
         outline: isHighlighted ? `2px solid ${borderColor}66` : 'none',
         outlineOffset: '2px',
@@ -44,7 +45,7 @@ export function EntityCard({
             >
               {icon}
             </span>
-            <h3 className="font-bold text-slate-900">{title}</h3>
+            <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
             {badge}
           </div>
         </div>
