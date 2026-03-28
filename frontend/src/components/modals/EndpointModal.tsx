@@ -1,10 +1,11 @@
+import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { FormField, inputClass, ModalFooter } from './FormField';
 import { endpointSchema, EndpointFormData } from '../../schemas/endpoint.schema';
-import { useCreateEndpoint, useUpdateEndpoint } from '../../hooks/useEndpoints';
+import { useCreateEndpoint, useUpdateEndpoint, useEndpoints } from '../../hooks/useEndpoints';
 
 interface Props {
   open: boolean;
@@ -18,11 +19,31 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
   const createMut = useCreateEndpoint(instanceId);
   const updateMut = useUpdateEndpoint(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
-  const { register, handleSubmit, control, formState: { errors } } = useForm<EndpointFormData>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EndpointFormData>({
     resolver: zodResolver(endpointSchema),
     defaultValues: { ipAddresses: [{ ip: '', isFhir: false, isBpe: false }], ...defaultValues },
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'ipAddresses' });
+
+  const { data: endpoints = [] } = useEndpoints(instanceId);
+
+  useEffect(() => {
+    if (open && endpointId) {
+      const ep = endpoints.find((e: any) => e.identifier === endpointId);
+      if (ep) {
+        reset({
+          identifier: ep.identifier,
+          name: ep.name || '',
+          address: ep.address,
+          ipAddresses: (ep.ipAddresses || []).map((ip: any) => ({
+            ip: ip.ip, isFhir: !!ip.isFhir, isBpe: !!ip.isBpe,
+          })),
+        });
+      }
+    } else if (open && !endpointId) {
+      reset({ identifier: '', name: '', address: '', ipAddresses: [{ ip: '', isFhir: false, isBpe: false }] });
+    }
+  }, [open, endpointId, endpoints, reset]);
 
   async function onSubmit(data: EndpointFormData) {
     try {

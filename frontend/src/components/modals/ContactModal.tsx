@@ -1,10 +1,11 @@
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { FormField, inputClass, ModalFooter } from './FormField';
 import { contactSchema, ContactFormData } from '../../schemas/contact.schema';
-import { useCreateContact, useUpdateContact } from '../../hooks/useContacts';
+import { useCreateContact, useUpdateContact, useContacts } from '../../hooks/useContacts';
 
 const TYPES = [
   { value: 'MEDIC', label: 'MEDIC', desc: 'Person responsible for the organization' },
@@ -24,10 +25,33 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
   const createMut = useCreateContact(instanceId);
   const updateMut = useUpdateContact(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
-  const { register, handleSubmit, control, formState: { errors } } = useForm<ContactFormData>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: { types: [], ...defaultValues },
   });
+
+  const { data: contacts = [] } = useContacts(instanceId);
+
+  useEffect(() => {
+    if (open && contactId) {
+      const c = contacts.find((ct: any) => ct.id === contactId);
+      if (c) {
+        const types = Array.isArray(c.types) ? c.types : JSON.parse(c.types || '[]');
+        reset({
+          types,
+          name: c.name || '',
+          email: c.email,
+          phone: c.phone || '',
+          addressLine: c.address_line || '',
+          postalCode: c.postal_code || '',
+          city: c.city || '',
+          countryCode: c.country_code || '',
+        });
+      }
+    } else if (open && !contactId) {
+      reset({ types: [], name: '', email: '', phone: '', addressLine: '', postalCode: '', city: '', countryCode: '' });
+    }
+  }, [open, contactId, contacts, reset]);
 
   async function onSubmit(data: ContactFormData) {
     try {

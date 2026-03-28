@@ -1,10 +1,15 @@
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { EntityCard } from './EntityCard';
 import { useModals } from '../../hooks/useModals';
+import { useInstances } from '../../hooks/useInstance';
+import { useCanvasStore } from '../../stores/canvas.store';
 
 export function ApprovalCard({ instanceId }: { instanceId: string }) {
   const { data: status }       = useApprovalStatus(instanceId);
   const { data: history = [] } = useApprovalHistory(instanceId);
+  const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
+  const { data: instances = [] } = useInstances();
+  const currentInstance = instances.find((i: any) => i.id === activeInstanceId);
 
   return (
     <EntityCard
@@ -17,7 +22,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
     >
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>Global Health</span>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>{currentInstance?.label || 'Instance'}</span>
           {status?.status === 'PENDING' && (
             <span style={{ padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }}>
               1 Pending
