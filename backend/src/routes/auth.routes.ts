@@ -39,7 +39,8 @@ function getIp(req: Request): string {
 }
 
 // POST /auth/request-otp
-authRouter.post('/request-otp', otpRateLimit, async (req: Request, res: Response) => {
+const otpLimiter = process.env.NODE_ENV === 'test' ? [] : [otpRateLimit];
+authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Response) => {
   const { email } = req.body;
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'Email required' } });
@@ -54,7 +55,7 @@ authRouter.post('/request-otp', otpRateLimit, async (req: Request, res: Response
 });
 
 // POST /auth/verify-otp
-authRouter.post('/verify-otp', otpRateLimit, async (req: Request, res: Response) => {
+authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response) => {
   const { email, code } = req.body;
   if (!email || !code) {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'Email and code required' } });
@@ -87,7 +88,7 @@ authRouter.post('/setup-totp', async (req: Request, res: Response) => {
 });
 
 // POST /auth/confirm-totp  → confirm TOTP after setup + create session
-authRouter.post('/confirm-totp', otpRateLimit, async (req: Request, res: Response) => {
+authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Response) => {
   const { tempToken, code } = req.body;
   if (!tempToken || !code) {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
@@ -104,7 +105,7 @@ authRouter.post('/confirm-totp', otpRateLimit, async (req: Request, res: Respons
 });
 
 // POST /auth/verify-totp  → TOTP for subsequent logins
-authRouter.post('/verify-totp', otpRateLimit, async (req: Request, res: Response) => {
+authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Response) => {
   const { tempToken, code } = req.body;
   if (!tempToken || !code) {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
