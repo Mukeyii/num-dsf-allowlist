@@ -17,6 +17,7 @@ import { DownloadModal } from '../components/modals/DownloadModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { ActivityFeed } from '../components/canvas/ActivityFeed';
+import { CommandPalette } from '../components/layout/CommandPalette';
 
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -62,6 +63,7 @@ export function AppPage() {
 
       <RightPanel instanceId={activeInstanceId} />
       <ActivityFeed />
+      <CommandPalette />
 
       {activeInstanceId && (
         <>
