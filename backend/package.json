@@ -6,7 +6,9 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrate": "node -r ts-node/register src/db/migrate.ts"
+    "migrate": "node -r ts-node/register src/db/migrate.ts",
+    "test": "jest --forceExit --detectOpenHandles",
+    "test:watch": "jest --watch --forceExit --detectOpenHandles"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -31,6 +33,11 @@
     "node-cron": "^3.0.3"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "@types/jest": "^29.5.12",
+    "supertest": "^6.3.4",
+    "@types/supertest": "^6.0.2",
     "@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.5",
