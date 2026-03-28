@@ -1,7 +1,8 @@
 // Purpose: Global Jest setup/teardown – connects to DB and destroys pool after all tests
-// Dependencies: db/connection (Knex instance)
+// Dependencies: db/connection (Knex instance), redis.service
 
 import { db } from '../db/connection';
+import { redis } from '../services/redis.service';
 
 beforeAll(async () => {
   const result = await db.raw('SELECT DATABASE() as dbName');
@@ -10,4 +11,5 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await db.destroy();
+  redis.disconnect();
 });
