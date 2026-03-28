@@ -1,6 +1,7 @@
 /**
- * RelationLines.tsx – SVG overlay with Bezier curves between card refs.
- * Redraws on mount + window resize. pointer-events: none.
+ * RelationLines.tsx – SVG overlay with Bezier curves between entity cards.
+ * Redraws on mount, resize, scroll, and via ResizeObserver on cards.
+ * Uses container-scroll-aware positioning so lines stay aligned after scroll.
  */
 import { useEffect, useRef, useCallback } from 'react';
 
@@ -27,20 +28,42 @@ const RELATIONS = [
   { from: 'memberships',  to: 'approval',     color: '#e05c5c', opacity: 0.30 },
 ] as const;
 
-function getMid(el: HTMLDivElement, container: HTMLDivElement, side: 'right' | 'left' | 'bottom' | 'top') {
+/**
+ * Get the midpoint of a card edge, relative to the container's CONTENT (not viewport).
+ * Accounts for container scroll so lines stay correct after scrolling.
+ */
+function getEdgePoint(
+  el: HTMLDivElement,
+  container: HTMLDivElement,
+  side: 'right' | 'left' | 'bottom' | 'top',
+) {
   const er = el.getBoundingClientRect();
   const cr = container.getBoundingClientRect();
+  const scrollTop = container.scrollTop;
+  const scrollLeft = container.scrollLeft;
+
+  const relX = (pos: number) => pos - cr.left + scrollLeft;
+  const relY = (pos: number) => pos - cr.top + scrollTop;
+
   switch (side) {
-    case 'right':  return { x: er.right  - cr.left, y: (er.top + er.bottom) / 2 - cr.top };
-    case 'left':   return { x: er.left   - cr.left, y: (er.top + er.bottom) / 2 - cr.top };
-    case 'bottom': return { x: (er.left + er.right) / 2 - cr.left, y: er.bottom - cr.top };
-    case 'top':    return { x: (er.left + er.right) / 2 - cr.left, y: er.top    - cr.top };
+    case 'right':  return { x: relX(er.right),                    y: relY((er.top + er.bottom) / 2) };
+    case 'left':   return { x: relX(er.left),                     y: relY((er.top + er.bottom) / 2) };
+    case 'bottom': return { x: relX((er.left + er.right) / 2),    y: relY(er.bottom) };
+    case 'top':    return { x: relX((er.left + er.right) / 2),    y: relY(er.top) };
   }
 }
 
 function bezierPath(x1: number, y1: number, x2: number, y2: number): string {
-  const mx = (x1 + x2) / 2;
-  return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+  const dx = Math.abs(x2 - x1);
+  const dy = Math.abs(y2 - y1);
+
+  if (dx > dy) {
+    const cpOffset = Math.min(dx * 0.4, 60);
+    return `M${x1},${y1} C${x1 + cpOffset},${y1} ${x2 - cpOffset},${y2} ${x2},${y2}`;
+  } else {
+    const cpOffset = Math.min(dy * 0.4, 60);
+    return `M${x1},${y1} C${x1},${y1 + cpOffset} ${x2},${y2 - cpOffset} ${x2},${y2}`;
+  }
 }
 
 export function RelationLines({ cardRefs, containerRef }: RelationLinesProps) {
@@ -52,9 +75,8 @@ export function RelationLines({ cardRefs, containerRef }: RelationLinesProps) {
     if (!svg || !container) return;
 
     svg.innerHTML = '';
-    const cr = container.getBoundingClientRect();
-    svg.setAttribute('width',  String(cr.width));
-    svg.setAttribute('height', String(cr.height));
+    svg.setAttribute('width', String(container.scrollWidth));
+    svg.setAttribute('height', String(container.scrollHeight));
 
     RELATIONS.forEach(({ from, to, color, opacity }) => {
       const fromEl = cardRefs[from as keyof CardRefs].current;
@@ -65,15 +87,21 @@ export function RelationLines({ cardRefs, containerRef }: RelationLinesProps) {
       const toR   = toEl.getBoundingClientRect();
 
       let p1, p2;
-      if (fromR.right < toR.left) {
-        p1 = getMid(fromEl, container, 'right');
-        p2 = getMid(toEl,   container, 'left');
+      if (fromR.right + 10 < toR.left) {
+        p1 = getEdgePoint(fromEl, container, 'right');
+        p2 = getEdgePoint(toEl,   container, 'left');
+      } else if (toR.right + 10 < fromR.left) {
+        p1 = getEdgePoint(fromEl, container, 'left');
+        p2 = getEdgePoint(toEl,   container, 'right');
       } else if (fromR.bottom < toR.top) {
-        p1 = getMid(fromEl, container, 'bottom');
-        p2 = getMid(toEl,   container, 'top');
+        p1 = getEdgePoint(fromEl, container, 'bottom');
+        p2 = getEdgePoint(toEl,   container, 'top');
+      } else if (toR.bottom < fromR.top) {
+        p1 = getEdgePoint(fromEl, container, 'top');
+        p2 = getEdgePoint(toEl,   container, 'bottom');
       } else {
-        p1 = getMid(fromEl, container, 'right');
-        p2 = getMid(toEl,   container, 'left');
+        p1 = getEdgePoint(fromEl, container, 'right');
+        p2 = getEdgePoint(toEl,   container, 'left');
       }
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -91,17 +119,39 @@ export function RelationLines({ cardRefs, containerRef }: RelationLinesProps) {
         dot.setAttribute('cy', String(p.y));
         dot.setAttribute('r', '3');
         dot.setAttribute('fill', color);
-        dot.setAttribute('opacity', String(opacity + 0.2));
+        dot.setAttribute('opacity', String(Math.min(1, opacity + 0.2)));
         svg.appendChild(dot);
       });
     });
   }, [cardRefs, containerRef]);
 
   useEffect(() => {
-    const timer = setTimeout(draw, 150);
+    const container = containerRef.current;
+
+    const t1 = setTimeout(draw, 200);
+    const t2 = setTimeout(draw, 800);
+    const t3 = setTimeout(draw, 2000);
+
     window.addEventListener('resize', draw);
-    return () => { clearTimeout(timer); window.removeEventListener('resize', draw); };
-  }, [draw]);
+    container?.addEventListener('scroll', draw);
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && container) {
+      observer = new ResizeObserver(draw);
+      Object.values(cardRefs).forEach(ref => {
+        if (ref.current) observer!.observe(ref.current);
+      });
+    }
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      window.removeEventListener('resize', draw);
+      container?.removeEventListener('scroll', draw);
+      observer?.disconnect();
+    };
+  }, [draw, cardRefs, containerRef]);
 
   return (
     <svg
