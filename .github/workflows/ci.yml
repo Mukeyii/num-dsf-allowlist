@@ -1,0 +1,135 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-lint:
+    name: Backend Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: backend-lint
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testroot
+          MYSQL_DATABASE: dsf_allowlist
+          MYSQL_USER: dsf
+          MYSQL_PASSWORD: testpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 3306
+      DB_NAME: dsf_allowlist
+      DB_USER: dsf
+      DB_PASSWORD: testpass
+      DB_ROOT_PASSWORD: testroot
+      REDIS_URL: redis://localhost:6379
+      TOTP_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025
+      DSF_ENVIRONMENT: TEST
+      IMI_ADMIN_EMAILS: admin@test.de
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Run database migrations
+        run: |
+          mysql -h 127.0.0.1 -u root -ptestroot dsf_allowlist < ../db/migrations/001_initial_schema.sql
+      - name: Generate test JWT keys
+        run: |
+          openssl genrsa 2048 > /tmp/jwt_private.pem
+          openssl rsa -in /tmp/jwt_private.pem -pubout > /tmp/jwt_public.pem
+          echo "JWT_PRIVATE_KEY_BASE64=$(base64 -w0 /tmp/jwt_private.pem)" >> $GITHUB_ENV
+          echo "JWT_PUBLIC_KEY_BASE64=$(base64 -w0 /tmp/jwt_public.pem)" >> $GITHUB_ENV
+      - run: npm test
+
+  frontend-lint:
+    name: Frontend Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: frontend-lint
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker images
+        run: |
+          docker compose -f docker-compose.prod.yml build --no-cache
+      - name: Verify images
+        run: |
+          docker images | grep dsf-allowlist
