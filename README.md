@@ -1,6 +1,21 @@
-# DSF Allow List Management Portal
+<div align="center">
+  <img src="frontend/public/logos/dsf-logo.svg" alt="DSF" height="60" />
+  <h1>DSF Allow List Management Portal</h1>
+  <p>A web application for managing participants in the <strong>Data Sharing Framework (DSF)</strong> of the German Medical Informatics Initiative (MII/NUM).</p>
+  <p>Operated by the <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html">Institute of Medical Informatics Muenster (IMI)</a> at the University of Muenster.</p>
 
-A web application for managing participants in the **Data Sharing Framework (DSF)** of the German Medical Informatics Initiative (MII/NUM). Operated by the Institute of Medical Informatics Muenster (IMI) at the University of Muenster.
+  <br />
+
+  <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html"><img src="frontend/public/logos/IMI-Logo-grad-eng.png" alt="IMI" height="40" /></a>
+  &nbsp;&nbsp;
+  <a href="https://medic.uni-muenster.de/"><img src="frontend/public/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" height="36" /></a>
+  &nbsp;&nbsp;
+  <img src="frontend/public/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" height="28" />
+  &nbsp;&nbsp;
+  <img src="frontend/public/logos/dsf-logo.svg" alt="DSF" height="28" />
+</div>
+
+---
 
 ## Overview
 
