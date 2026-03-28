@@ -41,21 +41,21 @@ export function OnboardingWizard({ instanceId }: Props) {
 
   return (
     <div style={{
-      margin: '0 20px 16px', padding: '16px 20px',
+      margin: '0 0 16px', padding: '12px 16px',
       background: 'var(--bg-card)', borderRadius: '12px',
       border: '1px solid var(--border)',
       boxShadow: '0 2px 8px var(--shadow)',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#6c63ff' }}>rocket_launch</span>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Getting Started</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>rocket_launch</span>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>Getting Started</span>
         </div>
         <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{completedCount}/{steps.length} complete</span>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: '4px', background: 'var(--bg-hover)', borderRadius: '99px', overflow: 'hidden', marginBottom: '14px' }}>
+      <div style={{ height: '3px', background: 'var(--bg-hover)', borderRadius: '99px', overflow: 'hidden', marginBottom: '10px' }}>
         <div style={{ width: `${(completedCount / steps.length) * 100}%`, height: '100%', background: '#6c63ff', borderRadius: '99px', transition: 'width 0.3s' }} />
       </div>
 
@@ -67,18 +67,18 @@ export function OnboardingWizard({ instanceId }: Props) {
             onClick={() => { if (!step.done) useModals.getState().openModal(step.action); }}
             style={{
               flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-              padding: '8px 4px', borderRadius: '8px', border: 'none', cursor: step.done ? 'default' : 'pointer',
+              padding: '6px 4px', borderRadius: '8px', border: 'none', cursor: step.done ? 'default' : 'pointer',
               background: step === nextStep ? 'var(--bg-hover)' : 'transparent',
               transition: 'background 0.15s', opacity: step.done ? 0.5 : 1,
             }}
           >
             <div style={{
-              width: '28px', height: '28px', borderRadius: '50%', display: 'flex',
+              width: '24px', height: '24px', borderRadius: '50%', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
               background: step.done ? '#22c55e' : step === nextStep ? step.color : 'var(--bg-hover)',
             }}>
               <span className="material-symbols-outlined" style={{
-                fontSize: '16px', color: step.done ? '#fff' : step === nextStep ? '#fff' : 'var(--text-muted)',
+                fontSize: '14px', color: step.done ? '#fff' : step === nextStep ? '#fff' : 'var(--text-muted)',
               }}>
                 {step.done ? 'check' : step.icon}
               </span>
@@ -90,12 +90,6 @@ export function OnboardingWizard({ instanceId }: Props) {
         ))}
       </div>
 
-      {/* Next step hint */}
-      {nextStep && (
-        <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '10px', textAlign: 'center' }}>
-          Next: <strong style={{ color: nextStep.color }}>{nextStep.label}</strong> — click to set up
-        </p>
-      )}
     </div>
   );
 }
