@@ -176,16 +176,20 @@ export function Sidebar() {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Partner Logos (small) */}
-      <div style={{ padding: '0 16px 12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: 0.5 }}>
-        <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
-          <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ height: '18px' }} />
-        </a>
-        <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
-          <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '18px' }} />
-        </a>
-        <img src="/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" style={{ height: '14px' }} />
-        <img src="/logos/dsf-logo.svg" alt="DSF" style={{ height: '14px' }} />
+      {/* Partner Logos */}
+      <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', opacity: 0.6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
+            <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ height: '30px' }} />
+          </a>
+          <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
+            <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '28px' }} />
+          </a>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <img src="/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" style={{ height: '22px' }} />
+          <img src="/logos/dsf-logo.svg" alt="DSF" style={{ height: '22px' }} />
+        </div>
       </div>
 
       {/* User Identity + Logout */}
