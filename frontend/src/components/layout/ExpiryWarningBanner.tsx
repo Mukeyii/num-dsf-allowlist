@@ -15,7 +15,7 @@ export function ExpiryWarningBanner() {
   if (expiring.length === 0) return null;
 
   return (
-    <div className="mx-8 mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+    <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3" style={{ margin: '8px 20px 0' }}>
       <span className="material-symbols-outlined text-amber-500 text-[20px] flex-shrink-0 mt-0.5">warning</span>
       <div className="flex-1">
         <p className="text-xs font-bold text-amber-800 mb-1">

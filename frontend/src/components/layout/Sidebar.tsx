@@ -20,7 +20,7 @@ export function Sidebar() {
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const { dark, toggleTheme } = useThemeStore();
-  const { lang, setLang } = useI18n();
+  const { lang, setLang, t } = useI18n();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
@@ -37,7 +37,7 @@ export function Sidebar() {
   }
 
   const initials = (user?.email || '??').slice(0, 2).toUpperCase();
-  const activeLabel = instances.find((i: any) => i.id === activeInstanceId)?.label || 'No instance selected';
+  const activeLabel = instances.find((i: any) => i.id === activeInstanceId)?.label || t('noInstanceSelected');
 
   async function handleLogout() {
     try {
@@ -74,13 +74,13 @@ export function Sidebar() {
         <div style={{ padding: '0 4px', marginBottom: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', padding: '0 4px' }}>
             <label style={{ fontSize: '9px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Instances
+              {t('instances')}
             </label>
             <button
               onClick={() => setShowCreate(true)}
               style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '11px', fontWeight: 600, color: '#6c63ff', padding: '0' }}
             >
-              + New
+              {t('newInstance')}
             </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', maxHeight: '200px', overflowY: 'auto' }}>
@@ -149,7 +149,7 @@ export function Sidebar() {
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>admin_panel_settings</span>
-          Approval Review
+          {t('approvalReview')}
         </Link>
       </div>
 
@@ -171,7 +171,7 @@ export function Sidebar() {
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             {dark ? 'light_mode' : 'dark_mode'}
           </span>
-          {dark ? 'Light Mode' : 'Dark Mode'}
+          {dark ? t('lightMode') : t('darkMode')}
         </button>
       </div>
 
@@ -242,7 +242,7 @@ export function Sidebar() {
           }}
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span>Sign out</span>
+          <span>{t('signOut')}</span>
         </button>
       </div>
     </aside>
