@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -11,7 +11,21 @@ interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
 export function CertificateModal({ open, onClose, instanceId }: Props) {
   const { mutateAsync, isPending } = useCreateCertificate(instanceId);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CertificateFormData>({ resolver: zodResolver(certificateSchema) });
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CertificateFormData>({ resolver: zodResolver(certificateSchema) });
+  const [dragOver, setDragOver] = useState(false);
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      setValue('pem', text);
+    };
+    reader.readAsText(file);
+  }
 
   useEffect(() => {
     if (open) reset({ pem: '' });
@@ -44,6 +58,25 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
           </div>
         </div>
         <FormField label="Certificate PEM" required error={errors.pem?.message} hint="Paste the PEM block starting with -----BEGIN CERTIFICATE-----">
+          <div
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            style={{
+              border: `2px dashed ${dragOver ? '#6c63ff' : '#e8eaf0'}`,
+              borderRadius: '10px',
+              padding: '16px',
+              textAlign: 'center',
+              transition: 'border-color 0.2s',
+              background: dragOver ? '#ede9ff' : 'transparent',
+              marginBottom: '8px',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '32px', color: dragOver ? '#6c63ff' : '#d4d8e8', display: 'block', marginBottom: '4px' }}>upload_file</span>
+            <p style={{ fontSize: '11px', color: '#9b9fad' }}>
+              Drop a .pem file here, or paste below
+            </p>
+          </div>
           <textarea {...register('pem')} rows={10}
             className="w-full px-3 py-2 text-[11px] font-mono bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none"
             placeholder={`-----BEGIN CERTIFICATE-----\nMIIHEzCC8PugAwIBAqIRALuIH+...\n...\n-----END CERTIFICATE-----`} />
