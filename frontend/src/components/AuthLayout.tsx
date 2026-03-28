@@ -62,8 +62,21 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         {children}
       </div>
 
-      {/* Footer */}
-      <p className="mt-6 text-xs" style={{ color: '#9b9fad' }}>
+      {/* Partner Logos */}
+      <div style={{ marginTop: '32px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '20px', maxWidth: '480px' }}>
+        <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
+          <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ height: '36px', opacity: 0.75, transition: 'opacity 0.2s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.75')} />
+        </a>
+        <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
+          <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '36px', opacity: 0.75, transition: 'opacity 0.2s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.75')} />
+        </a>
+        <img src="/logos/Logo UKM Münster.PNG" alt="UKM Münster" style={{ height: '32px', opacity: 0.65 }} />
+        <img src="/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" style={{ height: '28px', opacity: 0.65 }} />
+        <img src="/logos/dsf-logo.svg" alt="DSF" style={{ height: '28px', opacity: 0.65 }} />
+      </div>
+
+      {/* Footer text */}
+      <p className="mt-4 text-xs" style={{ color: '#9b9fad' }}>
         Institute of Medical Informatics · University of Muenster
       </p>
     </div>
