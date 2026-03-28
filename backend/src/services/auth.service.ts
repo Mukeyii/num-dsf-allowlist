@@ -28,7 +28,7 @@ function signAccessToken(user: AuthUser): string {
   return jwt.sign(
     { sub: user.id, email: user.email } as Omit<JwtPayload, 'iat' | 'exp'>,
     JWT_PRIVATE_KEY,
-    { algorithm: 'RS256' as const, expiresIn: JWT_EXPIRES_IN as string }
+    { algorithm: 'RS256', expiresIn: JWT_EXPIRES_IN } as any
   );
 }
 
@@ -36,7 +36,7 @@ function signTempToken(user: AuthUser, purpose: TempTokenPayload['purpose']): st
   return jwt.sign(
     { sub: user.id, email: user.email, purpose },
     JWT_PRIVATE_KEY,
-    { algorithm: 'RS256' as const, expiresIn: '10m' as string }
+    { algorithm: 'RS256', expiresIn: '10m' } as any
   );
 }
 
