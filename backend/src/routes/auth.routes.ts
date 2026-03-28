@@ -28,7 +28,7 @@ export const authRouter = Router();
 
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: process.env.NODE_ENV !== 'test',
   sameSite: 'strict' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
   path: '/auth/refresh',
