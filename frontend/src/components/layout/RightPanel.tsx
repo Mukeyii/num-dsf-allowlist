@@ -4,6 +4,7 @@
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { useMemberships }   from '../../hooks/useMemberships';
 import { useCertificates }  from '../../hooks/useCertificates';
+import { ExpiryTimeline }   from './ExpiryTimeline';
 
 function relativeTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
@@ -101,6 +102,8 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
           )}
         </div>
       </div>
+
+      <ExpiryTimeline instanceId={instanceId} />
 
     </aside>
   );
