@@ -2,11 +2,14 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
 import { requireImiAdmin } from '../middleware/admin.middleware';
+import { otpRateLimit } from '../middleware/rateLimit.middleware';
 import * as svc from '../services/approval.service';
 import { verifyTotpCode } from '../services/totp.service';
 import { db } from '../db/connection';
 
 export const approvalRouter = Router({ mergeParams: true });
+
+const totpLimiter = process.env.NODE_ENV === 'test' ? [] : [otpRateLimit];
 
 approvalRouter.post('/submit', requireAuth, requireInstanceOwnership, async (req, res) => {
   try {
@@ -29,7 +32,7 @@ approvalRouter.get('/admin/pending', requireAuth, requireImiAdmin, async (req, r
   res.json({ data: await svc.getPendingApprovals() });
 });
 
-approvalRouter.post('/admin/:rid/approve', requireAuth, requireImiAdmin, async (req, res) => {
+approvalRouter.post('/admin/:rid/approve', requireAuth, requireImiAdmin, ...totpLimiter, async (req, res) => {
   try {
     const { totpCode } = req.body;
     if (!totpCode) {
@@ -39,7 +42,7 @@ approvalRouter.post('/admin/:rid/approve', requireAuth, requireImiAdmin, async (
 
     const user = await db('users').where({ email: req.user!.email }).first();
     if (!user || !user.totp_enabled) {
-      res.status(400).json({ error: { code: 'TOTP_NOT_CONFIGURED', message: 'TOTP is not configured for this account.' } });
+      res.status(403).json({ error: { code: 'TOTP_NOT_CONFIGURED', message: 'TOTP is not configured for this account.' } });
       return;
     }
 
@@ -56,7 +59,7 @@ approvalRouter.post('/admin/:rid/approve', requireAuth, requireImiAdmin, async (
   }
 });
 
-approvalRouter.post('/admin/:rid/reject', requireAuth, requireImiAdmin, async (req, res) => {
+approvalRouter.post('/admin/:rid/reject', requireAuth, requireImiAdmin, ...totpLimiter, async (req, res) => {
   try {
     const { totpCode, comment } = req.body;
     if (!totpCode) {
@@ -66,7 +69,7 @@ approvalRouter.post('/admin/:rid/reject', requireAuth, requireImiAdmin, async (r
 
     const user = await db('users').where({ email: req.user!.email }).first();
     if (!user || !user.totp_enabled) {
-      res.status(400).json({ error: { code: 'TOTP_NOT_CONFIGURED', message: 'TOTP is not configured for this account.' } });
+      res.status(403).json({ error: { code: 'TOTP_NOT_CONFIGURED', message: 'TOTP is not configured for this account.' } });
       return;
     }
 

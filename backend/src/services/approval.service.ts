@@ -15,8 +15,9 @@ async function buildSnapshot(instanceId: string) {
   const ips = await db('endpoint_ips').whereIn('endpoint_id', endpoints.map((e: any) => e.identifier));
   const certificates = await db('certificates').where({ organization_id: org.identifier }).select('id', 'subject', 'thumbprint', 'valid_until');
   const memberships = await db('memberships').where({ organization_id: org.identifier });
+  const { email: _email, ...orgSafe } = org;
   return {
-    organization: org, contacts,
+    organization: orgSafe, contacts,
     endpoints: endpoints.map((ep: any) => ({ ...ep, ipAddresses: ips.filter((ip: any) => ip.endpoint_id === ep.identifier) })),
     certificates, memberships, snapshotAt: new Date().toISOString(),
   };
