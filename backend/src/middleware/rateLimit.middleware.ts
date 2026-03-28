@@ -11,10 +11,9 @@ import { redis } from '../services/redis.service';
 
 function createRedisStore(prefix: string) {
   return new RedisStore({
-    client: redis,
     prefix: `ratelimit:${prefix}:`,
     sendCommand: (...args: string[]) => (redis as any).call(...args),
-  });
+  } as any);
 }
 
 export const otpRateLimit = rateLimit({
