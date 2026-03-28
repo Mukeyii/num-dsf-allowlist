@@ -89,6 +89,23 @@ Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation
 | /M113/ | Das Canvas muss in einem 3-Spalten-Grid-Layout organisiert sein: Linke Spalte (Organisation, Kontakte), Mittlere Spalte (Endpoints, Zertifikate), Rechte Spalte (Mitgliedschaften, Approval). |
 | /M114/ | Das System muss als Single-Page-Application ohne vollständige Seitenneuladen funktionieren. |
 
+#### Admin-Review-Oberfläche
+- **/M120/** Dedizierte Admin-Seite (`/app/admin`) zur Prüfung ausstehender Approval-Requests
+- **/M121/** Anzeige aller PENDING-Requests mit Organisations-Snapshot (Org, Endpoints, Zertifikate, Memberships)
+- **/M122/** Approve/Reject-Aktionen erfordern TOTP-Re-Bestätigung (6-stelliger Authenticator-Code)
+- **/M123/** Ablehnungen erfordern einen Kommentar
+
+#### E-Mail-Benachrichtigungen
+- **/M130/** E-Mail an alle IMI-Admins bei neuem Approval-Request (sofort)
+- **/M131/** E-Mail an alle IMI-Admins bei Genehmigung/Ablehnung (sofort)
+- **/M132/** E-Mail an Standort-Kontakte bei Genehmigung/Ablehnung (30 Minuten verzögert, mit Status-Re-Check)
+- **/M133/** Automatische Erinnerungs-E-Mail bei > 3 Tage offenen Requests (täglicher Cron-Job)
+
+#### Testen
+- **/M140/** Backend-API-Integrationstests mit Jest + Supertest
+- **/M141/** Frontend-Unit-Tests mit Vitest + MSW
+- **/M142/** Test-Seed-Daten für reproduzierbare Testläufe
+
 ### 1.2 Sollkriterien
 
 | Kennung | Beschreibung |
@@ -269,6 +286,8 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | /F071/ | Mitgliedschaft | READ LIST | Alle Mitgliedschaften der Organisation |
 | /F072/ | Mitgliedschaft | UPDATE | Alle Felder editierbar |
 | /F073/ | Mitgliedschaft | DELETE | Löschen mit Bestätigungsdialog |
+| F086 | Admin-Review-Seite | Dedizierte Seite für IMI-Admins mit expandierbarem Snapshot-Viewer |
+| F087 | TOTP-Re-Bestätigung | Authenticator-Code erforderlich vor Approve/Reject |
 
 ### 5.4 Approval- und Download-Funktionen
 
@@ -291,6 +310,8 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | /F110/ | Entity-Graph-Canvas rendern | Alle Entitätskarten gleichzeitig im 3-Spalten-Layout darstellen | Instanz-ID | Gerenderte Canvas-UI |
 | /F111/ | SVG-Relationslinien zeichnen | Bezier-Kurven zwischen verbundenen Entitäten einzeichnen | DOM-Positionen der Cards | SVG-Overlay |
 | /F112/ | FK-Highlight aktivieren | Beim Hovern verwandte Entitäten hervorheben | Hover-Event | Visuelles Highlight |
+| F118 | Admin Review Page | Tabelle ausstehender Requests mit Approve/Reject + TOTP-Eingabe |
+| F119 | Logout | Sign-out-Button in der Sidebar mit Session-Invalidierung |
 
 ---
 
@@ -426,6 +447,10 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | /T071/ | Audit Log nicht veränderbar | — | UPDATE/DELETE auf `audit_logs` via API | HTTP 405 / nicht möglich; Testfall auf DB-Ebene |
 | /T080/ | Session nach Neuladen wiederhergestellt | Aktive Session mit Refresh Cookie | Seite neu laden | App zeigt sofort eingeloggten Zustand ohne Login-Redirect |
 | /T081/ | Logout widerruft Refresh Token | Aktive Session | POST /auth/logout; danach POST /auth/refresh | HTTP 401 auf Refresh nach Logout |
+| T080 | TOTP-Re-Bestätigung bei Approve | Approve ohne TOTP-Code → HTTP 400 TOTP_REQUIRED |
+| T081 | TOTP-Re-Bestätigung bei Reject | Reject ohne TOTP-Code → HTTP 400, mit falschem Code → HTTP 401 |
+| T082 | E-Mail an Admins bei Submit | Neuer Request → E-Mail an alle IMI_ADMIN_EMAILS innerhalb 1 Minute |
+| T083 | Verzögerte E-Mail an Standort | Approve → Standort-Kontakte erhalten E-Mail nach 30 Minuten |
 
 ---
 
