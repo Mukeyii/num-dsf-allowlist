@@ -100,8 +100,8 @@ function RequestCard({ request }: RequestCardProps) {
 
   return (
     <div style={{
-      background: '#f8f9fc',
-      border: '1px solid #e8eaf0',
+      background: 'var(--bg-hover)',
+      border: '1px solid var(--border)',
       borderRadius: '16px',
       padding: '20px 24px',
       display: 'flex',
@@ -116,7 +116,7 @@ function RequestCard({ request }: RequestCardProps) {
               fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: '15px',
               fontWeight: 600,
-              color: '#1a1a2e',
+              color: 'var(--text-primary)',
             }}>{orgName}</span>
             <span style={{
               fontFamily: 'monospace',
@@ -139,7 +139,7 @@ function RequestCard({ request }: RequestCardProps) {
               textTransform: 'uppercase',
             }}>Pending</span>
             {timeStr && (
-              <span style={{ fontSize: '12px', color: '#9b9fad' }}>{relTime(timeStr)}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{relTime(timeStr)}</span>
             )}
           </div>
         </div>
@@ -213,7 +213,7 @@ function RequestCard({ request }: RequestCardProps) {
               borderRadius: '8px',
               fontSize: '13px',
               fontFamily: 'Inter, system-ui, sans-serif',
-              color: '#1a1a2e',
+              color: 'var(--text-primary)',
               resize: 'vertical',
               outline: 'none',
               boxSizing: 'border-box',
@@ -243,8 +243,8 @@ function RequestCard({ request }: RequestCardProps) {
               style={{
                 padding: '7px 14px',
                 borderRadius: '10px',
-                border: '1px solid #e8eaf0',
-                background: '#fff',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card)',
                 color: '#6b7280',
                 fontSize: '13px',
                 fontWeight: 500,
@@ -273,7 +273,7 @@ function RequestCard({ request }: RequestCardProps) {
             letterSpacing: '4px', textAlign: 'center', outline: 'none',
           }}
         />
-        <span style={{ fontSize: '10px', color: '#9b9fad' }}>Required for approve/reject</span>
+        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Required for approve/reject</span>
       </div>
 
       {/* Expand toggle */}
@@ -285,9 +285,9 @@ function RequestCard({ request }: RequestCardProps) {
           alignItems: 'center',
           gap: '6px',
           padding: '5px 10px',
-          border: '1px solid #e8eaf0',
+          border: '1px solid var(--border)',
           borderRadius: '8px',
-          background: '#fff',
+          background: 'var(--bg-card)',
           color: '#6b7280',
           fontSize: '12px',
           fontWeight: 500,
@@ -349,7 +349,7 @@ function RequestCard({ request }: RequestCardProps) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {endpoints.map((ep, i) => (
                   <div key={i} style={{ borderLeft: '3px solid #3ecfb2', paddingLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a2e' }}>{ep.name ?? ep.identifier ?? '—'}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{ep.name ?? ep.identifier ?? '—'}</div>
                     <div style={{ fontSize: '11px', color: '#6b7280', fontFamily: 'monospace', wordBreak: 'break-all' }}>{ep.address}</div>
                     {ep.ips && ep.ips.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
@@ -381,9 +381,9 @@ function RequestCard({ request }: RequestCardProps) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {certificates.map((cert, i) => (
                   <div key={i} style={{ borderLeft: '3px solid #f5a623', paddingLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a2e', wordBreak: 'break-all' }}>{cert.subject ?? '—'}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>{cert.subject ?? '—'}</div>
                     {cert.thumbprint && (
-                      <div style={{ fontSize: '10px', fontFamily: 'monospace', color: '#9b9fad', wordBreak: 'break-all' }}>{cert.thumbprint}</div>
+                      <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{cert.thumbprint}</div>
                     )}
                     {cert.valid_until && (
                       <div style={{ fontSize: '11px', color: '#6b7280' }}>Expires: {cert.valid_until}</div>
@@ -402,7 +402,7 @@ function RequestCard({ request }: RequestCardProps) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {memberships.map((m, i) => (
                   <div key={i} style={{ borderLeft: '3px solid #4a90d9', paddingLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a2e' }}>{m.parent_organization ?? '—'}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{m.parent_organization ?? '—'}</div>
                     {m.roles && m.roles.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
                         {m.roles.map((role, j) => (
@@ -418,7 +418,7 @@ function RequestCard({ request }: RequestCardProps) {
                       </div>
                     )}
                     {m.endpoint_id && (
-                      <div style={{ fontSize: '10px', fontFamily: 'monospace', color: '#9b9fad', marginTop: '2px' }}>{m.endpoint_id}</div>
+                      <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', marginTop: '2px' }}>{m.endpoint_id}</div>
                     )}
                   </div>
                 ))}
@@ -441,7 +441,7 @@ function RequestCard({ request }: RequestCardProps) {
                       padding: '6px 10px',
                       minWidth: '160px',
                     }}>
-                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a2e' }}>{c.name ?? '—'}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{c.name ?? '—'}</div>
                       <div style={{ fontSize: '11px', color: '#6b7280' }}>{c.email}</div>
                       {c.types && c.types.length > 0 && (
                         <div style={{ fontSize: '10px', color: '#8b5cf6', marginTop: '2px' }}>{c.types.join(', ')}</div>
@@ -468,8 +468,8 @@ function SnapshotSection({
 }) {
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #e8eaf0',
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border)',
       borderRadius: '12px',
       padding: '14px 16px',
     }}>
@@ -487,10 +487,10 @@ function SnapshotSection({
 function SnapshotField({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
   return (
     <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline' }}>
-      <span style={{ fontSize: '11px', color: '#9b9fad', minWidth: '50px', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</span>
+      <span style={{ fontSize: '11px', color: 'var(--text-muted)', minWidth: '50px', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</span>
       <span style={{
         fontSize: '12px',
-        color: '#1a1a2e',
+        color: 'var(--text-primary)',
         fontFamily: mono ? 'monospace' : 'Inter, system-ui, sans-serif',
         wordBreak: 'break-all',
       }}>{value ?? '—'}</span>
@@ -500,7 +500,7 @@ function SnapshotField({ label, value, mono }: { label: string; value?: string |
 
 function EmptyNote({ children }: { children: React.ReactNode }) {
   return (
-    <span style={{ fontSize: '12px', color: '#9b9fad', fontStyle: 'italic', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', fontFamily: 'Inter, system-ui, sans-serif' }}>
       {children}
     </span>
   );
@@ -524,16 +524,16 @@ export function AdminPage() {
           admin_panel_settings
         </span>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#1a1a2e', margin: 0 }}>
+          <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
             Approval Review
           </h1>
-          <p style={{ fontSize: '13px', color: '#9b9fad', margin: '2px 0 0' }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
             Review and action pending approval requests from DSF participants
           </p>
         </div>
       </div>
 
-      <div style={{ height: '1px', background: '#e8eaf0', margin: '20px 0 24px' }} />
+      <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
 
       {/* Error state */}
       {error && (
@@ -562,7 +562,7 @@ export function AdminPage() {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: '#9b9fad',
+          color: 'var(--text-muted)',
           fontSize: '14px',
           padding: '40px 0',
           justifyContent: 'center',
@@ -583,14 +583,14 @@ export function AdminPage() {
           justifyContent: 'center',
           padding: '64px 0',
           gap: '12px',
-          color: '#9b9fad',
+          color: 'var(--text-muted)',
         }}>
           <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#22c55e' }}>
             check_circle
           </span>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: '#1a1a2e' }}>No pending requests</div>
-            <div style={{ fontSize: '13px', color: '#9b9fad', marginTop: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>No pending requests</div>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
               All approval requests have been processed.
             </div>
           </div>
@@ -600,7 +600,7 @@ export function AdminPage() {
       {/* Request cards */}
       {!isLoading && !error && requests && requests.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ fontSize: '13px', color: '#9b9fad', marginBottom: '4px' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>
             {requests.length} pending request{requests.length !== 1 ? 's' : ''}
           </div>
           {requests.map((req: RequestCardProps['request']) => (
