@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
-import { requireGeckoAdmin } from '../middleware/admin.middleware';
+import { requireImiAdmin } from '../middleware/admin.middleware';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { writeAuditLog } from '../services/audit.service';
 
 export const adminRouter = Router();
-adminRouter.use(requireAuth, requireGeckoAdmin);
+adminRouter.use(requireAuth, requireImiAdmin);
 
 adminRouter.get('/whitelist', async (req, res) => {
   const list = await db('email_whitelist').orderBy('created_at', 'desc');
