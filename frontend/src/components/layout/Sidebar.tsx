@@ -3,7 +3,7 @@
  * Dependencies: auth.store, canvas.store, useInstance, useModals, authApi, react-router-dom
  */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useInstances }   from '../../hooks/useInstance';
@@ -71,6 +71,27 @@ export function Sidebar() {
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Admin link */}
+      <div style={{ padding: '0 16px', marginTop: '8px' }}>
+        <Link
+          to="/app/admin"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 10px', borderRadius: '8px',
+            fontSize: '12px', fontWeight: 600,
+            textDecoration: 'none',
+            color: '#64748b',
+            background: 'transparent',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#f0f2f8'; e.currentTarget.style.color = '#6c63ff'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>admin_panel_settings</span>
+          Approval Review
+        </Link>
       </div>
 
       {/* Spacer */}

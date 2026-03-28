@@ -10,6 +10,7 @@ import { TotpSetupPage } from './pages/TotpSetupPage';
 import { TotpPage }      from './pages/TotpPage';
 import { AppPage }       from './pages/AppPage';
 import { AuditPage }     from './pages/AuditPage';
+import { AdminPage }     from './pages/AdminPage';
 import { NotFoundPage }  from './pages/NotFoundPage';
 import { useAuthStore }  from './stores/auth.store';
 
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: null },
       { path: 'audit', element: <AuditPage /> },
+      { path: 'admin', element: <AdminPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
