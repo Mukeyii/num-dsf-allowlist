@@ -5,7 +5,7 @@
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
-import { notifyGeckoOnSubmit, notifySiteOnApproval } from './approval-reminder.service';
+import { notifyImiOnSubmit, notifySiteOnApproval } from './approval-reminder.service';
 
 async function buildSnapshot(instanceId: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
@@ -31,9 +31,9 @@ export async function submitApproval(instanceId: string, userEmail: string, ipAd
   const now = new Date();
   await db('approval_requests').insert({ id, instance_id: instanceId, status: 'PENDING', created_at: now, submitted_at: now, snapshot_json: JSON.stringify(snapshot) });
   await writeAuditLog({ userEmail, instanceId, resourceType: 'APPROVAL', resourceId: id, operation: 'CREATE', ipAddress });
-  // Notify GECKO (non-blocking)
+  // Notify IMI (non-blocking)
   const org = await db('organizations').where({ instance_id: instanceId }).first();
-  notifyGeckoOnSubmit(id, instanceId, org?.identifier || instanceId, org?.name || 'Unknown', userEmail).catch(err => console.error('[ApprovalNotify]', err));
+  notifyImiOnSubmit(id, instanceId, org?.identifier || instanceId, org?.name || 'Unknown', userEmail).catch(err => console.error('[ApprovalNotify]', err));
   return db('approval_requests').where({ id }).first();
 }
 
