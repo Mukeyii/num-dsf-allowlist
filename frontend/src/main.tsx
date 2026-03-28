@@ -11,6 +11,7 @@ import { ToastProvider } from './components/ToastProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import './index.css';
+import './stores/theme.store';
 
 // Axios 401 interceptor – silent token refresh
 axios.interceptors.response.use(
