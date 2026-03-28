@@ -4,6 +4,7 @@
  */
 import { SearchBar } from './SearchBar';
 import { NotificationCenter } from './NotificationCenter';
+import { useI18n } from '../../stores/i18n.store';
 
 const ENV = import.meta.env.VITE_DSF_ENVIRONMENT || 'TEST';
 
@@ -11,6 +12,7 @@ export function TopBar({ onDownload, onApproval }: {
   onDownload: () => void;
   onApproval: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center justify-between px-6 py-3 flex-shrink-0 z-40" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3">
@@ -35,14 +37,14 @@ export function TopBar({ onDownload, onApproval }: {
           onClick={onDownload}
           className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
         >
-          Download Allow List
+          {t('downloadAllowList')}
         </button>
         <button
           onClick={onApproval}
           className="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
           style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
         >
-          Send for Approval
+          {t('sendForApproval')}
         </button>
       </div>
     </div>
