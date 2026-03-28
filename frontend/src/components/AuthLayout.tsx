@@ -64,7 +64,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
       {/* Footer */}
       <p className="mt-6 text-xs" style={{ color: '#9b9fad' }}>
-        GECKO Institute · Hochschule Heilbronn
+        Institute of Medical Informatics · University of Muenster
       </p>
     </div>
   );
