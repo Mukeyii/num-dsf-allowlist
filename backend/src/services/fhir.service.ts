@@ -1,137 +1,238 @@
 /**
- * fhir.service.ts – FHIR R4 Bundle generation matching DSF Allow List format
- * Based on real DSF FHIR server resource structure.
+ * fhir.service.ts – FHIR R4 Bundle generation per DSF Process Allow List spec
+ * Generates a transaction bundle with Organization, Endpoint, and OrganizationAffiliation resources.
  * Contact data NOT included (GDPR).
  */
 import { db } from '../db/connection';
+import { v4 as uuidv4 } from 'uuid';
 
-const DSF_BASE = 'http://dsf.dev';
+const ORG_ID_SYSTEM = 'http://dsf.dev/fhir/NamingSystem/organization-identifier';
+const EP_ID_SYSTEM = 'http://dsf.dev/fhir/NamingSystem/endpoint-identifier';
+const ALLOW_LIST_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/allow-list';
+const ORG_ROLE_SYSTEM = 'http://hl7.org/fhir/organization-role';
 
+/**
+ * Generate a DSF-compliant Allow List transaction bundle for an instance+endpoint.
+ * Includes: Organization, Endpoint, and OrganizationAffiliation resources.
+ * All resources use urn:uuid: references and conditional PUT requests.
+ */
 export async function generateBundle(instanceId: string, endpointId: string): Promise<object> {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
   const endpoint = await db('endpoints').where({ identifier: endpointId, organization_id: org.identifier }).first();
   if (!endpoint) throw new Error('ENDPOINT_NOT_FOUND');
-  const ips = await db('endpoint_ips').where({ endpoint_id: endpointId });
   const certs = await db('certificates').where({ organization_id: org.identifier });
   const memberships = await db('memberships').where({ organization_id: org.identifier });
 
-  const readAccessTag = { system: `${DSF_BASE}/fhir/CodeSystem/read-access-tag`, code: 'ALL' };
+  // Generate stable UUIDs for cross-referencing within the bundle
+  const orgUuid = uuidv4();
+  const epUuid = uuidv4();
 
-  // Organization resource
-  const orgResource: Record<string, unknown> = {
-    resourceType: 'Organization',
-    meta: {
-      profile: [`${DSF_BASE}/fhir/StructureDefinition/organization`],
-      tag: [readAccessTag],
-    },
-    extension: certs.map((cert: { thumbprint: string }) => ({
-      url: `${DSF_BASE}/fhir/StructureDefinition/extension-certificate-thumbprint`,
-      valueString: cert.thumbprint,
-    })),
-    identifier: [{
-      system: `${DSF_BASE}/sid/organization-identifier`,
-      value: org.identifier,
-    }],
-    active: org.active === 1 || org.active === true,
-    name: org.name,
-    telecom: [{
-      system: 'email',
-      value: org.email,
-    }],
-    endpoint: [{
-      reference: `Endpoint/${endpoint.identifier}`,
-      type: 'Endpoint',
-    }],
-  };
+  // Also need UUIDs for parent organizations referenced in affiliations
+  const parentOrgUuids: Record<string, string> = {};
+  for (const ms of memberships) {
+    const parentId = typeof ms === 'object' ? ms.parent_organization : '';
+    if (parentId && !parentOrgUuids[parentId]) {
+      parentOrgUuids[parentId] = uuidv4();
+    }
+  }
 
-  // Endpoint resource
-  const endpointResource: Record<string, unknown> = {
-    resourceType: 'Endpoint',
-    meta: {
-      profile: [`${DSF_BASE}/fhir/StructureDefinition/endpoint`],
-      tag: [readAccessTag],
-    },
-    identifier: [{
-      system: `${DSF_BASE}/sid/endpoint-identifier`,
-      value: endpoint.identifier,
-    }],
-    status: 'active',
-    connectionType: {
-      system: 'http://terminology.hl7.org/CodeSystem/endpoint-connection-type',
-      code: 'hl7-fhir-rest',
-    },
-    managingOrganization: {
-      identifier: {
-        system: `${DSF_BASE}/sid/organization-identifier`,
-        value: org.identifier,
-      },
-      type: 'Organization',
-    },
-    name: endpoint.name || endpoint.identifier,
-    address: endpoint.address,
-  };
+  const entries: object[] = [];
 
-  // OrganizationAffiliation resources
-  const affiliationResources = memberships.map((ms: { id: string; parent_organization: string; endpoint_id: string; roles: string | string[] }) => {
-    const roles: string[] = typeof ms.roles === 'string' ? JSON.parse(ms.roles) : ms.roles;
-    return {
-      resourceType: 'OrganizationAffiliation',
-      meta: {
-        profile: [`${DSF_BASE}/fhir/StructureDefinition/organization-affiliation`],
-        tag: [readAccessTag],
-      },
-      active: true,
-      organization: {
-        identifier: {
-          system: `${DSF_BASE}/sid/organization-identifier`,
-          value: ms.parent_organization,
-        },
-        type: 'Organization',
-      },
-      participatingOrganization: {
-        identifier: {
-          system: `${DSF_BASE}/sid/organization-identifier`,
-          value: org.identifier,
-        },
-        type: 'Organization',
-      },
-      code: roles.map(role => ({
-        coding: [{
-          system: `${DSF_BASE}/fhir/CodeSystem/organization-role`,
-          code: role,
-        }],
+  // --- Organization entry ---
+  entries.push({
+    fullUrl: `urn:uuid:${orgUuid}`,
+    resource: {
+      resourceType: 'Organization',
+      id: `urn:uuid:${orgUuid}`,
+      meta: { versionId: null, lastUpdated: null },
+      extension: certs.map((cert: { thumbprint: string }) => ({
+        url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
+        valueString: cert.thumbprint,
       })),
-      endpoint: [{
-        identifier: {
-          system: `${DSF_BASE}/sid/endpoint-identifier`,
-          value: ms.endpoint_id,
-        },
-        type: 'Endpoint',
-      }],
-    };
+      identifier: [{ system: ORG_ID_SYSTEM, value: org.identifier }],
+      active: true,
+      name: org.name,
+      endpoint: [{ reference: `urn:uuid:${epUuid}`, type: 'Endpoint' }],
+    },
+    request: {
+      method: 'PUT',
+      url: `Organization?identifier=${ORG_ID_SYSTEM}|${org.identifier}`,
+    },
   });
+
+  // --- Endpoint entry ---
+  entries.push({
+    fullUrl: `urn:uuid:${epUuid}`,
+    resource: {
+      resourceType: 'Endpoint',
+      id: `urn:uuid:${epUuid}`,
+      meta: { versionId: null, lastUpdated: null },
+      identifier: [{ system: EP_ID_SYSTEM, value: endpoint.identifier }],
+      name: endpoint.name || endpoint.identifier,
+      address: endpoint.address,
+      payloadType: [{ coding: [{ code: 'application/fhir+json' }] }],
+      managingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
+    },
+    request: {
+      method: 'PUT',
+      url: `Endpoint?identifier=${EP_ID_SYSTEM}|${endpoint.identifier}`,
+    },
+  });
+
+  // --- Parent Organization entries (for each unique parent) ---
+  for (const [parentId, parentUuid] of Object.entries(parentOrgUuids)) {
+    // Check if parent org exists in our DB (it might be an external consortium like MII)
+    const parentOrg = await db('organizations').where({ identifier: parentId }).first();
+    entries.push({
+      fullUrl: `urn:uuid:${parentUuid}`,
+      resource: {
+        resourceType: 'Organization',
+        id: `urn:uuid:${parentUuid}`,
+        meta: { versionId: null, lastUpdated: null },
+        identifier: [{ system: ORG_ID_SYSTEM, value: parentId }],
+        active: true,
+        name: parentOrg?.name || parentId,
+      },
+      request: {
+        method: 'PUT',
+        url: `Organization?identifier=${ORG_ID_SYSTEM}|${parentId}`,
+      },
+    });
+  }
+
+  // --- OrganizationAffiliation entries ---
+  for (const ms of memberships) {
+    const parentId: string = ms.parent_organization;
+    const msEndpointId: string = ms.endpoint_id;
+    const parentUuid = parentOrgUuids[parentId];
+    const affUuid = uuidv4();
+
+    entries.push({
+      fullUrl: `urn:uuid:${affUuid}`,
+      resource: {
+        resourceType: 'OrganizationAffiliation',
+        id: `urn:uuid:${affUuid}`,
+        meta: { versionId: null, lastUpdated: null },
+        organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
+        participatingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
+        code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
+        endpoint: [{ reference: `urn:uuid:${epUuid}`, type: 'Endpoint' }],
+      },
+      request: {
+        method: 'PUT',
+        url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${parentId}&participating-organization:identifier=${ORG_ID_SYSTEM}|${org.identifier}&endpoint:identifier=${EP_ID_SYSTEM}|${msEndpointId}`,
+      },
+    });
+  }
 
   return {
     resourceType: 'Bundle',
     type: 'transaction',
-    timestamp: new Date().toISOString(),
-    entry: [
-      {
-        fullUrl: `urn:uuid:org-${org.identifier}`,
-        resource: orgResource,
-        request: { method: 'PUT', url: `Organization?identifier=${DSF_BASE}/sid/organization-identifier|${org.identifier}` },
+    identifier: { system: ALLOW_LIST_SYSTEM, value: 'allow_list' },
+    entry: entries,
+  };
+}
+
+/**
+ * Generate a full allow list bundle containing ALL organizations, endpoints, and affiliations.
+ * Used for the global bundle download (not scoped to a single instance).
+ */
+export async function generateFullBundle(): Promise<object> {
+  const orgs = await db('organizations').where({ active: true });
+  const entries: object[] = [];
+  const orgUuids: Record<string, string> = {};
+  const epUuids: Record<string, string> = {};
+
+  // Generate UUIDs for all orgs
+  for (const org of orgs) {
+    orgUuids[org.identifier] = uuidv4();
+  }
+
+  // Organizations + their endpoints
+  for (const org of orgs) {
+    const orgUuid = orgUuids[org.identifier];
+    const endpoints = await db('endpoints').where({ organization_id: org.identifier });
+    const certs = await db('certificates').where({ organization_id: org.identifier });
+
+    // Generate endpoint UUIDs
+    for (const ep of endpoints) {
+      epUuids[ep.identifier] = uuidv4();
+    }
+
+    entries.push({
+      fullUrl: `urn:uuid:${orgUuid}`,
+      resource: {
+        resourceType: 'Organization',
+        id: `urn:uuid:${orgUuid}`,
+        meta: { versionId: null, lastUpdated: null },
+        extension: certs.map((cert: { thumbprint: string }) => ({
+          url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
+          valueString: cert.thumbprint,
+        })),
+        identifier: [{ system: ORG_ID_SYSTEM, value: org.identifier }],
+        active: true,
+        name: org.name,
+        endpoint: endpoints.map((ep: { identifier: string }) => ({
+          reference: `urn:uuid:${epUuids[ep.identifier]}`,
+          type: 'Endpoint',
+        })),
       },
-      {
-        fullUrl: `urn:uuid:ep-${endpoint.identifier}`,
-        resource: endpointResource,
-        request: { method: 'PUT', url: `Endpoint?identifier=${DSF_BASE}/sid/endpoint-identifier|${endpoint.identifier}` },
+      request: { method: 'PUT', url: `Organization?identifier=${ORG_ID_SYSTEM}|${org.identifier}` },
+    });
+
+    for (const ep of endpoints) {
+      entries.push({
+        fullUrl: `urn:uuid:${epUuids[ep.identifier]}`,
+        resource: {
+          resourceType: 'Endpoint',
+          id: `urn:uuid:${epUuids[ep.identifier]}`,
+          meta: { versionId: null, lastUpdated: null },
+          identifier: [{ system: EP_ID_SYSTEM, value: ep.identifier }],
+          name: ep.name || ep.identifier,
+          address: ep.address,
+          payloadType: [{ coding: [{ code: 'application/fhir+json' }] }],
+          managingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
+        },
+        request: { method: 'PUT', url: `Endpoint?identifier=${EP_ID_SYSTEM}|${ep.identifier}` },
+      });
+    }
+  }
+
+  // OrganizationAffiliations
+  const memberships = await db('memberships');
+  for (const ms of memberships) {
+    const parentUuid = orgUuids[ms.parent_organization];
+
+    // Find the org for this membership to get its identifier
+    const memberOrg = orgs.find((o: { identifier: string }) => o.identifier === ms.organization_id);
+    if (!memberOrg || !parentUuid) continue;
+
+    const affUuid = uuidv4();
+    const epUuid = epUuids[ms.endpoint_id] || uuidv4();
+
+    entries.push({
+      fullUrl: `urn:uuid:${affUuid}`,
+      resource: {
+        resourceType: 'OrganizationAffiliation',
+        id: `urn:uuid:${affUuid}`,
+        meta: { versionId: null, lastUpdated: null },
+        organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
+        participatingOrganization: { reference: `urn:uuid:${orgUuids[memberOrg.identifier]}`, type: 'Organization' },
+        code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
+        endpoint: [{ reference: `urn:uuid:${epUuid}`, type: 'Endpoint' }],
       },
-      ...affiliationResources.map((r: Record<string, unknown>, i: number) => ({
-        fullUrl: `urn:uuid:aff-${i}`,
-        resource: r,
-        request: { method: 'POST', url: 'OrganizationAffiliation' },
-      })),
-    ],
+      request: {
+        method: 'PUT',
+        url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${ms.parent_organization}&participating-organization:identifier=${ORG_ID_SYSTEM}|${memberOrg.identifier}&endpoint:identifier=${EP_ID_SYSTEM}|${ms.endpoint_id}`,
+      },
+    });
+  }
+
+  return {
+    resourceType: 'Bundle',
+    type: 'transaction',
+    identifier: { system: ALLOW_LIST_SYSTEM, value: 'allow_list' },
+    entry: entries,
   };
 }
