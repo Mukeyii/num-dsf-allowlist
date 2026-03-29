@@ -14,6 +14,7 @@ import { CertificateModal } from '../components/modals/CertificateModal';
 import { MembershipModal } from '../components/modals/MembershipModal';
 import { ApprovalModal } from '../components/modals/ApprovalModal';
 import { DownloadModal } from '../components/modals/DownloadModal';
+import { CertRenewalModal } from '../components/modals/CertRenewalModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { ActivityFeed } from '../components/canvas/ActivityFeed';
@@ -112,6 +113,11 @@ export function AppPage() {
           />
           <DownloadModal
             open={open === 'download'}
+            onClose={closeModal}
+            instanceId={activeInstanceId}
+          />
+          <CertRenewalModal
+            open={open === 'cert-renew'}
             onClose={closeModal}
             instanceId={activeInstanceId}
           />

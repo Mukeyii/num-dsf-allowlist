@@ -5,6 +5,7 @@ type ModalType =
   | 'contact-add' | 'contact-edit'
   | 'endpoint-add' | 'endpoint-edit'
   | 'certificate-add'
+  | 'cert-renew'
   | 'membership-add' | 'membership-edit'
   | 'approval'
   | 'download'
