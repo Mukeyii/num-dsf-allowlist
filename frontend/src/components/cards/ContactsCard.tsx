@@ -7,6 +7,7 @@ import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { api } from '../../api/entities.api';
 import { toast } from 'sonner';
 import { useI18n } from '../../stores/i18n.store';
+import { undoableDelete } from '../../lib/undoDelete';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
   MEDIC:     { bg: '#ede9ff', color: '#4a42cc' },
@@ -95,12 +96,9 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                 <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
               </button>
               <button
-                onClick={async (e) => {
+                onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this contact?')) {
-                    try { await deleteMut.mutateAsync(c.id); toast.success('Contact deleted.'); }
-                    catch { toast.error('Failed to delete contact.'); }
-                  }
+                  undoableDelete(c.name || 'Contact', () => deleteMut.mutateAsync(c.id));
                 }}
                 title="Delete contact"
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}

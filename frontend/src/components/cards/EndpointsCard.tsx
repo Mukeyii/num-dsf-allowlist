@@ -7,6 +7,7 @@ import { useModals }       from '../../hooks/useModals';
 import { toast } from 'sonner';
 import { IpDiffBadge } from './IpDiffBadge';
 import { useI18n } from '../../stores/i18n.store';
+import { undoableDelete } from '../../lib/undoDelete';
 
 function HealthDot({ url }: { url: string }) {
   const [status, setStatus] = useState<'checking' | 'up' | 'down'>('checking');
@@ -105,12 +106,9 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
                 <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
               </button>
               <button
-                onClick={async (e) => {
+                onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm('Delete this endpoint?')) {
-                    try { await deleteMut.mutateAsync(ep.identifier); toast.success('Endpoint deleted.'); }
-                    catch { toast.error('Failed to delete endpoint.'); }
-                  }
+                  undoableDelete(ep.name || ep.identifier, () => deleteMut.mutateAsync(ep.identifier));
                 }}
                 title="Delete endpoint"
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}

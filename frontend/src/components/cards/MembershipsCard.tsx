@@ -7,6 +7,7 @@ import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
 import { toast } from 'sonner';
 import { useI18n } from '../../stores/i18n.store';
+import { undoableDelete } from '../../lib/undoDelete';
 
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
@@ -59,12 +60,9 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                   <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
                 </button>
                 <button
-                  onClick={async (e) => {
+                  onClick={(e) => {
                     e.stopPropagation();
-                    if (confirm('Delete this membership?')) {
-                      try { await deleteMut.mutateAsync(ms.id); toast.success('Membership deleted.'); }
-                      catch { toast.error('Failed to delete membership.'); }
-                    }
+                    undoableDelete(ms.parent_organization, () => deleteMut.mutateAsync(ms.id));
                   }}
                   title="Delete membership"
                   style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
