@@ -9,6 +9,7 @@ export const organizationSchema = z.object({
   postalCode: z.string().optional(),
   city: z.string().optional(),
   countryCode: z.string().length(2, 'Must be a 2-letter ISO country code (e.g. DE)').toUpperCase().optional().or(z.literal('')),
+  clientCertThumbprint: z.string().max(128, 'Thumbprint must be at most 128 characters').optional().or(z.literal('')),
 });
 
 export type OrganizationFormData = z.infer<typeof organizationSchema>;
