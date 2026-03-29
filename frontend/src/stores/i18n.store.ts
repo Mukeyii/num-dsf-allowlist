@@ -48,6 +48,7 @@ const translations = {
     pending: 'Pending',
     approved: 'Approved',
     rejected: 'Rejected',
+    status: 'Status',
   },
   de: {
     signIn: 'Anmelden',
@@ -90,6 +91,7 @@ const translations = {
     pending: 'Ausstehend',
     approved: 'Genehmigt',
     rejected: 'Abgelehnt',
+    status: 'Status',
   },
 } as const;
 
