@@ -15,8 +15,8 @@ function esc(s: string): string {
 
 const IS_TEST = process.env.NODE_ENV === 'test';
 
-const transporter = IS_TEST ? null : nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'mail',
+const transporter = nodemailer.createTransport({
+  host: IS_TEST ? 'localhost' : (process.env.SMTP_HOST || 'mail'),
   port: parseInt(process.env.SMTP_PORT || '1025'),
   secure: false,
   auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
