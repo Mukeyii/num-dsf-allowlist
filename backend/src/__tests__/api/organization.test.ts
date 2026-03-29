@@ -11,12 +11,12 @@ describe('Organization API', () => {
   let token: string;
 
   beforeAll(async () => {
-    // Ensure migration 002 (client_cert_thumbprint) has been applied.
-    // This column was added after the initial schema and may be missing in test DBs
-    // that were initialised before the migration was written.
-    await db.raw(
-      'ALTER TABLE organizations ADD COLUMN IF NOT EXISTS client_cert_thumbprint VARCHAR(128) DEFAULT NULL'
-    );
+    // Ensure migration 002 column exists (MySQL 8 doesn't support ADD COLUMN IF NOT EXISTS)
+    try {
+      await db.raw('SELECT client_cert_thumbprint FROM organizations LIMIT 0');
+    } catch {
+      await db.raw('ALTER TABLE organizations ADD COLUMN client_cert_thumbprint VARCHAR(128) DEFAULT NULL');
+    }
   });
 
   beforeEach(async () => {

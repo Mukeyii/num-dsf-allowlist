@@ -61,6 +61,7 @@ CREATE TABLE `organizations` (
   `postal_code`  VARCHAR(20),
   `city`         VARCHAR(100),
   `country_code` CHAR(2),
+  `client_cert_thumbprint` VARCHAR(128) DEFAULT NULL,
   `created_at`   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`identifier`),
