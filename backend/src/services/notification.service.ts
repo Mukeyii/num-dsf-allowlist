@@ -13,7 +13,9 @@ function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-const transporter = nodemailer.createTransport({
+const IS_TEST = process.env.NODE_ENV === 'test';
+
+const transporter = IS_TEST ? null : nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail',
   port: parseInt(process.env.SMTP_PORT || '1025'),
   secure: false,
@@ -52,7 +54,7 @@ export async function sendAdminNewRequestEmail(
   submittedBy: string,
   requestId: string,
 ): Promise<void> {
-  if (adminEmails.length === 0) return;
+  if (adminEmails.length === 0 || IS_TEST) return;
 
   const subject = `[DSF Allow List – ${ENV}] New approval request from ${orgName}`;
 
@@ -99,7 +101,7 @@ export async function sendAdminApprovalResultEmail(
   resolvedBy: string,
   comment: string | null,
 ): Promise<void> {
-  if (adminEmails.length === 0) return;
+  if (adminEmails.length === 0 || IS_TEST) return;
 
   const subject = `[DSF Allow List – ${ENV}] Request ${status.toLowerCase()} – ${orgName}`;
 
@@ -144,7 +146,7 @@ export async function sendSiteApprovalResultEmail(
   status: 'APPROVED' | 'REJECTED',
   comment: string | null,
 ): Promise<void> {
-  if (contactEmails.length === 0) return;
+  if (contactEmails.length === 0 || IS_TEST) return;
 
   const subject = `[DSF Allow List – ${ENV}] Your request has been ${status.toLowerCase()} – ${orgName}`;
 
