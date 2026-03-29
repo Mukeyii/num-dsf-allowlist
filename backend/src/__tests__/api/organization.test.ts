@@ -3,11 +3,22 @@
 
 import request from 'supertest';
 import { app } from '../../app';
+import { db } from '../../db/connection';
 import { cleanTestData, seedTestUser, seedOrganization, TEST_INSTANCE_ID } from '../helpers/seed';
 import { getTestToken } from '../helpers/auth';
 
 describe('Organization API', () => {
   let token: string;
+
+  beforeAll(async () => {
+    // Ensure migration 002 (client_cert_thumbprint) has been applied.
+    // This column was added after the initial schema and may be missing in test DBs
+    // that were initialised before the migration was written.
+    await db.raw(
+      'ALTER TABLE organizations ADD COLUMN IF NOT EXISTS client_cert_thumbprint VARCHAR(128) DEFAULT NULL'
+    );
+  });
+
   beforeEach(async () => {
     await cleanTestData();
     const { email } = await seedTestUser();
