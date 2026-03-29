@@ -20,7 +20,15 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
       borderColor="#f5a623"
       icon="verified_user"
       headerRight={
-        <span className="material-symbols-outlined text-emerald-500" style={{ fontSize: '20px' }}>lock</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button
+            onClick={() => useModals.getState().openModal('cert-renew')}
+            style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', border: '1px solid #f5a623', background: 'transparent', color: '#f5a623', cursor: 'pointer' }}
+          >
+            Renew
+          </button>
+          <span className="material-symbols-outlined text-emerald-500" style={{ fontSize: '20px' }}>lock</span>
+        </div>
       }
       onAdd={() => useModals.getState().openModal('certificate-add')}
     >
