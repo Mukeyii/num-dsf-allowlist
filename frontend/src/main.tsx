@@ -13,6 +13,18 @@ import { AuthBootstrap } from './components/AuthBootstrap';
 import './index.css';
 import './stores/theme.store';
 
+// Demo mode — intercept all API calls with static mock data and pre-authenticate
+if (import.meta.env.VITE_DEMO === 'true') {
+  // Set auth state synchronously so RequireAuth guards don't redirect to /login
+  useAuthStore.setState({
+    accessToken: 'demo-token',
+    user: { id: '00000000-0000-4000-8000-000000000001', email: 'demo@imi-test.example.de' },
+    isAuthenticated: true,
+  });
+  // Register axios interceptor that serves mock responses for failed requests
+  import('./api/mock-adapter').then(m => m.setupMockAdapter());
+}
+
 // Axios 401 interceptor – silent token refresh
 axios.interceptors.response.use(
   response => response,
