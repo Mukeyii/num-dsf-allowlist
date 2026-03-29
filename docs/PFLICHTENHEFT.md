@@ -106,6 +106,20 @@ Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation
 - **/M141/** Frontend-Unit-Tests mit Vitest + MSW
 - **/M142/** Test-Seed-Daten für reproduzierbare Testläufe
 
+#### Bundle-Sicherheit
+- **/M150/** RS256-Signatur auf jedem generierten FHIR-Bundle (Header X-Bundle-Signature)
+- **/M151/** SHA-256 Content-Hash im Audit Log bei jedem Bundle-Download
+- **/M152/** mTLS Client-Zertifikat-Authentifizierung für DSF-Prozesse (/fhir/Bundle)
+- **/M153/** Client-Zertifikats-Thumbprint pro Organisation konfigurierbar
+
+#### Zertifikats-Erneuerung
+- **/M160/** Dedizierter Renewal-Wizard (altes Cert auswählen → neues hochladen → vergleichen → bestätigen)
+- **/M161/** Drag-and-Drop PEM-Upload im Renewal-Flow
+
+#### UX-Verbesserungen
+- **/M170/** Undo-Funktion bei Löschaktionen (10 Sekunden Rückgängig-Toast)
+- **/M171/** Status-Dashboard mit Übersicht (Entity-Zähler, Approval-Status, Zertifikats-Ablauf)
+
 ### 1.2 Sollkriterien
 
 | Kennung | Beschreibung |

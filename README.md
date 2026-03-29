@@ -101,6 +101,13 @@ Notification flow:
 - On submission: All admins receive email notification immediately
 - On approve/reject: Admins notified immediately, site contacts notified after 30-minute delay
 
+## Bundle Security
+
+- Every FHIR Bundle download is **RS256-signed** (`X-Bundle-Signature` header)
+- **SHA-256 content hash** logged in the audit trail (`X-Content-Hash` header)
+- DSF processes authenticate via **mTLS client certificates** at `/fhir/Bundle/:endpointId`
+- Client certificate thumbprints are stored per organization
+
 ## Project Structure
 
 ```
@@ -164,6 +171,9 @@ GET    /api/v1/instances/:id/memberships
 POST   /api/v1/instances/:id/approval/submit
 GET    /api/v1/instances/:id/download/bundle
 GET    /api/v1/instances/:id/audit
+
+GET    /fhir/Bundle/:endpointId    (mTLS auth — for DSF BPE process)
+GET    /fhir/Bundle                (mTLS auth — search by identifier)
 ```
 
 Full API reference: see [CLAUDE.md](.claude/CLAUDE.md#api-routen-vollständig)
