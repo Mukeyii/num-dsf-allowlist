@@ -4,8 +4,8 @@ import { EntityCard }       from './EntityCard';
 import { FkLink }           from './FkLink';
 import { useModals }        from '../../hooks/useModals';
 import { daysUntil }        from '../../lib/dateUtils';
-import { toast } from 'sonner';
 import { useI18n } from '../../stores/i18n.store';
+import { undoableDelete } from '../../lib/undoDelete';
 
 export function CertificatesCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
@@ -60,11 +60,8 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button
-                  onClick={async () => {
-                    if (confirm('Delete this certificate? This cannot be undone.')) {
-                      try { await deleteMut.mutateAsync(cert.id); toast.success('Certificate deleted.'); }
-                      catch { toast.error('Failed to delete certificate.'); }
-                    }
+                  onClick={() => {
+                    undoableDelete(cert.subject || 'Certificate', () => deleteMut.mutateAsync(cert.id));
                   }}
                   title="Delete certificate"
                   style={{ fontSize: '10px', color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '6px', fontWeight: 600, transition: 'background 0.15s', display: 'flex', alignItems: 'center' }}
