@@ -5,6 +5,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react(), splitVendorChunkPlugin()],
+  base: process.env.VITE_DEMO === 'true' ? '/num-dsf-allowlist/' : '/',
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
