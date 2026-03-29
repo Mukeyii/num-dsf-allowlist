@@ -69,6 +69,18 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
             <input {...register('countryCode')} className={inputClass} placeholder="DE" maxLength={2} />
           </FormField>
         </div>
+        <FormField
+          label="Client Certificate Thumbprint (SHA-256)"
+          error={errors.clientCertThumbprint?.message}
+          hint="For mTLS authentication — the DSF process uses this to authenticate when downloading the Allow List Bundle"
+        >
+          <input
+            {...register('clientCertThumbprint')}
+            className={inputClass}
+            placeholder="e.g. a1b2c3d4e5f6..."
+            maxLength={128}
+          />
+        </FormField>
         <ModalFooter onCancel={onClose} loading={isPending} submitLabel="Save Organization" />
       </form>
     </Modal>

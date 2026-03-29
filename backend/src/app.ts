@@ -20,6 +20,7 @@ import { approvalRouter } from './routes/approval.routes';
 import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
 import { auditRouter } from './routes/audit.routes';
+import { fhirRouter } from './routes/fhir.routes';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
 
 const app = express();
@@ -62,6 +63,9 @@ app.set('trust proxy', 1);
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', apiRateLimit);
 }
+
+// FHIR Bundle endpoint — machine-to-machine, mTLS auth via client cert thumbprint (no JWT required)
+app.use('/fhir', fhirRouter);
 
 // Routes
 app.use('/auth', authRouter);

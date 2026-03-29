@@ -20,6 +20,7 @@ export async function upsertOrganization(
     postalCode?: string;
     city?: string;
     countryCode?: string;
+    clientCertThumbprint?: string;
   },
   userEmail: string,
   ipAddress: string
@@ -39,6 +40,7 @@ export async function upsertOrganization(
         postal_code: data.postalCode ?? null,
         city: data.city ?? null,
         country_code: data.countryCode ?? null,
+        client_cert_thumbprint: data.clientCertThumbprint || null,
         updated_at: now,
       });
     await writeAuditLog({
@@ -58,6 +60,7 @@ export async function upsertOrganization(
       postal_code: data.postalCode ?? null,
       city: data.city ?? null,
       country_code: data.countryCode ?? null,
+      client_cert_thumbprint: data.clientCertThumbprint || null,
       created_at: now,
       updated_at: now,
     });
