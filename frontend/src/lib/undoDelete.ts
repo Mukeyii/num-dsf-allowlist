@@ -8,7 +8,7 @@ import { toast } from 'sonner';
  */
 export function undoableDelete(
   label: string,
-  deleteFn: () => Promise<void>,
+  deleteFn: () => Promise<unknown>,
 ): void {
   let cancelled = false;
 

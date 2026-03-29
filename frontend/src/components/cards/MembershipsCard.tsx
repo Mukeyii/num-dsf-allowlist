@@ -5,7 +5,6 @@ import { EntityCard }       from './EntityCard';
 import { FkLink }           from './FkLink';
 import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
-import { toast } from 'sonner';
 import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
 
