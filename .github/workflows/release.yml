@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+          package-name: dsf-allowlist
+
+      - name: Build and push Docker images
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          echo "Release ${{ steps.release.outputs.tag_name }} created"
+          echo "Building Docker images..."
+
+          # Login to GitHub Container Registry
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+          TAG="${{ steps.release.outputs.tag_name }}"
+          REPO="ghcr.io/${{ github.repository_owner }}/dsf-allowlist"
+
+          # Build and tag backend
+          docker build -t ${REPO}-backend:${TAG} -t ${REPO}-backend:latest --target prod -f backend/Dockerfile backend/
+          docker push ${REPO}-backend:${TAG}
+          docker push ${REPO}-backend:latest
+
+          # Build and tag frontend
+          docker build -t ${REPO}-frontend:${TAG} -t ${REPO}-frontend:latest --target prod -f frontend/Dockerfile frontend/
+          docker push ${REPO}-frontend:${TAG}
+          docker push ${REPO}-frontend:latest
+
+          echo "Docker images pushed: ${REPO}-backend:${TAG}, ${REPO}-frontend:${TAG}"
