@@ -39,8 +39,8 @@ certs/
 coverage/
 .nyc_output/
 
-# === Claude Code (machine-specific) ===
-.claude/settings.local.json
+# === Tool settings (machine-specific) ===
+.claude/
 
 # === Sensitive data exports (NEVER commit) ===
 scripts/*.json
