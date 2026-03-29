@@ -4,7 +4,6 @@ import { useOrganization } from '../../hooks/useOrganization';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';
 import { useModals }       from '../../hooks/useModals';
-import { toast } from 'sonner';
 import { IpDiffBadge } from './IpDiffBadge';
 import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
