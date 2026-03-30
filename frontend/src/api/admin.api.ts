@@ -14,11 +14,11 @@ function authHeader() {
 
 export const adminApi = {
   getPendingApprovals: () =>
-    axios.get(`${BASE}/admin/approval/admin/pending`, { headers: authHeader() }),
+    axios.get(`${BASE}/admin/approval/pending`, { headers: authHeader() }),
 
   approveRequest: (requestId: string, totpCode: string) =>
-    axios.post(`${BASE}/admin/approval/admin/${requestId}/approve`, { totpCode }, { headers: authHeader() }),
+    axios.post(`${BASE}/admin/approval/${requestId}/approve`, { totpCode }, { headers: authHeader() }),
 
   rejectRequest: (requestId: string, comment: string, totpCode: string) =>
-    axios.post(`${BASE}/admin/approval/admin/${requestId}/reject`, { comment, totpCode }, { headers: authHeader() }),
+    axios.post(`${BASE}/admin/approval/${requestId}/reject`, { comment, totpCode }, { headers: authHeader() }),
 };

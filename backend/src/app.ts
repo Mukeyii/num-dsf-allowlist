@@ -17,6 +17,7 @@ import { endpointsRouter } from './routes/endpoints.routes';
 import { certificatesRouter } from './routes/certificates.routes';
 import { membershipsRouter } from './routes/memberships.routes';
 import { approvalRouter } from './routes/approval.routes';
+import { adminApprovalRouter } from './routes/admin-approval.routes';
 import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
 import { auditRouter } from './routes/audit.routes';
@@ -85,7 +86,7 @@ app.use('/api/v1/instances/:instanceId/audit', auditRouter);
 app.use('/api/v1/download', downloadRouter);
 
 // Admin routes
-app.use('/api/v1/admin/approval', approvalRouter);
+app.use('/api/v1/admin/approval', adminApprovalRouter);
 app.use('/api/v1/admin', adminRouter);
 
 // Health Check
