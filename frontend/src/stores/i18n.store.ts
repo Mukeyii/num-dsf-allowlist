@@ -49,6 +49,10 @@ const translations = {
     approved: 'Approved',
     rejected: 'Rejected',
     status: 'Status',
+    approvalHistory: 'Approval History',
+    noApprovalRequests: 'No approval requests yet.',
+    certExpiresIn: 'Certificate expires in',
+    nextExpiry: 'Next expiry',
   },
   de: {
     signIn: 'Anmelden',
@@ -92,6 +96,10 @@ const translations = {
     approved: 'Genehmigt',
     rejected: 'Abgelehnt',
     status: 'Status',
+    approvalHistory: 'Genehmigungsverlauf',
+    noApprovalRequests: 'Noch keine Genehmigungsanträge.',
+    certExpiresIn: 'Zertifikat läuft ab in',
+    nextExpiry: 'Nächster Ablauf',
   },
 } as const;
 

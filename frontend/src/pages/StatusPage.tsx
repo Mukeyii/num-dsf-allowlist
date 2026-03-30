@@ -62,14 +62,14 @@ export function StatusPage() {
         <StatCard icon="contact_phone" color="#9b59b6" label={t('contacts')} value={contacts.length} />
         <StatCard icon="hub" color="#3ecfb2" label={t('endpoints')} value={endpoints.length} />
         <StatCard icon="verified_user" color="#f5a623" label={t('certificates')} value={certs.length}
-          detail={nextExpiry !== null ? `Next expiry: ${nextExpiry}d` : undefined} />
+          detail={nextExpiry !== null ? `${t('nextExpiry')}: ${nextExpiry}d` : undefined} />
         <StatCard icon="groups" color="#4a90d9" label={t('memberships')} value={memberships.length} />
       </div>
 
       {/* Approval Status */}
       <div style={{ padding: '20px', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Approval Status</h2>
+          <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{t('approvalStatus')}</h2>
           <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '99px', background: `${statusColor}18`, color: statusColor }}>
             {approval?.status || 'NO REQUEST'}
           </span>
@@ -92,7 +92,7 @@ export function StatusPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '20px', color: nextExpiry < 30 ? '#ef4444' : '#f5a623' }}>warning</span>
             <div>
               <p style={{ fontSize: '12px', fontWeight: 700, color: nextExpiry < 30 ? '#991b1b' : '#92400e', margin: 0 }}>
-                Certificate expires in {nextExpiry} days
+                {t('certExpiresIn')} {nextExpiry} days
               </p>
               <p style={{ fontSize: '11px', color: nextExpiry < 30 ? '#991b1b' : '#92400e', margin: '2px 0 0' }}>
                 Use the Renew button on the Certificates card to upload a replacement.
@@ -104,9 +104,9 @@ export function StatusPage() {
 
       {/* Approval History */}
       <div style={{ padding: '20px', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 12px' }}>Approval History</h2>
+        <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 12px' }}>{t('approvalHistory')}</h2>
         {history.length === 0 ? (
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No approval requests yet.</p>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('noApprovalRequests')}</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {history.slice(0, 10).map((req: any, i: number) => {
