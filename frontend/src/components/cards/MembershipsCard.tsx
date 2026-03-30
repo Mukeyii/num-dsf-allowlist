@@ -52,6 +52,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                 <button
                   onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('membership-edit', ms.id); }}
                   title="Edit membership"
+                  aria-label="Edit membership"
                   style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -64,6 +65,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                     undoableDelete(ms.parent_organization, () => deleteMut.mutateAsync(ms.id));
                   }}
                   title="Delete membership"
+                  aria-label="Delete membership"
                   style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}

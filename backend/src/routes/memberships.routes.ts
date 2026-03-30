@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { createMembershipSchema, updateMembershipSchema } from '../schemas/membership.schema';
 import * as svc from '../services/memberships.service';
+import { sanitizeError } from '../lib/sanitizeError';
 
 export const membershipsRouter = Router({ mergeParams: true });
 membershipsRouter.use(requireAuth, requireInstanceOwnership);
@@ -10,21 +13,21 @@ membershipsRouter.get('/', async (req, res) => {
   res.json({ data: await svc.getMemberships(req.instance!.id) });
 });
 
-membershipsRouter.post('/', async (req, res) => {
+membershipsRouter.post('/', validate(createMembershipSchema), async (req, res) => {
   try {
     const ms = await svc.createMembership(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
     res.status(201).json({ data: ms });
   } catch (err: any) {
-    res.status(400).json({ error: { code: err.message, message: err.message } });
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });
 
-membershipsRouter.put('/:mid', async (req, res) => {
+membershipsRouter.put('/:mid', validate(updateMembershipSchema), async (req, res) => {
   try {
     const ms = await svc.updateMembership(req.instance!.id, req.params.mid, req.body, req.user!.email, req.ip || 'unknown');
     res.json({ data: ms });
   } catch (err: any) {
-    res.status(400).json({ error: { code: err.message, message: err.message } });
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });
 
@@ -33,6 +36,6 @@ membershipsRouter.delete('/:mid', async (req, res) => {
     await svc.deleteMembership(req.instance!.id, req.params.mid, req.user!.email, req.ip || 'unknown');
     res.json({ data: { deleted: true } });
   } catch (err: any) {
-    res.status(400).json({ error: { code: err.message, message: err.message } });
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });

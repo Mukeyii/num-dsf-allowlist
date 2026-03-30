@@ -1,14 +1,15 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { auditQuerySchema } from '../schemas/query.schema';
 import { db } from '../db/connection';
 
 export const auditRouter = Router({ mergeParams: true });
 auditRouter.use(requireAuth, requireInstanceOwnership);
 
-auditRouter.get('/', async (req, res) => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+auditRouter.get('/', validate(auditQuerySchema, 'query'), async (req, res) => {
+  const { page, limit } = req.query as any;
   const offset = (page - 1) * limit;
 
   const query = db('audit_logs')

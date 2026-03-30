@@ -41,6 +41,7 @@ export function NotificationCenter() {
     <div ref={ref} style={{ position: 'relative' }}>
       <button
         onClick={handleToggle}
+        aria-label="Notifications"
         style={{ position: 'relative', border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px' }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-secondary)' }}>notifications</span>
@@ -62,7 +63,7 @@ export function NotificationCenter() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
             <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Notifications</span>
             {notifications.length > 0 && (
-              <button onClick={clear} style={{ fontSize: '10px', color: 'var(--text-muted)', border: 'none', background: 'transparent', cursor: 'pointer' }}>Clear all</button>
+              <button onClick={clear} aria-label="Clear all notifications" style={{ fontSize: '10px', color: 'var(--text-muted)', border: 'none', background: 'transparent', cursor: 'pointer' }}>Clear all</button>
             )}
           </div>
           <div style={{ maxHeight: '340px', overflowY: 'auto' }}>

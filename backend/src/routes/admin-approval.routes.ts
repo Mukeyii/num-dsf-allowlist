@@ -10,6 +10,7 @@ import * as svc from '../services/approval.service';
 import { verifyTotpCode } from '../services/totp.service';
 import { db } from '../db/connection';
 import { otpRateLimit } from '../middleware/rateLimit.middleware';
+import { sanitizeError } from '../lib/sanitizeError';
 
 export const adminApprovalRouter = Router();
 
@@ -39,7 +40,7 @@ adminApprovalRouter.post('/:rid/approve', requireAuth, requireImiAdmin, ...totpL
     const result = await svc.approveRequest(req.params.rid, req.user!.email, req.ip || 'unknown');
     res.json({ data: result });
   } catch (err: any) {
-    res.status(400).json({ error: { code: 'FAILED', message: err.message } });
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });
 
@@ -63,6 +64,6 @@ adminApprovalRouter.post('/:rid/reject', requireAuth, requireImiAdmin, ...totpLi
     const result = await svc.rejectRequest(req.params.rid, req.user!.email, comment || '', req.ip || 'unknown');
     res.json({ data: result });
   } catch (err: any) {
-    res.status(400).json({ error: { code: 'FAILED', message: err.message } });
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });
