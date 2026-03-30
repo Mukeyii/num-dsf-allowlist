@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireImiAdmin } from '../middleware/admin.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { auditQuerySchema } from '../schemas/query.schema';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { writeAuditLog } from '../services/audit.service';
@@ -42,9 +44,8 @@ adminRouter.get('/instances', async (req, res) => {
   res.json({ data: instances });
 });
 
-adminRouter.get('/audit', async (req, res) => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+adminRouter.get('/audit', validate(auditQuerySchema, 'query'), async (req, res) => {
+  const { page, limit } = req.query as any;
   const offset = (page - 1) * limit;
   const logs = await db('audit_logs').orderBy('timestamp', 'desc').limit(limit).offset(offset);
   const [{ count }] = await db('audit_logs').count('id as count');

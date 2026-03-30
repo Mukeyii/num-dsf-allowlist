@@ -118,6 +118,7 @@ export function Sidebar() {
                     onClick={e => { e.stopPropagation(); togglePin(inst.id); }}
                     style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', display: 'flex', flexShrink: 0 }}
                     title={isPinned ? 'Unpin' : 'Pin to top'}
+                    aria-label={isPinned ? 'Unpin instance' : 'Pin instance'}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '14px', color: isPinned ? '#f5a623' : '#d4d8e8' }}>
                       push_pin

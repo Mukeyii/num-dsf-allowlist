@@ -10,6 +10,7 @@
  */
 import { useEffect, useState, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'sonner';
 import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 
@@ -41,6 +42,46 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
         setReady(true);
       });
   }, []);
+
+  // Idle timeout – 30 minutes of inactivity triggers logout
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const IDLE_MS = 30 * 60 * 1000; // 30 minutes
+    const WARNING_MS = 2 * 60 * 1000; // warn 2 min before
+    let idleTimer: ReturnType<typeof setTimeout>;
+    let warnTimer: ReturnType<typeof setTimeout>;
+    let warningShown = false;
+
+    function resetTimers() {
+      clearTimeout(idleTimer);
+      clearTimeout(warnTimer);
+      warningShown = false;
+
+      warnTimer = setTimeout(() => {
+        if (!warningShown) {
+          warningShown = true;
+          toast.warning('Your session will expire in 2 minutes due to inactivity.');
+        }
+      }, IDLE_MS - WARNING_MS);
+
+      idleTimer = setTimeout(() => {
+        useAuthStore.getState().clearAuth();
+        toast.error('Session expired due to inactivity.');
+        window.location.replace('/login');
+      }, IDLE_MS);
+    }
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'] as const;
+    events.forEach(event => document.addEventListener(event, resetTimers));
+    resetTimers();
+
+    return () => {
+      clearTimeout(idleTimer);
+      clearTimeout(warnTimer);
+      events.forEach(event => document.removeEventListener(event, resetTimers));
+    };
+  }, [isAuthenticated]);
 
   if (!ready) {
     return (

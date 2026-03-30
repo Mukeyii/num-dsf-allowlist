@@ -64,6 +64,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
                     undoableDelete(cert.subject || 'Certificate', () => deleteMut.mutateAsync(cert.id));
                   }}
                   title="Delete certificate"
+                  aria-label="Delete certificate"
                   style={{ fontSize: '10px', color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '6px', fontWeight: 600, transition: 'background 0.15s', display: 'flex', alignItems: 'center' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}

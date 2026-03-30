@@ -25,12 +25,15 @@ if (import.meta.env.VITE_DEMO === 'true') {
   import('./api/mock-adapter').then(m => m.setupMockAdapter());
 }
 
-// Axios 401 interceptor – silent token refresh
+// Axios interceptors – token refresh + global error handling
 axios.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/')) {
+    const status = error.response?.status;
+
+    // 401 – silent token refresh
+    if (status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/')) {
       originalRequest._retry = true;
       try {
         const res = await authApi.refresh();
@@ -44,6 +47,22 @@ axios.interceptors.response.use(
         window.location.replace('/login');
       }
     }
+
+    // Global error toasts (avoid duplicates with _handled flag)
+    if (!error._handled) {
+      const { toast } = await import('sonner');
+      if (status === 429) {
+        toast.error('Too many requests. Please wait a moment.');
+        error._handled = true;
+      } else if (status >= 500) {
+        toast.error('Server error. Please try again later.');
+        error._handled = true;
+      } else if (!error.response) {
+        toast.error('Network error. Check your connection.');
+        error._handled = true;
+      }
+    }
+
     return Promise.reject(error);
   }
 );

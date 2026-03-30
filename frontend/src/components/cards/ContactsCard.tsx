@@ -89,6 +89,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               <button
                 onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('contact-edit', c.id); }}
                 title="Edit contact"
+                aria-label="Edit contact"
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -101,6 +102,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                   undoableDelete(c.name || 'Contact', () => deleteMut.mutateAsync(c.id));
                 }}
                 title="Delete contact"
+                aria-label="Delete contact"
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}

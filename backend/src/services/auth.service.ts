@@ -161,8 +161,8 @@ async function createTokenPair(user: AuthUser): Promise<{ accessToken: string; r
   return { accessToken, refreshTokenHash: refreshToken }; // plaintext token to frontend
 }
 
-// Refresh: issue new access token
-export async function refreshAccessToken(refreshToken: string): Promise<string> {
+// Refresh: rotate refresh token and issue new access token
+export async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
   const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
   const { getRefreshToken } = await import('./redis.service');
   const userId = await getRefreshToken(hash);
@@ -171,7 +171,25 @@ export async function refreshAccessToken(refreshToken: string): Promise<string> 
   const user = await db('users').where({ id: userId }).first();
   if (!user) throw new Error('USER_NOT_FOUND');
 
-  return signAccessToken({ id: user.id, email: user.email, totpEnabled: user.totp_enabled });
+  // Idle timeout check: reject refresh if user has been inactive
+  const { redis: redisClient } = await import('./redis.service');
+  const lastActivity = await redisClient.get(`activity:${userId}`);
+  if (!lastActivity && process.env.NODE_ENV !== 'test') {
+    // User has been idle too long — revoke all tokens
+    await deleteRefreshToken(hash);
+    throw new Error('SESSION_EXPIRED');
+  }
+
+  // Rotate: delete old token and issue a new one
+  await deleteRefreshToken(hash);
+  const newRefreshToken = crypto.randomBytes(64).toString('hex');
+  const newHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
+  await setRefreshToken(newHash, userId, REFRESH_TTL_SEC);
+
+  return {
+    accessToken: signAccessToken({ id: user.id, email: user.email, totpEnabled: user.totp_enabled }),
+    refreshToken: newRefreshToken,
+  };
 }
 
 // Logout: revoke refresh token

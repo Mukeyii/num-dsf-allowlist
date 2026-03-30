@@ -4,10 +4,11 @@
  * Depends on: REDIS_URL env var
  */
 import Redis from 'ioredis';
+import { logger } from '../lib/logger';
 
 export const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
-redis.on('error', (err) => console.error('Redis error:', err));
+redis.on('error', (err) => logger.error({ err }, 'Redis connection error'));
 
 export async function testRedisConnection(): Promise<void> {
   await redis.ping();
