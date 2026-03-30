@@ -14,9 +14,11 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 FROM node:20-alpine AS prod
+RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json .
+COPY --from=build --chown=app:app /app/dist ./dist
+COPY --from=build --chown=app:app /app/node_modules ./node_modules
+COPY --from=build --chown=app:app /app/package.json .
+USER app
 EXPOSE 3000
 CMD ["node", "dist/index.js"]

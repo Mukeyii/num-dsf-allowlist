@@ -34,10 +34,6 @@ const REFRESH_COOKIE_OPTIONS = {
   path: '/auth/refresh',
 };
 
-function getIp(req: Request): string {
-  return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown';
-}
-
 // POST /auth/request-otp
 const otpLimiter = process.env.NODE_ENV === 'test' ? [] : [otpRateLimit];
 authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Response) => {
@@ -46,7 +42,7 @@ authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Respons
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'Email required' } });
   }
   try {
-    await requestOtp(email, getIp(req));
+    await requestOtp(email, req.ip || 'unknown');
     // Always return 200 – no hint whether email is whitelisted
     res.json({ data: { message: 'If this email is registered, a code has been sent.' } });
   } catch {
@@ -61,7 +57,7 @@ authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'Email and code required' } });
   }
   try {
-    const result = await verifyOtpAndGetTempToken(email, code, getIp(req));
+    const result = await verifyOtpAndGetTempToken(email, code, req.ip || 'unknown');
     res.json({ data: result });
   } catch (err: any) {
     res.status(401).json({ error: { code: 'AUTH_FAILED', message: 'Invalid code' } });
@@ -95,7 +91,7 @@ authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Respon
   }
   try {
     const { accessToken, refreshTokenHash, backupCodes } = await confirmTotpSetupAndCreateSession(
-      tempToken, code, getIp(req)
+      tempToken, code, req.ip || 'unknown'
     );
     res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken, backupCodes } }); // Backup codes returned once
@@ -112,7 +108,7 @@ authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Respons
   }
   try {
     const { accessToken, refreshTokenHash } = await verifyTotpAndCreateSession(
-      tempToken, code, getIp(req)
+      tempToken, code, req.ip || 'unknown'
     );
     res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken } });
@@ -122,13 +118,14 @@ authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Respons
 });
 
 // POST /auth/refresh  → new access token
-authRouter.post('/refresh', async (req: Request, res: Response) => {
+authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'No refresh token' } });
   }
   try {
-    const accessToken = await refreshAccessToken(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } = await refreshAccessToken(refreshToken);
+    res.cookie('refreshToken', newRefreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken } });
   } catch {
     res.clearCookie('refreshToken', { path: '/auth/refresh' });
@@ -137,11 +134,11 @@ authRouter.post('/refresh', async (req: Request, res: Response) => {
 });
 
 // POST /auth/logout
-authRouter.post('/logout', async (req: Request, res: Response) => {
+authRouter.post('/logout', ...otpLimiter, async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   const userEmail = req.body?.email || 'unknown';
   if (refreshToken) {
-    await logout(refreshToken, userEmail, getIp(req));
+    await logout(refreshToken, userEmail, req.ip || 'unknown');
   }
   res.clearCookie('refreshToken', { path: '/auth/refresh' });
   res.json({ data: { message: 'Logged out' } });

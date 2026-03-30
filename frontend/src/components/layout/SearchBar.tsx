@@ -125,6 +125,7 @@ export function SearchBar() {
         {query && (
           <button
             onClick={() => { setQuery(''); setOpen(false); }}
+            aria-label="Clear search"
             style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, lineHeight: 1 }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--text-muted)' }}>close</span>
@@ -133,7 +134,7 @@ export function SearchBar() {
       </div>
 
       {open && results.length > 0 && (
-        <div style={{
+        <div role="listbox" aria-label="Search results" style={{
           position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px',
           background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
           boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100,
@@ -144,6 +145,8 @@ export function SearchBar() {
             return (
               <button
                 key={`${r.type}-${i}`}
+                role="option"
+                aria-label={`${r.type}: ${r.label}`}
                 onClick={() => handleSelect(r)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px', width: '100%',

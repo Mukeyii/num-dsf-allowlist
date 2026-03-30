@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { createCertificateSchema } from '../schemas/certificate.schema';
 import * as svc from '../services/certificate.service';
 import { db } from '../db/connection';
+import { sanitizeError } from '../lib/sanitizeError';
 
 export const certificatesRouter = Router({ mergeParams: true });
 certificatesRouter.use(requireAuth, requireInstanceOwnership);
@@ -23,19 +26,15 @@ certificatesRouter.get('/expiring', async (req, res) => {
   res.json({ data: expiring });
 });
 
-certificatesRouter.post('/', async (req, res) => {
-  const { pem } = req.body;
-  if (!pem || typeof pem !== 'string') {
-    return res.status(400).json({ error: { code: 'VALIDATION', message: 'PEM content required' } });
-  }
+certificatesRouter.post('/', validate(createCertificateSchema), async (req, res) => {
   try {
-    const cert = await svc.createCertificate(req.instance!.id, pem, req.user!.email, req.ip || 'unknown');
+    const cert = await svc.createCertificate(req.instance!.id, req.body.pem, req.user!.email, req.ip || 'unknown');
     res.status(201).json({ data: cert });
   } catch (err: any) {
     if (err.message === 'PRIVATE_KEY_REJECTED') {
       return res.status(400).json({ error: { code: 'PRIVATE_KEY_REJECTED', message: 'Private keys are not allowed' } });
     }
-    res.status(400).json({ error: { code: err.message, message: err.message } });
+    res.status(400).json({ error: { code: 'FAILED', message: 'Certificate upload failed' } });
   }
 });
 
@@ -44,6 +43,6 @@ certificatesRouter.delete('/:cid', async (req, res) => {
     await svc.deleteCertificate(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
     res.json({ data: { deleted: true } });
   } catch (err: any) {
-    res.status(400).json({ error: { code: err.message, message: err.message } });
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });
