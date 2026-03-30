@@ -98,6 +98,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
               <button
                 onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('endpoint-edit', ep.identifier); }}
                 title="Edit endpoint"
+                aria-label="Edit endpoint"
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -110,6 +111,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
                   undoableDelete(ep.name || ep.identifier, () => deleteMut.mutateAsync(ep.identifier));
                 }}
                 title="Delete endpoint"
+                aria-label="Delete endpoint"
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}

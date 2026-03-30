@@ -6,7 +6,7 @@ export const contactSchema = z.object({
   types: z.array(z.enum(CONTACT_TYPES)).min(1, 'Select at least one type'),
   name: z.string().optional(),
   email: z.string().email('Must be a valid email address'),
-  phone: z.string().optional(),
+  phone: z.string().regex(/^\+?[\d\s\-()]{7,20}$/, 'Invalid phone format (e.g. +49 251 12345)').optional().or(z.literal('')),
   addressLine: z.string().optional(),
   city: z.string().optional(),
   postalCode: z.string().optional(),
