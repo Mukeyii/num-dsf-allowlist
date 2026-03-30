@@ -103,3 +103,35 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
+
+/* Dark mode: pastel background overrides */
+:root.dark .bg-amber-50 { background-color: rgba(245, 166, 35, 0.1) !important; }
+:root.dark .bg-amber-100 { background-color: rgba(245, 166, 35, 0.15) !important; }
+:root.dark .bg-emerald-100 { background-color: rgba(34, 197, 94, 0.12) !important; }
+:root.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.12) !important; }
+:root.dark .bg-blue-100 { background-color: rgba(99, 102, 241, 0.12) !important; }
+:root.dark .bg-indigo-100 { background-color: rgba(108, 99, 255, 0.12) !important; }
+:root.dark .bg-indigo-50 { background-color: rgba(108, 99, 255, 0.08) !important; }
+:root.dark .bg-teal-100 { background-color: rgba(62, 207, 178, 0.12) !important; }
+:root.dark .bg-orange-100 { background-color: rgba(249, 115, 22, 0.12) !important; }
+
+/* Dark mode: pastel border overrides */
+:root.dark .border-amber-200 { border-color: rgba(245, 166, 35, 0.2) !important; }
+:root.dark .border-indigo-100 { border-color: rgba(108, 99, 255, 0.15) !important; }
+
+/* Dark mode: pastel text overrides */
+:root.dark .text-amber-800 { color: #f5a623 !important; }
+:root.dark .text-amber-700 { color: #f5a623 !important; }
+:root.dark .text-amber-500 { color: #f5a623 !important; }
+:root.dark .text-emerald-700 { color: #22c55e !important; }
+:root.dark .text-red-700 { color: #ef4444 !important; }
+:root.dark .text-red-600 { color: #ef4444 !important; }
+:root.dark .text-indigo-700 { color: #8b83ff !important; }
+
+/* Dark mode: inline pastel backgrounds used in components */
+:root.dark [style*="background: #ede9ff"],
+:root.dark [style*="background: rgb(237, 233, 255)"] { background: rgba(108, 99, 255, 0.12) !important; }
+:root.dark [style*="background: #fef3c7"] { background: rgba(245, 166, 35, 0.12) !important; }
+:root.dark [style*="background: #dcfce7"] { background: rgba(34, 197, 94, 0.12) !important; }
+:root.dark [style*="background: #fef2f2"] { background: rgba(239, 68, 68, 0.1) !important; }
+:root.dark [style*="background: #f0fdf4"] { background: rgba(34, 197, 94, 0.08) !important; }
