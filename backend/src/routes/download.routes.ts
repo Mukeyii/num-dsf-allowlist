@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import { requireImiAdmin } from '../middleware/admin.middleware';
 import { generateBundle } from '../services/fhir.service';
 import { generateIpAddressListExcel } from '../services/excel.service';
 import { signBundle } from '../services/bundle-signing.service';
@@ -37,7 +38,7 @@ downloadRouter.get('/bundle', requireAuth, requireInstanceOwnership, async (req,
   }
 });
 
-downloadRouter.get('/ip-address-list', requireAuth, async (req, res) => {
+downloadRouter.get('/ip-address-list', requireAuth, requireImiAdmin, async (req, res) => {
   try {
     const buffer = await generateIpAddressListExcel();
     const date = new Date().toISOString().split('T')[0];
