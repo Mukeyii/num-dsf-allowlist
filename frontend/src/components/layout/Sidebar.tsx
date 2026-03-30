@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
-import { useThemeStore }  from '../../stores/theme.store';
 import { useI18n }        from '../../stores/i18n.store';
 import { useInstances }   from '../../hooks/useInstance';
 import { authApi }        from '../../api/auth.api';
@@ -19,8 +18,7 @@ export function Sidebar() {
   const { data: instances = [] } = useInstances();
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
-  const { dark, toggleTheme } = useThemeStore();
-  const { lang, setLang, t } = useI18n();
+  const { t } = useI18n();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
@@ -174,65 +172,14 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Dark Mode Toggle */}
-      <div style={{ padding: '0 16px', marginTop: '4px' }}>
-        <button
-          onClick={toggleTheme}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 10px', borderRadius: '8px',
-            fontSize: '12px', fontWeight: 600, width: '100%',
-            border: 'none', cursor: 'pointer',
-            color: 'var(--text-secondary)', background: 'transparent',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            {dark ? 'light_mode' : 'dark_mode'}
-          </span>
-          {dark ? t('lightMode') : t('darkMode')}
-        </button>
-      </div>
-
-      {/* Language Toggle */}
-      <div style={{ padding: '0 16px', marginTop: '4px' }}>
-        <button
-          onClick={() => setLang(lang === 'en' ? 'de' : 'en')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 10px', borderRadius: '8px',
-            fontSize: '12px', fontWeight: 600, width: '100%',
-            border: 'none', cursor: 'pointer',
-            color: 'var(--text-secondary)', background: 'transparent',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>translate</span>
-          {lang === 'en' ? 'Deutsch' : 'English'}
-        </button>
-      </div>
-
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Partner Logos */}
-      <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', opacity: 0.6 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-          <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
-            <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ height: '30px' }} />
-          </a>
-          <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
-            <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '28px' }} />
-          </a>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-          <img src="/logos/NUM-LOGO-POS-DE-RGB_neu.png" alt="NUM" style={{ height: '22px' }} />
-          <img src="/logos/dsf-logo.svg" alt="DSF" style={{ height: '22px' }} />
-        </div>
+      {/* IMI Logo */}
+      <div style={{ padding: '0 16px 12px' }}>
+        <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
+          <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ width: '100%', opacity: 0.7 }} />
+        </a>
       </div>
 
       {/* User Identity + Logout */}
