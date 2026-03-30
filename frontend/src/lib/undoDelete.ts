@@ -1,40 +1,17 @@
 /**
- * undoDelete.ts – Delayed delete with undo capability via toast
+ * undoDelete.ts – Instant delete with success/error toast
  */
 import { toast } from 'sonner';
 
 /**
- * Show a toast with undo capability. If not undone within 10s, execute the delete.
+ * Execute the delete immediately and show a success/error toast.
+ * The previous 10-second undo delay has been removed for instant UX.
  */
 export function undoableDelete(
   label: string,
   deleteFn: () => Promise<unknown>,
 ): void {
-  let cancelled = false;
-
-  const toastId = toast(
-    `${label} deleted`,
-    {
-      duration: 10000,
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          cancelled = true;
-          toast.dismiss(toastId);
-          toast.success(`${label} restored.`);
-        },
-      },
-    },
-  );
-
-  // Execute delete after toast duration
-  setTimeout(async () => {
-    if (!cancelled) {
-      try {
-        await deleteFn();
-      } catch {
-        toast.error(`Failed to delete ${label}.`);
-      }
-    }
-  }, 10000);
+  deleteFn()
+    .then(() => toast.success(`${label} deleted.`))
+    .catch(() => toast.error(`Failed to delete ${label}.`));
 }
