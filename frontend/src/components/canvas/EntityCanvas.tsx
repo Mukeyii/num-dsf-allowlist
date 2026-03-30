@@ -1,8 +1,6 @@
 /**
- * EntityCanvas.tsx – 2×3 grid with all entity cards + SVG overlay
+ * EntityCanvas.tsx – 2×3 grid with all entity cards
  */
-import { useRef } from 'react';
-import { RelationLines }    from './RelationLines';
 import { OnboardingWizard } from './OnboardingWizard';
 import { OrganizationCard } from '../cards/OrganizationCard';
 import { ContactsCard }     from '../cards/ContactsCard';
@@ -16,22 +14,10 @@ interface EntityCanvasProps {
 }
 
 export function EntityCanvas({ instanceId }: EntityCanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const refs = {
-    organization:  useRef<HTMLDivElement>(null),
-    contacts:      useRef<HTMLDivElement>(null),
-    endpoints:     useRef<HTMLDivElement>(null),
-    certificates:  useRef<HTMLDivElement>(null),
-    memberships:   useRef<HTMLDivElement>(null),
-    approval:      useRef<HTMLDivElement>(null),
-  };
-
   return (
     <div
-      ref={containerRef}
       style={{ position: 'relative', padding: '20px', flex: 1, overflowY: 'auto' }}
     >
-      <RelationLines cardRefs={refs} containerRef={containerRef} />
       <OnboardingWizard instanceId={instanceId} />
       <div
         style={{
@@ -43,22 +29,22 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
           zIndex: 2,
         }}
       >
-        <div ref={refs.organization}  id="card-organization">
+        <div id="card-organization">
           <OrganizationCard instanceId={instanceId} />
         </div>
-        <div ref={refs.endpoints}     id="card-endpoints">
+        <div id="card-endpoints">
           <EndpointsCard instanceId={instanceId} />
         </div>
-        <div ref={refs.memberships}   id="card-memberships">
+        <div id="card-memberships">
           <MembershipsCard instanceId={instanceId} />
         </div>
-        <div ref={refs.contacts}      id="card-contacts">
+        <div id="card-contacts">
           <ContactsCard instanceId={instanceId} />
         </div>
-        <div ref={refs.certificates}  id="card-certificates">
+        <div id="card-certificates">
           <CertificatesCard instanceId={instanceId} />
         </div>
-        <div ref={refs.approval}      id="card-approval">
+        <div id="card-approval">
           <ApprovalCard instanceId={instanceId} />
         </div>
       </div>
