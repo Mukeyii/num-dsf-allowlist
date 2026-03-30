@@ -91,7 +91,7 @@ app.use('/api/v1/admin', adminRouter);
 
 // Health Check
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', environment: process.env.DSF_ENVIRONMENT || 'UNKNOWN' });
+  res.json({ status: 'ok' });
 });
 
 // 404
