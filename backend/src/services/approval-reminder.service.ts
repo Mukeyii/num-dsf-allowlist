@@ -15,8 +15,9 @@ import {
 
 const SITE_NOTIFY_DELAY_MS = 30 * 60 * 1000; // 30 minutes
 
-const IMI_EMAILS = (process.env.IMI_ADMIN_EMAILS || '')
-  .split(',').map(e => e.trim()).filter(Boolean);
+function getImiEmails(): string[] {
+  return (process.env.IMI_ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+}
 
 export async function notifyImiOnSubmit(
   requestId: string,
@@ -25,14 +26,15 @@ export async function notifyImiOnSubmit(
   orgName: string,
   submittedBy: string,
 ): Promise<void> {
-  if (IMI_EMAILS.length === 0) {
+  const imiEmails = getImiEmails();
+  if (imiEmails.length === 0) {
     console.warn('[ApprovalNotify] No IMI_ADMIN_EMAILS configured – skipping admin notification');
     return;
   }
 
   try {
-    await sendAdminNewRequestEmail(IMI_EMAILS, orgName, orgIdentifier, submittedBy, requestId);
-    console.log(`[ApprovalNotify] Notified ${IMI_EMAILS.length} admin(s) of new request from ${orgIdentifier}`);
+    await sendAdminNewRequestEmail(imiEmails, orgName, orgIdentifier, submittedBy, requestId);
+    console.log(`[ApprovalNotify] Notified ${imiEmails.length} admin(s) of new request from ${orgIdentifier}`);
   } catch (err) {
     console.error('[ApprovalNotify] Failed to send admin new-request email:', err);
   }
@@ -51,10 +53,11 @@ export async function notifySiteOnApproval(
     return;
   }
 
+  const imiEmails = getImiEmails();
   // Immediately notify admins of the resolution
-  if (IMI_EMAILS.length > 0) {
+  if (imiEmails.length > 0) {
     try {
-      await sendAdminApprovalResultEmail(IMI_EMAILS, org.name, org.identifier, status, resolvedBy, comment);
+      await sendAdminApprovalResultEmail(imiEmails, org.name, org.identifier, status, resolvedBy, comment);
       console.log(`[ApprovalNotify] Notified admins of ${status} for ${org.identifier}`);
     } catch (err) {
       console.error('[ApprovalNotify] Failed to send admin approval-result email:', err);
@@ -106,7 +109,8 @@ export async function runApprovalReminders(): Promise<void> {
 
   console.log(`[ApprovalReminder] ${staleRequests.length} stale pending request(s) – sending reminders`);
 
-  if (IMI_EMAILS.length === 0) {
+  const reminderEmails = getImiEmails();
+  if (reminderEmails.length === 0) {
     console.warn('[ApprovalReminder] No IMI_ADMIN_EMAILS configured – skipping reminder emails');
     return;
   }
@@ -119,7 +123,7 @@ export async function runApprovalReminders(): Promise<void> {
 
       // Re-use sendAdminNewRequestEmail as a reminder (submittedBy = 'reminder')
       await sendAdminNewRequestEmail(
-        IMI_EMAILS,
+        reminderEmails,
         orgName,
         orgIdentifier,
         'Automated reminder – request still pending',
