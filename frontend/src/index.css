@@ -17,10 +17,10 @@
 }
 
 :root.dark {
-  --bg-page: #0c0d14;
-  --bg-card: #14151f;
-  --bg-input: #1a1b28;
-  --bg-hover: #1f2133;
+  --bg-page: #13141d;
+  --bg-card: #1b1c28;
+  --bg-input: #21222f;
+  --bg-hover: #272838;
   --border: #2a2d42;
   --text-primary: #e8e9f0;
   --text-secondary: #8b8fa8;
