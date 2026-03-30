@@ -128,6 +128,16 @@ body {
 :root.dark .text-red-600 { color: #ef4444 !important; }
 :root.dark .text-indigo-700 { color: #8b83ff !important; }
 
+@media print {
+  /* Hide everything except the audit table */
+  aside, nav, .material-symbols-outlined, button, select { display: none !important; }
+  [style*="marginLeft: 220px"] { margin-left: 0 !important; }
+  [style*="marginRight: 280px"] { margin-right: 0 !important; }
+  body { background: white !important; color: black !important; }
+  table { width: 100% !important; font-size: 10px !important; }
+  @page { margin: 1cm; }
+}
+
 /* Dark mode: inline pastel backgrounds used in components */
 :root.dark [style*="background: #ede9ff"],
 :root.dark [style*="background: rgb(237, 233, 255)"] { background: rgba(108, 99, 255, 0.12) !important; }

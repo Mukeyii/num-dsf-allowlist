@@ -52,6 +52,19 @@ export function AuditPage() {
           <h1 className="text-xl font-bold text-slate-900">{t('auditLog')}</h1>
           <p className="text-xs text-slate-400 mt-0.5">All changes to this instance · {meta.total} entries</p>
         </div>
+        <button
+          onClick={() => window.print()}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            padding: '6px 14px', borderRadius: '8px',
+            border: '1px solid var(--border)', background: 'var(--bg-card)',
+            fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)',
+            cursor: 'pointer',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>download</span>
+          Export PDF
+        </button>
       </div>
       <div className="flex gap-3 mb-6 flex-wrap">
         <select value={resource} onChange={e => { setResource(e.target.value); setPage(1); }}
