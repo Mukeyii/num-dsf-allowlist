@@ -20,8 +20,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    ports:
-      - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost/api/v1
     depends_on:
@@ -35,8 +33,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    ports:
-      - "3000:3000"
     env_file: .env
     depends_on:
       db:
@@ -53,8 +49,6 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./db/migrations:/docker-entrypoint-initdb.d:ro
@@ -67,8 +61,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -81,8 +73,7 @@ services:
   mail:
     image: mailhog/mailhog:latest
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "127.0.0.1:8025:8025"
     restart: unless-stopped
 
 volumes:
