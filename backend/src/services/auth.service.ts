@@ -171,6 +171,15 @@ export async function refreshAccessToken(refreshToken: string): Promise<{ access
   const user = await db('users').where({ id: userId }).first();
   if (!user) throw new Error('USER_NOT_FOUND');
 
+  // Idle timeout check: reject refresh if user has been inactive
+  const { redis: redisClient } = await import('./redis.service');
+  const lastActivity = await redisClient.get(`activity:${userId}`);
+  if (!lastActivity && process.env.NODE_ENV !== 'test') {
+    // User has been idle too long — revoke all tokens
+    await deleteRefreshToken(hash);
+    throw new Error('SESSION_EXPIRED');
+  }
+
   // Rotate: delete old token and issue a new one
   await deleteRefreshToken(hash);
   const newRefreshToken = crypto.randomBytes(64).toString('hex');

@@ -13,6 +13,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { db } from '../db/connection';
 import { redis } from './redis.service';
+import { logger } from '../lib/logger';
 
 const ENCRYPTION_KEY = Buffer.from(process.env.TOTP_ENCRYPTION_KEY || '', 'hex');
 const BCRYPT_ROUNDS = 12;
@@ -94,7 +95,13 @@ export async function verifyBackupCode(userId: string, code: string): Promise<bo
   const user = await db('users').where({ id: userId }).first();
   if (!user?.backup_codes) return false;
 
-  const hashed: string[] = JSON.parse(user.backup_codes);
+  let hashed: string[];
+  try {
+    hashed = JSON.parse(user.backup_codes);
+  } catch {
+    logger.error({ userId }, 'Corrupt backup_codes JSON in database');
+    return false;
+  }
   for (let i = 0; i < hashed.length; i++) {
     if (await bcrypt.compare(code.trim().toUpperCase(), hashed[i])) {
       // Remove consumed code

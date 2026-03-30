@@ -38,11 +38,32 @@ git pull
 docker compose -f docker-compose.prod.yml up -d --build --no-deps backend frontend
 ```
 
-## Backup
+## Backups
+
+### Automated Backup Script
 
 ```bash
-docker compose -f docker-compose.prod.yml exec db \
-  mysqldump -u root -p${DB_ROOT_PASSWORD} dsf_allowlist > backup_$(date +%Y%m%d).sql
+# Run manually
+bash scripts/backup-db.sh
+
+# Run with custom backup directory
+bash scripts/backup-db.sh /mnt/backups
+
+# Schedule via cron (daily at 2 AM)
+0 2 * * * cd /path/to/dsf-allowlist && bash scripts/backup-db.sh >> /var/log/dsf-backup.log 2>&1
+```
+
+The script:
+- Creates a gzip-compressed MySQL dump with `--single-transaction` (no locks)
+- Retains the last 30 backups, older ones are automatically deleted
+- Verifies backup integrity (non-empty file check)
+- Uses `docker compose exec` to access the DB container
+
+### Manual Restore
+
+```bash
+gunzip < backups/dsf_allowlist_YYYYMMDD_HHMMSS.sql.gz | \
+  docker compose exec -T db mysql -u root -p${DB_ROOT_PASSWORD} dsf_allowlist
 ```
 
 ## Health Check

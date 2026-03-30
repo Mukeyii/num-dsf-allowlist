@@ -53,6 +53,11 @@ const translations = {
     noApprovalRequests: 'No approval requests yet.',
     certExpiresIn: 'Certificate expires in',
     nextExpiry: 'Next expiry',
+    serverError: 'Server error. Please try again later.',
+    rateLimited: 'Too many requests. Please wait a moment.',
+    networkError: 'Network error. Check your connection.',
+    sessionExpiring: 'Your session will expire in 2 minutes due to inactivity.',
+    sessionExpired: 'Session expired due to inactivity.',
   },
   de: {
     signIn: 'Anmelden',
@@ -100,6 +105,11 @@ const translations = {
     noApprovalRequests: 'Noch keine Genehmigungsanträge.',
     certExpiresIn: 'Zertifikat läuft ab in',
     nextExpiry: 'Nächster Ablauf',
+    serverError: 'Serverfehler. Bitte versuche es später erneut.',
+    rateLimited: 'Zu viele Anfragen. Bitte warte einen Moment.',
+    networkError: 'Netzwerkfehler. Prüfe deine Verbindung.',
+    sessionExpiring: 'Deine Sitzung läuft in 2 Minuten ab (Inaktivität).',
+    sessionExpired: 'Sitzung wegen Inaktivität abgelaufen.',
   },
 } as const;
 

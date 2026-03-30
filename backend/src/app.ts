@@ -23,6 +23,8 @@ import { downloadRouter } from './routes/download.routes';
 import { auditRouter } from './routes/audit.routes';
 import { fhirRouter } from './routes/fhir.routes';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
+import { randomUUID } from 'crypto';
+import { logger } from './lib/logger';
 
 const app = express();
 
@@ -60,6 +62,12 @@ app.use(cookieParser());
 // Trust nginx proxy
 app.set('trust proxy', 1);
 
+// Request ID + structured logging
+app.use((req: any, _res, next) => {
+  req.id = req.headers['x-request-id'] || randomUUID();
+  next();
+});
+
 // Rate limiting on API routes — skip in test environment to avoid flaky tests
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', apiRateLimit);
@@ -89,9 +97,34 @@ app.use('/api/v1/download', downloadRouter);
 app.use('/api/v1/admin/approval', adminApprovalRouter);
 app.use('/api/v1/admin', adminRouter);
 
-// Health Check
+// Health Check — liveness (always ok) and readiness (checks DB + Redis)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.get('/health/live', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
+app.get('/health/ready', async (_req, res) => {
+  const checks: Record<string, string> = { db: 'ok', redis: 'ok' };
+  try {
+    const { db: knex } = await import('./db/connection');
+    await knex.raw('SELECT 1');
+  } catch {
+    checks.db = 'error';
+  }
+  try {
+    const { redis } = await import('./services/redis.service');
+    await redis.ping();
+  } catch {
+    checks.redis = 'error';
+  }
+  const allOk = checks.db === 'ok' && checks.redis === 'ok';
+  res.status(allOk ? 200 : 503).json({
+    status: allOk ? 'ok' : 'degraded',
+    ...checks,
+  });
 });
 
 // 404
@@ -101,11 +134,7 @@ app.use((_req: any, res: any) => {
 
 // Global error handler
 app.use((err: any, _req: any, res: any, _next: any) => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.error('[Error]', err.stack || err.message);
-  } else {
-    console.error('[Error]', err.message || 'Unknown error');
-  }
+  logger.error({ err, requestId: _req.id }, 'Unhandled error');
   if (err.name === 'ZodError') {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'Invalid input', details: err.errors } });
   }
