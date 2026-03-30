@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useMatch, Outlet } from 'react-router-dom';
 import { useCanvasStore } from '../stores/canvas.store';
 import { useInstances } from '../hooks/useInstance';
@@ -28,17 +29,54 @@ export function AppPage() {
   const { open, editId, openModal, closeModal } = useModals();
   const { data: org } = useOrganization(activeInstanceId);
 
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(true);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 1200) {
+        setShowSidebar(false);
+        setShowRightPanel(false);
+      } else {
+        setShowSidebar(true);
+        setShowRightPanel(true);
+      }
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={{
       display: 'flex', height: '100vh', overflow: 'hidden',
       fontFamily: 'Inter, system-ui, sans-serif',
       background: 'var(--bg-page)',
     }}>
-      <Sidebar />
+      {showSidebar && <Sidebar />}
+
+      {/* Toggle button for left sidebar when hidden */}
+      {!showSidebar && (
+        <button
+          onClick={() => setShowSidebar(true)}
+          style={{
+            position: 'fixed', left: 0, top: '50%', zIndex: 30,
+            transform: 'translateY(-50%)',
+            width: '24px', height: '48px', borderRadius: '0 8px 8px 0',
+            border: 'none', background: 'var(--bg-card)', cursor: 'pointer',
+            boxShadow: '2px 0 8px var(--shadow)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>chevron_right</span>
+        </button>
+      )}
 
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        marginLeft: '220px', marginRight: '280px',
+        marginLeft: showSidebar ? '220px' : '0',
+        marginRight: showRightPanel ? '280px' : '0',
+        transition: 'margin 0.2s ease',
       }}>
         <TopBar
           onDownload={() => openModal('download')}
@@ -62,7 +100,25 @@ export function AppPage() {
         )}
       </div>
 
-      <RightPanel instanceId={activeInstanceId} />
+      {showRightPanel && <RightPanel instanceId={activeInstanceId} />}
+
+      {/* Toggle button for right panel when hidden */}
+      {!showRightPanel && (
+        <button
+          onClick={() => setShowRightPanel(true)}
+          style={{
+            position: 'fixed', right: 0, top: '50%', zIndex: 30,
+            transform: 'translateY(-50%)',
+            width: '24px', height: '48px', borderRadius: '8px 0 0 8px',
+            border: 'none', background: 'var(--bg-card)', cursor: 'pointer',
+            boxShadow: '-2px 0 8px var(--shadow)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>chevron_left</span>
+        </button>
+      )}
+
       <ActivityFeed />
       <CommandPalette />
 
