@@ -12,6 +12,7 @@ import QRCode from 'qrcode';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { db } from '../db/connection';
+import { redis } from './redis.service';
 
 const ENCRYPTION_KEY = Buffer.from(process.env.TOTP_ENCRYPTION_KEY || '', 'hex');
 const BCRYPT_ROUNDS = 12;
@@ -56,12 +57,23 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
   if (!user?.totp_secret) return false;
 
   const secret = decryptSecret(user.totp_secret);
-  return speakeasy.totp.verify({
+  const valid = speakeasy.totp.verify({
     secret,
     encoding: 'base32',
     token: code.replace(/\s/g, ''),
     window: 1,
   });
+
+  if (!valid) return false;
+
+  // Anti-replay: store used code hash in Redis for 60 seconds
+  const codeHash = crypto.createHash('sha256').update(`${userId}:${code}`).digest('hex');
+  const replayKey = `totp_used:${codeHash}`;
+  const alreadyUsed = await redis.get(replayKey);
+  if (alreadyUsed) return false;
+  await redis.setex(replayKey, 60, '1');
+
+  return true;
 }
 
 export async function enableTotp(userId: string): Promise<void> {
