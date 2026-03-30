@@ -81,6 +81,7 @@ export function AppPage() {
               postalCode: org.postal_code || '',
               city: org.city || '',
               countryCode: org.country_code || '',
+              clientCertThumbprint: org.client_cert_thumbprint || '',
             } : undefined}
           />
           <ContactModal

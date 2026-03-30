@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -19,6 +20,12 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
     resolver: zodResolver(organizationSchema),
     defaultValues: { active: true, ...defaultValues },
   });
+
+  useEffect(() => {
+    if (open && defaultValues) {
+      reset({ active: true, ...defaultValues });
+    }
+  }, [open, defaultValues, reset]);
 
   async function onSubmit(data: OrganizationFormData) {
     try {
