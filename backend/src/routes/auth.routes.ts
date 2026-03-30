@@ -124,7 +124,8 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'No refresh token' } });
   }
   try {
-    const accessToken = await refreshAccessToken(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } = await refreshAccessToken(refreshToken);
+    res.cookie('refreshToken', newRefreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken } });
   } catch {
     res.clearCookie('refreshToken', { path: '/auth/refresh' });
