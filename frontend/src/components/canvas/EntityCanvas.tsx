@@ -7,7 +7,6 @@ import { ContactsCard }     from '../cards/ContactsCard';
 import { EndpointsCard }    from '../cards/EndpointsCard';
 import { CertificatesCard } from '../cards/CertificatesCard';
 import { MembershipsCard }  from '../cards/MembershipsCard';
-import { ApprovalCard }     from '../cards/ApprovalCard';
 
 interface EntityCanvasProps {
   instanceId: string;
@@ -44,9 +43,7 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
         <div id="card-certificates">
           <CertificatesCard instanceId={instanceId} />
         </div>
-        <div id="card-approval">
-          <ApprovalCard instanceId={instanceId} />
-        </div>
+
       </div>
     </div>
   );
