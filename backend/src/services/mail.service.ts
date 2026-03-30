@@ -7,6 +7,10 @@
  */
 import nodemailer from 'nodemailer';
 
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail',
   port: parseInt(process.env.SMTP_PORT || '1025'),
@@ -27,7 +31,7 @@ export async function sendOtpEmail(to: string, code: string): Promise<void> {
     text: `Your login code is: ${code}\n\nThis code expires in 10 minutes and can only be used once.\n\nIf you did not request this code, please ignore this email.`,
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #6c63ff;">DSF Allow List – ${environment}</h2>
+        <h2 style="color: #6c63ff;">DSF Allow List – ${esc(environment)}</h2>
         <p>Your login code:</p>
         <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px;
                     padding: 20px; background: #f0f2f8; border-radius: 8px;
