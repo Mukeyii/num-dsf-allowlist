@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/auth.routes';
+import { meRouter } from './routes/me.routes';
 import { instancesRouter } from './routes/instances.routes';
 import { organizationRouter } from './routes/organization.routes';
 import { contactsRouter } from './routes/contacts.routes';
@@ -77,6 +78,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/fhir', fhirRouter);
 
 // Routes
+app.use('/auth/me', meRouter);
 app.use('/auth', authRouter);
 app.use('/api/v1/instances', instancesRouter);
 

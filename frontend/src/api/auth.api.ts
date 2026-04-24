@@ -3,6 +3,7 @@
  * Base URL from Vite env variable VITE_API_URL
  */
 import axios from 'axios';
+import { useAuthStore } from '../stores/auth.store';
 
 // Auth routes are at /auth/*, not under /api/v1/
 const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
@@ -11,6 +12,11 @@ const api = axios.create({
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
+
+function authHeader() {
+  const token = useAuthStore.getState().accessToken;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export interface OtpRequestResponse {
   data: { message: string };
@@ -53,4 +59,7 @@ export const authApi = {
 
   logout: (email: string) =>
     api.post('/auth/logout', { email }),
+
+  getMe: () =>
+    api.get<{ data: { email: string; isAdmin: boolean } }>('/auth/me', { headers: authHeader() }),
 };

@@ -8,6 +8,7 @@ import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useI18n }        from '../../stores/i18n.store';
 import { useInstances }   from '../../hooks/useInstance';
+import { useMe }          from '../../hooks/useMe';
 import { authApi }        from '../../api/auth.api';
 import { InstanceCreateModal } from '../modals/InstanceCreateModal';
 
@@ -19,6 +20,7 @@ export function Sidebar() {
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const { t } = useI18n();
+  const { data: me } = useMe();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
@@ -151,6 +153,29 @@ export function Sidebar() {
           {t('approvalReview')}
         </Link>
       </div>
+
+      {/* Audit Log link (admin only) */}
+      {me?.isAdmin && (
+        <div style={{ padding: '0 16px', marginTop: '4px' }}>
+          <Link
+            to="/app/audit"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '8px 10px', borderRadius: '8px',
+              fontSize: '12px', fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#b01e66'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>history</span>
+            {t('auditLog')}
+          </Link>
+        </div>
+      )}
 
       {/* Status link */}
       <div style={{ padding: '0 16px', marginTop: '4px' }}>
