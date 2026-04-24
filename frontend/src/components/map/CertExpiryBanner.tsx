@@ -1,8 +1,9 @@
 /**
  * CertExpiryBanner.tsx – Top banner warning when any node has expiring/expired certs
- * Dependencies: react
+ * Dependencies: react, i18n.store
  */
 import { useState } from 'react';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
   expiringCount: number;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function CertExpiryBanner({ expiringCount, expiredCount }: Props) {
+  const { t } = useI18n();
   const [dismissed, setDismissed] = useState(false);
   if (dismissed || (expiringCount === 0 && expiredCount === 0)) return null;
 
@@ -18,8 +20,16 @@ export function CertExpiryBanner({ expiringCount, expiredCount }: Props) {
   const bg    = tone === 'danger' ? '#fef2f2' : '#fff7ed';
 
   const messages: string[] = [];
-  if (expiredCount > 0)  messages.push(`${expiredCount} certificate${expiredCount === 1 ? ' has' : 's have'} expired`);
-  if (expiringCount > 0) messages.push(`${expiringCount} expire${expiringCount === 1 ? 's' : ''} within 30 days`);
+  if (expiredCount > 0) {
+    messages.push(expiredCount === 1
+      ? t('mapBannerExpiredOne')
+      : t('mapBannerExpiredMany', { n: expiredCount }));
+  }
+  if (expiringCount > 0) {
+    messages.push(expiringCount === 1
+      ? t('mapBannerExpiringOne')
+      : t('mapBannerExpiringMany', { n: expiringCount }));
+  }
 
   return (
     <div style={{
@@ -34,7 +44,7 @@ export function CertExpiryBanner({ expiringCount, expiredCount }: Props) {
       <span>{messages.join(' · ')}</span>
       <button
         onClick={() => setDismissed(true)}
-        aria-label="Dismiss warning"
+        aria-label={t('mapBannerDismiss')}
         style={{
           marginLeft: 'auto', border: 'none', background: 'transparent',
           cursor: 'pointer', padding: '4px', color,
