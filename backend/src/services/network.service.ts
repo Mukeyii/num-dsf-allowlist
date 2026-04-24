@@ -8,6 +8,13 @@ import { db } from '../db/connection';
 
 type CertStatus = 'VALID' | 'EXPIRING' | 'EXPIRED' | 'NONE';
 
+function safeJsonArray(raw: unknown): any[] {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw !== 'string') return [];
+  try { const v = JSON.parse(raw); return Array.isArray(v) ? v : []; }
+  catch { return []; }
+}
+
 function certStatus(validUntils: (Date | string | null)[]): { status: CertStatus; next: string | null; daysUntil: number | null } {
   const now = Date.now();
   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
@@ -56,7 +63,7 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
     }));
     const publicMemberships = orgMembershipsRaw.map(m => ({
       parent_organization: m.parent_organization,
-      roles: typeof m.roles === 'string' ? JSON.parse(m.roles) : (m.roles || []),
+      roles: safeJsonArray(m.roles),
     }));
 
     const base = {
@@ -82,12 +89,12 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
       name: c.name,
       email: c.email,
       phone: c.phone,
-      types: typeof c.types === 'string' ? JSON.parse(c.types) : (c.types || []),
+      types: safeJsonArray(c.types),
     }));
     const adminMemberships = orgMembershipsRaw.map(m => ({
       parent_organization: m.parent_organization,
       endpoint_id: m.endpoint_id,
-      roles: typeof m.roles === 'string' ? JSON.parse(m.roles) : (m.roles || []),
+      roles: safeJsonArray(m.roles),
     }));
 
     return {
