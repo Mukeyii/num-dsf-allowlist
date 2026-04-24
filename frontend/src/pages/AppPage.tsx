@@ -24,6 +24,7 @@ import { CommandPalette } from '../components/layout/CommandPalette';
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
   const isCanvasRoute = useMatch('/app');
+  const isMapRoute    = useMatch('/app/map');
   useInstances();
 
   const { open, editId, openModal, closeModal } = useModals();
@@ -75,7 +76,7 @@ export function AppPage() {
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden',
         marginLeft: showSidebar ? '220px' : '0',
-        marginRight: showRightPanel ? '280px' : '0',
+        marginRight: showRightPanel && !isMapRoute ? '280px' : '0',
         transition: 'margin 0.2s ease',
       }}>
         <TopBar
@@ -100,10 +101,10 @@ export function AppPage() {
         )}
       </div>
 
-      {showRightPanel && <RightPanel instanceId={activeInstanceId} />}
+      {showRightPanel && !isMapRoute && <RightPanel instanceId={activeInstanceId} />}
 
-      {/* Toggle button for right panel when hidden */}
-      {!showRightPanel && (
+      {/* Toggle button for right panel when hidden (not on map route) */}
+      {!showRightPanel && !isMapRoute && (
         <button
           onClick={() => setShowRightPanel(true)}
           style={{

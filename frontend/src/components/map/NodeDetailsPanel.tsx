@@ -1,8 +1,10 @@
 /**
- * NodeDetailsPanel.tsx – Slide-in side panel showing one organization in full
+ * NodeDetailsPanel.tsx – Slide-in side panel showing one organization
+ * Admin view shows all sensitive fields. Non-admin view shows only
+ * active/inactive status, certificate status (no exact date), and endpoint names.
  * Dependencies: react, network.api types
  */
-import type { MapOrganization } from '../../api/network.api';
+import type { MapOrganization, MapEndpointAdmin, MapMembershipAdmin } from '../../api/network.api';
 
 const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   VALID:    '#22c55e',
@@ -20,10 +22,11 @@ const STATUS_LABEL: Record<MapOrganization['cert_status'], string> = {
 
 interface Props {
   org: MapOrganization | null;
+  isAdmin: boolean;
   onClose: () => void;
 }
 
-export function NodeDetailsPanel({ org, onClose }: Props) {
+export function NodeDetailsPanel({ org, isAdmin, onClose }: Props) {
   const open = !!org;
   return (
     <aside
@@ -55,13 +58,21 @@ export function NodeDetailsPanel({ org, onClose }: Props) {
             <button
               onClick={onClose}
               aria-label="Close details"
-              style={{
-                border: 'none', background: 'transparent', cursor: 'pointer',
-                padding: '4px', borderRadius: '6px',
-              }}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-muted)' }}>close</span>
             </button>
+          </div>
+
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            padding: '4px 10px', borderRadius: '999px', alignSelf: 'flex-start',
+            background: org.active ? '#ecfdf5' : '#f1f5f9',
+            color: org.active ? '#059669' : '#64748b',
+            fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
+          }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: org.active ? '#10b981' : '#94a3b8' }} />
+            {org.active ? 'Active' : 'Inactive'}
           </div>
 
           <div style={{
@@ -73,28 +84,54 @@ export function NodeDetailsPanel({ org, onClose }: Props) {
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>verified_user</span>
             Certificate: {STATUS_LABEL[org.cert_status]}
-            {org.next_cert_expiry && (
-              <span style={{ marginLeft: 'auto', fontSize: '11px', opacity: 0.8 }}>
+            {isAdmin && org.next_cert_expiry && (
+              <span style={{ marginLeft: 'auto', fontSize: '11px', opacity: 0.85 }}>
                 {new Date(org.next_cert_expiry).toLocaleDateString()}
               </span>
             )}
           </div>
 
-          <Section title="Location">
-            <Row label="City" value={org.city ?? '—'} />
-            <Row label="Country" value={org.country_code ?? '—'} />
-            <Row label="Email" value={org.email} />
-          </Section>
+          {(org.cert_status === 'EXPIRING' || org.cert_status === 'EXPIRED') && (
+            <div style={{
+              padding: '10px 12px', borderRadius: '10px',
+              background: org.cert_status === 'EXPIRED' ? '#fef2f2' : '#fff7ed',
+              border: `1px solid ${org.cert_status === 'EXPIRED' ? '#fecaca' : '#fed7aa'}`,
+              display: 'flex', alignItems: 'flex-start', gap: '8px',
+            }}>
+              <span className="material-symbols-outlined" style={{
+                fontSize: '18px',
+                color: org.cert_status === 'EXPIRED' ? '#b91c1c' : '#c2410c',
+              }}>
+                {org.cert_status === 'EXPIRED' ? 'error' : 'warning'}
+              </span>
+              <div style={{ fontSize: '12px', color: org.cert_status === 'EXPIRED' ? '#b91c1c' : '#9a3412' }}>
+                {org.cert_status === 'EXPIRED'
+                  ? 'This certificate has expired. Renew it to keep this node active in the allow list.'
+                  : 'This certificate expires soon. Plan a renewal to avoid downtime.'}
+                {isAdmin && typeof org.cert_days_until === 'number' && (
+                  <div style={{ marginTop: '4px', fontWeight: 600 }}>
+                    {org.cert_days_until < 0
+                      ? `Expired ${Math.abs(org.cert_days_until)} day${Math.abs(org.cert_days_until) === 1 ? '' : 's'} ago`
+                      : `${org.cert_days_until} day${org.cert_days_until === 1 ? '' : 's'} remaining`}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <Section title={`Endpoints (${org.endpoints.length})`}>
             {org.endpoints.length === 0 && <Empty>No endpoints</Empty>}
             {org.endpoints.map(ep => (
               <div key={ep.identifier} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{ep.name ?? ep.identifier}</div>
-                <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#6b7280', wordBreak: 'break-all' }}>{ep.address}</div>
-                {ep.ips.length > 0 && (
+                {isAdmin && 'address' in ep && (
+                  <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#6b7280', wordBreak: 'break-all' }}>
+                    {(ep as MapEndpointAdmin).address}
+                  </div>
+                )}
+                {isAdmin && 'ips' in ep && (ep as MapEndpointAdmin).ips.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-                    {ep.ips.map((ip, i) => (
+                    {(ep as MapEndpointAdmin).ips.map((ip, i) => (
                       <span key={i} style={{ fontSize: '10px', fontFamily: 'monospace', background: '#e6faf7', color: '#0d9488', padding: '1px 6px', borderRadius: '4px' }}>
                         {ip.ip}{ip.is_fhir ? ' · FHIR' : ''}{ip.is_bpe ? ' · BPE' : ''}
                       </span>
@@ -105,18 +142,20 @@ export function NodeDetailsPanel({ org, onClose }: Props) {
             ))}
           </Section>
 
-          <Section title={`Contacts (${org.contacts.length})`}>
-            {org.contacts.length === 0 && <Empty>No contacts</Empty>}
-            {org.contacts.map((c, i) => (
-              <div key={i} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{c.name ?? '—'}</div>
-                <div style={{ fontSize: '11px', color: '#6b7280' }}>{c.email}</div>
-                {c.types.length > 0 && (
-                  <div style={{ fontSize: '10px', color: '#8b5cf6', marginTop: '2px' }}>{c.types.join(', ')}</div>
-                )}
-              </div>
-            ))}
-          </Section>
+          {isAdmin && org.contacts && (
+            <Section title={`Contacts (${org.contacts.length})`}>
+              {org.contacts.length === 0 && <Empty>No contacts</Empty>}
+              {org.contacts.map((c, i) => (
+                <div key={i} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{c.name ?? '—'}</div>
+                  <div style={{ fontSize: '11px', color: '#6b7280' }}>{c.email}</div>
+                  {c.types.length > 0 && (
+                    <div style={{ fontSize: '10px', color: '#8b5cf6', marginTop: '2px' }}>{c.types.join(', ')}</div>
+                  )}
+                </div>
+              ))}
+            </Section>
+          )}
 
           <Section title={`Memberships (${org.memberships.length})`}>
             {org.memberships.length === 0 && <Empty>No memberships</Empty>}
@@ -130,9 +169,22 @@ export function NodeDetailsPanel({ org, onClose }: Props) {
                     ))}
                   </div>
                 )}
+                {isAdmin && 'endpoint_id' in m && (m as MapMembershipAdmin).endpoint_id && (
+                  <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {(m as MapMembershipAdmin).endpoint_id}
+                  </div>
+                )}
               </div>
             ))}
           </Section>
+
+          {isAdmin && (org.city || org.country_code || org.email) && (
+            <Section title="Location">
+              <Row label="City" value={org.city ?? '—'} />
+              <Row label="Country" value={org.country_code ?? '—'} />
+              <Row label="Email" value={org.email ?? '—'} />
+            </Section>
+          )}
         </div>
       )}
     </aside>
