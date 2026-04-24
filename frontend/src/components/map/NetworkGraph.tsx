@@ -1,11 +1,15 @@
 /**
- * NetworkGraph.tsx – SVG radial node graph of the P2P allow list
- * Each org = a circle node, colored by cert validity.
+ * NetworkGraph.tsx – SVG sunflower graph of the P2P allow list
+ * Nodes placed on a golden-angle Fermat spiral so layout scales past 50+ orgs.
+ * Each org = a circle colored by cert validity with a `local_hospital` glyph.
  * Edges = parent_organization memberships between displayed orgs.
+ * Tooltip for hovered-or-selected node is rendered in a dedicated layer AFTER
+ * all nodes so it never sits behind another circle.
  * Dependencies: react
  */
 import { useMemo, useState } from 'react';
 import type { MapOrganization } from '../../api/network.api';
+import { useI18n } from '../../stores/i18n.store';
 
 const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   VALID:    '#22c55e',
@@ -14,23 +18,40 @@ const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   NONE:     '#94a3b8',
 };
 
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ≈ 2.399963
+const SPIRAL_SCALE = 32; // pixels · √i; 100 orgs ≈ 320 px outer radius
+
 interface Props {
   organizations: MapOrganization[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
 }
 
+interface LayoutEntry {
+  org: MapOrganization;
+  x: number;
+  y: number;
+  baseSize: number;
+}
+
 export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
+  const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const layout = useMemo(() => {
-    const n = Math.max(organizations.length, 1);
+  const layout = useMemo<LayoutEntry[]>(() => {
     const cx = 500, cy = 380;
-    const baseR = 260;
-    return organizations.map((org, i) => {
-      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-      const radius = baseR + Math.min((org.endpoints.length || 0) * 6, 40);
-      return { org, x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+    // Sort by identifier so the sunflower position for each org is stable across refetches.
+    const sorted = [...organizations].sort((a, b) => a.identifier.localeCompare(b.identifier));
+    return sorted.map((org, i) => {
+      const theta = i * GOLDEN_ANGLE;
+      const r = SPIRAL_SCALE * Math.sqrt(i + 0.5);
+      const baseSize = 22 + Math.min(org.endpoints.length * 2, 10);
+      return {
+        org,
+        x: cx + r * Math.cos(theta),
+        y: cy + r * Math.sin(theta),
+        baseSize,
+      };
     });
   }, [organizations]);
 
@@ -63,10 +84,22 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100%', color: 'var(--text-muted)', fontSize: '14px',
       }}>
-        No approved organizations in the allow list yet.
+        {t('mapEmptyState')}
       </div>
     );
   }
+
+  // Tooltip target: selected takes precedence over hovered (selection is persistent).
+  const tooltipTarget: (LayoutEntry & { nodeR: number }) | null = (() => {
+    const id = selectedId ?? hoveredId;
+    if (!id) return null;
+    const entry = layout.find(l => l.org.identifier === id);
+    if (!entry) return null;
+    const isSelected = selectedId === entry.org.identifier;
+    const isHovered  = hoveredId  === entry.org.identifier;
+    const nodeR = isSelected ? entry.baseSize + 6 : isHovered ? entry.baseSize + 3 : entry.baseSize;
+    return { ...entry, nodeR };
+  })();
 
   return (
     <svg
@@ -75,10 +108,6 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
       onClick={() => onSelect(null)}
     >
       <defs>
-        <radialGradient id="bg-grad" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#fff5fa" />
-          <stop offset="100%" stopColor="#f8fafc" />
-        </radialGradient>
         <filter id="glow">
           <feGaussianBlur stdDeviation="4" result="coloredBlur" />
           <feMerge>
@@ -88,8 +117,10 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
         </filter>
       </defs>
 
-      <rect width="1000" height="760" fill="url(#bg-grad)" />
+      {/* Unified flat background */}
+      <rect width="1000" height="760" fill="#f8fafc" />
 
+      {/* Edges (drawn first so circles sit on top) */}
       {edges.map((e, i) => (
         <line
           key={`e-${i}`}
@@ -99,21 +130,20 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
         />
       ))}
 
+      {/* Central label */}
       <text x={500} y={385} textAnchor="middle" fontSize={13} fontWeight={700} fill="#b01e66" letterSpacing="0.12em">
-        DSF ALLOW LIST
+        {t('mapCentralTitle')}
       </text>
       <text x={500} y={405} textAnchor="middle" fontSize={11} fill="#94a3b8">
-        {organizations.length} active organization{organizations.length === 1 ? '' : 's'}
+        {organizations.length} {organizations.length === 1 ? t('mapCentralSubtitleOne') : t('mapCentralSubtitleMany')}
       </text>
 
-      {layout.map(({ org, x, y }) => {
+      {/* Nodes (circles + icon). Tooltip rendered separately below so it's always on top. */}
+      {layout.map(({ org, x, y, baseSize }) => {
         const isSelected = selectedId === org.identifier;
         const isHovered  = hoveredId === org.identifier;
         const color = STATUS_COLOR[org.cert_status];
-        const baseSize = 22 + Math.min(org.endpoints.length * 2, 10);
-        const r = isSelected ? baseSize + 6 : isHovered ? baseSize + 3 : baseSize;
-        const initials = (org.name || org.identifier)
-          .split(/[\s\-.]+/).slice(0, 2).map(s => s[0] || '').join('').toUpperCase().slice(0, 2);
+        const nodeR = isSelected ? baseSize + 6 : isHovered ? baseSize + 3 : baseSize;
         return (
           <g
             key={org.identifier}
@@ -122,32 +152,55 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
             onMouseEnter={() => setHoveredId(org.identifier)}
             onMouseLeave={() => setHoveredId(null)}
           >
-            <circle cx={x} cy={y} r={r + 6} fill={color} opacity={isSelected ? 0.25 : 0.12} />
+            <circle cx={x} cy={y} r={nodeR + 6} fill={color} opacity={isSelected ? 0.25 : 0.12} />
             <circle
-              cx={x} cy={y} r={r}
+              cx={x} cy={y} r={nodeR}
               fill="#ffffff" stroke={color} strokeWidth={isSelected ? 3 : 2}
               filter={isSelected ? 'url(#glow)' : undefined}
             />
-            <text x={x} y={y + 4} textAnchor="middle" fontSize={12} fontWeight={700} fill={color}>
-              {initials}
-            </text>
-            {(isHovered || isSelected) && (
-              <g>
-                <rect
-                  x={x - 80} y={y + r + 8} width={160} height={34} rx={8}
-                  fill="#0f172a" opacity={0.92}
-                />
-                <text x={x} y={y + r + 22} textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff">
-                  {org.name}
-                </text>
-                <text x={x} y={y + r + 34} textAnchor="middle" fontSize={9} fill="#cbd5e1">
-                  {org.city ?? ''} {org.country_code ? `· ${org.country_code}` : ''}
-                </text>
-              </g>
-            )}
+            <foreignObject
+              x={x - nodeR} y={y - nodeR}
+              width={nodeR * 2} height={nodeR * 2}
+              style={{ pointerEvents: 'none' }}
+            >
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '100%', height: '100%',
+              }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: `${Math.round(nodeR * 1.1)}px`, color, lineHeight: 1 }}
+                >
+                  local_hospital
+                </span>
+              </div>
+            </foreignObject>
           </g>
         );
       })}
+
+      {/* Tooltip layer — rendered AFTER all nodes so it is never occluded */}
+      {tooltipTarget && (
+        <g key="tooltip-layer" style={{ pointerEvents: 'none' }}>
+          <rect
+            x={tooltipTarget.x - 80} y={tooltipTarget.y + tooltipTarget.nodeR + 8}
+            width={160} height={34} rx={8}
+            fill="#0f172a" opacity={0.92}
+          />
+          <text
+            x={tooltipTarget.x} y={tooltipTarget.y + tooltipTarget.nodeR + 22}
+            textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff"
+          >
+            {tooltipTarget.org.name}
+          </text>
+          <text
+            x={tooltipTarget.x} y={tooltipTarget.y + tooltipTarget.nodeR + 34}
+            textAnchor="middle" fontSize={9} fill="#cbd5e1"
+          >
+            {tooltipTarget.org.city ?? ''} {tooltipTarget.org.country_code ? `· ${tooltipTarget.org.country_code}` : ''}
+          </text>
+        </g>
+      )}
     </svg>
   );
 }
