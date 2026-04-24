@@ -18,14 +18,13 @@ const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   NONE:     '#94a3b8',
 };
 
-// Archimedean spiral with a fixed number of nodes per turn so the arms are
-// visually recognizable (not just a sunflower cloud). Radial step per node
-// adapts to n so the outer radius fits the viewBox.
+// Equidistant-along-spiral layout. Arc distance between consecutive nodes
+// stays constant (SPIRAL_STEP_ARC) regardless of how far out we are, so
+// spacing doesn't grow toward the edge. SPIRAL_PITCH controls how much each
+// full turn advances radially.
 const SPIRAL_START_R = 80;
-const SPIRAL_MAX_R = 340;
-const SPIRAL_MAX_STEP_OUT = 12;          // pixels radial per node at small n
-const SPIRAL_MIN_RADIAL_PER_TURN = 55;   // keeps consecutive turns from overlapping node diameters
-const SPIRAL_MIN_NODES_PER_TURN = 10;
+const SPIRAL_STEP_ARC = 55;
+const SPIRAL_PITCH = 55;
 
 interface Props {
   organizations: MapOrganization[];
@@ -47,25 +46,28 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
   const layout = useMemo<LayoutEntry[]>(() => {
     const cx = 500, cy = 380;
     const n = organizations.length;
-    const stepOut = Math.min(
-      SPIRAL_MAX_STEP_OUT,
-      (SPIRAL_MAX_R - SPIRAL_START_R) / Math.max(n - 1, 1),
-    );
-    const nodesPerTurn = Math.max(
-      SPIRAL_MIN_NODES_PER_TURN,
-      Math.ceil(SPIRAL_MIN_RADIAL_PER_TURN / stepOut),
-    );
-    const angleStep = (2 * Math.PI) / nodesPerTurn;
+    // Integrate along the spiral: each step advances SPIRAL_STEP_ARC pixels
+    // along the curve. dθ = arc/r keeps that spacing uniform; dr = pitch·dθ/2π
+    // walks outward at a constant radial rate per full turn.
+    let r = SPIRAL_START_R;
+    let theta = 0;
+    const positions: { r: number; theta: number }[] = [];
+    for (let i = 0; i < n; i++) {
+      positions.push({ r, theta });
+      const dTheta = SPIRAL_STEP_ARC / r;
+      const dR = (SPIRAL_PITCH * dTheta) / (2 * Math.PI);
+      theta += dTheta;
+      r += dR;
+    }
     // Sort by identifier so each org's slot on the spiral is stable across refetches.
     const sorted = [...organizations].sort((a, b) => a.identifier.localeCompare(b.identifier));
     return sorted.map((org, i) => {
-      const theta = i * angleStep;
-      const r = SPIRAL_START_R + i * stepOut;
+      const { r: pr, theta: ptheta } = positions[i];
       const baseSize = 22 + Math.min(org.endpoints.length * 2, 10);
       return {
         org,
-        x: cx + r * Math.cos(theta),
-        y: cy + r * Math.sin(theta),
+        x: cx + pr * Math.cos(ptheta),
+        y: cy + pr * Math.sin(ptheta),
         baseSize,
       };
     });
@@ -174,28 +176,23 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
               fill="#ffffff" stroke={color} strokeWidth={isSelected ? 3 : 2}
               filter={isSelected ? 'url(#glow)' : undefined}
             />
-            <foreignObject
-              x={x - nodeR} y={y - nodeR}
-              width={nodeR * 2} height={nodeR * 2}
-              style={{ pointerEvents: 'none' }}
+            <text
+              x={x} y={y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={Math.round(nodeR * 0.55)}
+              fontWeight={700}
+              fill={color}
+              style={{ pointerEvents: 'none', userSelect: 'none' }}
             >
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '100%', height: '100%',
-              }}>
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    fontSize: `${Math.round(nodeR * 0.85)}px`,
-                    color: '#475569',
-                    lineHeight: 1,
-                    fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
-                  }}
-                >
-                  corporate_fare
-                </span>
-              </div>
-            </foreignObject>
+              {(org.name || org.identifier)
+                .split(/[\s\-.]+/)
+                .slice(0, 2)
+                .map(s => s[0] || '')
+                .join('')
+                .toUpperCase()
+                .slice(0, 2)}
+            </text>
           </g>
         );
       })}
