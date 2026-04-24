@@ -18,8 +18,14 @@ const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   NONE:     '#94a3b8',
 };
 
-const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ≈ 2.399963
-const SPIRAL_SCALE = 32; // pixels · √i; 100 orgs ≈ 320 px outer radius
+// Archimedean spiral with a fixed number of nodes per turn so the arms are
+// visually recognizable (not just a sunflower cloud). Radial step per node
+// adapts to n so the outer radius fits the viewBox.
+const SPIRAL_START_R = 80;
+const SPIRAL_MAX_R = 340;
+const SPIRAL_MAX_STEP_OUT = 12;          // pixels radial per node at small n
+const SPIRAL_MIN_RADIAL_PER_TURN = 55;   // keeps consecutive turns from overlapping node diameters
+const SPIRAL_MIN_NODES_PER_TURN = 10;
 
 interface Props {
   organizations: MapOrganization[];
@@ -40,11 +46,21 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
 
   const layout = useMemo<LayoutEntry[]>(() => {
     const cx = 500, cy = 380;
-    // Sort by identifier so the sunflower position for each org is stable across refetches.
+    const n = organizations.length;
+    const stepOut = Math.min(
+      SPIRAL_MAX_STEP_OUT,
+      (SPIRAL_MAX_R - SPIRAL_START_R) / Math.max(n - 1, 1),
+    );
+    const nodesPerTurn = Math.max(
+      SPIRAL_MIN_NODES_PER_TURN,
+      Math.ceil(SPIRAL_MIN_RADIAL_PER_TURN / stepOut),
+    );
+    const angleStep = (2 * Math.PI) / nodesPerTurn;
+    // Sort by identifier so each org's slot on the spiral is stable across refetches.
     const sorted = [...organizations].sort((a, b) => a.identifier.localeCompare(b.identifier));
     return sorted.map((org, i) => {
-      const theta = i * GOLDEN_ANGLE;
-      const r = SPIRAL_SCALE * Math.sqrt(i + 0.5);
+      const theta = i * angleStep;
+      const r = SPIRAL_START_R + i * stepOut;
       const baseSize = 22 + Math.min(org.endpoints.length * 2, 10);
       return {
         org,
@@ -169,9 +185,14 @@ export function NetworkGraph({ organizations, selectedId, onSelect }: Props) {
               }}>
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: `${Math.round(nodeR * 1.1)}px`, color, lineHeight: 1 }}
+                  style={{
+                    fontSize: `${Math.round(nodeR * 0.85)}px`,
+                    color: '#475569',
+                    lineHeight: 1,
+                    fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
+                  }}
                 >
-                  local_hospital
+                  corporate_fare
                 </span>
               </div>
             </foreignObject>
