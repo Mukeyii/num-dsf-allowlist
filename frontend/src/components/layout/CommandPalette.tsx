@@ -50,6 +50,7 @@ export function CommandPalette() {
     { id: 'nav-canvas', label: 'Go to Canvas', icon: 'dashboard', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app'); setOpen(false); } },
     { id: 'nav-admin', label: 'Approval Review', icon: 'admin_panel_settings', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app/admin'); setOpen(false); } },
     { id: 'nav-audit', label: 'Audit Log', icon: 'history', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app/audit'); setOpen(false); } },
+    { id: 'nav-map', label: 'Network Map', icon: 'hub', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app/map'); setOpen(false); } },
     // Actions
     { id: 'act-org', label: 'Edit Organization', icon: 'corporate_fare', color: '#4d41df', category: 'Actions', action: () => { useModals.getState().openModal('org-edit'); setOpen(false); } },
     { id: 'act-contact', label: 'Add Contact', icon: 'contact_phone', color: '#9b59b6', category: 'Actions', action: () => { useModals.getState().openModal('contact-add'); setOpen(false); } },
