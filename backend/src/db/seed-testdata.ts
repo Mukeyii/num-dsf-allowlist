@@ -65,7 +65,7 @@ function slug(name: string): string {
 
 function thumbprint(index: number): string {
   const hex = index.toString(16).padStart(2, '0');
-  return (hex + 'abcdef0123456789').repeat(8).slice(0, 128);
+  return (hex + 'abcdef0123456789').repeat(4).slice(0, 64);
 }
 
 // Generate 30 organizations
@@ -119,17 +119,22 @@ async function main() {
   }
   console.log(`  [+] ${INSTANCES.length} instances`);
 
-  // 4. Create organizations
-  for (const org of ORGS) {
+  // 4. Create organizations (mix of active/inactive)
+  let activeCount = 0, inactiveCount = 0;
+  for (let i = 0; i < ORGS.length; i++) {
+    const org = ORGS[i];
+    // ~2/3 active, ~1/3 inactive — every 3rd org is inactive
+    const active = i % 3 !== 2;
+    if (active) activeCount++; else inactiveCount++;
     await db('organizations').insert({
       identifier: org.identifier, instance_id: org.instanceId,
-      name: org.name, active: true, email: org.email,
+      name: org.name, active, email: org.email,
       address_line: org.addressLine, postal_code: org.postalCode,
       city: org.city, country_code: org.countryCode,
       created_at: new Date(), updated_at: new Date(),
     }).onConflict('identifier').ignore();
   }
-  console.log(`  [+] ${ORGS.length} organizations`);
+  console.log(`  [+] ${ORGS.length} organizations (${activeCount} active, ${inactiveCount} inactive)`);
 
   // 5. Contacts (2 per org = 60)
   let contactCount = 0;
@@ -191,9 +196,12 @@ async function main() {
   }
   console.log(`  [+] ${endpointCount} endpoints, ${ipCount} IPs`);
 
-  // 7. Certificates (1 per org, varied expiry)
-  const EXPIRY_DAYS = [730, 365, 180, 90, 30, 7];
+  // 7. Certificates (varied expiry; every 7th org has none)
+  // Cover VALID (>30d), EXPIRING (<30d, >0), EXPIRED (<0). NONE via skipping.
+  const EXPIRY_DAYS = [730, 365, 180, 90, 60, 25, 10, 3, -5, -30];
+  let certCount = 0;
   for (let i = 0; i < ORGS.length; i++) {
+    if (i % 7 === 6) continue; // no certificate for this org
     await db('certificates').insert({
       id: uuidv4(),
       organization_id: ORGS[i].identifier,
@@ -203,8 +211,9 @@ async function main() {
       valid_until: futureDate(EXPIRY_DAYS[i % EXPIRY_DAYS.length]),
       created_at: new Date(),
     });
+    certCount++;
   }
-  console.log(`  [+] ${ORGS.length} certificates`);
+  console.log(`  [+] ${certCount} certificates`);
 
   // 8. Memberships (1-2 per org)
   let membershipCount = 0;
@@ -225,14 +234,18 @@ async function main() {
   }
   console.log(`  [+] ${membershipCount} memberships`);
 
-  // 9. Approval requests (mix of statuses)
-  const approvals = [
-    { instanceIdx: 0, status: 'APPROVED', daysAgo: 60 },
-    { instanceIdx: 5, status: 'APPROVED', daysAgo: 30 },
-    { instanceIdx: 1, status: 'PENDING', daysAgo: 3 },
-    { instanceIdx: 10, status: 'PENDING', daysAgo: 1 },
-    { instanceIdx: 15, status: 'REJECTED', daysAgo: 14 },
-  ];
+  // 9. Approval requests – 20 orgs APPROVED so they appear on the network map,
+  //                      plus a few PENDING/REJECTED for realism
+  type ApprovalSpec = { instanceIdx: number; status: 'APPROVED' | 'PENDING' | 'REJECTED'; daysAgo: number };
+  const approvals: ApprovalSpec[] = [];
+  for (let i = 0; i < 20; i++) {
+    approvals.push({ instanceIdx: i, status: 'APPROVED', daysAgo: 60 - (i % 45) });
+  }
+  approvals.push({ instanceIdx: 21, status: 'PENDING',  daysAgo: 3 });
+  approvals.push({ instanceIdx: 22, status: 'PENDING',  daysAgo: 1 });
+  approvals.push({ instanceIdx: 23, status: 'REJECTED', daysAgo: 14 });
+  approvals.push({ instanceIdx: 24, status: 'REJECTED', daysAgo: 6 });
+
   for (const a of approvals) {
     await db('approval_requests').insert({
       id: uuidv4(),
@@ -240,13 +253,13 @@ async function main() {
       status: a.status,
       created_at: pastDate(a.daysAgo),
       submitted_at: pastDate(a.daysAgo),
-      resolved_at: a.status !== 'PENDING' ? pastDate(a.daysAgo - 1) : null,
+      resolved_at: a.status !== 'PENDING' ? pastDate(Math.max(a.daysAgo - 1, 0)) : null,
       resolved_by: a.status !== 'PENDING' ? ADMIN_EMAIL : null,
       comment: a.status === 'REJECTED' ? 'Zertifikat abgelaufen, bitte erneuern.' : null,
       snapshot_json: JSON.stringify({ note: `Test ${a.status}` }),
     });
   }
-  console.log(`  [+] ${approvals.length} approval requests`);
+  console.log(`  [+] ${approvals.length} approval requests (20 APPROVED + ${approvals.length - 20} other)`);
 
   // 10. Audit log entries
   const auditOps = ['LOGIN', 'CREATE', 'UPDATE', 'CREATE', 'CREATE', 'CREATE', 'CREATE', 'APPROVE', 'REJECT', 'LOGOUT'];
