@@ -133,6 +133,27 @@ export function Sidebar() {
         </div>
       </div>
 
+      {/* Dashboard link (all users) */}
+      <div style={{ padding: '0 16px', marginTop: '8px' }}>
+        <Link
+          to="/app"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 10px', borderRadius: '8px',
+            fontSize: '12px', fontWeight: 600,
+            textDecoration: 'none',
+            color: 'var(--text-secondary)',
+            background: 'transparent',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#b01e66'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>grid_view</span>
+          {t('dashboard')}
+        </Link>
+      </div>
+
       {/* Admin link */}
       <div style={{ padding: '0 16px', marginTop: '8px' }}>
         <Link
