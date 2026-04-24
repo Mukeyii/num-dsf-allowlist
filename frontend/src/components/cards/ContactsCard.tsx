@@ -10,7 +10,7 @@ import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
-  MEDIC:     { bg: '#ede9ff', color: '#4a42cc' },
+  MEDIC:     { bg: '#fde3ef', color: '#b01e66' },
   DSF_ADMIN: { bg: '#e8f0ff', color: '#1d4ed8' },
   SECURITY:  { bg: '#f0fff8', color: '#059669' },
 };
