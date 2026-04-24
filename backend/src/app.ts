@@ -23,6 +23,7 @@ import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
 import { auditRouter } from './routes/audit.routes';
 import { fhirRouter } from './routes/fhir.routes';
+import { networkRouter } from './routes/network.routes';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
 import { randomUUID } from 'crypto';
 import { logger } from './lib/logger';
@@ -94,6 +95,9 @@ app.use('/api/v1/instances/:instanceId/audit', auditRouter);
 
 // Download without instance scope (IP address list for all orgs)
 app.use('/api/v1/download', downloadRouter);
+
+// Cross-instance allow-list network map (all authenticated users)
+app.use('/api/v1/network', networkRouter);
 
 // Admin routes
 app.use('/api/v1/admin/approval', adminApprovalRouter);
