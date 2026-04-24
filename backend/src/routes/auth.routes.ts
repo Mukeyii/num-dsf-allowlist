@@ -21,8 +21,11 @@ import {
   refreshAccessToken,
   logout,
   verifyTempToken,
+  createTokenPair,
 } from '../services/auth.service';
 import { generateTotpSetup, saveTotpSecret } from '../services/totp.service';
+import { db } from '../db/connection';
+import { v4 as uuidv4 } from 'uuid';
 
 export const authRouter = Router();
 
@@ -131,6 +134,34 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
     res.clearCookie('refreshToken', { path: '/auth/refresh' });
     res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid refresh token' } });
   }
+});
+
+// POST /auth/dev-login → dev-only shortcut that bypasses OTP/TOTP.
+// Refuses in production and when DEV_AUTO_LOGIN is not 'true'.
+// Issues a full session for the email in DEV_AUTO_LOGIN_EMAIL (defaults to admin@imi-test.example.de).
+authRouter.post('/dev-login', async (req: Request, res: Response) => {
+  if (process.env.NODE_ENV === 'production' || process.env.DEV_AUTO_LOGIN !== 'true') {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
+  }
+  const email = (process.env.DEV_AUTO_LOGIN_EMAIL || 'admin@imi-test.example.de').toLowerCase().trim();
+
+  // Ensure whitelisted + user row exists
+  const whitelisted = await db('email_whitelist').where({ email }).first();
+  if (!whitelisted) {
+    await db('email_whitelist').insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() });
+  }
+  let user = await db('users').where({ email }).first();
+  if (!user) {
+    const id = uuidv4();
+    await db('users').insert({ id, email, totp_enabled: true, created_at: new Date() });
+    user = await db('users').where({ id }).first();
+  }
+  await db('users').where({ id: user.id }).update({ last_login: new Date() });
+
+  const { accessToken, refreshTokenHash } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
+  res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
+  console.warn(`[DEV_AUTO_LOGIN] issued session for ${email} from ${req.ip}`);
+  res.json({ data: { accessToken, email } });
 });
 
 // POST /auth/logout
