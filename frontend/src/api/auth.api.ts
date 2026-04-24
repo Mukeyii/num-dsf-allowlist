@@ -60,6 +60,9 @@ export const authApi = {
   logout: (email: string) =>
     api.post('/auth/logout', { email }),
 
+  devLogin: () =>
+    api.post<{ data: { accessToken: string; email: string } }>('/auth/dev-login'),
+
   getMe: () =>
     api.get<{ data: { email: string; isAdmin: boolean } }>('/auth/me', { headers: authHeader() }),
 };

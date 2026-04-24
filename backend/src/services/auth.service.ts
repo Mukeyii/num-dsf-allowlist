@@ -152,7 +152,7 @@ export async function confirmTotpSetupAndCreateSession(
 }
 
 // Create token pair + store refresh in Redis
-async function createTokenPair(user: AuthUser): Promise<{ accessToken: string; refreshTokenHash: string }> {
+export async function createTokenPair(user: AuthUser): Promise<{ accessToken: string; refreshTokenHash: string }> {
   const accessToken = signAccessToken(user);
   const refreshToken = crypto.randomBytes(48).toString('hex');
   const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');

@@ -25,7 +25,10 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Try to restore session via refresh token cookie
+    // Try to restore session via refresh token cookie.
+    // On failure in a Vite dev build, try DEV_AUTO_LOGIN as a last-resort
+    // shortcut. The backend refuses unless NODE_ENV !== 'production' AND
+    // DEV_AUTO_LOGIN === 'true', so this is a no-op in production.
     authApi.refresh()
       .then((res) => {
         const accessToken = res.data.data.accessToken;
@@ -35,8 +38,19 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
           email: decoded.email,
         });
       })
-      .catch(() => {
-        // No valid refresh token — user needs to log in
+      .catch(async () => {
+        if (!import.meta.env.DEV) return;
+        try {
+          const dev = await authApi.devLogin();
+          const accessToken = dev.data.data.accessToken;
+          const decoded: any = jwtDecode(accessToken);
+          useAuthStore.getState().setTokens(accessToken, {
+            id: decoded.sub,
+            email: decoded.email,
+          });
+        } catch {
+          // Backend rejects unless DEV_AUTO_LOGIN=true — fall through to login.
+        }
       })
       .finally(() => {
         setReady(true);
