@@ -1,8 +1,9 @@
 /**
  * MapFilters.tsx – Search + active/inactive + cert-status filters for the network map
- * Dependencies: react, network.api types
+ * Dependencies: react, network.api types, i18n.store
  */
 import type { MapOrganization } from '../../api/network.api';
+import { useI18n } from '../../stores/i18n.store';
 
 export interface MapFilterState {
   query: string;
@@ -24,14 +25,15 @@ const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   NONE:     '#94a3b8',
 };
 
-const STATUS_LABEL: Record<MapOrganization['cert_status'], string> = {
-  VALID:    'Valid',
-  EXPIRING: 'Expiring',
-  EXPIRED:  'Expired',
-  NONE:     'No cert',
+const STATUS_LABEL_KEY: Record<MapOrganization['cert_status'], 'mapStatusValid' | 'mapStatusExpiring' | 'mapStatusExpired' | 'mapStatusNone'> = {
+  VALID:    'mapStatusValid',
+  EXPIRING: 'mapStatusExpiring',
+  EXPIRED:  'mapStatusExpired',
+  NONE:     'mapStatusNone',
 };
 
 export function MapFilters({ state, onChange, totalCount, visibleCount }: Props) {
+  const { t } = useI18n();
   function toggleStatus(s: MapOrganization['cert_status']) {
     const next = new Set(state.certStatuses);
     if (next.has(s)) next.delete(s); else next.add(s);
@@ -39,6 +41,11 @@ export function MapFilters({ state, onChange, totalCount, visibleCount }: Props)
   }
 
   const allStatuses: MapOrganization['cert_status'][] = ['VALID', 'EXPIRING', 'EXPIRED', 'NONE'];
+  const modeLabelKey: Record<'all' | 'active' | 'inactive', 'mapFilterAll' | 'mapFilterActive' | 'mapFilterInactive'> = {
+    all: 'mapFilterAll',
+    active: 'mapFilterActive',
+    inactive: 'mapFilterInactive',
+  };
 
   return (
     <div style={{
@@ -55,7 +62,7 @@ export function MapFilters({ state, onChange, totalCount, visibleCount }: Props)
           type="text"
           value={state.query}
           onChange={e => onChange({ ...state, query: e.target.value })}
-          placeholder="Filter by name or identifier…"
+          placeholder={t('mapFilterSearchPlaceholder')}
           style={{
             width: '100%', padding: '8px 10px 8px 36px',
             border: '1px solid var(--border)', borderRadius: '8px',
@@ -77,7 +84,7 @@ export function MapFilters({ state, onChange, totalCount, visibleCount }: Props)
               color: state.activeMode === mode ? '#fff' : 'var(--text-secondary)',
               textTransform: 'capitalize',
             }}
-          >{mode}</button>
+          >{t(modeLabelKey[mode])}</button>
         ))}
       </div>
 
@@ -98,14 +105,14 @@ export function MapFilters({ state, onChange, totalCount, visibleCount }: Props)
               }}
             >
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: STATUS_COLOR[s] }} />
-              {STATUS_LABEL[s]}
+              {t(STATUS_LABEL_KEY[s])}
             </button>
           );
         })}
       </div>
 
       <div style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)' }}>
-        Showing <strong style={{ color: 'var(--text-primary)' }}>{visibleCount}</strong> of {totalCount}
+        {t('mapFilterShowingOf', { visible: visibleCount, total: totalCount })}
       </div>
     </div>
   );

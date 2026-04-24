@@ -59,6 +59,68 @@ const translations = {
     networkError: 'Network error. Check your connection.',
     sessionExpiring: 'Your session will expire in 2 minutes due to inactivity.',
     sessionExpired: 'Session expired due to inactivity.',
+    // Dashboard
+    dashboard: 'Dashboard',
+
+    // Map — page-level
+    mapAdminViewSubtitle: 'Admin view · full details for every approved node',
+    mapMemberViewSubtitle: 'Active P2P nodes across the allow list',
+    mapRoleAdmin: 'Admin',
+    mapRoleMember: 'Member',
+    mapLoadingNetwork: 'Loading network…',
+    mapLoadFailed: 'Failed to load network map.',
+
+    // Map — graph
+    mapCentralTitle: 'DSF ALLOW LIST',
+    mapCentralSubtitleOne: 'active organization',
+    mapCentralSubtitleMany: 'active organizations',
+    mapEmptyState: 'No approved organizations in the allow list yet.',
+
+    // Map — filters
+    mapFilterSearchPlaceholder: 'Filter by name or identifier…',
+    mapFilterAll: 'all',
+    mapFilterActive: 'active',
+    mapFilterInactive: 'inactive',
+    mapFilterShowingOf: 'Showing {visible} of {total}',
+
+    // Map — cert status chip labels
+    mapStatusValid: 'Valid',
+    mapStatusExpiring: 'Expiring',
+    mapStatusExpired: 'Expired',
+    mapStatusNone: 'No cert',
+
+    // Map — details panel
+    mapDetailsActive: 'Active',
+    mapDetailsInactive: 'Inactive',
+    mapDetailsCertLabel: 'Certificate',
+    mapDetailsCertValid: 'Valid',
+    mapDetailsCertExpiring: 'Expiring soon',
+    mapDetailsCertExpired: 'Expired',
+    mapDetailsCertNone: 'No certificate',
+    mapDetailsExpiredText: 'This certificate has expired. Renew it to keep this node active in the allow list.',
+    mapDetailsExpiringText: 'This certificate expires soon. Plan a renewal to avoid downtime.',
+    mapDetailsDayRemainingOne: '1 day remaining',
+    mapDetailsDaysRemainingMany: '{n} days remaining',
+    mapDetailsExpiredAgoOne: 'Expired 1 day ago',
+    mapDetailsExpiredAgoMany: 'Expired {n} days ago',
+    mapDetailsEndpoints: 'Endpoints',
+    mapDetailsContacts: 'Contacts',
+    mapDetailsMemberships: 'Memberships',
+    mapDetailsLocation: 'Location',
+    mapDetailsCity: 'City',
+    mapDetailsCountry: 'Country',
+    mapDetailsEmail: 'Email',
+    mapDetailsNoEndpoints: 'No endpoints',
+    mapDetailsNoContacts: 'No contacts',
+    mapDetailsNoMemberships: 'No memberships',
+    mapCloseDetails: 'Close details',
+
+    // Map — expiry banner
+    mapBannerExpiredOne: '1 certificate has expired',
+    mapBannerExpiredMany: '{n} certificates have expired',
+    mapBannerExpiringOne: '1 expires within 30 days',
+    mapBannerExpiringMany: '{n} expire within 30 days',
+    mapBannerDismiss: 'Dismiss warning',
   },
   de: {
     signIn: 'Anmelden',
@@ -112,6 +174,68 @@ const translations = {
     networkError: 'Netzwerkfehler. Prüfe deine Verbindung.',
     sessionExpiring: 'Deine Sitzung läuft in 2 Minuten ab (Inaktivität).',
     sessionExpired: 'Sitzung wegen Inaktivität abgelaufen.',
+    // Dashboard
+    dashboard: 'Übersicht',
+
+    // Map — page-level
+    mapAdminViewSubtitle: 'Admin-Ansicht · vollständige Details für jeden freigegebenen Knoten',
+    mapMemberViewSubtitle: 'Aktive P2P-Knoten in der Allow-Liste',
+    mapRoleAdmin: 'Admin',
+    mapRoleMember: 'Mitglied',
+    mapLoadingNetwork: 'Netzwerk wird geladen…',
+    mapLoadFailed: 'Netzwerkkarte konnte nicht geladen werden.',
+
+    // Map — graph
+    mapCentralTitle: 'DSF ALLOW LIST',
+    mapCentralSubtitleOne: 'aktive Organisation',
+    mapCentralSubtitleMany: 'aktive Organisationen',
+    mapEmptyState: 'Noch keine freigegebenen Organisationen in der Allow-Liste.',
+
+    // Map — filters
+    mapFilterSearchPlaceholder: 'Filter nach Name oder Kennung…',
+    mapFilterAll: 'alle',
+    mapFilterActive: 'aktiv',
+    mapFilterInactive: 'inaktiv',
+    mapFilterShowingOf: 'Zeige {visible} von {total}',
+
+    // Map — cert status chip labels
+    mapStatusValid: 'Gültig',
+    mapStatusExpiring: 'Läuft ab',
+    mapStatusExpired: 'Abgelaufen',
+    mapStatusNone: 'Kein Zertifikat',
+
+    // Map — details panel
+    mapDetailsActive: 'Aktiv',
+    mapDetailsInactive: 'Inaktiv',
+    mapDetailsCertLabel: 'Zertifikat',
+    mapDetailsCertValid: 'Gültig',
+    mapDetailsCertExpiring: 'Läuft bald ab',
+    mapDetailsCertExpired: 'Abgelaufen',
+    mapDetailsCertNone: 'Kein Zertifikat',
+    mapDetailsExpiredText: 'Dieses Zertifikat ist abgelaufen. Erneuere es, damit dieser Knoten aktiv bleibt.',
+    mapDetailsExpiringText: 'Dieses Zertifikat läuft bald ab. Plane eine Erneuerung, um Ausfälle zu vermeiden.',
+    mapDetailsDayRemainingOne: '1 Tag verbleibend',
+    mapDetailsDaysRemainingMany: '{n} Tage verbleibend',
+    mapDetailsExpiredAgoOne: 'Vor 1 Tag abgelaufen',
+    mapDetailsExpiredAgoMany: 'Vor {n} Tagen abgelaufen',
+    mapDetailsEndpoints: 'Endpunkte',
+    mapDetailsContacts: 'Kontakte',
+    mapDetailsMemberships: 'Mitgliedschaften',
+    mapDetailsLocation: 'Standort',
+    mapDetailsCity: 'Stadt',
+    mapDetailsCountry: 'Land',
+    mapDetailsEmail: 'E-Mail',
+    mapDetailsNoEndpoints: 'Keine Endpunkte',
+    mapDetailsNoContacts: 'Keine Kontakte',
+    mapDetailsNoMemberships: 'Keine Mitgliedschaften',
+    mapCloseDetails: 'Details schließen',
+
+    // Map — expiry banner
+    mapBannerExpiredOne: '1 Zertifikat ist abgelaufen',
+    mapBannerExpiredMany: '{n} Zertifikate sind abgelaufen',
+    mapBannerExpiringOne: '1 läuft innerhalb von 30 Tagen ab',
+    mapBannerExpiringMany: '{n} laufen innerhalb von 30 Tagen ab',
+    mapBannerDismiss: 'Warnung schließen',
   },
 } as const;
 
@@ -120,7 +244,7 @@ type TranslationKey = keyof typeof translations.en;
 interface I18nState {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
 }
 
 export const useI18n = create<I18nState>((set, get) => ({
@@ -129,8 +253,14 @@ export const useI18n = create<I18nState>((set, get) => ({
     localStorage.setItem('dsf-lang', lang);
     set({ lang });
   },
-  t: (key) => {
+  t: (key, params) => {
     const lang = get().lang;
-    return translations[lang][key] || translations.en[key] || key;
+    let str: string = translations[lang][key] || translations.en[key] || key;
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        str = str.replace(`{${k}}`, String(v));
+      }
+    }
+    return str;
   },
 }));

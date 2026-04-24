@@ -1,5 +1,5 @@
 /**
- * MapPage.tsx – Interactive P2P allow-list network map (role-aware)
+ * MapPage.tsx – Interactive P2P allow-list network map (role-aware, i18n)
  * Dependencies: useNetworkMap, NetworkGraph, NodeDetailsPanel, MapFilters, CertExpiryBanner, i18n.store
  */
 import { useMemo, useState } from 'react';
@@ -55,13 +55,11 @@ export function MapPage() {
               {t('networkMap')}
             </h1>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
-              {isAdmin
-                ? 'Admin view · full details for every approved node'
-                : 'Active P2P nodes across the allow list'}
+              {isAdmin ? t('mapAdminViewSubtitle') : t('mapMemberViewSubtitle')}
             </p>
           </div>
           <div style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)' }}>
-            {isAdmin ? '🛡 Admin' : '👤 Member'}
+            {isAdmin ? `🛡 ${t('mapRoleAdmin')}` : `👤 ${t('mapRoleMember')}`}
           </div>
         </div>
       </header>
@@ -78,12 +76,12 @@ export function MapPage() {
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         {isLoading && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
-            Loading network…
+            {t('mapLoadingNetwork')}
           </div>
         )}
         {error && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '14px' }}>
-            Failed to load network map.
+            {t('mapLoadFailed')}
           </div>
         )}
         {!isLoading && !error && (
