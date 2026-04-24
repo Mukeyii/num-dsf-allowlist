@@ -4,7 +4,7 @@
  * active/inactive status, certificate status (no exact date), and endpoint names.
  * Dependencies: react, network.api types
  */
-import type { MapOrganization, MapEndpointAdmin, MapMembershipAdmin } from '../../api/network.api';
+import type { MapOrganization } from '../../api/network.api';
 
 const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   VALID:    '#22c55e',
@@ -121,25 +121,28 @@ export function NodeDetailsPanel({ org, isAdmin, onClose }: Props) {
 
           <Section title={`Endpoints (${org.endpoints.length})`}>
             {org.endpoints.length === 0 && <Empty>No endpoints</Empty>}
-            {org.endpoints.map(ep => (
-              <div key={ep.identifier} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{ep.name ?? ep.identifier}</div>
-                {isAdmin && 'address' in ep && (
-                  <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#6b7280', wordBreak: 'break-all' }}>
-                    {(ep as MapEndpointAdmin).address}
-                  </div>
-                )}
-                {isAdmin && 'ips' in ep && (ep as MapEndpointAdmin).ips.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-                    {(ep as MapEndpointAdmin).ips.map((ip, i) => (
-                      <span key={i} style={{ fontSize: '10px', fontFamily: 'monospace', background: '#e6faf7', color: '#0d9488', padding: '1px 6px', borderRadius: '4px' }}>
-                        {ip.ip}{ip.is_fhir ? ' · FHIR' : ''}{ip.is_bpe ? ' · BPE' : ''}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+            {org.endpoints.map(ep => {
+              const adminEp = isAdmin && 'address' in ep ? ep : null;
+              return (
+                <div key={ep.identifier} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{ep.name ?? ep.identifier}</div>
+                  {adminEp && (
+                    <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#6b7280', wordBreak: 'break-all' }}>
+                      {adminEp.address}
+                    </div>
+                  )}
+                  {adminEp && adminEp.ips.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                      {adminEp.ips.map((ip, i) => (
+                        <span key={i} style={{ fontSize: '10px', fontFamily: 'monospace', background: '#e6faf7', color: '#0d9488', padding: '1px 6px', borderRadius: '4px' }}>
+                          {ip.ip}{ip.is_fhir ? ' · FHIR' : ''}{ip.is_bpe ? ' · BPE' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </Section>
 
           {isAdmin && org.contacts && (
@@ -159,23 +162,26 @@ export function NodeDetailsPanel({ org, isAdmin, onClose }: Props) {
 
           <Section title={`Memberships (${org.memberships.length})`}>
             {org.memberships.length === 0 && <Empty>No memberships</Empty>}
-            {org.memberships.map((m, i) => (
-              <div key={i} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{m.parent_organization}</div>
-                {m.roles.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
-                    {m.roles.map((role, j) => (
-                      <span key={j} style={{ fontSize: '10px', fontWeight: 700, background: '#e8f0fb', color: '#4a90d9', padding: '1px 6px', borderRadius: '4px' }}>{role}</span>
-                    ))}
-                  </div>
-                )}
-                {isAdmin && 'endpoint_id' in m && (m as MapMembershipAdmin).endpoint_id && (
-                  <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', marginTop: '2px' }}>
-                    {(m as MapMembershipAdmin).endpoint_id}
-                  </div>
-                )}
-              </div>
-            ))}
+            {org.memberships.map((m, i) => {
+              const adminM = isAdmin && 'endpoint_id' in m ? m : null;
+              return (
+                <div key={i} style={{ padding: '8px 10px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{m.parent_organization}</div>
+                  {m.roles.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
+                      {m.roles.map((role, j) => (
+                        <span key={j} style={{ fontSize: '10px', fontWeight: 700, background: '#e8f0fb', color: '#4a90d9', padding: '1px 6px', borderRadius: '4px' }}>{role}</span>
+                      ))}
+                    </div>
+                  )}
+                  {adminM && adminM.endpoint_id && (
+                    <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      {adminM.endpoint_id}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </Section>
 
           {isAdmin && (org.city || org.country_code || org.email) && (
