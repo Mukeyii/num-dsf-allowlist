@@ -16,14 +16,14 @@ beforeAll(() => {
 });
 
 const server = setupServer(
-  http.get('*/admin/approval/admin/pending', () => {
+  http.get('*/admin/approval/pending', () => {
     return HttpResponse.json({
       data: [
         { id: 'req-1', status: 'PENDING', instance_id: 'inst-1', submitted_at: '2026-03-28T00:00:00Z' },
       ],
     });
   }),
-  http.post('*/admin/approval/admin/:rid/approve', async ({ request }) => {
+  http.post('*/admin/approval/:rid/approve', async ({ request }) => {
     const body = await request.json() as Record<string, unknown>;
     if (!body.totpCode) {
       return HttpResponse.json(
@@ -33,7 +33,7 @@ const server = setupServer(
     }
     return HttpResponse.json({ data: { id: 'req-1', status: 'APPROVED' } });
   }),
-  http.post('*/admin/approval/admin/:rid/reject', async ({ request }) => {
+  http.post('*/admin/approval/:rid/reject', async ({ request }) => {
     const body = await request.json() as Record<string, unknown>;
     if (!body.totpCode) {
       return HttpResponse.json(
@@ -45,7 +45,7 @@ const server = setupServer(
   }),
 );
 
-beforeAll(() => server.listen());
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
