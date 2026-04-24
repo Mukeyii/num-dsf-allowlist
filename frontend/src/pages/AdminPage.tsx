@@ -535,6 +535,30 @@ export function AdminPage() {
 
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
 
+      {/* Cross-instance warning: admins act on data owned by other organizations.
+          Approving/rejecting affects the global allow list, not your own instance. */}
+      <div style={{
+        background: '#fff7ed',
+        border: '1px solid #fed7aa',
+        borderRadius: '12px',
+        padding: '12px 16px',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '10px',
+        marginBottom: '20px',
+      }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#c2410c', marginTop: '1px' }}>
+          shield_person
+        </span>
+        <div style={{ fontSize: '12px', color: '#9a3412', lineHeight: 1.5 }}>
+          <strong style={{ fontWeight: 700 }}>Admin mode.</strong>{' '}
+          You are acting on approval requests submitted by other organizations.
+          Approving publishes their data to the global DSF allow list;
+          rejecting blocks it. Review the submitted data carefully before
+          deciding — the decision is audited and notifies the submitter.
+        </div>
+      </div>
+
       {/* Error state */}
       {error && (
         <div style={{
