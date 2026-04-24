@@ -2,12 +2,15 @@
  * useNetworkMap.ts – TanStack Query hook for the P2P network map data
  */
 import { useQuery } from '@tanstack/react-query';
-import { networkApi, MapOrganization } from '../api/network.api';
+import { networkApi, MapResponse } from '../api/network.api';
 
 export function useNetworkMap() {
-  return useQuery<MapOrganization[]>({
+  return useQuery<MapResponse>({
     queryKey: ['network', 'map'],
-    queryFn: () => networkApi.getMap().then(r => r.data.data.organizations),
+    queryFn: () => networkApi.getMap().then(r => ({
+      organizations: r.data.data.organizations,
+      isAdmin: r.data.meta.isAdmin,
+    })),
     staleTime: 60_000,
   });
 }
