@@ -1,25 +1,45 @@
 /**
- * MapPage.tsx – Interactive P2P allow-list network map (all users)
- * Dependencies: useNetworkMap, NetworkGraph, NodeDetailsPanel, i18n.store
+ * MapPage.tsx – Interactive P2P allow-list network map (role-aware)
+ * Dependencies: useNetworkMap, NetworkGraph, NodeDetailsPanel, MapFilters, CertExpiryBanner, i18n.store
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNetworkMap } from '../hooks/useNetworkMap';
 import { NetworkGraph } from '../components/map/NetworkGraph';
 import { NodeDetailsPanel } from '../components/map/NodeDetailsPanel';
+import { MapFilters, MapFilterState } from '../components/map/MapFilters';
+import { CertExpiryBanner } from '../components/map/CertExpiryBanner';
 import { useI18n } from '../stores/i18n.store';
 
 export function MapPage() {
   const { t } = useI18n();
-  const { data: organizations = [], isLoading, error } = useNetworkMap();
+  const { data, isLoading, error } = useNetworkMap();
+  const organizations = data?.organizations ?? [];
+  const isAdmin = !!data?.isAdmin;
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = organizations.find(o => o.identifier === selectedId) || null;
 
-  const counts = {
-    valid:    organizations.filter(o => o.cert_status === 'VALID').length,
-    expiring: organizations.filter(o => o.cert_status === 'EXPIRING').length,
-    expired:  organizations.filter(o => o.cert_status === 'EXPIRED').length,
-    none:     organizations.filter(o => o.cert_status === 'NONE').length,
-  };
+  const [filter, setFilter] = useState<MapFilterState>({
+    query: '',
+    activeMode: 'all',
+    certStatuses: new Set(['VALID', 'EXPIRING', 'EXPIRED', 'NONE']),
+  });
+
+  const filtered = useMemo(() => {
+    const q = filter.query.trim().toLowerCase();
+    return organizations.filter(o => {
+      if (filter.activeMode === 'active' && !o.active) return false;
+      if (filter.activeMode === 'inactive' && o.active) return false;
+      if (!filter.certStatuses.has(o.cert_status)) return false;
+      if (q && !(o.name.toLowerCase().includes(q) || o.identifier.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [organizations, filter]);
+
+  const selected = filtered.find(o => o.identifier === selectedId)
+    ?? organizations.find(o => o.identifier === selectedId)
+    ?? null;
+
+  const expiringCount = organizations.filter(o => o.cert_status === 'EXPIRING').length;
+  const expiredCount  = organizations.filter(o => o.cert_status === 'EXPIRED').length;
 
   return (
     <div style={{
@@ -35,17 +55,25 @@ export function MapPage() {
               {t('networkMap')}
             </h1>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
-              Active P2P nodes with valid certificates across the allow list
+              {isAdmin
+                ? 'Admin view · full details for every approved node'
+                : 'Active P2P nodes across the allow list'}
             </p>
           </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-            <Legend color="#22c55e" label={`Valid ${counts.valid}`} />
-            <Legend color="#f5a623" label={`Expiring ${counts.expiring}`} />
-            <Legend color="#ef4444" label={`Expired ${counts.expired}`} />
-            <Legend color="#94a3b8" label={`No cert ${counts.none}`} />
+          <div style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-muted)' }}>
+            {isAdmin ? '🛡 Admin' : '👤 Member'}
           </div>
         </div>
       </header>
+
+      <CertExpiryBanner expiringCount={expiringCount} expiredCount={expiredCount} />
+
+      <MapFilters
+        state={filter}
+        onChange={setFilter}
+        totalCount={organizations.length}
+        visibleCount={filtered.length}
+      />
 
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         {isLoading && (
@@ -60,27 +88,13 @@ export function MapPage() {
         )}
         {!isLoading && !error && (
           <NetworkGraph
-            organizations={organizations}
+            organizations={filtered}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
         )}
-        <NodeDetailsPanel org={selected} onClose={() => setSelectedId(null)} />
+        <NodeDetailsPanel org={selected} isAdmin={isAdmin} onClose={() => setSelectedId(null)} />
       </div>
-    </div>
-  );
-}
-
-function Legend({ color, label }: { color: string; label: string }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: '6px',
-      padding: '4px 10px', borderRadius: '20px',
-      background: color + '22', color,
-      fontSize: '11px', fontWeight: 600,
-    }}>
-      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: color }} />
-      {label}
     </div>
   );
 }
