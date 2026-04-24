@@ -144,9 +144,16 @@ authRouter.post('/dev-login', async (req: Request, res: Response) => {
   if (process.env.NODE_ENV === 'production' || process.env.DEV_AUTO_LOGIN !== 'true') {
     return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
   }
-  const role = req.body?.role === 'member' ? 'member' : 'admin';
-  const envKey = role === 'member' ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL' : 'DEV_AUTO_LOGIN_EMAIL';
-  const fallback = role === 'member' ? 'member@imi-test.example.de' : 'admin@imi-test.example.de';
+  const inputRole = req.body?.role;
+  const role: 'admin' | 'member' | 'site' =
+    inputRole === 'member' ? 'member' :
+    inputRole === 'site'   ? 'site'   : 'admin';
+  const envKey =
+    role === 'member' ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL' :
+    role === 'site'   ? 'DEV_AUTO_LOGIN_SITE_EMAIL'   : 'DEV_AUTO_LOGIN_EMAIL';
+  const fallback =
+    role === 'member' ? 'member@imi-test.example.de' :
+    role === 'site'   ? 'site@imi-test.example.de'   : 'admin@imi-test.example.de';
   const email = (process.env[envKey] || fallback).toLowerCase().trim();
   if (!email) {
     return res.status(400).json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
