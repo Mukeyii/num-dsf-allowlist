@@ -12,6 +12,11 @@ import { v4 as uuidv4 } from 'uuid';
 const USER_ID = uuidv4();
 const ADMIN_EMAIL = 'admin@imi-test.example.de';
 
+const MEMBER_USER_ID = uuidv4();
+const MEMBER_EMAIL = 'member@imi-test.example.de';
+const MEMBER_INSTANCE_ID = uuidv4();
+const MEMBER_ORG_IDENTIFIER = 'universitaetsklinikum-member.example.de';
+
 const GREEK = [
   'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta',
   'Iota', 'Kappa', 'Lambda', 'My', 'Ny', 'Xi', 'Omikron', 'Pi',
@@ -93,11 +98,11 @@ async function main() {
   console.log('Seeding 30 fictional test organizations...\n');
 
   // 0. Clean previous seed data (cascade deletes children)
-  await db('audit_logs').where('user_email', ADMIN_EMAIL).del();
+  await db('audit_logs').whereIn('user_email', [ADMIN_EMAIL, MEMBER_EMAIL]).del();
   await db('approval_requests').whereIn('instance_id',
-    db('instances').select('id').where('user_id', USER_ID)).del();
-  await db('instances').where('user_id', USER_ID).del();
-  await db('users').where('email', ADMIN_EMAIL).del();
+    db('instances').select('id').whereIn('user_id', [USER_ID, MEMBER_USER_ID])).del();
+  await db('instances').whereIn('user_id', [USER_ID, MEMBER_USER_ID]).del();
+  await db('users').whereIn('email', [ADMIN_EMAIL, MEMBER_EMAIL]).del();
   console.log('  [~] Cleaned previous seed data');
 
   // 1. Whitelist admin
@@ -279,9 +284,74 @@ async function main() {
   }
   console.log(`  [+] ${auditOps.length} audit entries`);
 
+  // 11. Non-admin member user: whitelisted, one instance, minimal org + approved request.
+  //     Used to test the role-aware views (map, admin page). Not in IMI_ADMIN_EMAILS.
+  await db('email_whitelist').insert({
+    id: uuidv4(), email: MEMBER_EMAIL, created_by: 'seed', created_at: new Date(),
+  }).onConflict('email').ignore();
+  await db('users').insert({
+    id: MEMBER_USER_ID, email: MEMBER_EMAIL, totp_enabled: false, created_at: new Date(),
+  }).onConflict('email').ignore();
+  await db('instances').insert({
+    id: MEMBER_INSTANCE_ID, user_id: MEMBER_USER_ID,
+    label: 'Universitätsklinikum Member', created_at: new Date(),
+  }).onConflict('id').ignore();
+  await db('organizations').insert({
+    identifier: MEMBER_ORG_IDENTIFIER, instance_id: MEMBER_INSTANCE_ID,
+    name: 'Universitätsklinikum Member', active: true,
+    email: `dsf-admin@${MEMBER_ORG_IDENTIFIER}`,
+    address_line: 'Beispielweg 1', postal_code: '12345',
+    city: 'Mitglieddorf', country_code: 'DE',
+    created_at: new Date(), updated_at: new Date(),
+  }).onConflict('identifier').ignore();
+  await db('contacts').insert({
+    id: uuidv4(), organization_id: MEMBER_ORG_IDENTIFIER,
+    types: JSON.stringify(['DSF_ADMIN']),
+    name: 'Dr. Member Contact', email: `dsf-admin@${MEMBER_ORG_IDENTIFIER}`,
+    email_validated: true, phone: '+49301234567',
+    address_line: 'Beispielweg 1', city: 'Mitglieddorf',
+    postal_code: '12345', country_code: 'DE',
+    created_at: new Date(), updated_at: new Date(),
+  });
+  const memberEpId = `dsf-fhir.${MEMBER_ORG_IDENTIFIER}`;
+  await db('endpoints').insert({
+    identifier: memberEpId, organization_id: MEMBER_ORG_IDENTIFIER,
+    name: 'DSF FHIR Member', address: `https://${memberEpId}/fhir`,
+    created_at: new Date(), updated_at: new Date(),
+  }).onConflict('identifier').ignore();
+  await db('endpoint_ips').insert({
+    id: uuidv4(), endpoint_id: memberEpId,
+    ip: '192.0.2.50', is_fhir: true, is_bpe: false,
+  });
+  await db('certificates').insert({
+    id: uuidv4(), organization_id: MEMBER_ORG_IDENTIFIER,
+    pem: FAKE_PEM, subject: `CN=${memberEpId}`,
+    thumbprint: thumbprint(99),
+    valid_until: futureDate(365),
+    created_at: new Date(),
+  });
+  await db('memberships').insert({
+    id: uuidv4(), organization_id: MEMBER_ORG_IDENTIFIER,
+    parent_organization: PARENT_ORGS[0],
+    endpoint_id: memberEpId,
+    roles: JSON.stringify(['DIC']),
+    created_at: new Date(), updated_at: new Date(),
+  });
+  await db('approval_requests').insert({
+    id: uuidv4(), instance_id: MEMBER_INSTANCE_ID,
+    status: 'APPROVED',
+    created_at: pastDate(30), submitted_at: pastDate(30),
+    resolved_at: pastDate(29), resolved_by: ADMIN_EMAIL, comment: null,
+    snapshot_json: JSON.stringify({
+      organization: { identifier: MEMBER_ORG_IDENTIFIER, name: 'Universitätsklinikum Member' },
+    }),
+  });
+  console.log(`  [+] Member user seeded: ${MEMBER_EMAIL} (1 instance, 1 org APPROVED)`);
+
   console.log('\n--- Seed complete ---');
-  console.log(`Login: ${ADMIN_EMAIL}`);
-  console.log(`Orgs: ${ORGS.length} | Contacts: ${contactCount} | Endpoints: ${endpointCount}`);
+  console.log(`Login (admin):  ${ADMIN_EMAIL}`);
+  console.log(`Login (member): ${MEMBER_EMAIL}`);
+  console.log(`Orgs: ${ORGS.length} + 1 member | Contacts: ${contactCount} | Endpoints: ${endpointCount}`);
 
   await db.destroy();
 }
