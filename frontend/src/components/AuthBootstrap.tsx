@@ -19,7 +19,30 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useEffect(() => {
-    // Already authenticated (e.g. just logged in, no refresh needed)
+    // Dev-only URL shortcut: ?devRole=admin|member forces a fresh dev-login.
+    // Overrides any existing session so you can switch roles by URL.
+    const devRole = import.meta.env.DEV
+      ? (new URLSearchParams(window.location.search).get('devRole') as 'admin' | 'member' | null)
+      : null;
+
+    async function devLoginAs(role: 'admin' | 'member' | undefined) {
+      const dev = await authApi.devLogin(role);
+      const accessToken = dev.data.data.accessToken;
+      const decoded: any = jwtDecode(accessToken);
+      useAuthStore.getState().setTokens(accessToken, {
+        id: decoded.sub,
+        email: decoded.email,
+      });
+    }
+
+    if (devRole) {
+      useAuthStore.getState().clearAuth();
+      devLoginAs(devRole)
+        .catch(() => { /* dev-login disabled — fall through to login page */ })
+        .finally(() => setReady(true));
+      return;
+    }
+
     if (isAuthenticated) {
       setReady(true);
       return;
@@ -40,17 +63,8 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       })
       .catch(async () => {
         if (!import.meta.env.DEV) return;
-        try {
-          const dev = await authApi.devLogin();
-          const accessToken = dev.data.data.accessToken;
-          const decoded: any = jwtDecode(accessToken);
-          useAuthStore.getState().setTokens(accessToken, {
-            id: decoded.sub,
-            email: decoded.email,
-          });
-        } catch {
-          // Backend rejects unless DEV_AUTO_LOGIN=true — fall through to login.
-        }
+        try { await devLoginAs(undefined); }
+        catch { /* dev-login disabled — fall through to login page */ }
       })
       .finally(() => {
         setReady(true);
