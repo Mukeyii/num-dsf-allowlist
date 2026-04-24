@@ -92,6 +92,14 @@ const ORGS = GREEK.map((name, i) => {
 async function main() {
   console.log('Seeding 30 fictional test organizations...\n');
 
+  // 0. Clean previous seed data (cascade deletes children)
+  await db('audit_logs').where('user_email', ADMIN_EMAIL).del();
+  await db('approval_requests').whereIn('instance_id',
+    db('instances').select('id').where('user_id', USER_ID)).del();
+  await db('instances').where('user_id', USER_ID).del();
+  await db('users').where('email', ADMIN_EMAIL).del();
+  console.log('  [~] Cleaned previous seed data');
+
   // 1. Whitelist admin
   await db('email_whitelist').insert({
     id: uuidv4(), email: ADMIN_EMAIL, created_by: 'seed', created_at: new Date(),
