@@ -22,10 +22,10 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
     // Dev-only URL shortcut: ?devRole=admin|member forces a fresh dev-login.
     // Overrides any existing session so you can switch roles by URL.
     const devRole = import.meta.env.DEV
-      ? (new URLSearchParams(window.location.search).get('devRole') as 'admin' | 'member' | null)
+      ? (new URLSearchParams(window.location.search).get('devRole') as 'admin' | 'member' | 'site' | null)
       : null;
 
-    async function devLoginAs(role: 'admin' | 'member' | undefined) {
+    async function devLoginAs(role: 'admin' | 'member' | 'site' | undefined) {
       const dev = await authApi.devLogin(role);
       const accessToken = dev.data.data.accessToken;
       const decoded: any = jwtDecode(accessToken);

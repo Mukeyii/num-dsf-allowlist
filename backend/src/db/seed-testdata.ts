@@ -17,6 +17,11 @@ const MEMBER_EMAIL = 'member@imi-test.example.de';
 const MEMBER_INSTANCE_ID = uuidv4();
 const MEMBER_ORG_IDENTIFIER = 'universitaetsklinikum-member.example.de';
 
+const SITE_USER_ID = uuidv4();
+const SITE_EMAIL = 'site@imi-test.example.de';
+const SITE_INSTANCE_ID = uuidv4();
+const SITE_ORG_IDENTIFIER = 'kreiskrankenhaus-site.example.de';
+
 const GREEK = [
   'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta',
   'Iota', 'Kappa', 'Lambda', 'My', 'Ny', 'Xi', 'Omikron', 'Pi',
@@ -98,11 +103,11 @@ async function main() {
   console.log('Seeding 30 fictional test organizations...\n');
 
   // 0. Clean previous seed data (cascade deletes children)
-  await db('audit_logs').whereIn('user_email', [ADMIN_EMAIL, MEMBER_EMAIL]).del();
+  await db('audit_logs').whereIn('user_email', [ADMIN_EMAIL, MEMBER_EMAIL, SITE_EMAIL]).del();
   await db('approval_requests').whereIn('instance_id',
-    db('instances').select('id').whereIn('user_id', [USER_ID, MEMBER_USER_ID])).del();
-  await db('instances').whereIn('user_id', [USER_ID, MEMBER_USER_ID]).del();
-  await db('users').whereIn('email', [ADMIN_EMAIL, MEMBER_EMAIL]).del();
+    db('instances').select('id').whereIn('user_id', [USER_ID, MEMBER_USER_ID, SITE_USER_ID])).del();
+  await db('instances').whereIn('user_id', [USER_ID, MEMBER_USER_ID, SITE_USER_ID]).del();
+  await db('users').whereIn('email', [ADMIN_EMAIL, MEMBER_EMAIL, SITE_EMAIL]).del();
   console.log('  [~] Cleaned previous seed data');
 
   // 1. Whitelist admin
@@ -348,10 +353,68 @@ async function main() {
   });
   console.log(`  [+] Member user seeded: ${MEMBER_EMAIL} (1 instance, 1 org APPROVED)`);
 
+  // 12. Non-admin site user: whitelisted, one instance with an unsubmitted draft
+  //     (org + contact + endpoint + cert + membership but NO approval_request yet).
+  //     Useful for exercising the submit-for-approval flow end-to-end.
+  await db('email_whitelist').insert({
+    id: uuidv4(), email: SITE_EMAIL, created_by: 'seed', created_at: new Date(),
+  }).onConflict('email').ignore();
+  await db('users').insert({
+    id: SITE_USER_ID, email: SITE_EMAIL, totp_enabled: false, created_at: new Date(),
+  }).onConflict('email').ignore();
+  await db('instances').insert({
+    id: SITE_INSTANCE_ID, user_id: SITE_USER_ID,
+    label: 'Kreiskrankenhaus Site', created_at: new Date(),
+  }).onConflict('id').ignore();
+  await db('organizations').insert({
+    identifier: SITE_ORG_IDENTIFIER, instance_id: SITE_INSTANCE_ID,
+    name: 'Kreiskrankenhaus Site', active: true,
+    email: `dsf-admin@${SITE_ORG_IDENTIFIER}`,
+    address_line: 'Teststraße 42', postal_code: '54321',
+    city: 'Standortburg', country_code: 'DE',
+    created_at: new Date(), updated_at: new Date(),
+  }).onConflict('identifier').ignore();
+  await db('contacts').insert({
+    id: uuidv4(), organization_id: SITE_ORG_IDENTIFIER,
+    types: JSON.stringify(['DSF_ADMIN']),
+    name: 'Dr. Site Contact', email: `dsf-admin@${SITE_ORG_IDENTIFIER}`,
+    email_validated: true, phone: '+49301234999',
+    address_line: 'Teststraße 42', city: 'Standortburg',
+    postal_code: '54321', country_code: 'DE',
+    created_at: new Date(), updated_at: new Date(),
+  });
+  const siteEpId = `dsf-fhir.${SITE_ORG_IDENTIFIER}`;
+  await db('endpoints').insert({
+    identifier: siteEpId, organization_id: SITE_ORG_IDENTIFIER,
+    name: 'DSF FHIR Site', address: `https://${siteEpId}/fhir`,
+    created_at: new Date(), updated_at: new Date(),
+  }).onConflict('identifier').ignore();
+  await db('endpoint_ips').insert({
+    id: uuidv4(), endpoint_id: siteEpId,
+    ip: '192.0.2.99', is_fhir: true, is_bpe: false,
+  });
+  await db('certificates').insert({
+    id: uuidv4(), organization_id: SITE_ORG_IDENTIFIER,
+    pem: FAKE_PEM, subject: `CN=${siteEpId}`,
+    thumbprint: thumbprint(88),
+    valid_until: futureDate(365),
+    created_at: new Date(),
+  });
+  await db('memberships').insert({
+    id: uuidv4(), organization_id: SITE_ORG_IDENTIFIER,
+    parent_organization: PARENT_ORGS[0],
+    endpoint_id: siteEpId,
+    roles: JSON.stringify(['DIC']),
+    created_at: new Date(), updated_at: new Date(),
+  });
+  // Intentionally NO approval_request — lets the user exercise Submit-for-Approval.
+  console.log(`  [+] Site user seeded: ${SITE_EMAIL} (1 instance, 1 org draft, no approval yet)`);
+
   console.log('\n--- Seed complete ---');
   console.log(`Login (admin):  ${ADMIN_EMAIL}`);
   console.log(`Login (member): ${MEMBER_EMAIL}`);
-  console.log(`Orgs: ${ORGS.length} + 1 member | Contacts: ${contactCount} | Endpoints: ${endpointCount}`);
+  console.log(`Login (site):   ${SITE_EMAIL}`);
+  console.log(`Orgs: ${ORGS.length} + 1 member + 1 site | Contacts: ${contactCount} | Endpoints: ${endpointCount}`);
 
   await db.destroy();
 }
