@@ -60,8 +60,10 @@ export const authApi = {
   logout: (email: string) =>
     api.post('/auth/logout', { email }),
 
-  devLogin: () =>
-    api.post<{ data: { accessToken: string; email: string } }>('/auth/dev-login'),
+  devLogin: (role?: 'admin' | 'member') =>
+    api.post<{ data: { accessToken: string; email: string; role: 'admin' | 'member' } }>(
+      '/auth/dev-login', role ? { role } : {},
+    ),
 
   getMe: () =>
     api.get<{ data: { email: string; isAdmin: boolean } }>('/auth/me', { headers: authHeader() }),

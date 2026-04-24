@@ -138,12 +138,19 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
 
 // POST /auth/dev-login → dev-only shortcut that bypasses OTP/TOTP.
 // Refuses in production and when DEV_AUTO_LOGIN is not 'true'.
-// Issues a full session for the email in DEV_AUTO_LOGIN_EMAIL (defaults to admin@imi-test.example.de).
+// Body: { role?: 'admin' | 'member' } — picks DEV_AUTO_LOGIN_EMAIL or DEV_AUTO_LOGIN_MEMBER_EMAIL.
+// Defaults to admin when no role is given.
 authRouter.post('/dev-login', async (req: Request, res: Response) => {
   if (process.env.NODE_ENV === 'production' || process.env.DEV_AUTO_LOGIN !== 'true') {
     return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
   }
-  const email = (process.env.DEV_AUTO_LOGIN_EMAIL || 'admin@imi-test.example.de').toLowerCase().trim();
+  const role = req.body?.role === 'member' ? 'member' : 'admin';
+  const envKey = role === 'member' ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL' : 'DEV_AUTO_LOGIN_EMAIL';
+  const fallback = role === 'member' ? 'member@imi-test.example.de' : 'admin@imi-test.example.de';
+  const email = (process.env[envKey] || fallback).toLowerCase().trim();
+  if (!email) {
+    return res.status(400).json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
+  }
 
   // Ensure whitelisted + user row exists
   const whitelisted = await db('email_whitelist').where({ email }).first();
@@ -160,8 +167,8 @@ authRouter.post('/dev-login', async (req: Request, res: Response) => {
 
   const { accessToken, refreshTokenHash } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
   res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
-  console.warn(`[DEV_AUTO_LOGIN] issued session for ${email} from ${req.ip}`);
-  res.json({ data: { accessToken, email } });
+  console.warn(`[DEV_AUTO_LOGIN] issued ${role} session for ${email} from ${req.ip}`);
+  res.json({ data: { accessToken, email, role } });
 });
 
 // POST /auth/logout
