@@ -2,42 +2,15 @@
  * fhir.routes.ts – FHIR-compatible Bundle endpoint for DSF process
  * Authenticates via client certificate thumbprint (mTLS).
  * No JWT auth required — this is a machine-to-machine endpoint.
- * Dependencies: express, fhir.service, audit.service, db/connection, crypto
+ * Dependencies: express, fhir.service, audit.service, db/connection, clientCert lib
  */
 import { Router, Request, Response } from 'express';
-import crypto from 'crypto';
 import { db } from '../db/connection';
 import { generateBundle } from '../services/fhir.service';
 import { writeAuditLog } from '../services/audit.service';
+import { extractClientCert } from '../lib/clientCert';
 
 export const fhirRouter = Router();
-
-/**
- * Extract and verify client certificate from the TLS connection.
- * nginx passes the client cert via X-Client-Cert header (PEM-encoded, URL-encoded).
- * Returns thumbprint and subject, or null if no valid cert header is present.
- */
-function extractClientCertThumbprint(req: Request): { thumbprint: string; subject: string } | null {
-  // nginx passes the client cert as a URL-encoded PEM header
-  const certHeader = req.headers['x-client-cert'] || req.headers['x-ssl-client-cert'];
-  if (!certHeader) return null;
-
-  try {
-    const pem = decodeURIComponent(certHeader as string);
-    // Calculate SHA-256 thumbprint of the DER-encoded certificate (base64 body only)
-    const certDer = Buffer.from(
-      pem
-        .replace(/-----BEGIN CERTIFICATE-----/g, '')
-        .replace(/-----END CERTIFICATE-----/g, '')
-        .replace(/\s/g, ''),
-      'base64'
-    );
-    const thumbprint = crypto.createHash('sha256').update(certDer).digest('hex');
-    return { thumbprint, subject: 'client-cert' };
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Lookup the organization that is registered for the given client cert thumbprint.
@@ -50,7 +23,7 @@ async function findOrgByThumbprint(thumbprint: string) {
 // GET /fhir/Bundle/:endpointId — Fetch a specific bundle by endpoint identifier
 fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
   try {
-    const cert = extractClientCertThumbprint(req);
+    const cert = extractClientCert(req);
     if (!cert) {
       return res.status(401).json({
         resourceType: 'OperationOutcome',
@@ -99,7 +72,7 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
 // GET /fhir/Bundle — Search by client cert; returns first endpoint bundle wrapped in a searchset
 fhirRouter.get('/Bundle', async (req: Request, res: Response) => {
   try {
-    const cert = extractClientCertThumbprint(req);
+    const cert = extractClientCert(req);
     if (!cert) {
       return res.status(401).json({
         resourceType: 'OperationOutcome',
