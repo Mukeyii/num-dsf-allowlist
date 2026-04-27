@@ -125,6 +125,11 @@ const translations = {
     mapBannerExpiringOne: '1 expires within 30 days',
     mapBannerExpiringMany: '{n} expire within 30 days',
     mapBannerDismiss: 'Dismiss warning',
+
+    // Map — remaining keys
+    mapClusterMatchedHint: '{matched} matching · {hidden} hidden by filter',
+    mapInternationalCount: 'International ({n}): {countries}',
+    mapCityUnknown: 'Position unknown — placed in "Other" zone',
   },
   de: {
     signIn: 'Anmelden',
@@ -244,6 +249,11 @@ const translations = {
     mapBannerExpiringOne: '1 läuft innerhalb von 30 Tagen ab',
     mapBannerExpiringMany: '{n} laufen innerhalb von 30 Tagen ab',
     mapBannerDismiss: 'Warnung schließen',
+
+    // Map — remaining keys
+    mapClusterMatchedHint: '{matched} treffend · {hidden} durch Filter ausgeblendet',
+    mapInternationalCount: 'International ({n}): {countries}',
+    mapCityUnknown: 'Position unbekannt — im "Sonstige"-Bereich platziert',
   },
 } as const;
 
