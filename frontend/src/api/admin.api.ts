@@ -12,12 +12,32 @@ function authHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+export interface ApprovalSignature {
+  id: string;
+  admin_email: string;
+  admin_site: string;
+  decision: 'APPROVE' | 'REJECT';
+  signed_at: string;
+  comment?: string | null;
+}
+
+export interface PendingRequest {
+  id: string;
+  status: string;
+  created_at?: string;
+  submitted_at?: string;
+  snapshot_json: string | object | null;
+  signatures: ApprovalSignature[];
+}
+
 export const adminApi = {
   getPendingApprovals: () =>
-    axios.get(`${BASE}/admin/approval/pending`, { headers: authHeader() }),
+    axios.get<{ data: PendingRequest[] }>(`${BASE}/admin/approval/pending`, { headers: authHeader() }),
 
   approveRequest: (requestId: string, totpCode: string) =>
-    axios.post(`${BASE}/admin/approval/${requestId}/approve`, { totpCode }, { headers: authHeader() }),
+    axios.post<{ data: { status: 'PENDING' | 'APPROVED'; reason?: string } }>(
+      `${BASE}/admin/approval/${requestId}/approve`, { totpCode }, { headers: authHeader() }
+    ),
 
   rejectRequest: (requestId: string, comment: string, totpCode: string) =>
     axios.post(`${BASE}/admin/approval/${requestId}/reject`, { comment, totpCode }, { headers: authHeader() }),

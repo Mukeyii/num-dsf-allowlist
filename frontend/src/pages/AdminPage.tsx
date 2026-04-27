@@ -5,6 +5,8 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { usePendingApprovals, useApproveRequest, useRejectRequest } from '../hooks/useAdmin';
+import { useMe } from '../hooks/useMe';
+import type { ApprovalSignature } from '../api/admin.api';
 
 function relTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -39,11 +41,13 @@ interface RequestCardProps {
     created_at?: string;
     submitted_at?: string;
     snapshot_json: string | object | null;
+    signatures: ApprovalSignature[];
   };
+  meEmail: string | null;
 }
 
 
-function RequestCard({ request }: RequestCardProps) {
+function RequestCard({ request, meEmail }: RequestCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [comment, setComment] = useState('');
@@ -56,6 +60,16 @@ function RequestCard({ request }: RequestCardProps) {
   const orgName = snapshot.organization?.name ?? '—';
   const orgId = snapshot.organization?.identifier ?? '—';
   const timeStr = request.submitted_at ?? request.created_at ?? '';
+
+  const sigs = request.signatures ?? [];
+  const approvals = sigs.filter(s => s.decision === 'APPROVE');
+  const meSite = meEmail ? meEmail.split('@')[1]?.toLowerCase() ?? '' : '';
+  const alreadyDecidedByMe = !!meEmail && sigs.some(s => s.admin_email.toLowerCase() === meEmail.toLowerCase());
+  const sameSiteApprovalExists = !!meSite && approvals.some(s => s.admin_site === meSite);
+  const approveDisabled = approvals.length >= 2 || alreadyDecidedByMe || sameSiteApprovalExists || approveMut.isPending || rejectMut.isPending;
+  const silentConsentDate = approvals[0]
+    ? new Date(new Date(approvals[0].signed_at).getTime() + 7 * 86400_000)
+    : null;
 
   async function handleApprove() {
     if (!totpCode || totpCode.length !== 6) {
@@ -142,22 +156,46 @@ function RequestCard({ request }: RequestCardProps) {
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{relTime(timeStr)}</span>
             )}
           </div>
+          <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+              {approvals.length}/2 approvals
+            </span>
+            {approvals.map(s => (
+              <span key={s.id} style={{
+                fontSize: '10px', padding: '2px 8px', borderRadius: '6px',
+                background: '#dcfce7', color: '#166534', fontFamily: 'monospace',
+              }}>
+                ✓ {s.admin_email} <span style={{ opacity: 0.6 }}>· {s.admin_site}</span>
+              </span>
+            ))}
+            {silentConsentDate && approvals.length === 1 && (
+              <span style={{ fontSize: '10px', color: '#c2410c', fontWeight: 600 }}>
+                Auto-approves on {silentConsentDate.toLocaleDateString()} unless rejected
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
           <button
             onClick={handleApprove}
-            disabled={approveMut.isPending || rejectMut.isPending}
+            disabled={approveDisabled}
+            title={
+              approvals.length >= 2 ? 'Already approved by 2 admins'
+              : alreadyDecidedByMe ? 'You already decided this request'
+              : sameSiteApprovalExists ? 'Another admin from your site has already approved'
+              : undefined
+            }
             style={{
               padding: '8px 16px',
               borderRadius: '10px',
               border: 'none',
-              background: approveMut.isPending ? '#86efac' : '#22c55e',
+              background: approveDisabled ? '#86efac' : '#22c55e',
               color: '#fff',
               fontSize: '13px',
               fontWeight: 600,
-              cursor: approveMut.isPending ? 'not-allowed' : 'pointer',
+              cursor: approveDisabled ? 'not-allowed' : 'pointer',
               fontFamily: 'Inter, system-ui, sans-serif',
               transition: 'opacity 0.15s',
             }}
@@ -508,6 +546,7 @@ function EmptyNote({ children }: { children: React.ReactNode }) {
 
 export function AdminPage() {
   const { data: requests, isLoading, error } = usePendingApprovals();
+  const { data: me } = useMe();
 
   const is403 = (error as { response?: { status?: number } } | null)?.response?.status === 403;
 
@@ -535,27 +574,20 @@ export function AdminPage() {
 
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
 
-      {/* Cross-instance warning: admins act on data owned by other organizations.
-          Approving/rejecting affects the global allow list, not your own instance. */}
       <div style={{
-        background: '#fff7ed',
-        border: '1px solid #fed7aa',
-        borderRadius: '12px',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '10px',
-        marginBottom: '20px',
+        background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '12px',
+        padding: '16px 20px', marginBottom: '20px', display: 'flex', gap: '12px',
       }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#c2410c', marginTop: '1px' }}>
-          shield_person
+        <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#c2410c', flexShrink: 0, marginTop: '2px' }}>
+          shield
         </span>
-        <div style={{ fontSize: '12px', color: '#9a3412', lineHeight: 1.5 }}>
-          <strong style={{ fontWeight: 700 }}>Admin mode.</strong>{' '}
-          You are acting on approval requests submitted by other organizations.
-          Approving publishes their data to the global DSF allow list;
-          rejecting blocks it. Review the submitted data carefully before
-          deciding — the decision is audited and notifies the submitter.
+        <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#7c2d12' }}>
+          <p style={{ margin: '0 0 4px', fontWeight: 700 }}>4-eyes approval principle</p>
+          <p style={{ margin: 0 }}>
+            Two admins from <strong>different sites</strong> must approve before a request is finalized.
+            After the first approval, a second admin has 7 days to <strong>reject</strong>; if no rejection arrives,
+            the request is automatically approved (<em>Schweigen als Zustimmung</em>).
+          </p>
         </div>
       </div>
 
@@ -628,7 +660,7 @@ export function AdminPage() {
             {requests.length} pending request{requests.length !== 1 ? 's' : ''}
           </div>
           {requests.map((req: RequestCardProps['request']) => (
-            <RequestCard key={req.id} request={req} />
+            <RequestCard key={req.id} request={req} meEmail={me?.email ?? null} />
           ))}
         </div>
       )}
