@@ -1,11 +1,11 @@
+/**
+ * AuditPage.tsx – Cross-instance audit log view
+ * Shows events across ALL instances the user has access to (admin = all).
+ * Dependencies: useCrossInstanceAudit, useI18n
+ */
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useCanvasStore } from '../stores/canvas.store';
-import { api } from '../api/entities.api';
+import { useCrossInstanceAudit } from '../hooks/useAudit';
 import { useI18n } from '../stores/i18n.store';
-
-const RESOURCE_TYPES = ['ALL', 'ORGANIZATION', 'CONTACT', 'ENDPOINT', 'CERTIFICATE', 'MEMBERSHIP', 'AUTH', 'APPROVAL'];
-const OPERATIONS = ['ALL', 'CREATE', 'UPDATE', 'DELETE', 'APPROVE', 'REJECT', 'LOGIN', 'LOGOUT', 'OTP_REQUEST'];
 
 const STATUS_COLORS: Record<string, string> = {
   CREATE: 'bg-emerald-100 text-emerald-700', UPDATE: 'bg-blue-100 text-blue-700',
@@ -14,102 +14,90 @@ const STATUS_COLORS: Record<string, string> = {
   LOGOUT: 'bg-slate-100 text-slate-600', DEFAULT: 'bg-slate-100 text-slate-500',
 };
 
-function relTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
-
 export function AuditPage() {
   const { t } = useI18n();
-  const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
-  const [resource, setResource] = useState('ALL');
-  const [operation, setOperation] = useState('ALL');
   const [page, setPage] = useState(1);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['audit', activeInstanceId, resource, operation, page],
-    queryFn: async () => {
-      if (!activeInstanceId) return { data: [], meta: { total: 0, pages: 1 } };
-      const params = new URLSearchParams({ page: String(page), limit: '50' });
-      if (resource !== 'ALL') params.set('resource', resource);
-      if (operation !== 'ALL') params.set('operation', operation);
-      const res = await api(activeInstanceId).getAuditLog(params.toString());
-      return res.data;
-    },
-    enabled: !!activeInstanceId,
-  });
-
-  const logs = data?.data || [];
-  const meta = data?.meta || { total: 0, pages: 1 };
+  const limit = 50;
+  const { data, isLoading, error } = useCrossInstanceAudit(page, limit);
+  const rows = data?.data ?? [];
+  const total = data?.meta.total ?? 0;
+  const isAdmin = !!data?.meta.isAdmin;
+  const totalPages = Math.max(Math.ceil(total / limit), 1);
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div style={{ flex: 1, padding: '32px', overflowY: 'auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>history</span>
         <div>
-          <h1 className="text-xl font-bold text-slate-900">{t('auditLog')}</h1>
-          <p className="text-xs text-slate-400 mt-0.5">{t('auditPageSubtitle', { n: meta.total })}</p>
+          <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+            {t('auditLog')}
+          </h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+            {isAdmin ? t('auditScopeAdmin') : t('auditScopeOwner')}
+          </p>
         </div>
-        <button
-          onClick={() => window.print()}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            padding: '6px 14px', borderRadius: '8px',
-            border: '1px solid var(--border)', background: 'var(--bg-card)',
-            fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)',
-            cursor: 'pointer',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>download</span>
-          {t('auditExportPdf')}
-        </button>
       </div>
-      <div className="flex gap-3 mb-6 flex-wrap">
-        <select value={resource} onChange={e => { setResource(e.target.value); setPage(1); }}
-          className="text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:border-primary transition-colors">
-          {RESOURCE_TYPES.map(r => (<option key={r} value={r}>{r === 'ALL' ? t('auditAllResources') : r}</option>))}
-        </select>
-        <select value={operation} onChange={e => { setOperation(e.target.value); setPage(1); }}
-          className="text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:border-primary transition-colors">
-          {OPERATIONS.map(o => (<option key={o} value={o}>{o === 'ALL' ? t('auditAllOperations') : o}</option>))}
-        </select>
-      </div>
-      <div className="bg-white rounded-2xl entity-card-shadow overflow-hidden">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
-              {[t('auditColTimestamp'), t('auditColOperation'), t('auditColResource'), t('auditColResourceId'), t('auditColUser'), t('auditColIp')].map(h => (
-                <th key={h} className="text-left px-4 py-3 font-semibold text-slate-500 text-[10px] uppercase tracking-wider">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {isLoading && (<tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">{t('loading')}</td></tr>)}
-            {!isLoading && logs.length === 0 && (<tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">{t('auditNoEntries')}</td></tr>)}
-            {logs.map((log: any) => (
-              <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-4 py-3 text-slate-400 whitespace-nowrap"><span title={new Date(log.timestamp).toLocaleString()}>{relTime(log.timestamp)}</span></td>
-                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${STATUS_COLORS[log.operation] || STATUS_COLORS.DEFAULT}`}>{log.operation}</span></td>
-                <td className="px-4 py-3 text-slate-600 font-medium">{log.resource_type}</td>
-                <td className="px-4 py-3 font-mono text-[10px] text-primary max-w-[160px] truncate" title={log.resource_id}>{log.resource_id || '—'}</td>
-                <td className="px-4 py-3 text-slate-500 max-w-[140px] truncate" title={log.user_email}>{log.user_email || '—'}</td>
-                <td className="px-4 py-3 font-mono text-[10px] text-slate-400">{log.ip_address || '—'}</td>
+
+      <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
+
+      {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>{t('loading')}</p>}
+      {error && <p style={{ color: '#ef4444', fontSize: '14px' }}>{t('auditLoadFailed')}</p>}
+
+      {!isLoading && !error && rows.length === 0 && (
+        <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>{t('auditEmpty')}</p>
+      )}
+
+      {rows.length > 0 && (
+        <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--bg-card)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ background: 'var(--bg-page)' }}>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>{t('auditColTimestamp')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>{t('auditColInstance')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>{t('auditColUser')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>{t('auditColResource')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>{t('auditColOperation')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-secondary)', fontWeight: 700 }}>{t('auditColIp')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {meta.pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-            <span className="text-xs text-slate-400">{t('auditPageOf', { page, pages: meta.pages, total: meta.total })}</span>
-            <div className="flex gap-2">
-              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors">{t('auditPrev')}</button>
-              <button disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)} className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors">{t('auditNext')}</button>
-            </div>
-          </div>
-        )}
-      </div>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.id} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{new Date(r.timestamp).toLocaleString()}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>
+                    {r.organization_name ?? r.instance_label ?? (r.instance_id ? r.instance_id.slice(0, 8) : '—')}
+                    {r.organization_identifier && (
+                      <div style={{ fontFamily: 'monospace', color: 'var(--text-muted)', fontSize: '10px' }}>{r.organization_identifier}</div>
+                    )}
+                  </td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontFamily: 'monospace' }}>{r.user_email ?? '—'}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{r.resource_type}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${STATUS_COLORS[r.operation] ?? STATUS_COLORS.DEFAULT}`}>{r.operation}</span>
+                  </td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{r.ip_address ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px', justifyContent: 'flex-end', fontSize: '12px' }}>
+          <button
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+            className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors"
+          >{t('prev')}</button>
+          <span style={{ color: 'var(--text-muted)' }}>{t('paginationShowing', { page, total: totalPages })}</span>
+          <button
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+            className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors"
+          >{t('next')}</button>
+        </div>
+      )}
     </div>
   );
 }
