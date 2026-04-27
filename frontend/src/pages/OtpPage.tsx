@@ -7,8 +7,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
 import { authApi }    from '../api/auth.api';
+import { useI18n } from '../stores/i18n.store';
 
 export function OtpPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const email    = (location.state as any)?.email || '';
@@ -66,7 +68,7 @@ export function OtpPage() {
         navigate('/totp', { state: { tempToken, email } });
       }
     } catch {
-      setError('Invalid or expired code. Please try again.');
+      setError(t('otpInvalidCode'));
       setDigits(Array(6).fill(''));
       inputRefs.current[0]?.focus();
     } finally {
@@ -85,8 +87,8 @@ export function OtpPage() {
 
   return (
     <AuthLayout
-      title="Enter your code"
-      subtitle={`We sent a 6-digit code to ${email}`}
+      title={t('otpTitle')}
+      subtitle={t('otpSubtitle', { email })}
     >
       <div className="space-y-5">
         {/* 6 Digit-Inputs */}
@@ -122,14 +124,14 @@ export function OtpPage() {
         )}
 
         {loading && (
-          <p className="text-xs text-center" style={{ color: '#9b9fad' }}>Verifying…</p>
+          <p className="text-xs text-center" style={{ color: '#9b9fad' }}>{t('otpVerifying')}</p>
         )}
 
         {/* Resend */}
         <div className="text-center">
           {resent ? (
             <span className="text-xs" style={{ color: '#4caf8a' }}>
-              A new code has been sent.
+              {t('otpResent')}
             </span>
           ) : (
             <button
@@ -137,7 +139,7 @@ export function OtpPage() {
               className="text-xs underline"
               style={{ color: '#9b9fad', background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              Resend code
+              {t('otpResend')}
             </button>
           )}
         </div>
@@ -149,7 +151,7 @@ export function OtpPage() {
             className="text-xs"
             style={{ color: '#9b9fad', background: 'none', border: 'none', cursor: 'pointer' }}
           >
-            ← Use a different email
+            {t('otpDifferentEmail')}
           </button>
         </div>
       </div>

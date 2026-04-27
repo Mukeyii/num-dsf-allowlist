@@ -9,8 +9,10 @@ import { AuthLayout }  from '../components/AuthLayout';
 import { authApi }     from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 import { jwtDecode }   from 'jwt-decode';
+import { useI18n } from '../stores/i18n.store';
 
 export function TotpSetupPage() {
+  const { t } = useI18n();
   const navigate  = useNavigate();
   const location  = useLocation();
   const setTokens = useAuthStore((s) => s.setTokens);
@@ -36,7 +38,7 @@ export function TotpSetupPage() {
       setQrCodeUrl(res.data.data.qrCodeUrl);
       setStep('qr');
     } catch {
-      setError('Session expired. Please sign in again.');
+      setError(t('totpSetupSessionExpired'));
     } finally {
       setLoading(false);
     }
@@ -55,7 +57,7 @@ export function TotpSetupPage() {
       setTokens(accessToken, { id: decoded.sub, email: decoded.email });
       setStep('backup');
     } catch {
-      setError('Invalid code. Try again.');
+      setError(t('totpConfirmInvalidCode'));
       setCode('');
     } finally {
       setLoading(false);
@@ -65,13 +67,13 @@ export function TotpSetupPage() {
   // QR code step
   if (step === 'qr') return (
     <AuthLayout
-      title="Set up two-factor authentication"
-      subtitle="Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.)"
+      title={t('totpSetupTitle')}
+      subtitle={t('totpSetupSubtitle')}
     >
       <div className="space-y-5">
         {loading && (
           <div className="flex justify-center py-8">
-            <div className="text-sm" style={{ color: '#9b9fad' }}>Loading QR code…</div>
+            <div className="text-sm" style={{ color: '#9b9fad' }}>{t('totpSetupLoadingQr')}</div>
           </div>
         )}
         {qrCodeUrl && (
@@ -80,17 +82,17 @@ export function TotpSetupPage() {
               className="p-3 rounded-xl"
               style={{ border: '1px solid #e8eaf0', background: '#fff' }}
             >
-              <img src={qrCodeUrl} alt="TOTP QR Code" width={200} height={200} />
+              <img src={qrCodeUrl} alt={t('totpSetupQrAlt')} width={200} height={200} />
             </div>
             <p className="text-xs text-center" style={{ color: '#9b9fad' }}>
-              After scanning, enter the 6-digit code shown in your app.
+              {t('totpSetupQrHint')}
             </p>
             <button
               onClick={() => setStep('confirm')}
               className="w-full py-2.5 text-sm font-medium text-white"
               style={{ background: '#6c63ff', borderRadius: '10px', border: 'none', cursor: 'pointer' }}
             >
-              I've scanned the QR code →
+              {t('totpSetupScannedBtn')}
             </button>
           </div>
         )}
@@ -102,13 +104,13 @@ export function TotpSetupPage() {
   // TOTP confirm step
   if (step === 'confirm') return (
     <AuthLayout
-      title="Verify your authenticator"
-      subtitle="Enter the 6-digit code from your authenticator app to complete setup."
+      title={t('totpConfirmTitle')}
+      subtitle={t('totpConfirmSubtitle')}
     >
       <form onSubmit={handleConfirm} className="space-y-4">
         <div>
           <label className="block text-xs font-medium mb-1.5" style={{ color: '#9b9fad' }}>
-            Authenticator code
+            {t('totpConfirmLabel')}
           </label>
           <input
             type="text"
@@ -143,7 +145,7 @@ export function TotpSetupPage() {
             cursor: code.length !== 6 || loading ? 'not-allowed' : 'pointer',
           }}
         >
-          {loading ? 'Verifying…' : 'Complete setup →'}
+          {loading ? t('totpConfirmVerifying') : t('totpConfirmCompleteBtn')}
         </button>
 
         <button
@@ -152,7 +154,7 @@ export function TotpSetupPage() {
           className="w-full text-xs"
           style={{ color: '#9b9fad', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          ← Back to QR code
+          {t('totpConfirmBackToQr')}
         </button>
       </form>
     </AuthLayout>
@@ -161,8 +163,8 @@ export function TotpSetupPage() {
   // Backup codes step
   return (
     <AuthLayout
-      title="Save your backup codes"
-      subtitle="Store these codes somewhere safe. Each code can only be used once if you lose access to your authenticator."
+      title={t('totpBackupTitle')}
+      subtitle={t('totpBackupSubtitle')}
     >
       <div className="space-y-5">
         <div
@@ -184,7 +186,7 @@ export function TotpSetupPage() {
           className="text-xs p-3 rounded-lg"
           style={{ background: '#fff8e8', color: '#854f0b', border: '1px solid #f5a62333' }}
         >
-          ⚠ These codes will not be shown again. Copy them now.
+          {t('totpBackupWarning')}
         </div>
 
         <button
@@ -192,7 +194,7 @@ export function TotpSetupPage() {
           className="w-full py-2.5 text-sm font-medium text-white"
           style={{ background: '#6c63ff', borderRadius: '10px', border: 'none', cursor: 'pointer' }}
         >
-          I've saved my codes → Continue
+          {t('totpBackupContinueBtn')}
         </button>
       </div>
     </AuthLayout>

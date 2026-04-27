@@ -2,6 +2,8 @@
  * CrossUserConfirmDialog.tsx – Confirmation modal shown when an admin attempts
  * to mutate data on an instance they don't own. Pure presentational.
  */
+import { useI18n } from '../../stores/i18n.store';
+
 interface Props {
   open: boolean;
   ownerEmail: string | null;
@@ -10,6 +12,7 @@ interface Props {
 }
 
 export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }: Props) {
+  const { t } = useI18n();
   if (!open) return null;
   return (
     <div
@@ -34,13 +37,11 @@ export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b45309' }}>warning</span>
           <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
-            Modify another user's data?
+            {t('crossUserDialogTitle')}
           </h2>
         </div>
         <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-          You are about to save changes to an instance owned by{' '}
-          <span style={{ fontFamily: 'monospace', color: 'var(--text-primary)' }}>{ownerEmail ?? 'another user'}</span>.
-          The change will be applied to their data and recorded in the audit log under your account.
+          {t('crossUserDialogBody', { owner: ownerEmail ?? t('crossUserDialogAnotherUser') })}
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
           <button
@@ -52,7 +53,7 @@ export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }
               cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
-            Cancel
+            {t('crossUserCancelBtn')}
           </button>
           <button
             onClick={onConfirm}
@@ -63,7 +64,7 @@ export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }
               cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
-            Continue
+            {t('crossUserContinueBtn')}
           </button>
         </div>
       </div>

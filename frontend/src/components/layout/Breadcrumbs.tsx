@@ -8,7 +8,7 @@ import { useI18n } from '../../stores/i18n.store';
 export function Breadcrumbs() {
   const { t } = useI18n();
   const ROUTE_LABELS: Record<string, string> = {
-    app: 'Dashboard',
+    app: t('dashboard'),
     admin: t('approvalReview'),
     audit: t('auditLog'),
   };

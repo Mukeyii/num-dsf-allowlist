@@ -7,6 +7,7 @@ import { FormField, inputClass, ModalFooter } from './FormField';
 import { organizationSchema, OrganizationFormData } from '../../schemas/organization.schema';
 import { useUpdateOrganization } from '../../hooks/useOrganization';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
   open: boolean;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function OrganizationModal({ open, onClose, instanceId, defaultValues }: Props) {
+  const { t } = useI18n();
   const { mutateAsync, isPending } = useUpdateOrganization(instanceId);
   const guard = useCrossUserGuard();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<OrganizationFormData>({
@@ -36,30 +38,30 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
           try { await mutateAsync(data); resolve(); } catch (e) { reject(e); }
         });
       });
-      toast.success('Organization saved successfully.');
+      toast.success(t('orgModalSaveSuccess'));
       onClose();
       reset();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || 'Failed to save organization.');
+      toast.error(err?.response?.data?.error?.message || t('orgModalSaveFailed'));
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Edit Organization" subtitle="Update your organization's details.">
+    <Modal open={open} onClose={onClose} title={t('orgModalTitle')} subtitle={t('orgModalSubtitle')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField label="Identifier (FQDN)" required error={errors.identifier?.message} hint="Shortest FQDN of your organization's website, e.g. ukm.de">
-          <input {...register('identifier')} className={inputClass} placeholder="e.g. ukm.de" />
+        <FormField label={t('orgModalFieldIdentifier')} required error={errors.identifier?.message} hint={t('orgModalFieldIdentifierHint')}>
+          <input {...register('identifier')} className={inputClass} placeholder={t('orgModalFieldIdentifierPlaceholder')} />
         </FormField>
-        <FormField label="Name" required error={errors.name?.message}>
-          <input {...register('name')} className={inputClass} placeholder="e.g. Universitätsklinikum Münster" />
+        <FormField label={t('orgModalFieldName')} required error={errors.name?.message}>
+          <input {...register('name')} className={inputClass} placeholder={t('orgModalFieldNamePlaceholder')} />
         </FormField>
-        <FormField label="Email" required error={errors.email?.message}>
-          <input {...register('email')} type="email" className={inputClass} placeholder="e.g. medic@hospital.de" />
+        <FormField label={t('orgModalFieldEmail')} required error={errors.email?.message}>
+          <input {...register('email')} type="email" className={inputClass} placeholder={t('orgModalFieldEmailPlaceholder')} />
         </FormField>
         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
           <div>
-            <p className="text-sm font-semibold text-slate-700">Active</p>
-            <p className="text-[10px] text-slate-400">Mark organization as active in the network</p>
+            <p className="text-sm font-semibold text-slate-700">{t('orgModalActiveLabel')}</p>
+            <p className="text-[10px] text-slate-400">{t('orgModalActiveHint')}</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" {...register('active')} className="sr-only peer" />
@@ -67,34 +69,34 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
           </label>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Address Line" error={errors.addressLine?.message}>
-            <input {...register('addressLine')} className={inputClass} placeholder="e.g. Albert-Schweitzer-Campus 1" />
+          <FormField label={t('orgModalFieldAddress')} error={errors.addressLine?.message}>
+            <input {...register('addressLine')} className={inputClass} placeholder={t('orgModalFieldAddressPlaceholder')} />
           </FormField>
-          <FormField label="Postal Code" error={errors.postalCode?.message}>
-            <input {...register('postalCode')} className={inputClass} placeholder="e.g. 48149" />
+          <FormField label={t('orgModalFieldPostal')} error={errors.postalCode?.message}>
+            <input {...register('postalCode')} className={inputClass} placeholder={t('orgModalFieldPostalPlaceholder')} />
           </FormField>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="City" error={errors.city?.message}>
-            <input {...register('city')} className={inputClass} placeholder="e.g. Münster" />
+          <FormField label={t('orgModalFieldCity')} error={errors.city?.message}>
+            <input {...register('city')} className={inputClass} placeholder={t('orgModalFieldCityPlaceholder')} />
           </FormField>
-          <FormField label="Country Code" error={errors.countryCode?.message} hint="ISO 3166-1 alpha-2">
+          <FormField label={t('orgModalFieldCountry')} error={errors.countryCode?.message} hint={t('orgModalFieldCountryHint')}>
             <input {...register('countryCode')} className={inputClass} placeholder="DE" maxLength={2} />
           </FormField>
         </div>
         <FormField
-          label="Client Certificate Thumbprint (SHA-256)"
+          label={t('orgModalFieldThumbprint')}
           error={errors.clientCertThumbprint?.message}
-          hint="For mTLS authentication — the DSF process uses this to authenticate when downloading the Allow List Bundle"
+          hint={t('orgModalFieldThumbprintHint')}
         >
           <input
             {...register('clientCertThumbprint')}
             className={inputClass}
-            placeholder="e.g. a1b2c3d4e5f6..."
+            placeholder={t('orgModalFieldThumbprintPlaceholder')}
             maxLength={128}
           />
         </FormField>
-        <ModalFooter onCancel={onClose} loading={isPending} submitLabel="Save Organization" />
+        <ModalFooter onCancel={onClose} loading={isPending} submitLabel={t('orgModalSaveBtn')} />
       </form>
     </Modal>
   );

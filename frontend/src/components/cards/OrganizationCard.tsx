@@ -38,21 +38,21 @@ export function OrganizationCard({ instanceId }: Props) {
         email: field === 'email' ? editValue : org.email,
         active: org.active,
       });
-      toast.success('Updated.');
+      toast.success(t('orgCardSaveToast'));
     } catch {
-      toast.error('Failed to update.');
+      toast.error(t('orgCardSaveFailedToast'));
     }
     setEditing(null);
   }
 
   const approvalStatus = (approval?.status ?? 'none') as 'APPROVED' | 'PENDING' | 'REJECTED' | 'none';
   const statusMap = {
-    APPROVED: { bg: '#e8f5ee', color: '#2d7a57', label: 'approved' },
-    PENDING:  { bg: '#fff8e8', color: '#854f0b', label: 'pending'  },
-    REJECTED: { bg: '#fff0f0', color: '#9b2335', label: 'rejected' },
-    none:     { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: 'no request' },
+    APPROVED: { bg: '#e8f5ee', color: '#2d7a57', label: t('approved') },
+    PENDING:  { bg: '#fff8e8', color: '#854f0b', label: t('pending')  },
+    REJECTED: { bg: '#fff0f0', color: '#9b2335', label: t('rejected') },
+    none:     { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: t('orgCardApprovalNone') },
   };
-  const statusPill = statusMap[approvalStatus] ?? { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: 'draft' };
+  const statusPill = statusMap[approvalStatus] ?? { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: t('orgCardApprovalDraft') };
 
   if (isLoading) return (
     <EntityCard id="organization" title={t('organization')} borderColor="#4d41df" icon="corporate_fare">
@@ -64,7 +64,7 @@ export function OrganizationCard({ instanceId }: Props) {
     <EntityCard id="organization" title={t('organization')} borderColor="#4d41df" icon="corporate_fare"
       onAdd={() => useModals.getState().openModal('org-edit')} addLabel="Set up">
       <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>
-        {t('noData')}<br />Click "Set up" to begin.
+        {t('noData')}<br />{t('orgCardSetupHint')}
       </div>
     </EntityCard>
   );
@@ -81,13 +81,13 @@ export function OrganizationCard({ instanceId }: Props) {
       title={t('organization')}
       borderColor="#4d41df"
       icon="corporate_fare"
-      addLabel="Edit"
+      addLabel={t('edit')}
       onAdd={() => useModals.getState().openModal('org-edit')}
     >
       {contacts.length > 0 && (
         <div style={{ marginBottom: '10px' }}>
           <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '.05em' }}>
-            Shared with
+            {t('orgCardSharedWith')}
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
             {contacts.slice(0, 5).map((c: any) => (
@@ -106,9 +106,9 @@ export function OrganizationCard({ instanceId }: Props) {
 
       {/* Static fields: Identifier, City, Address */}
       {[
-        { label: 'Identifier', value: org.identifier, mono: true },
-        { label: 'City',       value: `${org.city || '—'} · ${org.country_code || '—'}` },
-        { label: 'Address',    value: org.address_line || '—' },
+        { label: t('orgCardIdentifier'), value: org.identifier, mono: true },
+        { label: t('orgCardCity'),       value: `${org.city || '—'} · ${org.country_code || '—'}` },
+        { label: t('orgCardAddress'),    value: org.address_line || '—' },
       ].map(({ label, value, mono }) => (
         <div key={label} style={rowStyle}>
           <span style={{ color: 'var(--text-muted)' }}>{label}</span>
@@ -124,7 +124,7 @@ export function OrganizationCard({ instanceId }: Props) {
 
       {/* Inline-editable: Name */}
       <div style={rowStyle}>
-        <span style={{ color: 'var(--text-muted)' }}>Name</span>
+        <span style={{ color: 'var(--text-muted)' }}>{t('orgCardName')}</span>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
           {editing === 'name' ? (
             <input
@@ -147,20 +147,20 @@ export function OrganizationCard({ instanceId }: Props) {
             <span
               style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 600 }}
               onDoubleClick={() => { setEditing('name'); setEditValue(org.name || ''); }}
-              title="Double-click to edit"
+              title={t('orgCardDoubleClickHint')}
             >
               {org.name}
             </span>
           )}
           {editing !== 'name' && (
-            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>Double-click to edit</span>
+            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>{t('orgCardDoubleClickHint')}</span>
           )}
         </div>
       </div>
 
       {/* Inline-editable: Email */}
       <div style={rowStyle}>
-        <span style={{ color: 'var(--text-muted)' }}>Email</span>
+        <span style={{ color: 'var(--text-muted)' }}>{t('orgCardEmail')}</span>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
           {editing === 'email' ? (
             <input
@@ -183,26 +183,26 @@ export function OrganizationCard({ instanceId }: Props) {
             <span
               style={{ color: 'var(--text-primary)', cursor: 'pointer' }}
               onDoubleClick={() => { setEditing('email'); setEditValue(org.email || ''); }}
-              title="Double-click to edit"
+              title={t('orgCardDoubleClickHint')}
             >
               {org.email}
             </span>
           )}
           {editing !== 'email' && (
-            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>Double-click to edit</span>
+            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>{t('orgCardDoubleClickHint')}</span>
           )}
         </div>
       </div>
 
       {/* Active status pill */}
       <div style={rowStyle}>
-        <span style={{ color: 'var(--text-muted)' }}>Status</span>
+        <span style={{ color: 'var(--text-muted)' }}>{t('orgCardStatus')}</span>
         <span style={{
           background: org.active ? '#e8f5ee' : '#fff0f0',
           color:      org.active ? '#2d7a57' : '#9b2335',
           padding: '1px 8px', borderRadius: '99px', fontSize: '11px',
         }}>
-          {org.active ? 'active' : 'inactive'}
+          {org.active ? t('orgCardActive') : t('orgCardInactive')}
         </span>
       </div>
 
@@ -212,7 +212,7 @@ export function OrganizationCard({ instanceId }: Props) {
         marginTop: '10px', paddingTop: '8px',
         borderTop: '1px solid var(--bg-page)', fontSize: '12px',
       }}>
-        <span style={{ color: 'var(--text-muted)' }}>Approval</span>
+        <span style={{ color: 'var(--text-muted)' }}>{t('orgCardApproval')}</span>
         <span style={{
           background: statusPill.bg, color: statusPill.color,
           padding: '2px 8px', borderRadius: '99px', fontSize: '11px',

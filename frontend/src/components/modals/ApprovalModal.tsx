@@ -11,6 +11,7 @@ import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
+import { useI18n } from '../../stores/i18n.store';
 
 function Section({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -34,6 +35,7 @@ function KV({ k, v }: { k: string; v: React.ReactNode }) {
 interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
 export function ApprovalModal({ open, onClose, instanceId }: Props) {
+  const { t } = useI18n();
   const { mutateAsync, isPending } = useSubmitApproval(instanceId);
   const guard = useCrossUserGuard();
   const { data: org } = useOrganization(instanceId);
@@ -43,14 +45,14 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
   const { data: memberships = [] } = useMemberships(instanceId);
 
   const checks = [
-    { label: 'Organization configured', ok: !!org, icon: 'corporate_fare' },
-    { label: 'At least 1 endpoint', ok: endpoints.length > 0, icon: 'hub' },
-    { label: 'At least 1 certificate', ok: certs.length > 0, icon: 'verified_user' },
-    { label: 'MEDIC contact assigned', ok: contacts.some((c: any) => {
+    { label: t('approvalModalCheckOrg'), ok: !!org, icon: 'corporate_fare' },
+    { label: t('approvalModalCheckEndpoint'), ok: endpoints.length > 0, icon: 'hub' },
+    { label: t('approvalModalCheckCert'), ok: certs.length > 0, icon: 'verified_user' },
+    { label: t('approvalModalCheckMedic'), ok: contacts.some((c: any) => {
       const types = Array.isArray(c.types) ? c.types : JSON.parse(c.types || '[]');
       return types.includes('MEDIC');
     }), icon: 'contact_phone' },
-    { label: 'At least 1 membership', ok: memberships.length > 0, icon: 'groups' },
+    { label: t('approvalModalCheckMembership'), ok: memberships.length > 0, icon: 'groups' },
   ];
 
   const allPassed = checks.every(c => c.ok);
@@ -62,25 +64,25 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           try { await mutateAsync(); resolve(); } catch (e) { reject(e); }
         });
       });
-      toast.success('Approval request submitted to IMI.');
+      toast.success(t('approvalModalSubmitSuccess'));
       onClose();
     } catch (err: any) {
       const msg = err?.response?.data?.error?.message || '';
-      if (msg.includes('ALREADY_PENDING')) { toast.error('A pending approval request already exists.'); }
-      else { toast.error(msg || 'Failed to submit approval request.'); }
+      if (msg.includes('ALREADY_PENDING')) { toast.error(t('approvalModalAlreadyPending')); }
+      else { toast.error(msg || t('approvalModalSubmitFailed')); }
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} width="max-w-2xl" title="Submit for Approval" subtitle="Review all data carefully. Changes will be sent to IMI for verification.">
+    <Modal open={open} onClose={onClose} width="max-w-2xl" title={t('approvalModalTitle')} subtitle={t('approvalModalSubtitle')}>
       <div className="space-y-3">
         <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-          <p className="text-xs text-indigo-700">Once submitted, the request status will show as <strong>PENDING</strong> until IMI approves or rejects it.</p>
+          <p className="text-xs text-indigo-700">{t('approvalModalPendingNote')}</p>
         </div>
         {/* Validation Checklist */}
         <div style={{ marginBottom: '16px', padding: '12px 16px', background: allPassed ? '#f0fdf4' : '#fef2f2', borderRadius: '12px', border: `1px solid ${allPassed ? '#bbf7d0' : '#fecaca'}` }}>
           <p style={{ fontSize: '11px', fontWeight: 700, color: allPassed ? '#15803d' : '#991b1b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {allPassed ? 'All checks passed' : 'Some checks failed'}
+            {allPassed ? t('approvalModalAllPassed') : t('approvalModalSomeFailed')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {checks.map((c, i) => (
@@ -97,17 +99,17 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           <KV k="Identifier" v={<span className="mono-id text-primary">{org.identifier}</span>} />
           <KV k="Name" v={org.name} /><KV k="Email" v={org.email} />
           <KV k="City" v={`${org.city} · ${org.country_code}`} />
-          <KV k="Active" v={org.active ? '✓ active' : '✗ inactive'} />
+          <KV k="Active" v={org.active ? t('approvalModalActive') : t('approvalModalInactive')} />
         </Section>)}
         <Section title={`Contacts (${contacts.length})`}>
-          {contacts.length === 0 && <p className="text-xs text-slate-400">No contacts.</p>}
+          {contacts.length === 0 && <p className="text-xs text-slate-400">{t('approvalModalNoContacts')}</p>}
           {contacts.map((c: any) => (<div key={c.id} className="p-2 bg-slate-50 rounded-lg">
             <p className="text-xs font-bold text-slate-700">{c.name || '—'}</p>
             <p className="text-[10px] text-slate-400">{parseJsonArray(c.types).join(' · ')} · {c.email_validated ? '✓ validated' : '⚠ not validated'}</p>
           </div>))}
         </Section>
         <Section title={`Endpoints (${endpoints.length})`}>
-          {endpoints.length === 0 && <p className="text-xs text-slate-400">No endpoints.</p>}
+          {endpoints.length === 0 && <p className="text-xs text-slate-400">{t('approvalModalNoEndpoints')}</p>}
           {endpoints.map((ep: any) => (<div key={ep.identifier} className="p-2 bg-slate-50 rounded-lg">
             <p className="text-xs font-bold text-slate-700">{ep.name || ep.identifier}</p>
             <p className="text-[10px] font-mono text-slate-400">{ep.address}</p>
@@ -117,21 +119,21 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           </div>))}
         </Section>
         <Section title={`Certificates (${certs.length})`}>
-          {certs.length === 0 && <p className="text-xs text-slate-400">No certificates.</p>}
+          {certs.length === 0 && <p className="text-xs text-slate-400">{t('approvalModalNoCerts')}</p>}
           {certs.map((c: any) => (<div key={c.id} className="p-2 bg-slate-50 rounded-lg">
             <p className="mono-id text-[11px] text-primary">{c.subject}</p>
-            <p className="text-[10px] text-slate-400">Expires: {c.valid_until}</p>
+            <p className="text-[10px] text-slate-400">{t('approvalModalExpires', { date: c.valid_until })}</p>
           </div>))}
         </Section>
         <Section title={`Memberships (${memberships.length})`}>
-          {memberships.length === 0 && <p className="text-xs text-slate-400">No memberships.</p>}
+          {memberships.length === 0 && <p className="text-xs text-slate-400">{t('approvalModalNoMemberships')}</p>}
           {memberships.map((ms: any) => (<div key={ms.id} className="p-2 bg-slate-50 rounded-lg flex items-center justify-between">
             <div><p className="text-xs font-bold text-slate-700">{ms.parent_organization}</p>
             <p className="text-[10px] text-blue-600 font-bold">{parseJsonArray(ms.roles).join(' · ')}</p></div>
           </div>))}
         </Section>
       </div>
-      <ModalFooter onCancel={onClose} onSubmit={handleSubmit} loading={isPending} submitLabel="Send Request for Approval" disabled={!allPassed} />
+      <ModalFooter onCancel={onClose} onSubmit={handleSubmit} loading={isPending} submitLabel={t('approvalModalSubmitBtn')} disabled={!allPassed} />
     </Modal>
   );
 }
