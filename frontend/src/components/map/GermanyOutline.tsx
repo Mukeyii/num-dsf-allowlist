@@ -1,27 +1,29 @@
 /**
- * GermanyOutline.tsx – Inlined Germany silhouette via 17 federal-state paths
- * extracted from the Wikimedia Karte_Deutschland.svg (see germanyPaths.ts).
- *
- * Rendered with the app's transparent magenta-pink color scheme so the
- * country acts as a soft watermark behind the pins, not as a heavy
- * graphic that competes with them. State borders are drawn at very low
- * opacity for subtle context only.
+ * GermanyOutline.tsx – Inlined Germany silhouette (16 federal-state paths).
+ * Theme-aware: light mode uses transparent magenta tones; dark mode inverts
+ * to a slate palette so the silhouette reads against a dark backdrop.
  */
 import React from 'react';
 import { GERMANY_PATHS } from './germanyPaths';
+import { useThemeStore } from '../../stores/theme.store';
 
 export const GermanyOutline = React.memo(function GermanyOutline() {
+  const dark = useThemeStore(s => s.dark);
+  const fill = dark ? '#1e293b' : '#fde3ef';
+  const stroke = dark ? '#94a3b8' : '#b01e66';
+  const fillOpacity = dark ? 0.7 : 0.55;
+  const strokeOpacity = dark ? 0.45 : 0.25;
   return (
     <g style={{ pointerEvents: 'none' }}>
       {GERMANY_PATHS.map(p => (
         <path
           key={p.id}
           d={p.d}
-          fill="#fde3ef"
-          fillOpacity={0.55}
-          stroke="#b01e66"
+          fill={fill}
+          fillOpacity={fillOpacity}
+          stroke={stroke}
           strokeWidth={0.5}
-          strokeOpacity={0.25}
+          strokeOpacity={strokeOpacity}
           strokeLinejoin="round"
         />
       ))}
