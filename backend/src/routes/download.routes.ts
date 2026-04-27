@@ -2,12 +2,24 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
 import { requireImiAdmin } from '../middleware/admin.middleware';
-import { generateBundle } from '../services/fhir.service';
+import { generateBundle, generateFullBundle } from '../services/fhir.service';
 import { generateIpAddressListExcel } from '../services/excel.service';
 import { signBundle } from '../services/bundle-signing.service';
 import { writeAuditLog } from '../services/audit.service';
 
 export const downloadRouter = Router({ mergeParams: true });
+
+downloadRouter.get('/full-bundle', requireAuth, async (_req, res) => {
+  try {
+    const bundle = await generateFullBundle();
+    const json = JSON.stringify(bundle);
+    res.setHeader('Content-Type', 'application/fhir+json');
+    res.setHeader('Content-Disposition', 'attachment; filename="dsf-allow-list-bundle.json"');
+    res.send(json);
+  } catch (err: any) {
+    res.status(500).json({ error: { code: 'BUNDLE_FAIL', message: err?.message || 'Failed to generate allow-list bundle.' } });
+  }
+});
 
 downloadRouter.get('/bundle', requireAuth, requireInstanceOwnership, async (req, res) => {
   const endpointId = req.query.endpointId as string;
