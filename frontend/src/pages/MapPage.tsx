@@ -10,6 +10,7 @@ import { MapFilters, MapFilterState } from '../components/map/MapFilters';
 import { CertExpiryBanner } from '../components/map/CertExpiryBanner';
 import { useI18n } from '../stores/i18n.store';
 import type { MapClusterGroup, MapOrganization } from '../api/network.api';
+import { cityBucketKey } from '../lib/germanCities';
 
 export function MapPage() {
   const { t } = useI18n();
@@ -40,12 +41,8 @@ export function MapPage() {
     ?? null;
   const selectedCluster = useMemo<MapClusterGroup | null>(() => {
     if (!selectedId || !selectedId.startsWith('__cluster__')) return null;
-    const rest = selectedId.slice('__cluster__'.length);
-    const [cityKey, country] = rest.split('|');
-    const members = organizations.filter(
-      o => (o.city ?? '__unknown__').toLowerCase().trim() === cityKey
-        && (o.country_code ?? 'DE') === country,
-    );
+    const targetKey = selectedId.slice('__cluster__'.length);
+    const members = organizations.filter(o => cityBucketKey(o.city, o.country_code) === targetKey);
     if (members.length === 0) return null;
     const first = members[0];
     const STATUS_P: Record<MapOrganization['cert_status'], number> = {
