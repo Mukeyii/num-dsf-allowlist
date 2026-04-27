@@ -86,7 +86,7 @@ export function MapPage() {
       minHeight: 0, overflow: 'hidden',
       fontFamily: 'Inter, system-ui, sans-serif',
     }}>
-      <header style={{ padding: '20px 28px', borderBottom: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+      <header style={{ padding: '16px 28px 10px', background: 'var(--bg-card)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b01e66' }}>hub</span>
           <div>
