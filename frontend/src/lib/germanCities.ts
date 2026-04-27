@@ -7,68 +7,71 @@
  * stripe via djb2 hashing, so test fixtures and yet-to-be-mapped cities
  * still render — just outside the silhouette with a `?` indicator.
  *
- * ViewBox: 0 0 591.504 800.504 (matches the Wikimedia Karte_Deutschland.svg
- * served from /germany.svg). Coordinates derived by linear projection of
- * lat/lon onto Wikimedia native pixels:
- *   x = 110 + (lon − 5.87) · 48
- *   y = 15  + (55.06 − lat) · 74.5
- * Sonstige stripe (unknown cities): x ∈ [555, 585], y ∈ [130, 720].
+ * ViewBox: 0 0 700 800. The Wikimedia Karte_Deutschland.svg (native
+ * 591.504 × 800.504) renders at its native size at (0, 0); the right-side
+ * margin (x ∈ [600, 700]) holds the Sonstige stripe + space for legends.
+ *
+ * Coordinates derived by calibrating against actual Wikimedia state path
+ * centroids (Berlin = (481, 256), Hamburg = (268, 154)):
+ *   x = lon · 62.4 − 355
+ *   y = 5720 − lat · 104
+ * Sonstige stripe (unknown cities): x ∈ [620, 660], y ∈ [140, 720].
  */
 
 export const GERMAN_CITIES: Record<string, [number, number]> = {
   // Major medical research hubs (lat/lon → projection above)
-  'berlin':            [471, 206],
-  'hamburg':           [308, 128],
-  'muenchen':          [384, 531],
-  'koeln':             [162, 322],
-  'frankfurt am main': [245, 384],
-  'frankfurt':         [245, 384],
-  'stuttgart':         [269, 483],
-  'duesseldorf':       [154, 300],
-  'leipzig':           [422, 292],
-  'dresden':           [488, 314],
-  'hannover':          [296, 215],
-  'bremen':            [251, 163],
-  'muenster':          [194, 246],
-  'heidelberg':        [245, 437],
-  'nuernberg':         [360, 433],
-  'karlsruhe':         [231, 467],
-  'mainz':             [225, 393],
-  'essen':             [164, 284],
-  'bochum':            [175, 282],
-  'dortmund':          [187, 280],
-  'duisburg':          [153, 285],
-  'wuppertal':         [171, 298],
-  'bonn':              [169, 337],
-  'augsburg':          [351, 513],
-  'wuerzburg':         [305, 408],
-  'magdeburg':         [387, 233],
-  'rostock':           [411, 87],
-  'kiel':              [315, 70],
-  'luebeck':           [341, 104],
-  'erfurt':            [358, 319],
-  'saarbruecken':      [164, 449],
-  'freiburg':          [205, 542],
-  'aachen':            [120, 334],
-  'tuebingen':         [263, 502],
-  'ulm':               [308, 511],
-  'mannheim':          [234, 430],
-  'greifswald':        [471, 87],
-  'goettingen':        [305, 278],
-  'marburg':           [249, 332],
-  'kassel':            [284, 294],
-  'jena':              [385, 323],
-  'halle':             [403, 282],
-  'chemnitz':          [448, 330],
-  'regensburg':        [409, 466],
-  'wiesbaden':         [224, 386],
-  'osnabrueck':        [215, 222],
-  'bielefeld':         [238, 241],
-  'krefeld':           [143, 292],
-  'braunschweig':      [333, 223],
-  'oldenburg':         [222, 158],
-  'paderborn':         [249, 264],
-  'trier':             [147, 411],
+  'berlin':            [481, 257],
+  'hamburg':           [269, 149],
+  'muenchen':          [367, 714],
+  'koeln':             [79,  422],
+  'frankfurt am main': [187, 508],
+  'frankfurt':         [187, 508],
+  'stuttgart':         [218, 645],
+  'duesseldorf':       [68,  392],
+  'leipzig':           [417, 380],
+  'dresden':           [502, 411],
+  'hannover':          [253, 273],
+  'bremen':            [195, 199],
+  'muenster':          [121, 316],
+  'heidelberg':        [187, 582],
+  'nuernberg':         [336, 577],
+  'karlsruhe':         [169, 624],
+  'mainz':             [161, 521],
+  'essen':             [82,  369],
+  'bochum':            [96,  366],
+  'dortmund':          [111, 363],
+  'duisburg':          [67,  371],
+  'wuppertal':         [91,  389],
+  'bonn':              [88,  443],
+  'augsburg':          [325, 690],
+  'wuerzburg':         [264, 542],
+  'magdeburg':         [371, 299],
+  'rostock':           [403, 95],
+  'kiel':              [277, 71],
+  'luebeck':           [312, 118],
+  'erfurt':            [333, 418],
+  'saarbruecken':      [81,  599],
+  'freiburg':          [134, 729],
+  'aachen':            [25,  440],
+  'tuebingen':         [210, 671],
+  'ulm':               [268, 684],
+  'mannheim':          [173, 571],
+  'greifswald':        [480, 95],
+  'goettingen':        [264, 361],
+  'marburg':           [192, 436],
+  'kassel':            [237, 384],
+  'jena':              [368, 423],
+  'halle':             [392, 366],
+  'chemnitz':          [451, 433],
+  'regensburg':        [400, 623],
+  'wiesbaden':         [159, 511],
+  'osnabrueck':        [147, 282],
+  'bielefeld':         [177, 308],
+  'krefeld':           [54,  380],
+  'braunschweig':      [301, 283],
+  'oldenburg':         [157, 193],
+  'paderborn':         [192, 341],
+  'trier':             [59,  546],
 };
 
 function normalize(name: string): string {
@@ -98,8 +101,8 @@ function djb2(s: string): number {
   return hash;
 }
 
-const SONSTIGE_X_MIN = 558;
-const SONSTIGE_X_MAX = 582;
+const SONSTIGE_X_MIN = 620;
+const SONSTIGE_X_MAX = 660;
 const SONSTIGE_Y_MIN = 140;
 const SONSTIGE_Y_MAX = 720;
 

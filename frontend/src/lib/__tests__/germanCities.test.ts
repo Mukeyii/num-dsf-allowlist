@@ -41,10 +41,10 @@ describe('cityCoord', () => {
 });
 
 describe('unknownCityCoord', () => {
-  it('places coordinate inside the Sonstige stripe (x:558..582, y:140..720)', () => {
+  it('places coordinate inside the Sonstige stripe (x:620..660, y:140..720)', () => {
     const [x, y] = unknownCityCoord('Mitglieddorf');
-    expect(x).toBeGreaterThanOrEqual(558);
-    expect(x).toBeLessThanOrEqual(582);
+    expect(x).toBeGreaterThanOrEqual(620);
+    expect(x).toBeLessThanOrEqual(660);
     expect(y).toBeGreaterThanOrEqual(140);
     expect(y).toBeLessThanOrEqual(720);
   });
@@ -69,7 +69,7 @@ describe('getPinCoord', () => {
   it('returns known=false for unknown city', () => {
     const r = getPinCoord('Mitglieddorf');
     expect(r.known).toBe(false);
-    expect(r.coord[0]).toBeGreaterThanOrEqual(558);
+    expect(r.coord[0]).toBeGreaterThanOrEqual(620);
   });
 
   it('returns known=false for null', () => {

@@ -4,10 +4,11 @@
  *
  * Source: https://upload.wikimedia.org/wikipedia/commons/e/e3/Karte_Deutschland.svg
  * Native viewBox: 0 0 591.504 800.504. The parent SVG (GeoMap.tsx) uses
- * the same viewBox so the image renders 1:1 and city coordinates from
- * germanCities.ts (which are derived by lat/lon → native-pixel projection
- * x = 110 + (lon - 5.87) · 48, y = 15 + (55.06 - lat) · 74.5) sit at
- * plausible positions inside the country.
+ * a wider viewBox (700×800) so there's room on the right for the
+ * Sonstige stripe; the image is positioned at (0,0) at native size, so
+ * city coordinates from germanCities.ts (derived from real Wikimedia
+ * state-path centroids: x = lon · 62.4 − 355, y = 5720 − lat · 104)
+ * sit at plausible positions inside the country.
  */
 import React from 'react';
 
