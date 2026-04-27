@@ -138,24 +138,55 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
  * Generate a full allow list bundle containing ALL organizations, endpoints, and affiliations.
  * Used for the global bundle download (not scoped to a single instance).
  */
+/**
+ * Generate the network-wide DSF Allow-List bundle.
+ * Mirrors upstream dsf-process-allow-list/UpdateAllowList.java:
+ * - Only APPROVED + active organizations.
+ * - Each Organization carries cert thumbprints as extensions.
+ * - All endpoints of each org included.
+ * - All OrganizationAffiliations included.
+ * - Parent verbund Organizations (MII/NUM/…) referenced by affiliations are also generated.
+ *
+ * The receiving DSF FHIR server installs this bundle as its local allow-list so
+ * mTLS handshakes can verify peers by thumbprint match.
+ */
 export async function generateFullBundle(): Promise<object> {
-  const orgs = await db('organizations').where({ active: true });
-  const entries: object[] = [];
+  // Only approved orgs (latest approval_request.status = 'APPROVED') AND active
+  const orgs = await db('organizations')
+    .where({ active: true })
+    .whereExists(
+      db('approval_requests')
+        .select(db.raw('1'))
+        .whereRaw('approval_requests.instance_id = organizations.instance_id')
+        .andWhere('approval_requests.status', 'APPROVED'),
+    );
+
   const orgUuids: Record<string, string> = {};
   const epUuids: Record<string, string> = {};
+  for (const org of orgs) orgUuids[org.identifier] = uuidv4();
 
-  // Generate UUIDs for all orgs
-  for (const org of orgs) {
-    orgUuids[org.identifier] = uuidv4();
+  // Collect all parent verbunds referenced in memberships of approved orgs.
+  const memberships = await db('memberships')
+    .whereIn('organization_id', orgs.map((o: { identifier: string }) => o.identifier));
+  const parentIdentifiers = Array.from(
+    new Set(memberships.map((m: { parent_organization: string }) => m.parent_organization)),
+  );
+
+  // Generate UUIDs for parent verbunds.
+  // Reuse if the parent IS itself in our approved-orgs list.
+  const parentUuids: Record<string, string> = {};
+  for (const pid of parentIdentifiers) {
+    parentUuids[pid] = orgUuids[pid] ?? uuidv4();
   }
 
-  // Organizations + their endpoints
+  const entries: object[] = [];
+
+  // Approved member organizations + their endpoints.
   for (const org of orgs) {
     const orgUuid = orgUuids[org.identifier];
     const endpoints = await db('endpoints').where({ organization_id: org.identifier });
     const certs = await db('certificates').where({ organization_id: org.identifier });
 
-    // Generate endpoint UUIDs
     for (const ep of endpoints) {
       epUuids[ep.identifier] = uuidv4();
     }
@@ -166,9 +197,9 @@ export async function generateFullBundle(): Promise<object> {
         resourceType: 'Organization',
         id: `urn:uuid:${orgUuid}`,
         meta: { versionId: null, lastUpdated: null },
-        extension: certs.map((cert: { thumbprint: string }) => ({
+        extension: certs.map((c: { thumbprint: string }) => ({
           url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
-          valueString: cert.thumbprint,
+          valueString: c.thumbprint,
         })),
         identifier: [{ system: ORG_ID_SYSTEM, value: org.identifier }],
         active: true,
@@ -199,18 +230,33 @@ export async function generateFullBundle(): Promise<object> {
     }
   }
 
-  // OrganizationAffiliations
-  const memberships = await db('memberships');
-  for (const ms of memberships) {
-    const parentUuid = orgUuids[ms.parent_organization];
+  // Parent verbund Organizations (MII, NUM, ...) — only if not already an approved member org.
+  for (const pid of parentIdentifiers) {
+    if (orgUuids[pid]) continue;
+    const parentUuid = parentUuids[pid];
+    const parentRow = await db('organizations').where({ identifier: pid }).first();
+    entries.push({
+      fullUrl: `urn:uuid:${parentUuid}`,
+      resource: {
+        resourceType: 'Organization',
+        id: `urn:uuid:${parentUuid}`,
+        meta: { versionId: null, lastUpdated: null },
+        identifier: [{ system: ORG_ID_SYSTEM, value: pid }],
+        active: true,
+        name: parentRow?.name || pid,
+      },
+      request: { method: 'PUT', url: `Organization?identifier=${ORG_ID_SYSTEM}|${pid}` },
+    });
+  }
 
-    // Find the org for this membership to get its identifier
-    const memberOrg = orgs.find((o: { identifier: string }) => o.identifier === ms.organization_id);
-    if (!memberOrg || !parentUuid) continue;
+  // OrganizationAffiliations: only those whose endpoint resolves to an emitted endpoint.
+  for (const ms of memberships) {
+    const memberOrgUuid = orgUuids[ms.organization_id as string];
+    const parentUuid = parentUuids[ms.parent_organization as string];
+    const epUuid = epUuids[ms.endpoint_id as string];
+    if (!memberOrgUuid || !parentUuid || !epUuid) continue;
 
     const affUuid = uuidv4();
-    const epUuid = epUuids[ms.endpoint_id] || uuidv4();
-
     entries.push({
       fullUrl: `urn:uuid:${affUuid}`,
       resource: {
@@ -218,13 +264,13 @@ export async function generateFullBundle(): Promise<object> {
         id: `urn:uuid:${affUuid}`,
         meta: { versionId: null, lastUpdated: null },
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
-        participatingOrganization: { reference: `urn:uuid:${orgUuids[memberOrg.identifier]}`, type: 'Organization' },
+        participatingOrganization: { reference: `urn:uuid:${memberOrgUuid}`, type: 'Organization' },
         code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
         endpoint: [{ reference: `urn:uuid:${epUuid}`, type: 'Endpoint' }],
       },
       request: {
         method: 'PUT',
-        url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${ms.parent_organization}&participating-organization:identifier=${ORG_ID_SYSTEM}|${memberOrg.identifier}&endpoint:identifier=${EP_ID_SYSTEM}|${ms.endpoint_id}`,
+        url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${ms.parent_organization}&participating-organization:identifier=${ORG_ID_SYSTEM}|${ms.organization_id}&endpoint:identifier=${EP_ID_SYSTEM}|${ms.endpoint_id}`,
       },
     });
   }
