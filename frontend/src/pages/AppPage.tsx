@@ -18,6 +18,7 @@ import { DownloadModal } from '../components/modals/DownloadModal';
 import { CertRenewalModal } from '../components/modals/CertRenewalModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
+import { MapHeader } from '../components/map/MapHeader';
 import { ActivityFeed } from '../components/canvas/ActivityFeed';
 import { CommandPalette } from '../components/layout/CommandPalette';
 
@@ -83,6 +84,7 @@ export function AppPage() {
           onDownload={() => openModal('download')}
           onApproval={() => openModal('approval')}
         />
+        {isMapRoute && <MapHeader />}
         {!isMapRoute && <ExpiryWarningBanner />}
         <Breadcrumbs />
         {isCanvasRoute ? (
