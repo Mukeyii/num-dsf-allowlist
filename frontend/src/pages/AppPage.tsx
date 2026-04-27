@@ -83,7 +83,7 @@ export function AppPage() {
           onDownload={() => openModal('download')}
           onApproval={() => openModal('approval')}
         />
-        <ExpiryWarningBanner />
+        {!isMapRoute && <ExpiryWarningBanner />}
         <Breadcrumbs />
         {isCanvasRoute ? (
           activeInstanceId ? (
