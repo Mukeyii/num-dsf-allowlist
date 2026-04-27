@@ -31,6 +31,17 @@ All entities are displayed simultaneously on an interactive entity-graph canvas 
 
 A separate **Network Map** page (`/app/map`) renders the cross-instance allow-list as a schematic Germany silhouette with one pin per organization, multi-site cities collapsed into clusters with worst-status indicators, peer edges drawn from shared `parent_organization` (e.g. MII, NUM), and filters for verbund, certificate status, and city.
 
+## Screenshots
+
+![Entity-graph canvas](docs/screenshots/01-canvas.png)
+
+**Entity-graph canvas** — every entity for one DSF instance edited on a single canvas, with live SVG relations between organization, contacts, endpoints, certificates, and memberships.
+
+| | |
+|---|---|
+| ![Network map](docs/screenshots/02-map.png)<br>**Network map** — cross-instance allow-list directory across all participating organizations, with city clusters and verbund peer edges. | ![Approval review](docs/screenshots/03-admin-approval.png)<br>**Approval review** — IMI admins review and action pending submissions with the full snapshot in context. |
+| ![Audit log](docs/screenshots/04-audit.png)<br>**Audit log** — append-only operations history, scoped per instance, filterable by resource and operation. | ![Sign in](docs/screenshots/05-login.png)<br>**Sign in** — passwordless email + OTP + TOTP, plus optional client-certificate sign-in. |
+
 ## Tech Stack
 
 | Layer | Technology |
