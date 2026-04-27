@@ -35,7 +35,11 @@ export function MapPage() {
       if (filter.activeMode === 'active' && !o.active) return false;
       if (filter.activeMode === 'inactive' && o.active) return false;
       if (!filter.certStatuses.has(o.cert_status)) return false;
-      if (q && !(o.name.toLowerCase().includes(q) || o.identifier.toLowerCase().includes(q))) return false;
+      if (q && !(
+        o.name.toLowerCase().includes(q)
+        || o.identifier.toLowerCase().includes(q)
+        || (o.city ?? '').toLowerCase().includes(q)
+      )) return false;
       return true;
     });
   }, [organizations, filter]);
@@ -145,6 +149,46 @@ export function MapPage() {
           onClose={() => setSelectedId(null)}
           onSelectMember={(id) => setSelectedId(id)}
         />
+      </div>
+      <InternationalStrip orgs={organizations} onSelect={setSelectedId} />
+    </div>
+  );
+}
+
+function InternationalStrip({
+  orgs, onSelect,
+}: {
+  orgs: MapOrganization[];
+  onSelect: (id: string | null) => void;
+}) {
+  const { t } = useI18n();
+  const intl = orgs.filter(o => (o.country_code ?? 'DE') !== 'DE');
+  if (intl.length === 0) return null;
+  const countries = [...new Set(intl.map(o => o.country_code ?? '?'))].sort().join(', ');
+  return (
+    <div style={{
+      padding: '8px 28px', borderTop: '1px solid var(--border)',
+      background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: '12px',
+      flexWrap: 'wrap', fontSize: '11px', color: 'var(--text-muted)',
+    }}>
+      <span style={{ fontWeight: 600 }}>
+        {t('mapInternationalCount', { n: intl.length, countries })}
+      </span>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        {intl.map(o => (
+          <button
+            key={o.identifier}
+            onClick={() => onSelect(o.identifier)}
+            style={{
+              padding: '3px 8px', borderRadius: '6px',
+              border: '1px solid var(--border)', background: 'var(--bg-page)',
+              fontSize: '10px', color: 'var(--text-secondary)', cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            {o.country_code} · {o.name}
+          </button>
+        ))}
       </div>
     </div>
   );
