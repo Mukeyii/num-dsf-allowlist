@@ -24,6 +24,8 @@ import {
   createTokenPair,
 } from '../services/auth.service';
 import { generateTotpSetup, saveTotpSecret } from '../services/totp.service';
+import { writeAuditLog } from '../services/audit.service';
+import { extractClientCert } from '../lib/clientCert';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -178,6 +180,43 @@ authRouter.post('/dev-login', async (req: Request, res: Response) => {
   res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
   console.warn(`[DEV_AUTO_LOGIN] issued ${role} session for ${email} from ${req.ip}`);
   res.json({ data: { accessToken, email, role } });
+});
+
+// POST /auth/client-cert-login → authenticate by client certificate thumbprint
+authRouter.post('/client-cert-login', async (req: Request, res: Response) => {
+  const cert = extractClientCert(req);
+  if (!cert) {
+    res.status(401).json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
+    return;
+  }
+  const org = await db('organizations').where({ client_cert_thumbprint: cert.thumbprint }).first();
+  if (!org) {
+    res.status(401).json({ error: { code: 'CERT_NOT_REGISTERED', message: 'Certificate is not registered for any organization.' } });
+    return;
+  }
+  const instance = await db('instances').where({ id: org.instance_id }).first();
+  if (!instance) {
+    res.status(401).json({ error: { code: 'NO_INSTANCE', message: 'Organization has no associated instance.' } });
+    return;
+  }
+  const user = await db('users').where({ id: instance.user_id }).first();
+  if (!user) {
+    res.status(401).json({ error: { code: 'NO_USER', message: 'Instance has no owner.' } });
+    return;
+  }
+
+  const { accessToken, refreshTokenHash } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
+  res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
+
+  writeAuditLog({
+    userEmail: user.email,
+    instanceId: instance.id,
+    resourceType: 'AUTH',
+    operation: 'LOGIN',
+    ipAddress: req.ip || 'unknown',
+  }).catch(() => {});
+
+  res.json({ data: { accessToken, email: user.email } });
 });
 
 // POST /auth/logout
