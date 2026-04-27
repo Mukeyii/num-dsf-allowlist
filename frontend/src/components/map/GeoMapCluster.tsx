@@ -5,6 +5,7 @@
  * worst cert_status of any member (priority: EXPIRED > EXPIRING > NONE > VALID).
  */
 import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
+import { cityBucketKey } from '../../lib/germanCities';
 
 const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
   VALID:    '#22c55e',
@@ -27,7 +28,7 @@ interface Props {
 }
 
 export function clusterKeyOf(group: MapClusterGroup): string {
-  return `__cluster__${group.city ?? '?'}|${group.country_code ?? 'XX'}`;
+  return `__cluster__${cityBucketKey(group.city, group.country_code)}`;
 }
 
 function cityInitials(city: string | null): string {
