@@ -87,8 +87,8 @@ export function AppPage() {
         />
         {isMapRoute && <MapHeader />}
         {!isMapRoute && <CrossUserInstanceBanner instanceId={activeInstanceId} />}
-        {!isMapRoute && <ExpiryWarningBanner />}
         <Breadcrumbs />
+        {!isMapRoute && <ExpiryWarningBanner />}
         {isCanvasRoute ? (
           activeInstanceId ? (
             <EntityCanvas instanceId={activeInstanceId} />
