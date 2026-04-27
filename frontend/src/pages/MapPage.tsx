@@ -106,7 +106,7 @@ export function MapPage() {
           selectedId={selectedId}
           onSelect={setSelectedId}
         />
-        <div style={{
+        <div className="geomap-frame" style={{
           flex: 1, position: 'relative', minHeight: 0, background: '#f8fafc',
           marginRight: isPanelOpen ? '380px' : '0',
           transition: 'margin-right 0.25s ease',
