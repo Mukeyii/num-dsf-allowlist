@@ -159,16 +159,18 @@ authRouter.post('/dev-login', async (req: Request, res: Response) => {
     return res.status(400).json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
   }
 
-  // Ensure whitelisted + user row exists
-  const whitelisted = await db('email_whitelist').where({ email }).first();
-  if (!whitelisted) {
-    await db('email_whitelist').insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() });
-  }
-  let user = await db('users').where({ email }).first();
+  // Ensure whitelisted + user row exists. Idempotent so concurrent calls
+  // (e.g. React Strict Mode double-invokes useEffect in dev) don't crash on
+  // duplicate-key. Both tables have UNIQUE(email).
+  await db('email_whitelist')
+    .insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() })
+    .onConflict('email').ignore();
+  await db('users')
+    .insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() })
+    .onConflict('email').ignore();
+  const user = await db('users').where({ email }).first();
   if (!user) {
-    const id = uuidv4();
-    await db('users').insert({ id, email, totp_enabled: true, created_at: new Date() });
-    user = await db('users').where({ id }).first();
+    return res.status(500).json({ error: { code: 'USER_NOT_FOUND', message: 'Failed to create or find dev user' } });
   }
   await db('users').where({ id: user.id }).update({ last_login: new Date() });
 
