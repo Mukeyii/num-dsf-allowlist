@@ -253,7 +253,9 @@ async function main() {
   console.log(`  [+] ${membershipCount} memberships`);
 
   // 9. Approval requests – 20 orgs APPROVED so they appear on the network map,
-  //                      plus a few PENDING/REJECTED for realism
+  //                      plus a few PENDING/REJECTED for realism.
+  //                      Snapshot mirrors approval.service.ts:buildSnapshot so
+  //                      the Approval Review page renders the full org card.
   type ApprovalSpec = { instanceIdx: number; status: 'APPROVED' | 'PENDING' | 'REJECTED'; daysAgo: number };
   const approvals: ApprovalSpec[] = [];
   for (let i = 0; i < 20; i++) {
@@ -264,7 +266,31 @@ async function main() {
   approvals.push({ instanceIdx: 23, status: 'REJECTED', daysAgo: 14 });
   approvals.push({ instanceIdx: 24, status: 'REJECTED', daysAgo: 6 });
 
+  async function seedSnapshot(instanceId: string) {
+    const org = await db('organizations').where({ instance_id: instanceId }).first();
+    if (!org) return null;
+    const contacts   = await db('contacts').where({ organization_id: org.identifier })
+      .select('id', 'types', 'name', 'email', 'email_validated', 'phone', 'city', 'country_code');
+    const endpoints  = await db('endpoints').where({ organization_id: org.identifier });
+    const ips        = await db('endpoint_ips').whereIn('endpoint_id', endpoints.map((e: any) => e.identifier));
+    const certificates = await db('certificates').where({ organization_id: org.identifier })
+      .select('id', 'subject', 'thumbprint', 'valid_until');
+    const memberships  = await db('memberships').where({ organization_id: org.identifier });
+    return {
+      organization: org,
+      contacts,
+      endpoints: endpoints.map((ep: any) => ({
+        ...ep,
+        ips: ips.filter((ip: any) => ip.endpoint_id === ep.identifier),
+      })),
+      certificates,
+      memberships,
+      snapshotAt: new Date().toISOString(),
+    };
+  }
+
   for (const a of approvals) {
+    const snap = await seedSnapshot(INSTANCES[a.instanceIdx].id);
     await db('approval_requests').insert({
       id: uuidv4(),
       instance_id: INSTANCES[a.instanceIdx].id,
@@ -274,10 +300,10 @@ async function main() {
       resolved_at: a.status !== 'PENDING' ? pastDate(Math.max(a.daysAgo - 1, 0)) : null,
       resolved_by: a.status !== 'PENDING' ? ADMIN_EMAIL : null,
       comment: a.status === 'REJECTED' ? 'Zertifikat abgelaufen, bitte erneuern.' : null,
-      snapshot_json: JSON.stringify({ note: `Test ${a.status}` }),
+      snapshot_json: JSON.stringify(snap ?? { note: `Test ${a.status}` }),
     });
   }
-  console.log(`  [+] ${approvals.length} approval requests (20 APPROVED + ${approvals.length - 20} other)`);
+  console.log(`  [+] ${approvals.length} approval requests (20 APPROVED + ${approvals.length - 20} other, with full snapshots)`);
 
   // 10. Audit log entries
   const auditOps = ['LOGIN', 'CREATE', 'UPDATE', 'CREATE', 'CREATE', 'CREATE', 'CREATE', 'APPROVE', 'REJECT', 'LOGOUT'];
