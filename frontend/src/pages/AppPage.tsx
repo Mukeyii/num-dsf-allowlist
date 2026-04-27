@@ -120,7 +120,7 @@ export function AppPage() {
         </button>
       )}
 
-      <ActivityFeed />
+      {!isMapRoute && <ActivityFeed />}
       <CommandPalette />
 
       {activeInstanceId && (
