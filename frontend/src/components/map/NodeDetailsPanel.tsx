@@ -4,7 +4,7 @@
  * active/inactive status, certificate status (no exact date), and endpoint names.
  * Dependencies: react, network.api types, i18n.store
  */
-import type { MapOrganization } from '../../api/network.api';
+import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
 import { useI18n } from '../../stores/i18n.store';
 
 const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
@@ -23,13 +23,15 @@ const STATUS_LABEL_KEY: Record<MapOrganization['cert_status'], 'mapDetailsCertVa
 
 interface Props {
   org: MapOrganization | null;
+  cluster: MapClusterGroup | null;
   isAdmin: boolean;
   onClose: () => void;
+  onSelectMember: (orgId: string) => void;
 }
 
-export function NodeDetailsPanel({ org, isAdmin, onClose }: Props) {
+export function NodeDetailsPanel({ org, cluster, isAdmin, onClose, onSelectMember }: Props) {
   const { t } = useI18n();
-  const open = !!org;
+  const open = !!org || !!cluster;
   return (
     <aside
       aria-hidden={!open}
@@ -46,6 +48,60 @@ export function NodeDetailsPanel({ org, isAdmin, onClose }: Props) {
         zIndex: 2,
       }}
     >
+      {cluster && !org && (
+        <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                {cluster.city ?? '—'}
+              </h2>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+                {t('mapClusterCity', { n: cluster.members.length, city: cluster.city ?? '—' })}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              aria-label={t('mapCloseDetails')}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-muted)' }}>close</span>
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {cluster.members.map(m => (
+              <button
+                key={m.identifier}
+                onClick={() => onSelectMember(m.identifier)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '10px 12px', borderRadius: '10px',
+                  background: 'var(--bg-hover)', border: '1px solid var(--border)',
+                  cursor: 'pointer', textAlign: 'left',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <span style={{
+                  width: '10px', height: '10px', borderRadius: '50%',
+                  background: ({
+                    VALID: '#22c55e', EXPIRING: '#f5a623',
+                    EXPIRED: '#ef4444', NONE: '#94a3b8',
+                  } as Record<MapOrganization['cert_status'], string>)[m.cert_status],
+                  flexShrink: 0,
+                }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {m.name}
+                  </div>
+                  <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {m.identifier}
+                  </div>
+                </div>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>chevron_right</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {org && (
         <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
