@@ -22,6 +22,7 @@ export function Breadcrumbs() {
     <nav style={{
       display: 'flex', alignItems: 'center', gap: '6px',
       padding: '8px 24px', fontSize: '12px', color: 'var(--text-muted)',
+      background: 'var(--bg-card)',
     }}>
       {segments.map((seg, i) => {
         const path = '/' + segments.slice(0, i + 1).join('/');
