@@ -48,7 +48,7 @@ describe('Organization API', () => {
   describe('PUT /api/v1/instances/:id/organization', () => {
     it('should create organization (upsert)', async () => {
       const res = await request(app).put(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`)
-        .send({ identifier: 'new-org.de', name: 'New Org', email: 'admin@new-org.de', active: true });
+        .send({ identifier: 'new-org.de', name: 'New Org', email: 'admin@new-org.de', active: true, countryCode: 'DE' });
       expect(res.status).toBe(200);
       expect(res.body.data.identifier).toBe('new-org.de');
     });
@@ -56,7 +56,7 @@ describe('Organization API', () => {
     it('should update existing organization', async () => {
       await seedOrganization();
       const res = await request(app).put(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`)
-        .send({ identifier: 'test-hospital.de', name: 'Updated Hospital', email: 'updated@test.de', active: true });
+        .send({ identifier: 'test-hospital.de', name: 'Updated Hospital', email: 'updated@test.de', active: true, countryCode: 'DE' });
       expect(res.status).toBe(200);
       expect(res.body.data.name).toBe('Updated Hospital');
     });

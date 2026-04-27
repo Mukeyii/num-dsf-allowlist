@@ -50,16 +50,16 @@ describe('Approval API', () => {
     });
   });
 
-  describe('GET /api/v1/admin/approval/admin/pending', () => {
+  describe('GET /api/v1/admin/approval/pending', () => {
     it('should return pending for admins', async () => {
       await request(app).post(`/api/v1/instances/${TEST_INSTANCE_ID}/approval/submit`).set('Authorization', `Bearer ${userToken}`);
-      const res = await request(app).get('/api/v1/admin/approval/admin/pending').set('Authorization', `Bearer ${adminToken}`);
+      const res = await request(app).get('/api/v1/admin/approval/pending').set('Authorization', `Bearer ${adminToken}`);
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
     });
 
     it('should reject non-admin users', async () => {
-      const res = await request(app).get('/api/v1/admin/approval/admin/pending').set('Authorization', `Bearer ${userToken}`);
+      const res = await request(app).get('/api/v1/admin/approval/pending').set('Authorization', `Bearer ${userToken}`);
       expect(res.status).toBe(403);
     });
   });
