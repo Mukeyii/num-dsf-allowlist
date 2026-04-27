@@ -3,6 +3,7 @@
  * Dependencies: useAdmin hooks, sonner toast, Material Symbols icons
  */
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { usePendingApprovals, useApproveRequest, useRejectRequest } from '../hooks/useAdmin';
 import { useMe } from '../hooks/useMe';
@@ -573,6 +574,13 @@ export function AdminPage() {
             {t('adminPageSubtitle')}
           </p>
         </div>
+        <Link
+          to="/app/admin/help"
+          style={{ marginLeft: 'auto', fontSize: '12px', color: '#b01e66', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>help</span>
+          {t('adminHelpLink')}
+        </Link>
       </div>
 
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
