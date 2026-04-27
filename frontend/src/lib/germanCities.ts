@@ -7,64 +7,68 @@
  * stripe via djb2 hashing, so test fixtures and yet-to-be-mapped cities
  * still render — just outside the silhouette with a `?` indicator.
  *
- * ViewBox: 0 0 600 760. Germany silhouette occupies roughly x:100-510,
- * y:50-720. Sonstige stripe: x:540-580, y:120-700.
+ * ViewBox: 0 0 591.504 800.504 (matches the Wikimedia Karte_Deutschland.svg
+ * served from /germany.svg). Coordinates derived by linear projection of
+ * lat/lon onto Wikimedia native pixels:
+ *   x = 110 + (lon − 5.87) · 48
+ *   y = 15  + (55.06 − lat) · 74.5
+ * Sonstige stripe (unknown cities): x ∈ [555, 585], y ∈ [130, 720].
  */
 
 export const GERMAN_CITIES: Record<string, [number, number]> = {
-  // Major medical research hubs first
-  'berlin':            [440, 230],
-  'hamburg':           [320, 130],
-  'muenchen':          [370, 620],
-  'koeln':             [160, 350],
-  'frankfurt am main': [230, 420],
-  'frankfurt':         [230, 420],
-  'stuttgart':         [270, 540],
-  'duesseldorf':       [160, 320],
-  'leipzig':           [390, 320],
-  'dresden':           [460, 360],
-  'hannover':          [280, 230],
-  'bremen':            [240, 170],
-  'muenster':          [200, 280],
-  'heidelberg':        [250, 470],
-  'nuernberg':         [350, 480],
-  'karlsruhe':         [230, 510],
-  'mainz':             [220, 420],
-  'essen':             [160, 310],
-  'bochum':            [170, 305],
-  'dortmund':          [200, 305],
-  'duisburg':          [150, 305],
-  'wuppertal':         [180, 330],
-  'bonn':              [180, 380],
-  'augsburg':          [340, 580],
-  'wuerzburg':         [310, 460],
-  'magdeburg':         [350, 240],
-  'rostock':           [380, 80],
-  'kiel':              [320, 90],
-  'luebeck':           [340, 110],
-  'erfurt':            [320, 360],
-  'saarbruecken':      [160, 510],
-  'freiburg':          [220, 620],
-  'aachen':            [110, 360],
-  'tuebingen':         [260, 580],
-  'ulm':               [300, 580],
-  'mannheim':          [240, 470],
-  'greifswald':        [470, 100],
-  'goettingen':        [280, 290],
-  'marburg':           [230, 360],
-  'kassel':            [270, 320],
-  'jena':              [360, 350],
-  'halle':             [370, 320],
-  'chemnitz':          [420, 380],
-  'regensburg':        [400, 540],
-  'wiesbaden':         [220, 410],
-  'osnabrueck':        [220, 240],
-  'bielefeld':         [240, 270],
-  'krefeld':           [150, 320],
-  'braunschweig':      [310, 240],
-  'oldenburg':         [240, 190],
-  'paderborn':         [240, 290],
-  'trier':             [140, 460],
+  // Major medical research hubs (lat/lon → projection above)
+  'berlin':            [471, 206],
+  'hamburg':           [308, 128],
+  'muenchen':          [384, 531],
+  'koeln':             [162, 322],
+  'frankfurt am main': [245, 384],
+  'frankfurt':         [245, 384],
+  'stuttgart':         [269, 483],
+  'duesseldorf':       [154, 300],
+  'leipzig':           [422, 292],
+  'dresden':           [488, 314],
+  'hannover':          [296, 215],
+  'bremen':            [251, 163],
+  'muenster':          [194, 246],
+  'heidelberg':        [245, 437],
+  'nuernberg':         [360, 433],
+  'karlsruhe':         [231, 467],
+  'mainz':             [225, 393],
+  'essen':             [164, 284],
+  'bochum':            [175, 282],
+  'dortmund':          [187, 280],
+  'duisburg':          [153, 285],
+  'wuppertal':         [171, 298],
+  'bonn':              [169, 337],
+  'augsburg':          [351, 513],
+  'wuerzburg':         [305, 408],
+  'magdeburg':         [387, 233],
+  'rostock':           [411, 87],
+  'kiel':              [315, 70],
+  'luebeck':           [341, 104],
+  'erfurt':            [358, 319],
+  'saarbruecken':      [164, 449],
+  'freiburg':          [205, 542],
+  'aachen':            [120, 334],
+  'tuebingen':         [263, 502],
+  'ulm':               [308, 511],
+  'mannheim':          [234, 430],
+  'greifswald':        [471, 87],
+  'goettingen':        [305, 278],
+  'marburg':           [249, 332],
+  'kassel':            [284, 294],
+  'jena':              [385, 323],
+  'halle':             [403, 282],
+  'chemnitz':          [448, 330],
+  'regensburg':        [409, 466],
+  'wiesbaden':         [224, 386],
+  'osnabrueck':        [215, 222],
+  'bielefeld':         [238, 241],
+  'krefeld':           [143, 292],
+  'braunschweig':      [333, 223],
+  'oldenburg':         [222, 158],
+  'paderborn':         [249, 264],
+  'trier':             [147, 411],
 };
 
 function normalize(name: string): string {
@@ -94,10 +98,10 @@ function djb2(s: string): number {
   return hash;
 }
 
-const SONSTIGE_X_MIN = 540;
-const SONSTIGE_X_MAX = 580;
-const SONSTIGE_Y_MIN = 120;
-const SONSTIGE_Y_MAX = 700;
+const SONSTIGE_X_MIN = 558;
+const SONSTIGE_X_MAX = 582;
+const SONSTIGE_Y_MIN = 140;
+const SONSTIGE_Y_MAX = 720;
 
 export function unknownCityCoord(name: string): [number, number] {
   const h = djb2(name || '_');
