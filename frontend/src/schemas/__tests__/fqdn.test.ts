@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { organizationSchema } from '../organization.schema';
 import { endpointSchema } from '../endpoint.schema';
 
-const ORG_BASE = { name: 'X', active: true, email: 'a@b.de' };
+const ORG_BASE = { name: 'Org', active: true, email: 'a@b.de' };
 const EP_BASE = { address: 'https://x.de/fhir', ipAddresses: [] };
 
 function orgOk(id: string) {
