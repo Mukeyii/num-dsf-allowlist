@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { db } from '../db/connection';
 import { writeAuditLog } from '../services/audit.service';
+import { isAdminEmail } from '../lib/isAdmin';
 import { v4 as uuidv4 } from 'uuid';
 
 export const instancesRouter = Router();
@@ -32,10 +33,13 @@ instancesRouter.post('/', async (req, res) => {
 });
 
 instancesRouter.get('/:id', async (req, res) => {
-  const instance = await db('instances')
-    .where({ id: req.params.id, user_id: req.user!.id }).first();
+  const isAdmin = isAdminEmail(req.user!.email);
+  const q = db('instances').where({ id: req.params.id });
+  if (!isAdmin) q.andWhere({ user_id: req.user!.id });
+  const instance = await q.first();
   if (!instance) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Instance not found' } });
-  res.json({ data: instance });
+  const owner = await db('users').where({ id: instance.user_id }).first();
+  res.json({ data: { ...instance, owner_email: owner?.email ?? null } });
 });
 
 instancesRouter.put('/:id/label', async (req, res) => {
