@@ -147,15 +147,15 @@ export function GeoMap({
 
   return (
     <svg
-      viewBox="0 0 591.504 800.504"
+      viewBox="0 0 700 800"
       style={{ width: '100%', height: '100%', display: 'block' }}
       onClick={() => onSelect(null)}
     >
-      <rect width="591.504" height="800.504" fill="#f8fafc" />
+      <rect width="700" height="800" fill="#f8fafc" />
       <GermanyOutline />
 
-      <rect x="555" y="130" width="30" height="600" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 3" />
-      <text x="570" y="125" textAnchor="middle" fontSize="9" fill="#94a3b8">{t('mapSonstigeLabel')}</text>
+      <rect x="618" y="130" width="44" height="600" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 3" />
+      <text x="640" y="125" textAnchor="middle" fontSize="9" fill="#94a3b8">{t('mapSonstigeLabel')}</text>
 
       <GeoMapEdges
         edges={edges}
