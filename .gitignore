@@ -49,6 +49,7 @@ scripts/*.json
 docs/superpowers/
 docs/stitch/
 docs/NOTEBOOKLM_DIFF.md
+docs/security-review-*.md
 SPEC.md
 MASTERPROMPT*.md
 
@@ -57,3 +58,8 @@ backups/
 
 # === Lock files (regenerated per environment) ===
 package-lock.json
+.superpowers/
+
+# === Temporary dev artifacts ===
+frontend/calibrate.js
+frontend/germany.svg
