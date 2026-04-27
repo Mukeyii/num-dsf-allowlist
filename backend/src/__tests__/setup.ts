@@ -5,8 +5,12 @@ import { db } from '../db/connection';
 import { redis } from '../services/redis.service';
 
 beforeAll(async () => {
-  const result = await db.raw('SELECT DATABASE() as dbName');
-  console.log(`[Test] Connected to DB: ${result[0][0].dbName}`);
+  try {
+    const result = await db.raw('SELECT DATABASE() as dbName');
+    console.log(`[Test] Connected to DB: ${result[0][0].dbName}`);
+  } catch {
+    console.warn('[Test] DB not available – skipping connection check (unit tests)');
+  }
 });
 
 afterAll(async () => {

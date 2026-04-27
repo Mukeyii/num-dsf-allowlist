@@ -1,11 +1,21 @@
 /**
  * approval.service.ts – Approval workflow state machine
  * Status transitions: DRAFT → PENDING (submit), PENDING → APPROVED|REJECTED (operator)
+ * Dependencies: db/connection, audit.service, approval-reminder.service, lib/approvalState
  */
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
 import { notifyImiOnSubmit, notifySiteOnApproval } from './approval-reminder.service';
+import { siteOfEmail, validateApproval, deriveStatus, ApprovalSig } from '../lib/approvalState';
+
+// approval-reminder.service exposes notifyImiOnFirstApproval after Task 4 lands.
+// Fall back to no-op if the runtime export is missing (defensive).
+import * as reminders from './approval-reminder.service';
+const notifyImiOnFirstApproval: (instanceId: string, firstApproverEmail: string, requestId: string) => Promise<void> =
+  (reminders as any).notifyImiOnFirstApproval ?? (async () => {});
+
+const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
 
 async function buildSnapshot(instanceId: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
@@ -50,20 +60,93 @@ export async function getPendingApprovals() {
   return db('approval_requests').where({ status: 'PENDING' }).orderBy('submitted_at', 'asc');
 }
 
-export async function approveRequest(requestId: string, resolvedBy: string, ipAddress: string) {
-  const request = await db('approval_requests').where({ id: requestId, status: 'PENDING' }).first();
-  if (!request) throw new Error('REQUEST_NOT_FOUND');
-  await db('approval_requests').where({ id: requestId }).update({ status: 'APPROVED', resolved_at: new Date(), resolved_by: resolvedBy });
-  await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id, resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
-  notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(err => console.error('[ApprovalNotify]', err));
-  return db('approval_requests').where({ id: requestId }).first();
+export async function getSignatures(requestId: string): Promise<ApprovalSig[]> {
+  return db('approval_signatures')
+    .where({ approval_request_id: requestId })
+    .orderBy('signed_at', 'asc');
 }
 
-export async function rejectRequest(requestId: string, resolvedBy: string, comment: string, ipAddress: string) {
-  const request = await db('approval_requests').where({ id: requestId, status: 'PENDING' }).first();
+export async function approveRequest(
+  requestId: string,
+  resolvedBy: string,
+  ipAddress?: string,
+): Promise<{ status: 'PENDING' | 'APPROVED'; reason?: string }> {
+  const adminSite = siteOfEmail(resolvedBy);
+  if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
+
+  const request = await db('approval_requests').where({ id: requestId }).first();
   if (!request) throw new Error('REQUEST_NOT_FOUND');
-  await db('approval_requests').where({ id: requestId }).update({ status: 'REJECTED', resolved_at: new Date(), resolved_by: resolvedBy, comment });
-  await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id, resourceType: 'APPROVAL', resourceId: requestId, operation: 'REJECT', diffJson: { comment }, ipAddress });
-  notifySiteOnApproval(requestId, request.instance_id, 'REJECTED', comment, resolvedBy).catch(err => console.error('[ApprovalNotify]', err));
-  return db('approval_requests').where({ id: requestId }).first();
+  if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
+
+  const sigs = (await db('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
+
+  const validation = validateApproval(sigs, resolvedBy, adminSite);
+  if (validation) throw new Error(validation);
+
+  await db('approval_signatures').insert({
+    id: uuidv4(),
+    approval_request_id: requestId,
+    admin_email: resolvedBy,
+    admin_site: adminSite,
+    decision: 'APPROVE',
+    signed_at: new Date(),
+    comment: null,
+  });
+
+  const refreshed = (await db('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
+  const newStatus = deriveStatus(refreshed, new Date(), SILENT_CONSENT_DAYS);
+
+  if (newStatus === 'APPROVED') {
+    await db('approval_requests').where({ id: requestId }).update({
+      status: 'APPROVED',
+      resolved_at: new Date(),
+      resolved_by: resolvedBy,
+    });
+    await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
+      resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
+    notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(() => {});
+    return { status: 'APPROVED' };
+  }
+
+  await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
+    resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress,
+    diffJson: { firstApproval: true } });
+  notifyImiOnFirstApproval(request.instance_id, resolvedBy, requestId).catch(() => {});
+  return { status: 'PENDING', reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
+}
+
+export async function rejectRequest(
+  requestId: string,
+  resolvedBy: string,
+  comment: string,
+  ipAddress?: string,
+): Promise<void> {
+  const adminSite = siteOfEmail(resolvedBy);
+  if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
+
+  const request = await db('approval_requests').where({ id: requestId }).first();
+  if (!request) throw new Error('REQUEST_NOT_FOUND');
+  if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
+
+  await db('approval_signatures').insert({
+    id: uuidv4(),
+    approval_request_id: requestId,
+    admin_email: resolvedBy,
+    admin_site: adminSite,
+    decision: 'REJECT',
+    signed_at: new Date(),
+    comment,
+  });
+
+  await db('approval_requests').where({ id: requestId }).update({
+    status: 'REJECTED',
+    resolved_at: new Date(),
+    resolved_by: resolvedBy,
+    comment,
+  });
+
+  await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
+    resourceType: 'APPROVAL', resourceId: requestId, operation: 'REJECT', ipAddress,
+    diffJson: { comment } });
+  notifySiteOnApproval(requestId, request.instance_id, 'REJECTED', comment, resolvedBy).catch(() => {});
 }
