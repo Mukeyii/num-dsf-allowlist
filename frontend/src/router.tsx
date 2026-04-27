@@ -11,6 +11,7 @@ import { TotpPage }      from './pages/TotpPage';
 import { AppPage }       from './pages/AppPage';
 import { AuditPage }     from './pages/AuditPage';
 import { AdminPage }     from './pages/AdminPage';
+import { AdminHelpPage } from './pages/AdminHelpPage';
 import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
 import { NotFoundPage }  from './pages/NotFoundPage';
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
       { index: true, element: null },
       { path: 'audit', element: <AuditPage /> },
       { path: 'admin', element: <AdminPage /> },
+      { path: 'admin/help', element: <AdminHelpPage /> },
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
     ],
