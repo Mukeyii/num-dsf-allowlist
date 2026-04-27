@@ -15,6 +15,7 @@ import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
 import { NotFoundPage }  from './pages/NotFoundPage';
 import { useAuthStore }  from './stores/auth.store';
+import { CrossUserGuardProvider } from './components/layout/CrossUserGuardProvider';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -35,7 +36,7 @@ export const router = createBrowserRouter([
   { path: '/totp',       element: <TotpPage /> },
   {
     path: '/app',
-    element: <RequireAuth><AppPage /></RequireAuth>,
+    element: <RequireAuth><CrossUserGuardProvider><AppPage /></CrossUserGuardProvider></RequireAuth>,
     children: [
       { index: true, element: null },
       { path: 'audit', element: <AuditPage /> },
