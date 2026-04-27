@@ -11,6 +11,8 @@ import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
 import { GermanyOutline } from './GermanyOutline';
 import { GeoMapPin } from './GeoMapPin';
 import { GeoMapCluster, clusterKeyOf } from './GeoMapCluster';
+import { GeoMapEdges } from './GeoMapEdges';
+import type { PeerEdge } from '../../lib/peerEdges';
 import { getPinCoord, cityBucketKey } from '../../lib/germanCities';
 import { useI18n } from '../../stores/i18n.store';
 
@@ -19,6 +21,9 @@ interface Props {
   allOrganizations: MapOrganization[];        // unfiltered, used for cluster total counts
   selectedId: string | null;                  // pin identifier OR cluster key
   onSelect: (id: string | null) => void;
+  edges: PeerEdge[];
+  activeVerbunds: Set<string>;
+  showAllEdges: boolean;
 }
 
 interface PlacedPin {
@@ -60,7 +65,10 @@ function bucketByCity(orgs: MapOrganization[]): Map<string, MapOrganization[]> {
   return buckets;
 }
 
-export function GeoMap({ organizations, allOrganizations, selectedId, onSelect }: Props) {
+export function GeoMap({
+  organizations, allOrganizations, selectedId, onSelect,
+  edges, activeVerbunds, showAllEdges,
+}: Props) {
   const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -98,6 +106,24 @@ export function GeoMap({ organizations, allOrganizations, selectedId, onSelect }
     return out;
   }, [onMapVisible, onMapAll]);
 
+  const endpointPos = useMemo(() => {
+    const m = new Map<string, [number, number]>();
+    for (const p of placed) {
+      if (p.kind === 'pin') m.set(p.org.identifier, [p.x, p.y]);
+      else for (const member of p.group.members) m.set(member.identifier, [p.x, p.y]);
+    }
+    return m;
+  }, [placed]);
+
+  const clusterKeyForOrg = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const p of placed) if (p.kind === 'cluster') {
+      const k = clusterKeyOf(p.group);
+      for (const member of p.group.members) m.set(member.identifier, k);
+    }
+    return (orgId: string) => m.get(orgId) ?? null;
+  }, [placed]);
+
   if (organizations.length === 0) {
     return (
       <div style={{
@@ -130,6 +156,16 @@ export function GeoMap({ organizations, allOrganizations, selectedId, onSelect }
 
       <rect x="540" y="120" width="40" height="580" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 3" />
       <text x="560" y="115" textAnchor="middle" fontSize="9" fill="#94a3b8">{t('mapSonstigeLabel')}</text>
+
+      <GeoMapEdges
+        edges={edges}
+        endpointPos={endpointPos}
+        selectedId={selectedId}
+        hoveredId={hoveredId}
+        activeVerbunds={activeVerbunds}
+        showAllEdges={showAllEdges}
+        clusterKeyForOrg={clusterKeyForOrg}
+      />
 
       {placed.map(p => p.kind === 'pin' ? (
         <GeoMapPin
