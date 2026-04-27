@@ -1,49 +1,102 @@
 /**
- * GeoMap.tsx – Top-level SVG of the network map. Renders the Germany
- * silhouette + pins at city coordinates. Tooltip layer is rendered last
- * so it sits above all pins. Clusters and edges are added in later tasks.
+ * GeoMap.tsx – Top-level SVG of the network map.
+ * Buckets pins by (city, country_code). Single-site cities render as a
+ * GeoMapPin; multi-site cities collapse into a GeoMapCluster.
  *
- * Dependencies: GermanyOutline, GeoMapPin, germanCities, useI18n,
- *               network.api types.
+ * Dependencies: GermanyOutline, GeoMapPin, GeoMapCluster, germanCities,
+ *               peerEdges (later), useI18n, network.api types.
  */
 import { useMemo, useState } from 'react';
-import type { MapOrganization } from '../../api/network.api';
+import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
 import { GermanyOutline } from './GermanyOutline';
 import { GeoMapPin } from './GeoMapPin';
+import { GeoMapCluster, clusterKeyOf } from './GeoMapCluster';
 import { getPinCoord } from '../../lib/germanCities';
 import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
-  organizations: MapOrganization[];
-  selectedId: string | null;
+  organizations: MapOrganization[];           // already filtered (search/status/active)
+  allOrganizations: MapOrganization[];        // unfiltered, used for cluster total counts
+  selectedId: string | null;                  // pin identifier OR cluster key
   onSelect: (id: string | null) => void;
 }
 
-interface Placed {
+interface PlacedPin {
+  kind: 'pin';
   org: MapOrganization;
   x: number;
   y: number;
   known: boolean;
 }
+interface PlacedCluster {
+  kind: 'cluster';
+  group: MapClusterGroup;       // visible-only members
+  totalMembers: number;         // unfiltered count
+  x: number;
+  y: number;
+}
+type Placed = PlacedPin | PlacedCluster;
 
-export function GeoMap({ organizations, selectedId, onSelect }: Props) {
+const STATUS_PRIORITY: Record<MapOrganization['cert_status'], number> = {
+  EXPIRED: 4, EXPIRING: 3, NONE: 2, VALID: 1,
+};
+
+function worstStatus(orgs: MapOrganization[]): MapOrganization['cert_status'] {
+  let worst: MapOrganization['cert_status'] = 'VALID';
+  for (const o of orgs) {
+    if (STATUS_PRIORITY[o.cert_status] > STATUS_PRIORITY[worst]) worst = o.cert_status;
+  }
+  return worst;
+}
+
+function bucketByCity(orgs: MapOrganization[]): Map<string, MapOrganization[]> {
+  const buckets = new Map<string, MapOrganization[]>();
+  for (const o of orgs) {
+    const key = `${(o.city ?? '__unknown__').toLowerCase().trim()}|${(o.country_code ?? 'DE')}`;
+    const list = buckets.get(key) ?? [];
+    list.push(o);
+    buckets.set(key, list);
+  }
+  return buckets;
+}
+
+export function GeoMap({ organizations, allOrganizations, selectedId, onSelect }: Props) {
   const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // Only orgs with country_code === 'DE' or null land on the map.
-  // International orgs are listed elsewhere (Task 6).
-  const onMap = useMemo(
+  const onMapVisible = useMemo(
     () => organizations.filter(o => (o.country_code ?? 'DE') === 'DE'),
     [organizations],
   );
-
-  const placed = useMemo<Placed[]>(
-    () => onMap.map(org => {
-      const { coord, known } = getPinCoord(org.city);
-      return { org, x: coord[0], y: coord[1], known };
-    }),
-    [onMap],
+  const onMapAll = useMemo(
+    () => allOrganizations.filter(o => (o.country_code ?? 'DE') === 'DE'),
+    [allOrganizations],
   );
+
+  const placed = useMemo<Placed[]>(() => {
+    const visibleBuckets = bucketByCity(onMapVisible);
+    const totalBuckets = bucketByCity(onMapAll);
+    const out: Placed[] = [];
+    for (const [bucketKey, members] of visibleBuckets) {
+      const totalMembers = (totalBuckets.get(bucketKey) ?? members).length;
+      // Use the first member to get the city/coord (all members in a bucket share city).
+      const first = members[0];
+      const { coord } = getPinCoord(first.city);
+      if (totalMembers >= 2) {
+        const group: MapClusterGroup = {
+          city: first.city,
+          country_code: first.country_code,
+          members,
+          worstStatus: worstStatus(members),
+        };
+        out.push({ kind: 'cluster', group, totalMembers, x: coord[0], y: coord[1] });
+      } else {
+        const { known } = getPinCoord(first.city);
+        out.push({ kind: 'pin', org: first, x: coord[0], y: coord[1], known });
+      }
+    }
+    return out;
+  }, [onMapVisible, onMapAll]);
 
   if (organizations.length === 0) {
     return (
@@ -59,7 +112,11 @@ export function GeoMap({ organizations, selectedId, onSelect }: Props) {
   const tooltipTarget: Placed | null = (() => {
     const id = selectedId ?? hoveredId;
     if (!id) return null;
-    return placed.find(p => p.org.identifier === id) ?? null;
+    for (const p of placed) {
+      if (p.kind === 'pin' && p.org.identifier === id) return p;
+      if (p.kind === 'cluster' && clusterKeyOf(p.group) === id) return p;
+    }
+    return null;
   })();
 
   return (
@@ -71,23 +128,32 @@ export function GeoMap({ organizations, selectedId, onSelect }: Props) {
       <rect width="600" height="760" fill="#f8fafc" />
       <GermanyOutline />
 
-      {/* Sonstige stripe label (small, faint) */}
       <rect x="540" y="120" width="40" height="580" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 3" />
       <text x="560" y="115" textAnchor="middle" fontSize="9" fill="#94a3b8">{t('mapSonstigeLabel')}</text>
 
-      {placed.map(({ org, x, y, known }) => (
+      {placed.map(p => p.kind === 'pin' ? (
         <GeoMapPin
-          key={org.identifier}
-          org={org} x={x} y={y}
-          isHovered={hoveredId === org.identifier}
-          isSelected={selectedId === org.identifier}
-          isUnknown={!known}
+          key={p.org.identifier}
+          org={p.org} x={p.x} y={p.y}
+          isHovered={hoveredId === p.org.identifier}
+          isSelected={selectedId === p.org.identifier}
+          isUnknown={!p.known}
+          onSelect={onSelect}
+          onHover={setHoveredId}
+        />
+      ) : (
+        <GeoMapCluster
+          key={clusterKeyOf(p.group)}
+          group={p.group}
+          x={p.x} y={p.y}
+          isHovered={hoveredId === clusterKeyOf(p.group)}
+          isSelected={selectedId === clusterKeyOf(p.group)}
+          matchedCount={p.group.members.length}
           onSelect={onSelect}
           onHover={setHoveredId}
         />
       ))}
 
-      {/* Tooltip — rendered AFTER all pins so it never hides behind one */}
       {tooltipTarget && (
         <g style={{ pointerEvents: 'none' }}>
           <rect
@@ -96,14 +162,29 @@ export function GeoMap({ organizations, selectedId, onSelect }: Props) {
             width={180} height={36} rx={8}
             fill="#0f172a" opacity={0.92}
           />
-          <text x={tooltipTarget.x} y={tooltipTarget.y - 35}
-                textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff">
-            {tooltipTarget.org.name}
-          </text>
-          <text x={tooltipTarget.x} y={tooltipTarget.y - 22}
-                textAnchor="middle" fontSize={9} fill="#cbd5e1">
-            {tooltipTarget.org.city ?? '—'} {tooltipTarget.org.country_code ? `· ${tooltipTarget.org.country_code}` : ''}
-          </text>
+          {tooltipTarget.kind === 'pin' ? (
+            <>
+              <text x={tooltipTarget.x} y={tooltipTarget.y - 35}
+                    textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff">
+                {tooltipTarget.org.name}
+              </text>
+              <text x={tooltipTarget.x} y={tooltipTarget.y - 22}
+                    textAnchor="middle" fontSize={9} fill="#cbd5e1">
+                {tooltipTarget.org.city ?? '—'} {tooltipTarget.org.country_code ? `· ${tooltipTarget.org.country_code}` : ''}
+              </text>
+            </>
+          ) : (
+            <>
+              <text x={tooltipTarget.x} y={tooltipTarget.y - 35}
+                    textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff">
+                {tooltipTarget.group.city ?? '?'}
+              </text>
+              <text x={tooltipTarget.x} y={tooltipTarget.y - 22}
+                    textAnchor="middle" fontSize={9} fill="#cbd5e1">
+                {t('mapClusterCity', { n: tooltipTarget.totalMembers, city: tooltipTarget.group.city ?? '?' })}
+              </text>
+            </>
+          )}
         </g>
       )}
     </svg>

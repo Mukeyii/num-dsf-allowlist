@@ -66,3 +66,10 @@ export const networkApi = {
       `${BASE}/network/map`, { headers: authHeader() }
     ),
 };
+
+export interface MapClusterGroup {
+  city: string | null;
+  country_code: string | null;
+  members: MapOrganization[];
+  worstStatus: MapOrganization['cert_status'];
+}
