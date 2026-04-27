@@ -145,3 +145,10 @@ body {
 :root.dark [style*="background: #dcfce7"] { background: rgba(34, 197, 94, 0.12) !important; }
 :root.dark [style*="background: #fef2f2"] { background: rgba(239, 68, 68, 0.1) !important; }
 :root.dark [style*="background: #f0fdf4"] { background: rgba(34, 197, 94, 0.08) !important; }
+
+/* IMI-logo gradient frame for the GeoMap container on /app/map.
+ * Stops mirror the IMI operator logo's diagonal magenta -> blue -> green progression. */
+.geomap-frame {
+  border: 2px solid;
+  border-image: linear-gradient(to right, #b01e66 0%, #3a6fb0 50%, #65a93d 100%) 1;
+}
