@@ -17,6 +17,7 @@ import { ApprovalModal } from '../components/modals/ApprovalModal';
 import { DownloadModal } from '../components/modals/DownloadModal';
 import { CertRenewalModal } from '../components/modals/CertRenewalModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
+import { CrossUserInstanceBanner } from '../components/layout/CrossUserInstanceBanner';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { MapHeader } from '../components/map/MapHeader';
 import { ActivityFeed } from '../components/canvas/ActivityFeed';
@@ -85,6 +86,7 @@ export function AppPage() {
           onApproval={() => openModal('approval')}
         />
         {isMapRoute && <MapHeader />}
+        {!isMapRoute && <CrossUserInstanceBanner instanceId={activeInstanceId} />}
         {!isMapRoute && <ExpiryWarningBanner />}
         <Breadcrumbs />
         {isCanvasRoute ? (

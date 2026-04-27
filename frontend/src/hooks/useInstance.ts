@@ -4,6 +4,22 @@ import { api } from '../api/entities.api';
 import { useCanvasStore } from '../stores/canvas.store';
 import { useAuthStore } from '../stores/auth.store';
 
+export interface InstanceRow {
+  id: string;
+  label: string;
+  owner_email?: string | null;
+}
+
+export function useInstance(instanceId: string | null) {
+  const user = useAuthStore((s) => s.user);
+  return useQuery<InstanceRow>({
+    queryKey: ['instances', instanceId],
+    queryFn: () =>
+      api(instanceId!).getInstance(instanceId!).then(r => r.data.data as InstanceRow),
+    enabled: !!user && !!instanceId,
+  });
+}
+
 export function useInstances() {
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
