@@ -29,6 +29,8 @@ The portal manages a central directory of five interconnected entities:
 
 All entities are displayed simultaneously on an interactive entity-graph canvas with SVG relation lines — no tab switching, no page navigation. Everything is visible and editable on a single screen.
 
+A separate **Network Map** page (`/app/map`) renders the cross-instance allow-list as a schematic Germany silhouette with one pin per organization, multi-site cities collapsed into clusters with worst-status indicators, peer edges drawn from shared `parent_organization` (e.g. MII, NUM), and filters for verbund, certificate status, and city.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -171,6 +173,7 @@ GET    /api/v1/instances/:id/memberships
 POST   /api/v1/instances/:id/approval/submit
 GET    /api/v1/instances/:id/download/bundle
 GET    /api/v1/instances/:id/audit
+GET    /api/v1/network/map               (cross-instance map data)
 
 GET    /fhir/Bundle/:endpointId    (mTLS auth — for DSF BPE process)
 GET    /fhir/Bundle                (mTLS auth — search by identifier)
