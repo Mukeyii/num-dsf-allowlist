@@ -1,13 +1,12 @@
 /**
  * MapPage.tsx – Interactive P2P allow-list network map (role-aware, i18n)
- * Dependencies: useNetworkMap, NetworkGraph, NodeDetailsPanel, MapFilters, CertExpiryBanner, i18n.store
+ * Dependencies: useNetworkMap, NetworkGraph, NodeDetailsPanel, MapFilters, i18n.store
  */
 import { useMemo, useState } from 'react';
 import { useNetworkMap } from '../hooks/useNetworkMap';
 import { GeoMap } from '../components/map/GeoMap';
 import { NodeDetailsPanel } from '../components/map/NodeDetailsPanel';
 import { MapFilters, MapFilterState } from '../components/map/MapFilters';
-import { CertExpiryBanner } from '../components/map/CertExpiryBanner';
 import { VerbundPills } from '../components/map/VerbundPills';
 import { useI18n } from '../stores/i18n.store';
 import type { MapClusterGroup, MapOrganization } from '../api/network.api';
@@ -81,9 +80,6 @@ export function MapPage() {
     return { city: first.city, country_code: first.country_code, members, worstStatus: worst };
   }, [selectedId, organizations]);
 
-  const expiringCount = organizations.filter(o => o.cert_status === 'EXPIRING').length;
-  const expiredCount  = organizations.filter(o => o.cert_status === 'EXPIRED').length;
-
   return (
     <div style={{
       flex: 1, position: 'relative', display: 'flex', flexDirection: 'column',
@@ -106,8 +102,6 @@ export function MapPage() {
           </div>
         </div>
       </header>
-
-      <CertExpiryBanner expiringCount={expiringCount} expiredCount={expiredCount} />
 
       <MapFilters
         state={filter}
