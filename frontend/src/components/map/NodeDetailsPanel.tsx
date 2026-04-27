@@ -82,10 +82,7 @@ export function NodeDetailsPanel({ org, cluster, isAdmin, onClose, onSelectMembe
               >
                 <span style={{
                   width: '10px', height: '10px', borderRadius: '50%',
-                  background: ({
-                    VALID: '#22c55e', EXPIRING: '#f5a623',
-                    EXPIRED: '#ef4444', NONE: '#94a3b8',
-                  } as Record<MapOrganization['cert_status'], string>)[m.cert_status],
+                  background: STATUS_COLOR[m.cert_status],
                   flexShrink: 0,
                 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>

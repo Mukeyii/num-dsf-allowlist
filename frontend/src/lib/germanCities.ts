@@ -111,3 +111,14 @@ export function getPinCoord(name: string | null | undefined): { coord: [number, 
   if (known) return { coord: known, known: true };
   return { coord: unknownCityCoord(name ?? ''), known: false };
 }
+
+/**
+ * Stable bucket key for the geographic map. Used both as the cluster
+ * grouping key and as the cluster `selectedId`. Centralized here so
+ * cluster click-through can never drift between writer and reader.
+ */
+export function cityBucketKey(city: string | null | undefined, countryCode: string | null | undefined): string {
+  const cityKey = (city ?? '__unknown__').toLowerCase().trim();
+  const country = countryCode ?? 'DE';
+  return `${cityKey}|${country}`;
+}

@@ -11,7 +11,7 @@ import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
 import { GermanyOutline } from './GermanyOutline';
 import { GeoMapPin } from './GeoMapPin';
 import { GeoMapCluster, clusterKeyOf } from './GeoMapCluster';
-import { getPinCoord } from '../../lib/germanCities';
+import { getPinCoord, cityBucketKey } from '../../lib/germanCities';
 import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
@@ -52,7 +52,7 @@ function worstStatus(orgs: MapOrganization[]): MapOrganization['cert_status'] {
 function bucketByCity(orgs: MapOrganization[]): Map<string, MapOrganization[]> {
   const buckets = new Map<string, MapOrganization[]>();
   for (const o of orgs) {
-    const key = `${(o.city ?? '__unknown__').toLowerCase().trim()}|${(o.country_code ?? 'DE')}`;
+    const key = cityBucketKey(o.city, o.country_code);
     const list = buckets.get(key) ?? [];
     list.push(o);
     buckets.set(key, list);
