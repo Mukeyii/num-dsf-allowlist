@@ -6,6 +6,7 @@ import { Modal } from './Modal';
 import { FormField, inputClass, ModalFooter } from './FormField';
 import { organizationSchema, OrganizationFormData } from '../../schemas/organization.schema';
 import { useUpdateOrganization } from '../../hooks/useOrganization';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 interface Props {
   open: boolean;
@@ -16,6 +17,7 @@ interface Props {
 
 export function OrganizationModal({ open, onClose, instanceId, defaultValues }: Props) {
   const { mutateAsync, isPending } = useUpdateOrganization(instanceId);
+  const guard = useCrossUserGuard();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
     defaultValues: { active: true, ...defaultValues },
@@ -29,7 +31,11 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
 
   async function onSubmit(data: OrganizationFormData) {
     try {
-      await mutateAsync(data);
+      await new Promise<void>((resolve, reject) => {
+        guard(async () => {
+          try { await mutateAsync(data); resolve(); } catch (e) { reject(e); }
+        });
+      });
       toast.success('Organization saved successfully.');
       onClose();
       reset();

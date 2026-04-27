@@ -10,6 +10,7 @@ import { useContacts } from '../../hooks/useContacts';
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 function Section({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -34,6 +35,7 @@ interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
 export function ApprovalModal({ open, onClose, instanceId }: Props) {
   const { mutateAsync, isPending } = useSubmitApproval(instanceId);
+  const guard = useCrossUserGuard();
   const { data: org } = useOrganization(instanceId);
   const { data: contacts = [] } = useContacts(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
@@ -55,7 +57,11 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
 
   async function handleSubmit() {
     try {
-      await mutateAsync();
+      await new Promise<void>((resolve, reject) => {
+        guard(async () => {
+          try { await mutateAsync(); resolve(); } catch (e) { reject(e); }
+        });
+      });
       toast.success('Approval request submitted to IMI.');
       onClose();
     } catch (err: any) {

@@ -9,6 +9,7 @@ import { ModalFooter } from './FormField';
 import { useCertificates, useCreateCertificate, useDeleteCertificate } from '../../hooks/useCertificates';
 import { daysUntil } from '../../lib/dateUtils';
 import { toast } from 'sonner';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 interface Props {
   open: boolean;
@@ -20,6 +21,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
   const { data: certs = [] } = useCertificates(instanceId);
   const createMut = useCreateCertificate(instanceId);
   const deleteMut = useDeleteCertificate(instanceId);
+  const guard = useCrossUserGuard();
 
   const [step, setStep] = useState<'select' | 'upload' | 'confirm'>('select');
   const [selectedCertId, setSelectedCertId] = useState<string | null>(null);
@@ -49,10 +51,17 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
     if (!selectedCertId || !newPem.trim()) return;
 
     try {
-      // Upload new cert
-      await createMut.mutateAsync(newPem);
-      // Delete old cert
-      await deleteMut.mutateAsync(selectedCertId);
+      await new Promise<void>((resolve, reject) => {
+        guard(async () => {
+          try {
+            // Upload new cert
+            await createMut.mutateAsync(newPem);
+            // Delete old cert
+            await deleteMut.mutateAsync(selectedCertId);
+            resolve();
+          } catch (e) { reject(e); }
+        });
+      });
       toast.success('Certificate renewed successfully. Submit for approval to apply changes.');
       reset();
     } catch (err: any) {

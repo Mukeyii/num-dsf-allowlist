@@ -7,6 +7,7 @@ import { useModals }       from '../../hooks/useModals';
 import { IpDiffBadge } from './IpDiffBadge';
 import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 function HealthDot({ url }: { url: string }) {
   const [status, setStatus] = useState<'checking' | 'up' | 'down'>('checking');
@@ -43,6 +44,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
   const { data: endpoints = [], isLoading } = useEndpoints(instanceId);
   const { data: org } = useOrganization(instanceId);
   const deleteMut = useDeleteEndpoint(instanceId);
+  const guard = useCrossUserGuard();
 
   return (
     <EntityCard
@@ -108,7 +110,11 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  undoableDelete(ep.name || ep.identifier, () => deleteMut.mutateAsync(ep.identifier));
+                  undoableDelete(ep.name || ep.identifier, () => new Promise<void>((resolve, reject) => {
+                    guard(async () => {
+                      try { await deleteMut.mutateAsync(ep.identifier); resolve(); } catch (e) { reject(e); }
+                    });
+                  }));
                 }}
                 title="Delete endpoint"
                 aria-label="Delete endpoint"

@@ -7,6 +7,7 @@ import { FormField, selectClass, ModalFooter } from './FormField';
 import { membershipSchema, MembershipFormData } from '../../schemas/membership.schema';
 import { useCreateMembership, useUpdateMembership, useMemberships } from '../../hooks/useMemberships';
 import { useEndpoints } from '../../hooks/useEndpoints';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 const PARENT_ORGS = ['medizininformatik-initiative.de', 'netzwerk-universitaetsmedizin.de', 'eyematics.org', 'dktk.dkfz.de'];
 const ROLES = [
@@ -23,6 +24,7 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
   const createMut = useCreateMembership(instanceId);
   const updateMut = useUpdateMembership(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
+  const guard = useCrossUserGuard();
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<MembershipFormData>({
     resolver: zodResolver(membershipSchema),
     defaultValues: { roles: [], ...defaultValues },
@@ -48,8 +50,21 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
 
   async function onSubmit(data: MembershipFormData) {
     try {
-      if (membershipId) { await updateMut.mutateAsync({ id: membershipId, data }); toast.success('Membership updated.'); }
-      else { await createMut.mutateAsync(data); toast.success('Membership added.'); }
+      if (membershipId) {
+        await new Promise<void>((resolve, reject) => {
+          guard(async () => {
+            try { await updateMut.mutateAsync({ id: membershipId, data }); resolve(); } catch (e) { reject(e); }
+          });
+        });
+        toast.success('Membership updated.');
+      } else {
+        await new Promise<void>((resolve, reject) => {
+          guard(async () => {
+            try { await createMut.mutateAsync(data); resolve(); } catch (e) { reject(e); }
+          });
+        });
+        toast.success('Membership added.');
+      }
       onClose();
     } catch (err: any) { toast.error(err?.response?.data?.error?.message || 'Failed to save membership.'); }
   }
