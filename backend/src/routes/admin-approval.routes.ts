@@ -16,8 +16,13 @@ export const adminApprovalRouter = Router();
 
 const totpLimiter = process.env.NODE_ENV === 'test' ? [] : [otpRateLimit];
 
-adminApprovalRouter.get('/pending', requireAuth, requireImiAdmin, async (req, res) => {
-  res.json({ data: await svc.getPendingApprovals() });
+adminApprovalRouter.get('/pending', requireAuth, requireImiAdmin, async (_req, res) => {
+  const requests = await svc.getPendingApprovals();
+  const enriched = await Promise.all(requests.map(async (r: any) => ({
+    ...r,
+    signatures: await svc.getSignatures(r.id),
+  })));
+  res.json({ data: enriched });
 });
 
 adminApprovalRouter.post('/:rid/approve', requireAuth, requireImiAdmin, ...totpLimiter, async (req, res) => {
@@ -37,10 +42,18 @@ adminApprovalRouter.post('/:rid/approve', requireAuth, requireImiAdmin, ...totpL
       res.status(401).json({ error: { code: 'TOTP_INVALID', message: 'Invalid authenticator code.' } });
       return;
     }
-    const result = await svc.approveRequest(req.params.rid, req.user!.email, req.ip || 'unknown');
+    const result = await svc.approveRequest(req.params.rid, req.user!.email, req.ip);
     res.json({ data: result });
-  } catch (err: any) {
-    res.status(400).json({ error: sanitizeError(err) });
+  } catch (e: any) {
+    const code = e?.message;
+    if (code === 'ALREADY_DECIDED') return res.status(409).json({ error: { code, message: 'You already decided this request.' } });
+    if (code === 'ALREADY_APPROVED_SAME_SITE') return res.status(409).json({ error: { code, message: 'Another admin from your site has already approved.' } });
+    if (code === 'REQUEST_REJECTED') return res.status(409).json({ error: { code, message: 'Request was already rejected.' } });
+    if (code === 'REQUEST_APPROVED') return res.status(409).json({ error: { code, message: 'Request was already approved.' } });
+    if (code === 'REQUEST_FINALIZED') return res.status(409).json({ error: { code, message: 'Request is no longer pending.' } });
+    if (code === 'INVALID_ADMIN_EMAIL') return res.status(400).json({ error: { code, message: 'Invalid admin email.' } });
+    if (code === 'REQUEST_NOT_FOUND') return res.status(404).json({ error: { code, message: 'Request not found.' } });
+    throw e;
   }
 });
 
@@ -61,9 +74,14 @@ adminApprovalRouter.post('/:rid/reject', requireAuth, requireImiAdmin, ...totpLi
       res.status(401).json({ error: { code: 'TOTP_INVALID', message: 'Invalid authenticator code.' } });
       return;
     }
-    const result = await svc.rejectRequest(req.params.rid, req.user!.email, comment || '', req.ip || 'unknown');
-    res.json({ data: result });
-  } catch (err: any) {
-    res.status(400).json({ error: sanitizeError(err) });
+    await svc.rejectRequest(req.params.rid, req.user!.email, comment || '', req.ip);
+    res.json({ data: { status: 'REJECTED' } });
+  } catch (e: any) {
+    const code = e?.message;
+    if (code === 'ALREADY_DECIDED') return res.status(409).json({ error: { code, message: 'You already decided this request.' } });
+    if (code === 'REQUEST_FINALIZED') return res.status(409).json({ error: { code, message: 'Request is no longer pending.' } });
+    if (code === 'INVALID_ADMIN_EMAIL') return res.status(400).json({ error: { code, message: 'Invalid admin email.' } });
+    if (code === 'REQUEST_NOT_FOUND') return res.status(404).json({ error: { code, message: 'Request not found.' } });
+    throw e;
   }
 });
