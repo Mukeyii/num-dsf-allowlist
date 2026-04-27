@@ -19,6 +19,7 @@ import { CertRenewalModal } from '../components/modals/CertRenewalModal';
 import { ExpiryWarningBanner } from '../components/layout/ExpiryWarningBanner';
 import { CrossUserInstanceBanner } from '../components/layout/CrossUserInstanceBanner';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
+import { AppFooter } from '../components/layout/AppFooter';
 import { MapHeader } from '../components/map/MapHeader';
 import { ActivityFeed } from '../components/canvas/ActivityFeed';
 import { CommandPalette } from '../components/layout/CommandPalette';
@@ -103,6 +104,7 @@ export function AppPage() {
         ) : (
           <Outlet />
         )}
+        <AppFooter />
       </div>
 
       {showRightPanel && !isMapRoute && <RightPanel instanceId={activeInstanceId} />}
