@@ -8,6 +8,7 @@ import { membershipSchema, MembershipFormData } from '../../schemas/membership.s
 import { useCreateMembership, useUpdateMembership, useMemberships } from '../../hooks/useMemberships';
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
+import { useI18n } from '../../stores/i18n.store';
 
 const PARENT_ORGS = ['medizininformatik-initiative.de', 'netzwerk-universitaetsmedizin.de', 'eyematics.org', 'dktk.dkfz.de'];
 const ROLES = [
@@ -20,6 +21,7 @@ const ROLES = [
 interface Props { open: boolean; onClose: () => void; instanceId: string; membershipId?: string; defaultValues?: Partial<MembershipFormData>; }
 
 export function MembershipModal({ open, onClose, instanceId, membershipId, defaultValues }: Props) {
+  const { t } = useI18n();
   const { data: endpoints = [] } = useEndpoints(instanceId);
   const createMut = useCreateMembership(instanceId);
   const updateMut = useUpdateMembership(instanceId);
@@ -56,35 +58,35 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
             try { await updateMut.mutateAsync({ id: membershipId, data }); resolve(); } catch (e) { reject(e); }
           });
         });
-        toast.success('Membership updated.');
+        toast.success(t('membershipModalUpdateSuccess'));
       } else {
         await new Promise<void>((resolve, reject) => {
           guard(async () => {
             try { await createMut.mutateAsync(data); resolve(); } catch (e) { reject(e); }
           });
         });
-        toast.success('Membership added.');
+        toast.success(t('membershipModalAddSuccess'));
       }
       onClose();
-    } catch (err: any) { toast.error(err?.response?.data?.error?.message || 'Failed to save membership.'); }
+    } catch (err: any) { toast.error(err?.response?.data?.error?.message || t('membershipModalSaveFailed')); }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={membershipId ? 'Edit Membership' : 'Add New Membership'}>
+    <Modal open={open} onClose={onClose} title={membershipId ? t('membershipModalTitleEdit') : t('membershipModalTitleAdd')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField label="Parent Organization" required error={errors.parentOrganization?.message}>
+        <FormField label={t('membershipModalFieldParent')} required error={errors.parentOrganization?.message}>
           <select {...register('parentOrganization')} className={selectClass}>
-            <option value="">Select parent organization…</option>
+            <option value="">{t('membershipModalFieldParentPlaceholder')}</option>
             {PARENT_ORGS.map(org => (<option key={org} value={org}>{org}</option>))}
           </select>
         </FormField>
-        <FormField label="Endpoint" required error={errors.endpointId?.message} hint="The FHIR endpoint this membership is associated with">
+        <FormField label={t('membershipModalFieldEndpoint')} required error={errors.endpointId?.message} hint={t('membershipModalFieldEndpointHint')}>
           <select {...register('endpointId')} className={selectClass}>
-            <option value="">Select endpoint…</option>
+            <option value="">{t('membershipModalFieldEndpointPlaceholder')}</option>
             {endpoints.map((ep: any) => (<option key={ep.identifier} value={ep.identifier}>{ep.name || ep.identifier} ({ep.address})</option>))}
           </select>
         </FormField>
-        <FormField label="Roles" required error={errors.roles?.message}>
+        <FormField label={t('membershipModalFieldRoles')} required error={errors.roles?.message}>
           <Controller name="roles" control={control} render={({ field }) => (
             <div className="space-y-2">
               {ROLES.map(({ value, label, desc }) => (
@@ -98,7 +100,7 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
             </div>
           )} />
         </FormField>
-        <ModalFooter onCancel={onClose} loading={isPending} submitLabel={membershipId ? 'Update Membership' : 'Add Membership'} />
+        <ModalFooter onCancel={onClose} loading={isPending} submitLabel={membershipId ? t('membershipModalUpdateBtn') : t('membershipModalAddBtn')} />
       </form>
     </Modal>
   );

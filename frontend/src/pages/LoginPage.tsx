@@ -9,8 +9,10 @@ import { AuthLayout } from '../components/AuthLayout';
 import { authApi }    from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 import { jwtDecode }   from 'jwt-decode';
+import { useI18n } from '../stores/i18n.store';
 
 export function LoginPage() {
+  const { t } = useI18n();
   const navigate  = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
   const [email, setEmail]     = useState('');
@@ -37,8 +39,8 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Sign in"
-      subtitle="Enter your email to receive a one-time code."
+      title={t('signIn')}
+      subtitle={t('loginSubtitle')}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -47,7 +49,7 @@ export function LoginPage() {
             className="block text-xs font-medium mb-1.5"
             style={{ color: 'var(--text-muted)' }}
           >
-            Email address
+            {t('loginEmailLabel')}
           </label>
           <input
             id="email"
@@ -57,7 +59,7 @@ export function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@hospital.de"
+            placeholder={t('loginEmailPlaceholder')}
             className="w-full px-3 py-2.5 text-sm outline-none transition-all"
             style={{
               border: '1px solid var(--border)',
@@ -86,13 +88,13 @@ export function LoginPage() {
             border: 'none',
           }}
         >
-          {loading ? 'Sending code…' : 'Send code →'}
+          {loading ? t('loginSendingBtn') : t('loginSendBtn')}
         </button>
       </form>
 
       <div className="mt-4 pt-4 border-t border-slate-200">
         <p className="text-[11px] text-slate-500 mb-2 text-center">
-          Or, if your browser has a registered client certificate:
+          {t('loginCertHint')}
         </p>
         {certError && (
           <p className="text-xs mb-2 text-center" style={{ color: '#e05c5c' }}>{certError}</p>
@@ -110,7 +112,7 @@ export function LoginPage() {
               setTokens(accessToken, { id: decoded.sub, email: decoded.email });
               navigate('/app', { replace: true });
             } catch (err: any) {
-              setCertError(err?.response?.data?.error?.message || 'Client-certificate sign-in failed.');
+              setCertError(err?.response?.data?.error?.message || t('loginCertFailed'));
             } finally {
               setCertLoading(false);
             }
@@ -118,7 +120,7 @@ export function LoginPage() {
           className="w-full py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
           style={{ cursor: certLoading ? 'not-allowed' : 'pointer', opacity: certLoading ? 0.6 : 1 }}
         >
-          {certLoading ? 'Signing in…' : 'Sign in with client certificate'}
+          {certLoading ? t('loginCertSigningIn') : t('loginCertBtn')}
         </button>
       </div>
     </AuthLayout>

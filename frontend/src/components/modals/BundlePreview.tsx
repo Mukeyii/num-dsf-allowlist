@@ -7,12 +7,14 @@ import { useOrganization } from '../../hooks/useOrganization';
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
   instanceId: string;
 }
 
 export function BundlePreview({ instanceId }: Props) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const { data: org } = useOrganization(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
@@ -37,7 +39,7 @@ export function BundlePreview({ instanceId }: Props) {
         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
           {expanded ? 'expand_less' : 'preview'}
         </span>
-        {expanded ? 'Hide' : 'Preview'} Bundle ({resourceCount} resources)
+        {expanded ? t('bundlePreviewHide') : t('bundlePreviewShow')} {t('bundlePreviewSuffix', { n: resourceCount })}
       </button>
 
       {expanded && (
@@ -79,7 +81,7 @@ export function BundlePreview({ instanceId }: Props) {
                 <span style={{ fontSize: '11px', fontWeight: 700, color: '#f5a623', textTransform: 'uppercase' }}>Certificate</span>
               </div>
               <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0 }}>{cert.subject}</p>
-              <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>Valid until: {cert.valid_until}</p>
+              <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>{t('bundlePreviewValidUntil', { date: cert.valid_until })}</p>
             </div>
           ))}
 

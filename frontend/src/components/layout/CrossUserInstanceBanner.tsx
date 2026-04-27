@@ -5,10 +5,12 @@
  */
 import { useMe } from '../../hooks/useMe';
 import { useInstance } from '../../hooks/useInstance';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props { instanceId: string | null }
 
 export function CrossUserInstanceBanner({ instanceId }: Props) {
+  const { t } = useI18n();
   const { data: me } = useMe();
   const { data: instance } = useInstance(instanceId);
   if (!me?.isAdmin || !instance || !instanceId) return null;
@@ -33,10 +35,10 @@ export function CrossUserInstanceBanner({ instanceId }: Props) {
       </span>
       <div style={{ fontSize: '12px', lineHeight: 1.4 }}>
         <p style={{ margin: 0, fontWeight: 700, color: '#92400e' }}>
-          You are viewing another user's instance
+          {t('crossUserBannerTitle')}
         </p>
         <p style={{ margin: '2px 0 0', color: '#92400e' }}>
-          This instance belongs to <span style={{ fontFamily: 'monospace' }}>{owner}</span>. Any change you save will be applied to their data.
+          {t('crossUserBannerBody', { owner })}
         </p>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { usePendingApprovals, useApproveRequest, useRejectRequest } from '../hooks/useAdmin';
 import { useMe } from '../hooks/useMe';
 import type { ApprovalSignature } from '../api/admin.api';
+import { useI18n } from '../stores/i18n.store';
 
 function relTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -48,6 +49,7 @@ interface RequestCardProps {
 
 
 function RequestCard({ request, meEmail }: RequestCardProps) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [comment, setComment] = useState('');
@@ -73,36 +75,36 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
 
   async function handleApprove() {
     if (!totpCode || totpCode.length !== 6) {
-      toast.error('Please enter your 6-digit authenticator code.');
+      toast.error(t('adminToastTotpRequired'));
       return;
     }
     try {
       await approveMut.mutateAsync({ requestId: request.id, totpCode });
-      toast.success('Request approved.');
+      toast.success(t('adminToastApproveSuccess'));
       setTotpCode('');
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || 'Failed to approve request.';
+      const msg = err?.response?.data?.error?.message || t('adminToastApproveFailed');
       toast.error(msg);
     }
   }
 
   async function handleReject() {
     if (!comment.trim()) {
-      toast.error('Please provide a reason for rejection.');
+      toast.error(t('adminToastReasonRequired'));
       return;
     }
     if (!totpCode || totpCode.length !== 6) {
-      toast.error('Please enter your 6-digit authenticator code.');
+      toast.error(t('adminToastTotpRequired'));
       return;
     }
     try {
       await rejectMut.mutateAsync({ requestId: request.id, comment: comment.trim(), totpCode });
-      toast.success('Request rejected.');
+      toast.success(t('adminToastRejectSuccess'));
       setRejecting(false);
       setComment('');
       setTotpCode('');
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || 'Failed to reject request.';
+      const msg = err?.response?.data?.error?.message || t('adminToastRejectFailed');
       toast.error(msg);
     }
   }
@@ -151,14 +153,14 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
               borderRadius: '20px',
               letterSpacing: '0.02em',
               textTransform: 'uppercase',
-            }}>Pending</span>
+            }}>{t('pending')}</span>
             {timeStr && (
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{relTime(timeStr)}</span>
             )}
           </div>
           <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
             <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              {approvals.length}/2 approvals
+              {t('adminApprovals', { n: approvals.length })}
             </span>
             {approvals.map(s => (
               <span key={s.id} style={{
@@ -170,7 +172,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
             ))}
             {silentConsentDate && approvals.length === 1 && (
               <span style={{ fontSize: '10px', color: '#c2410c', fontWeight: 600 }}>
-                Auto-approves on {silentConsentDate.toLocaleDateString()} unless rejected
+                {t('adminAutoApproves', { date: silentConsentDate.toLocaleDateString() })}
               </span>
             )}
           </div>
@@ -182,9 +184,9 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
             onClick={handleApprove}
             disabled={approveDisabled}
             title={
-              approvals.length >= 2 ? 'Already approved by 2 admins'
-              : alreadyDecidedByMe ? 'You already decided this request'
-              : sameSiteApprovalExists ? 'Another admin from your site has already approved'
+              approvals.length >= 2 ? t('adminAlreadyApproved2')
+              : alreadyDecidedByMe ? t('adminAlreadyDecided')
+              : sameSiteApprovalExists ? t('adminSameSiteApproval')
               : undefined
             }
             style={{
@@ -200,7 +202,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
               transition: 'opacity 0.15s',
             }}
           >
-            {approveMut.isPending ? 'Approving…' : 'Approve'}
+            {approveMut.isPending ? t('adminApprovingBtn') : t('adminApproveBtn')}
           </button>
           {!rejecting ? (
             <button
@@ -219,7 +221,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
                 transition: 'background 0.15s',
               }}
             >
-              Reject
+              {t('adminRejectBtn')}
             </button>
           ) : null}
         </div>
@@ -237,12 +239,12 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
           gap: '10px',
         }}>
           <label style={{ fontSize: '12px', fontWeight: 600, color: '#b91c1c', fontFamily: 'Inter, system-ui, sans-serif' }}>
-            Rejection reason (required)
+            {t('adminRejectionReasonLabel')}
           </label>
           <textarea
             value={comment}
             onChange={e => setComment(e.target.value)}
-            placeholder="Explain why this request is being rejected…"
+            placeholder={t('adminRejectionReasonPlaceholder')}
             rows={3}
             style={{
               width: '100%',
@@ -273,7 +275,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
                 fontFamily: 'Inter, system-ui, sans-serif',
               }}
             >
-              {rejectMut.isPending ? 'Rejecting…' : 'Confirm Reject'}
+              {rejectMut.isPending ? t('adminRejectingBtn') : t('adminConfirmRejectBtn')}
             </button>
             <button
               onClick={() => { setRejecting(false); setComment(''); }}
@@ -290,7 +292,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
                 fontFamily: 'Inter, system-ui, sans-serif',
               }}
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         </div>
@@ -303,7 +305,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
           type="text"
           value={totpCode}
           onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          placeholder="6-digit authenticator code"
+          placeholder={t('adminTotpPlaceholder')}
           maxLength={6}
           style={{
             width: '180px', padding: '8px 12px', borderRadius: '10px',
@@ -311,7 +313,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
             letterSpacing: '4px', textAlign: 'center', outline: 'none',
           }}
         />
-        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Required for approve/reject</span>
+        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{t('adminTotpRequired')}</span>
       </div>
 
       {/* Expand toggle */}
@@ -336,7 +338,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
         <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
           {expanded ? 'expand_less' : 'expand_more'}
         </span>
-        {expanded ? 'Hide details' : 'View submitted data'}
+        {expanded ? t('adminHideDetails') : t('adminViewDetails')}
       </button>
 
       {/* Quick change summary */}
@@ -370,14 +372,14 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
           <SnapshotSection title="Organization" color="#6c63ff" icon="corporate_fare">
             {snapshot.organization ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <SnapshotField label="Name" value={snapshot.organization.name} />
+                <SnapshotField label={t('orgCardName')} value={snapshot.organization.name} />
                 <SnapshotField label="ID" value={snapshot.organization.identifier} mono />
-                {snapshot.organization.email && <SnapshotField label="Email" value={String(snapshot.organization.email)} />}
-                {snapshot.organization.city && <SnapshotField label="City" value={String(snapshot.organization.city)} />}
+                {snapshot.organization.email && <SnapshotField label={t('orgCardEmail')} value={String(snapshot.organization.email)} />}
+                {snapshot.organization.city && <SnapshotField label={t('orgCardCity')} value={String(snapshot.organization.city)} />}
                 {snapshot.organization.country_code && <SnapshotField label="Country" value={String(snapshot.organization.country_code)} />}
               </div>
             ) : (
-              <EmptyNote>No organization data</EmptyNote>
+              <EmptyNote>{t('adminSnapshotNoOrg')}</EmptyNote>
             )}
           </SnapshotSection>
 
@@ -409,7 +411,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
                 ))}
               </div>
             ) : (
-              <EmptyNote>No endpoints</EmptyNote>
+              <EmptyNote>{t('adminSnapshotNoEndpoints')}</EmptyNote>
             )}
           </SnapshotSection>
 
@@ -424,13 +426,13 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
                       <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{cert.thumbprint}</div>
                     )}
                     {cert.valid_until && (
-                      <div style={{ fontSize: '11px', color: '#6b7280' }}>Expires: {cert.valid_until}</div>
+                      <div style={{ fontSize: '11px', color: '#6b7280' }}>{t('adminSnapshotExpires', { date: cert.valid_until })}</div>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <EmptyNote>No certificates</EmptyNote>
+              <EmptyNote>{t('adminSnapshotNoCerts')}</EmptyNote>
             )}
           </SnapshotSection>
 
@@ -462,7 +464,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
                 ))}
               </div>
             ) : (
-              <EmptyNote>No memberships</EmptyNote>
+              <EmptyNote>{t('adminSnapshotNoMemberships')}</EmptyNote>
             )}
           </SnapshotSection>
 
@@ -545,6 +547,7 @@ function EmptyNote({ children }: { children: React.ReactNode }) {
 }
 
 export function AdminPage() {
+  const { t } = useI18n();
   const { data: requests, isLoading, error } = usePendingApprovals();
   const { data: me } = useMe();
 
@@ -564,10 +567,10 @@ export function AdminPage() {
         </span>
         <div>
           <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-            Approval Review
+            {t('adminPageTitle')}
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
-            Review and action pending approval requests from DSF participants
+            {t('adminPageSubtitle')}
           </p>
         </div>
       </div>
@@ -582,12 +585,8 @@ export function AdminPage() {
           shield
         </span>
         <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#7c2d12' }}>
-          <p style={{ margin: '0 0 4px', fontWeight: 700 }}>4-eyes approval principle</p>
-          <p style={{ margin: 0 }}>
-            Two admins from <strong>different sites</strong> must approve before a request is finalized.
-            After the first approval, a second admin has 7 days to <strong>reject</strong>; if no rejection arrives,
-            the request is automatically approved (<em>Schweigen als Zustimmung</em>).
-          </p>
+          <p style={{ margin: '0 0 4px', fontWeight: 700 }}>{t('adminFourEyesTitle')}</p>
+          <p style={{ margin: 0 }}>{t('adminFourEyesBody')}</p>
         </div>
       </div>
 
@@ -605,9 +604,7 @@ export function AdminPage() {
         }}>
           <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#ef4444' }}>error</span>
           <span style={{ fontSize: '13px', color: '#b91c1c' }}>
-            {is403
-              ? 'Access denied. You do not have admin privileges.'
-              : 'Failed to load pending requests. Please try again later.'}
+            {is403 ? t('adminAccessDenied') : t('adminLoadFailed')}
           </span>
         </div>
       )}
@@ -626,7 +623,7 @@ export function AdminPage() {
           <span className="material-symbols-outlined" style={{ fontSize: '20px', animation: 'spin 1s linear infinite' }}>
             progress_activity
           </span>
-          Loading pending requests…
+          {t('adminLoadingRequests')}
         </div>
       )}
 
@@ -645,9 +642,9 @@ export function AdminPage() {
             check_circle
           </span>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>No pending requests</div>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('adminNoPendingTitle')}</div>
             <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-              All approval requests have been processed.
+              {t('adminNoPendingBody')}
             </div>
           </div>
         </div>
@@ -657,7 +654,9 @@ export function AdminPage() {
       {!isLoading && !error && requests && requests.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-            {requests.length} pending request{requests.length !== 1 ? 's' : ''}
+            {requests.length === 1
+              ? t('adminPendingCount', { n: requests.length })
+              : t('adminPendingCountPlural', { n: requests.length })}
           </div>
           {requests.map((req: RequestCardProps['request']) => (
             <RequestCard key={req.id} request={req} meEmail={me?.email ?? null} />

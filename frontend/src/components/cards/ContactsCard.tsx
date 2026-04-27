@@ -70,7 +70,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                 ))}
               </div>
               <div style={{ fontSize: '11px', color: c.email_validated ? '#4caf8a' : '#f5a623' }}>
-                {c.email_validated ? '✓ validated' : '⚠ not validated'}
+                {c.email_validated ? t('contactEmailValidated') : t('contactEmailNotValidated')}
               </div>
               {!c.email_validated && (
                 <button
@@ -78,12 +78,12 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                     e.stopPropagation();
                     try {
                       await api(instanceId).resendVerification(c.id);
-                      toast.success('Verification email sent.');
-                    } catch { toast.error('Failed to send verification email.'); }
+                      toast.success(t('contactVerificationSent'));
+                    } catch { toast.error(t('contactVerificationFailed')); }
                   }}
                   className="text-[9px] text-primary underline hover:no-underline mt-0.5 block"
                 >
-                  Resend verification
+                  {t('contactResendVerification')}
                 </button>
               )}
             </div>

@@ -10,6 +10,7 @@ import { useCertificates, useCreateCertificate, useDeleteCertificate } from '../
 import { daysUntil } from '../../lib/dateUtils';
 import { toast } from 'sonner';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
   open: boolean;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function CertRenewalModal({ open, onClose, instanceId }: Props) {
+  const { t } = useI18n();
   const { data: certs = [] } = useCertificates(instanceId);
   const createMut = useCreateCertificate(instanceId);
   const deleteMut = useDeleteCertificate(instanceId);
@@ -62,10 +64,10 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
           } catch (e) { reject(e); }
         });
       });
-      toast.success('Certificate renewed successfully. Submit for approval to apply changes.');
+      toast.success(t('certRenewalSuccess'));
       reset();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || 'Failed to renew certificate.');
+      toast.error(err?.response?.data?.error?.message || t('certRenewalFailed'));
     }
   }
 
@@ -75,11 +77,11 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
   );
 
   return (
-    <Modal open={open} onClose={reset} title="Renew Certificate" width="max-w-lg">
+    <Modal open={open} onClose={reset} title={t('certRenewalTitle')} width="max-w-lg">
       {step === 'select' && (
         <div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-            Select the certificate you want to replace:
+            {t('certRenewalSelectHint')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {sortedCerts.map((cert: any) => {
@@ -97,7 +99,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
                 >
                   <div>
                     <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{cert.subject}</p>
-                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>Valid until: {cert.valid_until}</p>
+                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>{t('certRenewalValidUntil', { date: cert.valid_until })}</p>
                   </div>
                   <span style={{ fontSize: '11px', fontWeight: 700, color, padding: '2px 8px', borderRadius: '6px', background: `${color}18` }}>
                     {days < 0 ? 'EXPIRED' : `${days}d`}
@@ -106,7 +108,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
               );
             })}
             {sortedCerts.length === 0 && (
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>No certificates to renew.</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>{t('certRenewalNoCerts')}</p>
             )}
           </div>
         </div>
@@ -115,7 +117,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
       {step === 'upload' && selectedCert && (
         <div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
-            Replacing: <strong style={{ color: 'var(--text-primary)' }}>{selectedCert.subject}</strong>
+            {t('certRenewalReplacingLabel')} <strong style={{ color: 'var(--text-primary)' }}>{selectedCert.subject}</strong>
           </p>
 
           {/* Drop zone */}
@@ -131,13 +133,13 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '32px', color: dragOver ? '#6c63ff' : 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>upload_file</span>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Drop new .pem file here</p>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('certRenewalDropHint')}</p>
           </div>
 
           <textarea
             value={newPem}
             onChange={e => setNewPem(e.target.value)}
-            placeholder="Or paste PEM content here..."
+            placeholder={t('certRenewalPastePlaceholder')}
             rows={6}
             style={{
               width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border)',
@@ -148,13 +150,13 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
 
           {newPem.includes('PRIVATE KEY') && (
             <div style={{ padding: '8px 12px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca', marginTop: '8px' }}>
-              <p style={{ fontSize: '11px', color: '#991b1b', margin: 0 }}>This contains a PRIVATE KEY. Only upload the public certificate.</p>
+              <p style={{ fontSize: '11px', color: '#991b1b', margin: 0 }}>{t('certRenewalPrivateKeyError')}</p>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
             <button onClick={() => setStep('select')} style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
-              Back
+              {t('certRenewalBackBtn')}
             </button>
             <button
               onClick={() => setStep('confirm')}
@@ -166,7 +168,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
                 fontSize: '12px', fontWeight: 600, cursor: 'pointer',
               }}
             >
-              Review
+              {t('certRenewalReviewBtn')}
             </button>
           </div>
         </div>
@@ -175,17 +177,17 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
       {step === 'confirm' && selectedCert && (
         <div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-            This will upload the new certificate and delete the old one:
+            {t('certRenewalConfirmHint')}
           </p>
 
           <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
             <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#fef2f2', border: '1px solid #fecaca' }}>
-              <p style={{ fontSize: '9px', fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', margin: '0 0 4px' }}>Removing</p>
+              <p style={{ fontSize: '9px', fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', margin: '0 0 4px' }}>{t('certRenewalRemovingLabel')}</p>
               <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0 }}>{selectedCert.subject}</p>
-              <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>Until: {selectedCert.valid_until}</p>
+              <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>{t('certRenewalUntil', { date: selectedCert.valid_until })}</p>
             </div>
             <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-              <p style={{ fontSize: '9px', fontWeight: 700, color: '#15803d', textTransform: 'uppercase', margin: '0 0 4px' }}>Adding</p>
+              <p style={{ fontSize: '9px', fontWeight: 700, color: '#15803d', textTransform: 'uppercase', margin: '0 0 4px' }}>{t('certRenewalAddingLabel')}</p>
               <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0, fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {newPem.slice(0, 60)}...
               </p>
@@ -194,14 +196,14 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
 
           <div style={{ padding: '8px 12px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '16px' }}>
             <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
-              After renewal, submit for approval to apply the changes to the allow list.
+              {t('certRenewalApprovalHint')}
             </p>
           </div>
 
           <ModalFooter
             onCancel={() => setStep('upload')}
             loading={createMut.isPending || deleteMut.isPending}
-            submitLabel="Confirm Renewal"
+            submitLabel={t('certRenewalConfirmBtn')}
             onSubmit={handleConfirm}
           />
         </div>
