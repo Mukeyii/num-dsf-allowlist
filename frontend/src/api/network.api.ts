@@ -42,13 +42,13 @@ export interface MapOrganization {
   identifier: string;
   name: string;
   active: boolean;
+  city: string | null;
+  country_code: string | null;
   cert_status: 'VALID' | 'EXPIRING' | 'EXPIRED' | 'NONE';
   endpoints: (MapEndpointPublic | MapEndpointAdmin)[];
   memberships: (MapMembershipPublic | MapMembershipAdmin)[];
   // Admin-only fields (absent for non-admin responses)
   email?: string;
-  city?: string | null;
-  country_code?: string | null;
   next_cert_expiry?: string | null;
   cert_days_until?: number | null;
   contacts?: MapContactAdmin[];
