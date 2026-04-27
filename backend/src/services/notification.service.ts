@@ -140,6 +140,54 @@ export async function sendAdminApprovalResultEmail(
   await transporter.sendMail({ from: FROM, to: adminEmails.join(','), subject, text, html });
 }
 
+export async function sendAdminFirstApprovalEmail(
+  adminEmails: string[],
+  orgName: string,
+  orgId: string,
+  firstApproverEmail: string,
+  requestId: string,
+): Promise<void> {
+  if (adminEmails.length === 0 || IS_TEST) return;
+
+  const days = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
+  const subject = `[DSF Allow List – ${ENV}] First approval recorded for ${orgName}`;
+
+  const text = [
+    `DSF Allow List – ${ENV}`,
+    ``,
+    `${firstApproverEmail} has approved the request for ${orgName} (${orgId}).`,
+    ``,
+    `A second admin from a different site must approve OR reject within ${days} days.`,
+    `If no rejection arrives in that window, the request will be auto-approved (Schweigen als Zustimmung).`,
+    ``,
+    `Request ID: ${requestId}`,
+  ].join('\n');
+
+  const html = baseHtml('First Approval Recorded', `
+    <p><strong>${esc(firstApproverEmail)}</strong> has approved the request for <strong>${esc(orgName)}</strong> (${esc(orgId)}).</p>
+    <p>A second admin from a <strong>different site</strong> must approve OR reject within <strong>${days} days</strong>.</p>
+    <p>If no rejection arrives in that window, the request will be automatically approved (<em>Schweigen als Zustimmung</em>).</p>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Organization</td>
+          <td style="padding:6px 0;font-weight:bold;">${esc(orgName)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Identifier</td>
+          <td style="padding:6px 0;">${esc(orgId)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">First approved by</td>
+          <td style="padding:6px 0;">${esc(firstApproverEmail)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Request ID</td>
+          <td style="padding:6px 0;font-family:monospace;font-size:12px;">${esc(requestId)}</td></tr>
+    </table>
+    <p style="margin-top:20px;">
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/approvals"
+         style="display:inline-block;padding:10px 20px;background:${BRAND};color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+        Review in Portal
+      </a>
+    </p>
+  `);
+
+  await transporter.sendMail({ from: FROM, to: adminEmails.join(','), subject, text, html });
+}
+
 export async function sendSiteApprovalResultEmail(
   contactEmails: string[],
   orgName: string,

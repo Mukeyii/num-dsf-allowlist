@@ -10,6 +10,7 @@ import { db } from '../db/connection';
 import {
   sendAdminNewRequestEmail,
   sendAdminApprovalResultEmail,
+  sendAdminFirstApprovalEmail,
   sendSiteApprovalResultEmail,
 } from './notification.service';
 
@@ -94,6 +95,18 @@ export async function notifySiteOnApproval(
       console.error('[ApprovalNotify] Failed to send site approval-result email:', err);
     }
   }, SITE_NOTIFY_DELAY_MS);
+}
+
+export async function notifyImiOnFirstApproval(
+  instanceId: string,
+  firstApproverEmail: string,
+  requestId: string,
+): Promise<void> {
+  const imiEmails = getImiEmails().filter(e => e.toLowerCase() !== firstApproverEmail.toLowerCase());
+  if (imiEmails.length === 0) return;
+  const org = await db('organizations').where({ instance_id: instanceId }).first();
+  if (!org) return;
+  await sendAdminFirstApprovalEmail(imiEmails, org.name, org.identifier, firstApproverEmail, requestId);
 }
 
 export async function runApprovalReminders(): Promise<void> {
