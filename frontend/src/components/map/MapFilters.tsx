@@ -58,7 +58,7 @@ export function MapFilters({
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: '10px',
-      padding: '12px 28px', borderBottom: '1px solid var(--border)',
+      padding: '4px 28px 12px', borderBottom: '1px solid var(--border)',
       background: 'var(--bg-card)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
