@@ -81,6 +81,8 @@ export function MapPage() {
     return { city: first.city, country_code: first.country_code, members, worstStatus: worst };
   }, [selectedId, organizations]);
 
+  const isPanelOpen = !!selectedOrg || !!selectedCluster;
+
   return (
     <div style={{
       flex: 1, position: 'relative', display: 'flex', flexDirection: 'column',
@@ -98,13 +100,17 @@ export function MapPage() {
         verbundPills={<VerbundPills counts={counts} active={activeVerbunds} onToggle={toggleVerbund} />}
       />
 
-      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+      <div style={{ flex: 1, display: 'flex', minHeight: 0, position: 'relative' }}>
         <MapOrgList
           organizations={filtered}
           selectedId={selectedId}
           onSelect={setSelectedId}
         />
-        <div style={{ flex: 1, position: 'relative', minHeight: 0, background: '#f8fafc' }}>
+        <div style={{
+          flex: 1, position: 'relative', minHeight: 0, background: '#f8fafc',
+          marginRight: isPanelOpen ? '380px' : '0',
+          transition: 'margin-right 0.25s ease',
+        }}>
           {isLoading && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
               {t('mapLoadingNetwork')}
@@ -126,14 +132,14 @@ export function MapPage() {
               showAllEdges={showAllEdges}
             />
           )}
-          <NodeDetailsPanel
-            org={selectedOrg}
-            cluster={selectedCluster}
-            isAdmin={isAdmin}
-            onClose={() => setSelectedId(null)}
-            onSelectMember={(id) => setSelectedId(id)}
-          />
         </div>
+        <NodeDetailsPanel
+          org={selectedOrg}
+          cluster={selectedCluster}
+          isAdmin={isAdmin}
+          onClose={() => setSelectedId(null)}
+          onSelectMember={(id) => setSelectedId(id)}
+        />
       </div>
       <InternationalStrip orgs={organizations} onSelect={setSelectedId} />
     </div>
