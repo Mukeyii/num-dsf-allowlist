@@ -27,7 +27,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
             onClick={() => useModals.getState().openModal('cert-renew')}
             style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', border: '1px solid #f5a623', background: 'transparent', color: '#f5a623', cursor: 'pointer' }}
           >
-            Renew
+            {t('certRenewBtn')}
           </button>
           <span className="material-symbols-outlined text-emerald-500" style={{ fontSize: '20px' }}>lock</span>
         </div>
@@ -58,7 +58,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
                 <div style={{ flex: 1, height: '6px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
                   <div style={{ width: `${pct}%`, height: '100%', borderRadius: '99px', background: barColor }} />
                 </div>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)' }}>{days}d left</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-secondary)' }}>{t('certDaysLeft', { n: days })}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button
@@ -69,14 +69,14 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
                       });
                     }));
                   }}
-                  title="Delete certificate"
-                  aria-label="Delete certificate"
+                  title={t('delete')}
+                  aria-label={t('delete')}
                   style={{ fontSize: '10px', color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: '6px', fontWeight: 600, transition: 'background 0.15s', display: 'flex', alignItems: 'center' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>delete</span>
-                  Remove
+                  {t('certRemoveBtn')}
                 </button>
               </div>
             </div>

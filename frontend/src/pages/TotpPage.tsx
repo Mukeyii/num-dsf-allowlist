@@ -8,8 +8,10 @@ import { AuthLayout }  from '../components/AuthLayout';
 import { authApi }     from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 import { jwtDecode }   from 'jwt-decode';
+import { useI18n } from '../stores/i18n.store';
 
 export function TotpPage() {
+  const { t } = useI18n();
   const navigate  = useNavigate();
   const location  = useLocation();
   const setTokens = useAuthStore((s) => s.setTokens);
@@ -39,7 +41,7 @@ export function TotpPage() {
       setTokens(accessToken, { id: decoded.sub, email: decoded.email });
       navigate('/app', { replace: true });
     } catch {
-      setError('Invalid code. Please try again.');
+      setError(t('totpInvalidCode'));
       setCode('');
     } finally {
       setLoading(false);
@@ -48,17 +50,13 @@ export function TotpPage() {
 
   return (
     <AuthLayout
-      title="Two-factor authentication"
-      subtitle={
-        useBackup
-          ? 'Enter one of your backup codes.'
-          : `Enter the 6-digit code from your authenticator app.`
-      }
+      title={t('totpTitle')}
+      subtitle={useBackup ? t('totpSubtitleBackup') : t('totpSubtitleApp')}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium mb-1.5" style={{ color: '#9b9fad' }}>
-            {useBackup ? 'Backup code' : 'Authenticator code'}
+            {useBackup ? t('totpLabelBackup') : t('totpLabelApp')}
           </label>
           <input
             type="text"
@@ -97,7 +95,7 @@ export function TotpPage() {
             cursor: loading || code.length < (useBackup ? 8 : 6) ? 'not-allowed' : 'pointer',
           }}
         >
-          {loading ? 'Verifying…' : 'Sign in →'}
+          {loading ? t('totpVerifying') : t('totpSignIn')}
         </button>
 
         <div className="text-center space-y-2">
@@ -107,7 +105,7 @@ export function TotpPage() {
             className="text-xs underline block mx-auto"
             style={{ color: '#9b9fad', background: 'none', border: 'none', cursor: 'pointer' }}
           >
-            {useBackup ? 'Use authenticator code instead' : 'Use a backup code instead'}
+            {useBackup ? t('totpUseApp') : t('totpUseBackup')}
           </button>
           <button
             type="button"
@@ -115,7 +113,7 @@ export function TotpPage() {
             className="text-xs block mx-auto"
             style={{ color: '#9b9fad', background: 'none', border: 'none', cursor: 'pointer' }}
           >
-            ← Start over
+            {t('totpStartOver')}
           </button>
         </div>
       </form>

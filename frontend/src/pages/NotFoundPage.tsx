@@ -3,8 +3,10 @@
  * Dependencies: react-router-dom (Link)
  */
 import { Link } from 'react-router-dom';
+import { useI18n } from '../stores/i18n.store';
 
 export function NotFoundPage() {
+  const { t } = useI18n();
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -15,10 +17,10 @@ export function NotFoundPage() {
         search_off
       </span>
       <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-        Page Not Found
+        {t('pageNotFound')}
       </h1>
       <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '32px' }}>
-        The page you're looking for doesn't exist.
+        {t('notFoundMessage')}
       </p>
       <Link
         to="/app"
@@ -27,7 +29,7 @@ export function NotFoundPage() {
           borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 500,
         }}
       >
-        Back to App
+        {t('notFoundBackBtn')}
       </Link>
     </div>
   );

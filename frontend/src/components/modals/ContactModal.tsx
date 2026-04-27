@@ -7,6 +7,7 @@ import { FormField, inputClass, ModalFooter } from './FormField';
 import { contactSchema, ContactFormData } from '../../schemas/contact.schema';
 import { useCreateContact, useUpdateContact, useContacts } from '../../hooks/useContacts';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
+import { useI18n } from '../../stores/i18n.store';
 
 const TYPES = [
   { value: 'MEDIC', label: 'MEDIC', desc: 'Person responsible for the organization' },
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function ContactModal({ open, onClose, instanceId, contactId, defaultValues }: Props) {
+  const { t } = useI18n();
   const createMut = useCreateContact(instanceId);
   const updateMut = useUpdateContact(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
@@ -63,28 +65,28 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
             try { await updateMut.mutateAsync({ id: contactId, data }); resolve(); } catch (e) { reject(e); }
           });
         });
-        toast.success('Contact updated.');
+        toast.success(t('contactModalUpdateSuccess'));
       } else {
         await new Promise<void>((resolve, reject) => {
           guard(async () => {
             try { await createMut.mutateAsync(data); resolve(); } catch (e) { reject(e); }
           });
         });
-        toast.success('Contact added.');
+        toast.success(t('contactModalAddSuccess'));
       }
       onClose();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || 'Failed to save contact.');
+      toast.error(err?.response?.data?.error?.message || t('contactModalSaveFailed'));
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={contactId ? 'Edit Contact' : 'Add New Contact'}>
+    <Modal open={open} onClose={onClose} title={contactId ? t('contactModalTitleEdit') : t('contactModalTitleAdd')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-          <p className="text-xs text-indigo-700">Contact data will <strong>not</strong> be shared in the allow list. It is used for internal DSF communication only.</p>
+          <p className="text-xs text-indigo-700">{t('contactModalPrivacyNote')}</p>
         </div>
-        <FormField label="Types" required error={errors.types?.message}>
+        <FormField label={t('contactModalFieldTypes')} required error={errors.types?.message}>
           <Controller name="types" control={control} render={({ field }) => (
             <div className="space-y-2">
               {TYPES.map(({ value, label, desc }) => (
@@ -101,30 +103,30 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
             </div>
           )} />
         </FormField>
-        <FormField label="Name" error={errors.name?.message} hint="Or organization name">
-          <input {...register('name')} className={inputClass} placeholder="e.g. Max Mustermann" />
+        <FormField label={t('contactModalFieldName')} error={errors.name?.message} hint={t('contactModalFieldNameHint')}>
+          <input {...register('name')} className={inputClass} placeholder={t('contactModalFieldNamePlaceholder')} />
         </FormField>
-        <FormField label="Email" required error={errors.email?.message} hint="Used for DSF community communication">
-          <input {...register('email')} type="email" className={inputClass} placeholder="e.g. medic@hospital.de" />
+        <FormField label={t('contactModalFieldEmail')} required error={errors.email?.message} hint={t('contactModalFieldEmailHint')}>
+          <input {...register('email')} type="email" className={inputClass} placeholder={t('contactModalFieldEmailPlaceholder')} />
         </FormField>
-        <FormField label="Phone" error={errors.phone?.message}>
-          <input {...register('phone')} className={inputClass} placeholder="e.g. +491231523455" />
+        <FormField label={t('contactModalFieldPhone')} error={errors.phone?.message}>
+          <input {...register('phone')} className={inputClass} placeholder={t('contactModalFieldPhonePlaceholder')} />
         </FormField>
-        <FormField label="Address Line" error={errors.addressLine?.message}>
-          <input {...register('addressLine')} className={inputClass} placeholder="e.g. Max-Planck-Str. 39" />
+        <FormField label={t('contactModalFieldAddress')} error={errors.addressLine?.message}>
+          <input {...register('addressLine')} className={inputClass} placeholder={t('contactModalFieldAddressPlaceholder')} />
         </FormField>
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Postal Code" error={errors.postalCode?.message}>
-            <input {...register('postalCode')} className={inputClass} placeholder="74081" />
+          <FormField label={t('contactModalFieldPostal')} error={errors.postalCode?.message}>
+            <input {...register('postalCode')} className={inputClass} placeholder={t('contactModalFieldPostalPlaceholder')} />
           </FormField>
-          <FormField label="City" error={errors.city?.message}>
-            <input {...register('city')} className={inputClass} placeholder="Heilbronn" />
+          <FormField label={t('contactModalFieldCity')} error={errors.city?.message}>
+            <input {...register('city')} className={inputClass} placeholder={t('contactModalFieldCityPlaceholder')} />
           </FormField>
         </div>
-        <FormField label="Country Code" error={errors.countryCode?.message}>
-          <input {...register('countryCode')} className={inputClass} placeholder="DE" maxLength={2} />
+        <FormField label={t('contactModalFieldCountry')} error={errors.countryCode?.message}>
+          <input {...register('countryCode')} className={inputClass} placeholder={t('contactModalFieldCountryPlaceholder')} maxLength={2} />
         </FormField>
-        <ModalFooter onCancel={onClose} loading={isPending} submitLabel={contactId ? 'Update Contact' : 'Add Contact'} />
+        <ModalFooter onCancel={onClose} loading={isPending} submitLabel={contactId ? t('contactModalUpdateBtn') : t('contactModalAddBtn')} />
       </form>
     </Modal>
   );

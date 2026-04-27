@@ -50,7 +50,7 @@ export function AuditPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-900">{t('auditLog')}</h1>
-          <p className="text-xs text-slate-400 mt-0.5">All changes to this instance · {meta.total} entries</p>
+          <p className="text-xs text-slate-400 mt-0.5">{t('auditPageSubtitle', { n: meta.total })}</p>
         </div>
         <button
           onClick={() => window.print()}
@@ -63,31 +63,31 @@ export function AuditPage() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>download</span>
-          Export PDF
+          {t('auditExportPdf')}
         </button>
       </div>
       <div className="flex gap-3 mb-6 flex-wrap">
         <select value={resource} onChange={e => { setResource(e.target.value); setPage(1); }}
           className="text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:border-primary transition-colors">
-          {RESOURCE_TYPES.map(r => (<option key={r} value={r}>{r === 'ALL' ? 'All Resources' : r}</option>))}
+          {RESOURCE_TYPES.map(r => (<option key={r} value={r}>{r === 'ALL' ? t('auditAllResources') : r}</option>))}
         </select>
         <select value={operation} onChange={e => { setOperation(e.target.value); setPage(1); }}
           className="text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:border-primary transition-colors">
-          {OPERATIONS.map(o => (<option key={o} value={o}>{o === 'ALL' ? 'All Operations' : o}</option>))}
+          {OPERATIONS.map(o => (<option key={o} value={o}>{o === 'ALL' ? t('auditAllOperations') : o}</option>))}
         </select>
       </div>
       <div className="bg-white rounded-2xl entity-card-shadow overflow-hidden">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-100">
-              {['Timestamp', 'Operation', 'Resource', 'Resource ID', 'User', 'IP'].map(h => (
+              {[t('auditColTimestamp'), t('auditColOperation'), t('auditColResource'), t('auditColResourceId'), t('auditColUser'), t('auditColIp')].map(h => (
                 <th key={h} className="text-left px-4 py-3 font-semibold text-slate-500 text-[10px] uppercase tracking-wider">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {isLoading && (<tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">Loading…</td></tr>)}
-            {!isLoading && logs.length === 0 && (<tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No audit entries found.</td></tr>)}
+            {isLoading && (<tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">{t('loading')}</td></tr>)}
+            {!isLoading && logs.length === 0 && (<tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">{t('auditNoEntries')}</td></tr>)}
             {logs.map((log: any) => (
               <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-4 py-3 text-slate-400 whitespace-nowrap"><span title={new Date(log.timestamp).toLocaleString()}>{relTime(log.timestamp)}</span></td>
@@ -102,10 +102,10 @@ export function AuditPage() {
         </table>
         {meta.pages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-            <span className="text-xs text-slate-400">Page {page} of {meta.pages} · {meta.total} entries</span>
+            <span className="text-xs text-slate-400">{t('auditPageOf', { page, pages: meta.pages, total: meta.total })}</span>
             <div className="flex gap-2">
-              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors">← Prev</button>
-              <button disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)} className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors">Next →</button>
+              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors">{t('auditPrev')}</button>
+              <button disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)} className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg disabled:opacity-40 hover:border-primary text-slate-600 transition-colors">{t('auditNext')}</button>
             </div>
           </div>
         )}

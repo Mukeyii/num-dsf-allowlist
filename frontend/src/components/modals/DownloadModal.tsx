@@ -5,10 +5,12 @@ import { selectClass } from './FormField';
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { api } from '../../api/entities.api';
 import { BundlePreview } from './BundlePreview';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
 export function DownloadModal({ open, onClose, instanceId }: Props) {
+  const { t } = useI18n();
   const { data: endpoints = [] } = useEndpoints(instanceId);
   const [selectedEndpoint, setSelectedEndpoint] = useState('');
   const [downloading, setDownloading] = useState(false);
@@ -18,7 +20,7 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
     : '';
 
   async function downloadBundle() {
-    if (!selectedEndpoint) { toast.error('Please select an endpoint.'); return; }
+    if (!selectedEndpoint) { toast.error(t('downloadNoEndpoint')); return; }
     setDownloading(true);
     try {
       const res = await api(instanceId).downloadBundle(selectedEndpoint);
@@ -26,8 +28,8 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = `allowlist-bundle-${selectedEndpoint}.json`; a.click();
       URL.revokeObjectURL(url);
-      toast.success('Bundle downloaded.');
-    } catch { toast.error('Failed to download bundle.'); }
+      toast.success(t('downloadBundleSuccess'));
+    } catch { toast.error(t('downloadBundleFailed')); }
     finally { setDownloading(false); }
   }
 
@@ -39,57 +41,57 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = `dsf-ip-address-list-${new Date().toISOString().split('T')[0]}.xlsx`; a.click();
       URL.revokeObjectURL(url);
-      toast.success('IP address list downloaded.');
-    } catch { toast.error('Failed to download IP address list.'); }
+      toast.success(t('downloadIpSuccess'));
+    } catch { toast.error(t('downloadIpFailed')); }
     finally { setDownloading(false); }
   }
 
-  function copyUrl() { navigator.clipboard.writeText(bundleUrl); toast.success('URL copied to clipboard.'); }
+  function copyUrl() { navigator.clipboard.writeText(bundleUrl); toast.success(t('downloadCopied')); }
 
   return (
-    <Modal open={open} onClose={onClose} title="Download Allow List">
+    <Modal open={open} onClose={onClose} title={t('downloadModalTitle')}>
       <div className="space-y-5">
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Selected Endpoint</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">{t('downloadModalSelectEndpoint')}</label>
           <select value={selectedEndpoint} onChange={e => setSelectedEndpoint(e.target.value)} className={selectClass}>
-            <option value="">Select endpoint…</option>
+            <option value="">{t('downloadModalSelectEndpointPlaceholder')}</option>
             {endpoints.map((ep: any) => (<option key={ep.identifier} value={ep.identifier}>{ep.name || ep.identifier}</option>))}
           </select>
         </div>
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
-          <p className="text-xs font-bold text-slate-700">Allow-list bundle</p>
+          <p className="text-xs font-bold text-slate-700">{t('downloadModalBundleTitle')}</p>
           {bundleUrl ? (
             <div className="relative">
               <div className="font-mono text-[10px] text-primary bg-white border border-slate-200 rounded-lg p-3 pr-10 break-all leading-relaxed">{bundleUrl}</div>
-              <button type="button" onClick={copyUrl} title="Copy URL" className="absolute right-2 top-2 p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors">
+              <button type="button" onClick={copyUrl} title={t('downloadModalCopyUrl')} className="absolute right-2 top-2 p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors">
                 <span className="material-symbols-outlined text-[16px]">content_copy</span>
               </button>
             </div>
-          ) : (<p className="text-[10px] text-slate-400 italic">Select an endpoint above.</p>)}
+          ) : (<p className="text-[10px] text-slate-400 italic">{t('downloadModalSelectAbove')}</p>)}
           <button type="button" disabled={!selectedEndpoint || downloading} onClick={downloadBundle}
             className="w-full py-2 text-xs font-bold rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             style={{ background: 'linear-gradient(135deg, #8a1750, #675df9)' }}>
-            {downloading ? 'Downloading…' : 'Download Bundle (JSON)'}
+            {downloading ? t('downloadModalDownloading') : t('downloadModalDownloadBundle')}
           </button>
         </div>
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
-          <p className="text-xs font-bold text-slate-700">IP Address List</p>
-          <p className="text-[10px] text-slate-500 leading-relaxed">Contains all outgoing IP addresses of participating organizations. Use for firewall configuration.</p>
+          <p className="text-xs font-bold text-slate-700">{t('downloadModalIpTitle')}</p>
+          <p className="text-[10px] text-slate-500 leading-relaxed">{t('downloadModalIpDesc')}</p>
           <button type="button" onClick={downloadIpList} disabled={downloading}
             className="w-full py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-40">
-            {downloading ? 'Downloading…' : 'Download IP Address List (Excel)'}
+            {downloading ? t('downloadModalDownloading') : t('downloadModalDownloadIp')}
           </button>
         </div>
         <BundlePreview instanceId={instanceId} />
         <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
           <p className="text-[11px] text-slate-500 m-0">
-            Tip: install the{' '}
-            <a href="https://github.com/datasharingframework/dsf-process-allow-list/releases" target="_blank" rel="noopener noreferrer" className="text-[#b01e66] no-underline hover:underline">DSF Allow List Plugin</a>{' '}
-            to update directly from your DSF FHIR Server Web UI.
+            {t('downloadModalPluginTip').split('DSF Allow List Plugin')[0]}
+            <a href="https://github.com/datasharingframework/dsf-process-allow-list/releases" target="_blank" rel="noopener noreferrer" className="text-[#b01e66] no-underline hover:underline">DSF Allow List Plugin</a>
+            {t('downloadModalPluginTip').split('DSF Allow List Plugin')[1]}
           </p>
         </div>
         <div className="flex justify-end pt-2 border-t border-slate-100">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">Close</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">{t('downloadModalClose')}</button>
         </div>
       </div>
     </Modal>
