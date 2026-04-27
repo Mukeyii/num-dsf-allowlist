@@ -4,7 +4,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useNetworkMap } from '../hooks/useNetworkMap';
-import { NetworkGraph } from '../components/map/NetworkGraph';
+import { GeoMap } from '../components/map/GeoMap';
 import { NodeDetailsPanel } from '../components/map/NodeDetailsPanel';
 import { MapFilters, MapFilterState } from '../components/map/MapFilters';
 import { CertExpiryBanner } from '../components/map/CertExpiryBanner';
@@ -85,7 +85,7 @@ export function MapPage() {
           </div>
         )}
         {!isLoading && !error && (
-          <NetworkGraph
+          <GeoMap
             organizations={filtered}
             selectedId={selectedId}
             onSelect={setSelectedId}
