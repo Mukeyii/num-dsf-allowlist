@@ -6,6 +6,7 @@ import { Modal } from './Modal';
 import { FormField, inputClass, ModalFooter } from './FormField';
 import { contactSchema, ContactFormData } from '../../schemas/contact.schema';
 import { useCreateContact, useUpdateContact, useContacts } from '../../hooks/useContacts';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 const TYPES = [
   { value: 'MEDIC', label: 'MEDIC', desc: 'Person responsible for the organization' },
@@ -25,6 +26,7 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
   const createMut = useCreateContact(instanceId);
   const updateMut = useUpdateContact(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
+  const guard = useCrossUserGuard();
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: { types: [], ...defaultValues },
@@ -56,10 +58,18 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
   async function onSubmit(data: ContactFormData) {
     try {
       if (contactId) {
-        await updateMut.mutateAsync({ id: contactId, data });
+        await new Promise<void>((resolve, reject) => {
+          guard(async () => {
+            try { await updateMut.mutateAsync({ id: contactId, data }); resolve(); } catch (e) { reject(e); }
+          });
+        });
         toast.success('Contact updated.');
       } else {
-        await createMut.mutateAsync(data);
+        await new Promise<void>((resolve, reject) => {
+          guard(async () => {
+            try { await createMut.mutateAsync(data); resolve(); } catch (e) { reject(e); }
+          });
+        });
         toast.success('Contact added.');
       }
       onClose();

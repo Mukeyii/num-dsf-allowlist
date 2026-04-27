@@ -8,6 +8,7 @@ import { api } from '../../api/entities.api';
 import { toast } from 'sonner';
 import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
   MEDIC:     { bg: '#fde3ef', color: '#b01e66' },
@@ -20,6 +21,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
   const { data: contacts = [], isLoading } = useContacts(instanceId);
   const { data: org } = useOrganization(instanceId);
   const deleteMut = useDeleteContact(instanceId);
+  const guard = useCrossUserGuard();
 
   return (
     <EntityCard
@@ -99,7 +101,11 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  undoableDelete(c.name || 'Contact', () => deleteMut.mutateAsync(c.id));
+                  undoableDelete(c.name || 'Contact', () => new Promise<void>((resolve, reject) => {
+                    guard(async () => {
+                      try { await deleteMut.mutateAsync(c.id); resolve(); } catch (e) { reject(e); }
+                    });
+                  }));
                 }}
                 title="Delete contact"
                 aria-label="Delete contact"

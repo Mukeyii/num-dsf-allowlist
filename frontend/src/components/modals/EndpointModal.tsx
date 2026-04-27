@@ -6,6 +6,7 @@ import { Modal } from './Modal';
 import { FormField, inputClass, ModalFooter } from './FormField';
 import { endpointSchema, EndpointFormData } from '../../schemas/endpoint.schema';
 import { useCreateEndpoint, useUpdateEndpoint, useEndpoints } from '../../hooks/useEndpoints';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
   const createMut = useCreateEndpoint(instanceId);
   const updateMut = useUpdateEndpoint(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
+  const guard = useCrossUserGuard();
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EndpointFormData>({
     resolver: zodResolver(endpointSchema),
     defaultValues: { ipAddresses: [{ ip: '', isFhir: false, isBpe: false }], ...defaultValues },
@@ -48,10 +50,18 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
   async function onSubmit(data: EndpointFormData) {
     try {
       if (endpointId) {
-        await updateMut.mutateAsync({ id: endpointId, data });
+        await new Promise<void>((resolve, reject) => {
+          guard(async () => {
+            try { await updateMut.mutateAsync({ id: endpointId, data }); resolve(); } catch (e) { reject(e); }
+          });
+        });
         toast.success('Endpoint updated.');
       } else {
-        await createMut.mutateAsync(data);
+        await new Promise<void>((resolve, reject) => {
+          guard(async () => {
+            try { await createMut.mutateAsync(data); resolve(); } catch (e) { reject(e); }
+          });
+        });
         toast.success('Endpoint added.');
       }
       onClose();

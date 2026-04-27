@@ -7,6 +7,7 @@ import { parseJsonArray }  from '../../lib/parseJsonArray';
 import { useModals }        from '../../hooks/useModals';
 import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
@@ -14,6 +15,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { data: org }       = useOrganization(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
   const deleteMut = useDeleteMembership(instanceId);
+  const guard = useCrossUserGuard();
 
   return (
     <EntityCard
@@ -62,7 +64,11 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    undoableDelete(ms.parent_organization, () => deleteMut.mutateAsync(ms.id));
+                    undoableDelete(ms.parent_organization, () => new Promise<void>((resolve, reject) => {
+                      guard(async () => {
+                        try { await deleteMut.mutateAsync(ms.id); resolve(); } catch (e) { reject(e); }
+                      });
+                    }));
                   }}
                   title="Delete membership"
                   aria-label="Delete membership"

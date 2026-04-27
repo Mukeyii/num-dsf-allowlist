@@ -6,11 +6,13 @@ import { Modal } from './Modal';
 import { FormField, ModalFooter } from './FormField';
 import { certificateSchema, CertificateFormData } from '../../schemas/certificate.schema';
 import { useCreateCertificate } from '../../hooks/useCertificates';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
 export function CertificateModal({ open, onClose, instanceId }: Props) {
   const { mutateAsync, isPending } = useCreateCertificate(instanceId);
+  const guard = useCrossUserGuard();
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CertificateFormData>({ resolver: zodResolver(certificateSchema) });
   const [dragOver, setDragOver] = useState(false);
 
@@ -33,7 +35,11 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
 
   async function onSubmit(data: CertificateFormData) {
     try {
-      await mutateAsync(data.pem);
+      await new Promise<void>((resolve, reject) => {
+        guard(async () => {
+          try { await mutateAsync(data.pem); resolve(); } catch (e) { reject(e); }
+        });
+      });
       toast.success('Certificate added and parsed successfully.');
       onClose();
       reset();

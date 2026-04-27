@@ -6,12 +6,14 @@ import { useModals }        from '../../hooks/useModals';
 import { daysUntil }        from '../../lib/dateUtils';
 import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
+import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 export function CertificatesCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
   const { data: certs = [], isLoading } = useCertificates(instanceId);
   const { data: org } = useOrganization(instanceId);
   const deleteMut = useDeleteCertificate(instanceId);
+  const guard = useCrossUserGuard();
 
   return (
     <EntityCard
@@ -61,7 +63,11 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button
                   onClick={() => {
-                    undoableDelete(cert.subject || 'Certificate', () => deleteMut.mutateAsync(cert.id));
+                    undoableDelete(cert.subject || 'Certificate', () => new Promise<void>((resolve, reject) => {
+                      guard(async () => {
+                        try { await deleteMut.mutateAsync(cert.id); resolve(); } catch (e) { reject(e); }
+                      });
+                    }));
                   }}
                   title="Delete certificate"
                   aria-label="Delete certificate"
