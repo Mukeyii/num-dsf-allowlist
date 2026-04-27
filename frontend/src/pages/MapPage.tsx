@@ -5,6 +5,7 @@
 import { useMemo, useState } from 'react';
 import { useNetworkMap } from '../hooks/useNetworkMap';
 import { GeoMap } from '../components/map/GeoMap';
+import { MapOrgList } from '../components/map/MapOrgList';
 import { NodeDetailsPanel } from '../components/map/NodeDetailsPanel';
 import { MapFilters, MapFilterState } from '../components/map/MapFilters';
 import { VerbundPills } from '../components/map/VerbundPills';
@@ -97,35 +98,42 @@ export function MapPage() {
         verbundPills={<VerbundPills counts={counts} active={activeVerbunds} onToggle={toggleVerbund} />}
       />
 
-      <div style={{ flex: 1, position: 'relative', minHeight: 0, background: '#f8fafc' }}>
-        {isLoading && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
-            {t('mapLoadingNetwork')}
-          </div>
-        )}
-        {error && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '14px' }}>
-            {t('mapLoadFailed')}
-          </div>
-        )}
-        {!isLoading && !error && (
-          <GeoMap
-            organizations={filtered}
-            allOrganizations={organizations}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            edges={edges}
-            activeVerbunds={activeVerbunds}
-            showAllEdges={showAllEdges}
-          />
-        )}
-        <NodeDetailsPanel
-          org={selectedOrg}
-          cluster={selectedCluster}
-          isAdmin={isAdmin}
-          onClose={() => setSelectedId(null)}
-          onSelectMember={(id) => setSelectedId(id)}
+      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+        <MapOrgList
+          organizations={filtered}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
         />
+        <div style={{ flex: 1, position: 'relative', minHeight: 0, background: '#f8fafc' }}>
+          {isLoading && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+              {t('mapLoadingNetwork')}
+            </div>
+          )}
+          {error && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '14px' }}>
+              {t('mapLoadFailed')}
+            </div>
+          )}
+          {!isLoading && !error && (
+            <GeoMap
+              organizations={filtered}
+              allOrganizations={organizations}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              edges={edges}
+              activeVerbunds={activeVerbunds}
+              showAllEdges={showAllEdges}
+            />
+          )}
+          <NodeDetailsPanel
+            org={selectedOrg}
+            cluster={selectedCluster}
+            isAdmin={isAdmin}
+            onClose={() => setSelectedId(null)}
+            onSelectMember={(id) => setSelectedId(id)}
+          />
+        </div>
       </div>
       <InternationalStrip orgs={organizations} onSelect={setSelectedId} />
     </div>
