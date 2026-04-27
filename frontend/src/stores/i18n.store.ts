@@ -75,6 +75,7 @@ const translations = {
     mapCentralSubtitleOne: 'active organization',
     mapCentralSubtitleMany: 'active organizations',
     mapEmptyState: 'No approved organizations in the allow list yet.',
+    mapSonstigeLabel: 'Other',
 
     // Map — filters
     mapFilterSearchPlaceholder: 'Filter by name or identifier…',
@@ -190,6 +191,7 @@ const translations = {
     mapCentralSubtitleOne: 'aktive Organisation',
     mapCentralSubtitleMany: 'aktive Organisationen',
     mapEmptyState: 'Noch keine freigegebenen Organisationen in der Allow-Liste.',
+    mapSonstigeLabel: 'Sonstige',
 
     // Map — filters
     mapFilterSearchPlaceholder: 'Filter nach Name oder Kennung…',
