@@ -9,6 +9,7 @@ import { NodeDetailsPanel } from '../components/map/NodeDetailsPanel';
 import { MapFilters, MapFilterState } from '../components/map/MapFilters';
 import { CertExpiryBanner } from '../components/map/CertExpiryBanner';
 import { useI18n } from '../stores/i18n.store';
+import type { MapClusterGroup, MapOrganization } from '../api/network.api';
 
 export function MapPage() {
   const { t } = useI18n();
@@ -34,9 +35,26 @@ export function MapPage() {
     });
   }, [organizations, filter]);
 
-  const selected = filtered.find(o => o.identifier === selectedId)
+  const selectedOrg = filtered.find(o => o.identifier === selectedId)
     ?? organizations.find(o => o.identifier === selectedId)
     ?? null;
+  const selectedCluster = useMemo<MapClusterGroup | null>(() => {
+    if (!selectedId || !selectedId.startsWith('__cluster__')) return null;
+    const rest = selectedId.slice('__cluster__'.length);
+    const [cityKey, country] = rest.split('|');
+    const members = organizations.filter(
+      o => (o.city ?? '__unknown__').toLowerCase().trim() === cityKey
+        && (o.country_code ?? 'DE') === country,
+    );
+    if (members.length === 0) return null;
+    const first = members[0];
+    const STATUS_P: Record<MapOrganization['cert_status'], number> = {
+      EXPIRED: 4, EXPIRING: 3, NONE: 2, VALID: 1,
+    };
+    let worst: MapOrganization['cert_status'] = 'VALID';
+    for (const m of members) if (STATUS_P[m.cert_status] > STATUS_P[worst]) worst = m.cert_status;
+    return { city: first.city, country_code: first.country_code, members, worstStatus: worst };
+  }, [selectedId, organizations]);
 
   const expiringCount = organizations.filter(o => o.cert_status === 'EXPIRING').length;
   const expiredCount  = organizations.filter(o => o.cert_status === 'EXPIRED').length;
@@ -87,11 +105,18 @@ export function MapPage() {
         {!isLoading && !error && (
           <GeoMap
             organizations={filtered}
+            allOrganizations={organizations}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
         )}
-        <NodeDetailsPanel org={selected} isAdmin={isAdmin} onClose={() => setSelectedId(null)} />
+        <NodeDetailsPanel
+          org={selectedOrg}
+          cluster={selectedCluster}
+          isAdmin={isAdmin}
+          onClose={() => setSelectedId(null)}
+          onSelectMember={(id) => setSelectedId(id)}
+        />
       </div>
     </div>
   );
