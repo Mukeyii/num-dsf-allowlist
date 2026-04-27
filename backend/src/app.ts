@@ -21,7 +21,7 @@ import { approvalRouter } from './routes/approval.routes';
 import { adminApprovalRouter } from './routes/admin-approval.routes';
 import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
-import { auditRouter } from './routes/audit.routes';
+import { auditRouter, crossInstanceAuditRouter } from './routes/audit.routes';
 import { fhirRouter } from './routes/fhir.routes';
 import { networkRouter } from './routes/network.routes';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
@@ -95,6 +95,9 @@ app.use('/api/v1/instances/:instanceId/audit', auditRouter);
 
 // Download without instance scope (IP address list for all orgs)
 app.use('/api/v1/download', downloadRouter);
+
+// Cross-instance audit log (user scope — all instances the user owns; admin scope — all instances)
+app.use('/api/v1/audit', crossInstanceAuditRouter);
 
 // Cross-instance allow-list network map (all authenticated users)
 app.use('/api/v1/network', networkRouter);
