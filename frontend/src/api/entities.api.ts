@@ -19,6 +19,8 @@ function api(instanceId: string) {
       axios.get(`${BASE}/instances`, { headers: authHeader() }),
     createInstance: (data: { label: string }) =>
       axios.post(`${BASE}/instances`, data, { headers: authHeader() }),
+    getInstance: (id: string) =>
+      axios.get(`${BASE}/instances/${id}`, { headers: authHeader() }),
 
     getOrganization: () =>
       axios.get(`${base}/organization`, { headers: authHeader() }),
