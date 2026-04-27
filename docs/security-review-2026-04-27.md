@@ -13,18 +13,27 @@
 | 3  | Input validation             | 0 | 1 | 1 | 1 |
 | 4  | Bundle download / FHIR       | 0 | 0 | 1 | 1 |
 | 5  | Audit log integrity          | 0 | 1 | 0 | 1 |
-| 6  | CSP / security headers       | 0 | 2 | 1 | 0 |
+| 6  | CSP / security headers       | 1 | 1 | 1 | 0 |
 | 7  | Cookie / session config      | 0 | 0 | 1 | 1 |
 | 8  | Secret handling              | 0 | 0 | 1 | 1 |
 | 9  | PEM upload                   | 0 | 0 | 1 | 1 |
 | 10 | Rate limiting                | 0 | 1 | 1 | 1 |
-| **Total** | | **0** | **8** | **8** | **9** |
+| **Total** | | **1** | **7** | **8** | **9** |
 
 ## Critical Findings (Action Required)
 
-**No critical findings.**
+### Critical 1 — `nginx/nginx.conf` HTTP vhost does not strip `X-Client-Cert` (forge auth bypass)
 
-The closest call is finding 2.1 (mTLS header forging via the HTTP nginx vhost). It is exploitable only on the cleartext port 80 vhost with the current nginx config in this repo. In production we expect TLS-only deployment with port 80 redirecting to HTTPS, which would mitigate the issue — but the repo's `nginx/nginx.conf` does not enforce that and also does not strip the `X-Client-Cert` header on the HTTP listener. I have classified it Important rather than Critical because the cert-login route was added in this branch's recent commits and the deployment topology is the operator's call; it should still be fixed before any non-localhost deploy.
+**Location:** `nginx/nginx.conf` (HTTP server block, port 80) — every `location` that proxies to the backend.
+
+**Problem:** The new `/auth/client-cert-login` endpoint authenticates a caller as the user owning the organization whose `client_cert_thumbprint` matches the SHA-256 of the certificate received in the `X-Client-Cert` request header. Nginx's HTTPS vhost overrides this header with `$ssl_client_escaped_cert`, but the HTTP vhost does NOT, and the repo's own `docker-compose.prod.yml` exposes port 80 without a redirect. An attacker who reaches port 80 with any cert PEM whose SHA-256 matches a registered thumbprint receives a valid access token for the corresponding user.
+
+**Exploit:** Any reachable endpoint on port 80 that proxies `/auth/...` to the backend allows:
+`curl -X POST http://<host>/auth/client-cert-login -H 'X-Client-Cert: <urlencoded-pem>'` → 200 with `accessToken`.
+
+**Fix:** Add `proxy_set_header X-Client-Cert "";` and `proxy_set_header X-Client-Verify "";` to every `location` in the HTTP vhost. Mitigation committed in a follow-up commit.
+
+**Status:** Mitigated in commit applying the nginx clearer.
 
 ## Findings by Category
 
@@ -162,8 +171,8 @@ The closest call is finding 2.1 (mTLS header forging via the HTTP nginx vhost). 
 - **Important — nginx CSP allows `'unsafe-inline' 'unsafe-eval'` in `script-src` and is the effective CSP for browser responses**
   `nginx/nginx.conf:14`. The file's TODO comment acknowledges this is dev-only and needs tightening for production. Because the same nginx config is used in `docker-compose.prod.yml` (verified next), shipping prod with this CSP eliminates the XSS mitigation. The Helmet CSP set by Express is overwritten by nginx's `add_header` (or both are sent and the browser concatenates them; either way `'unsafe-inline'` becomes effective). Must be split into prod vs. dev nginx configs before production deploy.
 
-- **Important — HTTPS server block does not strip the `X-Client-Cert` header set by clients**
-  `nginx/nginx.conf:69-125`. The HTTPS vhost overwrites `X-Client-Cert` with `$ssl_client_escaped_cert`, which is correct. **However**, the HTTP vhost (port 80, lines 26-67) does NOT set or clear `X-Client-Cert`, so a request like `curl -H 'X-Client-Cert: <attacker-pem>' http://host/auth/client-cert-login` will pass the header straight through nginx to `extractClientCert` (`backend/src/lib/clientCert.ts:20`). The backend will compute a thumbprint from the attacker-supplied PEM and authenticate any organisation that has that thumbprint registered. The repo currently exposes both port 80 and 443 in nginx, making this exploitable from any network that can reach port 80. Mitigations: (a) make port 80 a pure HTTP→HTTPS redirect, (b) `proxy_set_header X-Client-Cert ""` and `proxy_set_header X-SSL-Client-Cert ""` on every `location` block in both vhosts, including the HTTPS one (currently set per-location, not at the http/server level — easy to forget on a new location).
+- **Critical — HTTP vhost does not strip the `X-Client-Cert` header set by clients**
+  `nginx/nginx.conf:69-125`. The HTTPS vhost overwrites `X-Client-Cert` with `$ssl_client_escaped_cert`, which is correct. **However**, the HTTP vhost (port 80, lines 26-67) does NOT set or clear `X-Client-Cert`, so a request like `curl -H 'X-Client-Cert: <attacker-pem>' http://host/auth/client-cert-login` will pass the header straight through nginx to `extractClientCert` (`backend/src/lib/clientCert.ts:20`). The backend will compute a thumbprint from the attacker-supplied PEM and authenticate any organisation that has that thumbprint registered. The repo currently exposes both port 80 and 443 in nginx, making this exploitable from any network that can reach port 80. Mitigations: (a) make port 80 a pure HTTP→HTTPS redirect, (b) `proxy_set_header X-Client-Cert ""` and `proxy_set_header X-SSL-Client-Cert ""` on every `location` block in both vhosts, including the HTTPS one (currently set per-location, not at the http/server level — easy to forget on a new location). Mitigated by clearing the header in the HTTP vhost.
 
 - **Minor — `X-XSS-Protection: 1; mode=block` is the only header value some legacy browsers will honour, but it can introduce vulnerabilities in older Chromes**
   `nginx/nginx.conf:9`. Modern advice (OWASP) is to set `X-XSS-Protection: 0` and rely on CSP. Low risk; cosmetic.
