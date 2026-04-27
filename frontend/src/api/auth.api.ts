@@ -60,6 +60,9 @@ export const authApi = {
   logout: (email: string) =>
     api.post('/auth/logout', { email }),
 
+  clientCertLogin: () =>
+    api.post<{ data: { accessToken: string; email: string } }>('/auth/client-cert-login'),
+
   devLogin: (role?: 'admin' | 'member' | 'site') =>
     api.post<{ data: { accessToken: string; email: string; role: 'admin' | 'member' | 'site' } }>(
       '/auth/dev-login', role ? { role } : {},

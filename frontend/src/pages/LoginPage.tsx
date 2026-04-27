@@ -7,12 +7,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
 import { authApi }    from '../api/auth.api';
+import { useAuthStore } from '../stores/auth.store';
+import { jwtDecode }   from 'jwt-decode';
 
 export function LoginPage() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const setTokens = useAuthStore((s) => s.setTokens);
   const [email, setEmail]     = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [certLoading, setCertLoading] = useState(false);
+  const [certError, setCertError]     = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,6 +89,38 @@ export function LoginPage() {
           {loading ? 'Sending code…' : 'Send code →'}
         </button>
       </form>
+
+      <div className="mt-4 pt-4 border-t border-slate-200">
+        <p className="text-[11px] text-slate-500 mb-2 text-center">
+          Or, if your browser has a registered client certificate:
+        </p>
+        {certError && (
+          <p className="text-xs mb-2 text-center" style={{ color: '#e05c5c' }}>{certError}</p>
+        )}
+        <button
+          type="button"
+          disabled={certLoading}
+          onClick={async () => {
+            setCertLoading(true);
+            setCertError('');
+            try {
+              const res = await authApi.clientCertLogin();
+              const { accessToken } = res.data.data;
+              const decoded: any = jwtDecode(accessToken);
+              setTokens(accessToken, { id: decoded.sub, email: decoded.email });
+              navigate('/app', { replace: true });
+            } catch (err: any) {
+              setCertError(err?.response?.data?.error?.message || 'Client-certificate sign-in failed.');
+            } finally {
+              setCertLoading(false);
+            }
+          }}
+          className="w-full py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+          style={{ cursor: certLoading ? 'not-allowed' : 'pointer', opacity: certLoading ? 0.6 : 1 }}
+        >
+          {certLoading ? 'Signing in…' : 'Sign in with client certificate'}
+        </button>
+      </div>
     </AuthLayout>
   );
 }
