@@ -114,7 +114,7 @@ export function MapPage() {
         verbundPills={<VerbundPills counts={counts} active={activeVerbunds} onToggle={toggleVerbund} />}
       />
 
-      <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+      <div style={{ flex: 1, position: 'relative', minHeight: 0, background: '#f8fafc' }}>
         {isLoading && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
             {t('mapLoadingNetwork')}
