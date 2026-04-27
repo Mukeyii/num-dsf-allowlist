@@ -130,6 +130,8 @@ const translations = {
     mapClusterMatchedHint: '{matched} matching · {hidden} hidden by filter',
     mapInternationalCount: 'International ({n}): {countries}',
     mapCityUnknown: 'Position unknown — placed in "Other" zone',
+    footerDeveloper: 'Kemal Yildirim',
+    footerAffiliation: 'Institute of Medical Informatics, University of Münster',
   },
   de: {
     signIn: 'Anmelden',
@@ -254,6 +256,8 @@ const translations = {
     mapClusterMatchedHint: '{matched} treffend · {hidden} durch Filter ausgeblendet',
     mapInternationalCount: 'International ({n}): {countries}',
     mapCityUnknown: 'Position unbekannt — im "Sonstige"-Bereich platziert',
+    footerDeveloper: 'Kemal Yildirim',
+    footerAffiliation: 'Institut für Medizinische Informatik, Universität Münster',
   },
 } as const;
 
