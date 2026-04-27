@@ -70,6 +70,8 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
       identifier: org.identifier,
       name: org.name,
       active: !!org.active,
+      city: org.city ?? null,
+      country_code: org.country_code ?? null,
       cert_status: status,
       endpoints: publicEndpoints,
       memberships: publicMemberships,
@@ -100,8 +102,6 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
     return {
       ...base,
       email: org.email,
-      city: org.city,
-      country_code: org.country_code,
       next_cert_expiry: next,
       cert_days_until: daysUntil,
       endpoints: adminEndpoints,
