@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const organizationSchema = z.object({
-  identifier: z.string().min(3, 'Identifier must be at least 3 characters').regex(/^[a-z0-9][a-z0-9-]*\.[a-z]{2,}$/, 'Must be a valid FQDN (e.g. ukm.de)'),
+  identifier: z.string().min(3, 'Identifier must be at least 3 characters').regex(/^(?=.{1,253}\.?$)([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+\.?$/, 'Must be a valid FQDN (e.g. ukm.de)'),
   name: z.string().min(2, 'Name is required'),
   active: z.boolean().default(true),
   email: z.string().email('Must be a valid email address'),
