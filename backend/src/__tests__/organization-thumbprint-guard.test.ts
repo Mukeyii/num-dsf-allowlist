@@ -53,6 +53,11 @@ describe('PUT /organization — admin cross-user thumbprint guard', () => {
   };
 
   beforeAll(async () => {
+    // Clean up any leftover rows from prior runs or seed data that share these emails.
+    await db('organizations').where({ identifier: orgIdentifier }).del();
+    await db('instances').where({ id: instanceId }).del();
+    await db('users').whereIn('email', [ownerEmail, adminEmail]).del();
+
     await db('users').insert([
       { id: ownerId, email: ownerEmail, created_at: new Date() },
       { id: adminId, email: adminEmail, created_at: new Date() },
@@ -73,7 +78,7 @@ describe('PUT /organization — admin cross-user thumbprint guard', () => {
   afterAll(async () => {
     await db('organizations').where({ identifier: orgIdentifier }).del();
     await db('instances').where({ id: instanceId }).del();
-    await db('users').whereIn('id', [ownerId, adminId]).del();
+    await db('users').whereIn('email', [ownerEmail, adminEmail]).del();
   });
 
   // Reset thumbprint to ORIG_THUMBPRINT before each test to eliminate ordering dependency.
