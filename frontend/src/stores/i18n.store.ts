@@ -84,6 +84,8 @@ const translations = {
     mapFilterActive: 'active',
     mapFilterInactive: 'inactive',
     mapFilterShowingOf: 'Showing {visible} of {total}',
+    mapFilterShowingOfCities: 'Showing {visible} of {total} sites in {cities} cities',
+    mapShowAllEdges: 'Show all connections',
 
     // Map — cert status chip labels
     mapStatusValid: 'Valid',
@@ -201,6 +203,8 @@ const translations = {
     mapFilterActive: 'aktiv',
     mapFilterInactive: 'inaktiv',
     mapFilterShowingOf: 'Zeige {visible} von {total}',
+    mapFilterShowingOfCities: 'Zeige {visible} von {total} Standorten in {cities} Städten',
+    mapShowAllEdges: 'Alle Verbindungen anzeigen',
 
     // Map — cert status chip labels
     mapStatusValid: 'Gültig',

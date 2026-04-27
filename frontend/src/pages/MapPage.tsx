@@ -8,9 +8,11 @@ import { GeoMap } from '../components/map/GeoMap';
 import { NodeDetailsPanel } from '../components/map/NodeDetailsPanel';
 import { MapFilters, MapFilterState } from '../components/map/MapFilters';
 import { CertExpiryBanner } from '../components/map/CertExpiryBanner';
+import { VerbundPills } from '../components/map/VerbundPills';
 import { useI18n } from '../stores/i18n.store';
 import type { MapClusterGroup, MapOrganization } from '../api/network.api';
 import { cityBucketKey } from '../lib/germanCities';
+import { derivePeerEdges, verbundCounts } from '../lib/peerEdges';
 
 export function MapPage() {
   const { t } = useI18n();
@@ -24,6 +26,8 @@ export function MapPage() {
     activeMode: 'all',
     certStatuses: new Set(['VALID', 'EXPIRING', 'EXPIRED', 'NONE']),
   });
+  const [activeVerbunds, setActiveVerbunds] = useState<Set<string>>(new Set());
+  const [showAllEdges, setShowAllEdges] = useState(false);
 
   const filtered = useMemo(() => {
     const q = filter.query.trim().toLowerCase();
@@ -35,6 +39,26 @@ export function MapPage() {
       return true;
     });
   }, [organizations, filter]);
+
+  const edges = useMemo(() => derivePeerEdges(filtered), [filtered]);
+  const counts = useMemo(() => verbundCounts(filtered), [filtered]);
+
+  const cityCount = useMemo(() => {
+    const set = new Set<string>();
+    for (const o of filtered) {
+      if ((o.country_code ?? 'DE') !== 'DE') continue;
+      set.add(`${(o.city ?? '__unknown__').toLowerCase().trim()}|${o.country_code ?? 'DE'}`);
+    }
+    return set.size;
+  }, [filtered]);
+
+  function toggleVerbund(parent: string) {
+    setActiveVerbunds(prev => {
+      const next = new Set(prev);
+      if (next.has(parent)) next.delete(parent); else next.add(parent);
+      return next;
+    });
+  }
 
   const selectedOrg = filtered.find(o => o.identifier === selectedId)
     ?? organizations.find(o => o.identifier === selectedId)
@@ -86,6 +110,10 @@ export function MapPage() {
         onChange={setFilter}
         totalCount={organizations.length}
         visibleCount={filtered.length}
+        cityCount={cityCount}
+        showAllEdges={showAllEdges}
+        onToggleShowAllEdges={() => setShowAllEdges(v => !v)}
+        verbundPills={<VerbundPills counts={counts} active={activeVerbunds} onToggle={toggleVerbund} />}
       />
 
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
@@ -105,6 +133,9 @@ export function MapPage() {
             allOrganizations={organizations}
             selectedId={selectedId}
             onSelect={setSelectedId}
+            edges={edges}
+            activeVerbunds={activeVerbunds}
+            showAllEdges={showAllEdges}
           />
         )}
         <NodeDetailsPanel
