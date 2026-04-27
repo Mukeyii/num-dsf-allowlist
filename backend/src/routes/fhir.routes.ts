@@ -6,7 +6,7 @@
  */
 import { Router, Request, Response } from 'express';
 import { db } from '../db/connection';
-import { generateBundle } from '../services/fhir.service';
+import { generateFullBundle } from '../services/fhir.service';
 import { writeAuditLog } from '../services/audit.service';
 import { extractClientCert } from '../lib/clientCert';
 
@@ -39,15 +39,14 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
       });
     }
 
-    const endpointId = req.params.endpointId;
-    const bundle = await generateBundle(org.instance_id, endpointId);
+    const bundle = await generateFullBundle();
 
     // Audit: record the download (non-blocking — failure must not disrupt the response)
     writeAuditLog({
       userEmail: `cert:${cert.thumbprint.slice(0, 16)}`,
       instanceId: org.instance_id,
       resourceType: 'CERTIFICATE',
-      resourceId: endpointId,
+      resourceId: req.params.endpointId,
       operation: 'CREATE',
       ipAddress: req.ip || 'unknown',
     }).catch(() => {});
@@ -88,26 +87,10 @@ fhirRouter.get('/Bundle', async (req: Request, res: Response) => {
       });
     }
 
-    const endpoints = await db('endpoints').where({ organization_id: org.identifier });
-    if (endpoints.length === 0) {
-      return res.json({ resourceType: 'Bundle', type: 'searchset', total: 0, entry: [] });
-    }
-
-    const firstEndpoint = endpoints[0];
-    const bundle = await generateBundle(org.instance_id, firstEndpoint.identifier);
+    const bundle = await generateFullBundle();
 
     res.setHeader('Content-Type', 'application/fhir+json');
-    return res.json({
-      resourceType: 'Bundle',
-      type: 'searchset',
-      total: 1,
-      entry: [
-        {
-          fullUrl: `${req.protocol}://${req.get('host')}/fhir/Bundle/${firstEndpoint.identifier}`,
-          resource: bundle,
-        },
-      ],
-    });
+    return res.json(bundle);
   } catch {
     return res.status(500).json({
       resourceType: 'OperationOutcome',
