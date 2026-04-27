@@ -30,13 +30,21 @@ const GREEK = [
 ];
 
 const ORG_TYPES = ['Klinikum', 'Universitätsklinik', 'Kreiskrankenhaus', 'Stadtklinik', 'Forschungsklinik'];
+// Real German cities — must match keys in frontend/src/lib/germanCities.ts so map pins
+// land on the silhouette instead of in the right-edge "Sonstige" stripe. Repeats
+// (Berlin ×3, Hamburg ×2, München ×2, Münster ×1, Heidelberg ×1) deliberately seed
+// city clusters so the cluster-pin UX gets exercised.
 const CITIES = [
-  'Musterstadt', 'Beispielburg', 'Testingen', 'Probenhausen', 'Demohausen',
-  'Fiktivstadt', 'Platzhalterburg', 'Dummyheim', 'Samplehausen', 'Mockstadt',
-  'Nordlingen', 'Südburg', 'Westheim', 'Oststadt', 'Mittendorf',
-  'Oberhagen', 'Unterdorf', 'Altstadt', 'Neuburg', 'Hochheim',
-  'Tiefental', 'Breitenfeld', 'Langenstein', 'Rundheim', 'Eckstadt',
-  'Grünberg', 'Blaustadt', 'Rotheim', 'Weissburg', 'Goldbach',
+  'Berlin',           'Hamburg',          'München',
+  'Köln',             'Frankfurt am Main','Stuttgart',
+  'Düsseldorf',       'Leipzig',          'Dresden',
+  'Hannover',         'Bremen',           'Münster',
+  'Heidelberg',       'Nürnberg',         'Karlsruhe',
+  'Mainz',            'Essen',            'Dortmund',
+  'Bonn',             'Augsburg',         'Würzburg',
+  'Magdeburg',        'Rostock',          'Kiel',
+  'Berlin',           'Hamburg',          'München',
+  'Berlin',           'Münster',          'Freiburg',
 ];
 const STREETS = ['Hauptstr.', 'Bahnhofstr.', 'Musterweg', 'Testgasse', 'Beispielplatz', 'Demoallee', 'Probenring'];
 const FIRST_NAMES = ['Max', 'Anna', 'Felix', 'Julia', 'Markus', 'Sophie', 'Thomas', 'Elena', 'Peter', 'Claudia'];
@@ -305,8 +313,8 @@ async function main() {
     identifier: MEMBER_ORG_IDENTIFIER, instance_id: MEMBER_INSTANCE_ID,
     name: 'Universitätsklinikum Member', active: true,
     email: `dsf-admin@${MEMBER_ORG_IDENTIFIER}`,
-    address_line: 'Beispielweg 1', postal_code: '12345',
-    city: 'Mitglieddorf', country_code: 'DE',
+    address_line: 'Beispielweg 1', postal_code: '48149',
+    city: 'Münster', country_code: 'DE',
     created_at: new Date(), updated_at: new Date(),
   }).onConflict('identifier').ignore();
   await db('contacts').insert({
@@ -314,8 +322,8 @@ async function main() {
     types: JSON.stringify(['DSF_ADMIN']),
     name: 'Dr. Member Contact', email: `dsf-admin@${MEMBER_ORG_IDENTIFIER}`,
     email_validated: true, phone: '+49301234567',
-    address_line: 'Beispielweg 1', city: 'Mitglieddorf',
-    postal_code: '12345', country_code: 'DE',
+    address_line: 'Beispielweg 1', city: 'Münster',
+    postal_code: '48149', country_code: 'DE',
     created_at: new Date(), updated_at: new Date(),
   });
   const memberEpId = `dsf-fhir.${MEMBER_ORG_IDENTIFIER}`;
@@ -370,8 +378,8 @@ async function main() {
     identifier: SITE_ORG_IDENTIFIER, instance_id: SITE_INSTANCE_ID,
     name: 'Kreiskrankenhaus Site', active: true,
     email: `dsf-admin@${SITE_ORG_IDENTIFIER}`,
-    address_line: 'Teststraße 42', postal_code: '54321',
-    city: 'Standortburg', country_code: 'DE',
+    address_line: 'Teststraße 42', postal_code: '69115',
+    city: 'Heidelberg', country_code: 'DE',
     created_at: new Date(), updated_at: new Date(),
   }).onConflict('identifier').ignore();
   await db('contacts').insert({
@@ -379,8 +387,8 @@ async function main() {
     types: JSON.stringify(['DSF_ADMIN']),
     name: 'Dr. Site Contact', email: `dsf-admin@${SITE_ORG_IDENTIFIER}`,
     email_validated: true, phone: '+49301234999',
-    address_line: 'Teststraße 42', city: 'Standortburg',
-    postal_code: '54321', country_code: 'DE',
+    address_line: 'Teststraße 42', city: 'Heidelberg',
+    postal_code: '69115', country_code: 'DE',
     created_at: new Date(), updated_at: new Date(),
   });
   const siteEpId = `dsf-fhir.${SITE_ORG_IDENTIFIER}`;
