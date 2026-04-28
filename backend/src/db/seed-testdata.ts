@@ -8,6 +8,7 @@
 import 'dotenv/config';
 import { db } from './connection';
 import { v4 as uuidv4 } from 'uuid';
+import { signGrant } from '../lib/adminGrants';
 
 const USER_ID = uuidv4();
 const ADMIN_EMAIL = 'admin@imi-test.example.de';
@@ -116,6 +117,19 @@ async function main() {
     db('instances').select('id').whereIn('user_id', [USER_ID, MEMBER_USER_ID, SITE_USER_ID])).del();
   await db('instances').whereIn('user_id', [USER_ID, MEMBER_USER_ID, SITE_USER_ID]).del();
   await db('users').whereIn('email', [ADMIN_EMAIL, MEMBER_EMAIL, SITE_EMAIL]).del();
+  // Clean multi-admin/user enrichment fixtures (added in block 13)
+  await db('admin_promotion_requests').whereIn('requested_by', [ADMIN_EMAIL]).del();
+  await db('admin_grants').whereIn('granted_by_a', ['SYSTEM:seed']).del();
+  await db('email_whitelist').whereIn('email', [
+    'admin-charite@charite-test.example.de',
+    'admin-koeln@uk-koeln-test.example.de',
+    'user1@kkh-mitte-test.example.de',
+    'user2@kkh-mitte-test.example.de',
+    'user3@uk-rostock-test.example.de',
+    'user4@uk-bochum-test.example.de',
+    'user5@uk-erlangen-test.example.de',
+    'gesperrt@kkh-leer-test.example.de',
+  ]).del();
   console.log('  [~] Cleaned previous seed data');
 
   // 1. Whitelist admin
@@ -443,6 +457,79 @@ async function main() {
   });
   // Intentionally NO approval_request — lets the user exercise Submit-for-Approval.
   console.log(`  [+] Site user seeded: ${SITE_EMAIL} (1 instance, 1 org draft, no approval yet)`);
+
+  // --- Multi-admin + multi-user enrichment for /app/admin/users dev-time UX ---
+  const EXTRA_ADMINS = [
+    { email: 'admin-charite@charite-test.example.de', site: 'charite-test.example.de' },
+    { email: 'admin-koeln@uk-koeln-test.example.de',  site: 'uk-koeln-test.example.de'  },
+  ];
+
+  for (const { email } of EXTRA_ADMINS) {
+    await db('email_whitelist').insert({ id: uuidv4(), email, created_at: new Date(), created_by: 'seed' }).onConflict('email').ignore();
+    await db('users').insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() }).onConflict('email').ignore();
+    // granted_at must be whole-second precision (MySQL TIMESTAMP).
+    const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    const sig = signGrant(email, grantedAt, 'SYSTEM:seed', 'SYSTEM:seed');
+    await db('admin_grants').insert({
+      email,
+      granted_at: grantedAt,
+      granted_by_a: 'SYSTEM:seed',
+      granted_by_b: 'SYSTEM:seed',
+      signature_hex: sig,
+    }).onConflict('email').ignore();
+    console.log(`  [+] Admin seeded: ${email}`);
+  }
+
+  // 5 regular users (whitelisted, NOT admin, no users-row yet — never logged in)
+  const REGULAR_USERS = [
+    'user1@kkh-mitte-test.example.de',
+    'user2@kkh-mitte-test.example.de',
+    'user3@uk-rostock-test.example.de',
+    'user4@uk-bochum-test.example.de',
+    'user5@uk-erlangen-test.example.de',
+  ];
+  for (const email of REGULAR_USERS) {
+    await db('email_whitelist').insert({ id: uuidv4(), email, created_at: new Date(), created_by: ADMIN_EMAIL }).onConflict('email').ignore();
+  }
+  console.log(`  [+] ${REGULAR_USERS.length} regular users whitelisted`);
+
+  // 1 locked user (locked at seed time, with a reason)
+  const LOCKED_USER_EMAIL = 'gesperrt@kkh-leer-test.example.de';
+  await db('email_whitelist').insert({
+    id: uuidv4(),
+    email: LOCKED_USER_EMAIL,
+    created_at: new Date(),
+    created_by: ADMIN_EMAIL,
+    locked_at: new Date(),
+    locked_by: ADMIN_EMAIL,
+    locked_reason: 'Verlängerung der Mitgliedschaft offen',
+  }).onConflict('email').ignore();
+  console.log(`  [+] Locked user seeded: ${LOCKED_USER_EMAIL}`);
+
+  // 1 pending promotion request (target = first regular user)
+  const PROMOTION_TARGET = REGULAR_USERS[0];
+  await db('admin_promotion_requests').insert({
+    id: uuidv4(),
+    target_email: PROMOTION_TARGET,
+    requested_by: ADMIN_EMAIL,
+    requested_at: new Date(),
+    status: 'PENDING',
+  });
+  console.log(`  [+] Pending promotion seeded: ${PROMOTION_TARGET}`);
+
+  // Re-bootstrap the IMI_ADMIN_EMAILS-listed admins (so re-seed doesn't break dev login).
+  const imiEmails = (process.env.IMI_ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  for (const email of imiEmails) {
+    await db('email_whitelist').insert({ id: uuidv4(), email, created_at: new Date(), created_by: 'seed' }).onConflict('email').ignore();
+    await db('users').insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() }).onConflict('email').ignore();
+    const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    const sig = signGrant(email, grantedAt, 'SYSTEM:seed', 'SYSTEM:seed');
+    await db('admin_grants').insert({
+      email, granted_at: grantedAt, granted_by_a: 'SYSTEM:seed', granted_by_b: 'SYSTEM:seed',
+      signature_hex: sig,
+    }).onConflict('email').ignore();
+  }
+  console.log(`  [+] ${imiEmails.length} bootstrap admins (re)signed`);
 
   console.log('\n--- Seed complete ---');
   console.log(`Login (admin):  ${ADMIN_EMAIL}`);
