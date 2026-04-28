@@ -142,6 +142,47 @@ This portal is designed to coexist with other Allow-List tools (e.g. a NUM-opera
 
 To opt out of soft-delete retention (e.g. for non-federated single-tool deployments), set `MEMBERSHIP_SOFT_DELETE_RETENTION_DAYS=0` (cleanup runs every day and removes immediately).
 
+## Admin grants & user management
+
+Admin role lives in the `admin_grants` table; each row is signed RS256 over a canonical message (`email|granted_at|granted_by_a|granted_by_b`). The app verifies the signature on every admin check — a DB-only attacker can't forge admin role without the signing key.
+
+### Signing keys
+
+- **Default:** `ADMIN_GRANT_PRIVATE_KEY_BASE64` and `ADMIN_GRANT_PUBLIC_KEY_BASE64` (recommended — separate from JWT keys for rotation independence).
+- **Fallback:** `JWT_PRIVATE_KEY_BASE64` / `JWT_PUBLIC_KEY_BASE64` if the dedicated keys aren't set.
+
+Generate dedicated keys:
+
+```bash
+openssl genrsa 2048 > admin_grant_private.pem
+openssl rsa -in admin_grant_private.pem -pubout > admin_grant_public.pem
+echo "ADMIN_GRANT_PRIVATE_KEY_BASE64=$(base64 -w0 admin_grant_private.pem)"
+echo "ADMIN_GRANT_PUBLIC_KEY_BASE64=$(base64 -w0 admin_grant_public.pem)"
+```
+
+### First-run bootstrap
+
+If `admin_grants` is empty on backend startup, the bootstrap reads `IMI_ADMIN_EMAILS` and creates a signed grant per address (with `granted_by_a = granted_by_b = SYSTEM:bootstrap`). Subsequent runs ignore the env var.
+
+Operators are encouraged to remove `IMI_ADMIN_EMAILS` from prod env after the first successful boot — the DB is now authoritative.
+
+### Adding new admins (post-bootstrap)
+
+Promotion requires the 4-eyes principle: an existing admin creates a promotion request via `/app/admin/users` (Promote button); a second admin from a **different site** (different email domain) approves via `/app/admin/promotions`. Both confirmations are explicit; there is no silent-consent timer.
+
+### Locking and removing users
+
+The whitelist UI (`/app/admin/users`) supports lock (reversible) and remove (permanent) for any whitelisted email. Lock/demote/remove revoke the affected user's refresh tokens — they cannot continue active sessions. Self-lock and self-remove are blocked. Demote/remove that would leave fewer than 2 admins from 2 distinct sites is rejected.
+
+### Key rotation procedure
+
+If the signing key is compromised:
+
+1. Generate new keypair.
+2. Re-sign all `admin_grants` rows with the new private key. (One-shot script: `npx ts-node backend/src/scripts/resign-admin-grants.ts` — write this script when needed.)
+3. Update env vars and restart backend.
+4. Audit-log entries are not affected; signatures are only verified going forward.
+
 ## Rollback
 
 Before each production deploy, snapshot the running image SHAs:
