@@ -67,12 +67,11 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
 
   if (!valid) return false;
 
-  // Anti-replay: store used code hash in Redis for 60 seconds
+  // Anti-replay: atomically claim the code hash; returns null if already claimed.
   const codeHash = crypto.createHash('sha256').update(`${userId}:${code}`).digest('hex');
   const replayKey = `totp_used:${codeHash}`;
-  const alreadyUsed = await redis.get(replayKey);
-  if (alreadyUsed) return false;
-  await redis.setex(replayKey, 60, '1');
+  const claimed = await redis.set(replayKey, '1', 'EX', 60, 'NX');
+  if (claimed === null) return false;
 
   return true;
 }
