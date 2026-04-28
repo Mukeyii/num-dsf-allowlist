@@ -8,6 +8,7 @@ import { app } from './app';
 import { testDbConnection } from './db/connection';
 import { testRedisConnection } from './services/redis.service';
 import { startScheduler } from './services/scheduler.service';
+import { bootstrapAdminGrants } from './services/admin-bootstrap.service';
 import { logger } from './lib/logger';
 
 const PORT = process.env.PORT || 3000;
@@ -49,6 +50,7 @@ async function start() {
     await testRedisConnection();
     logger.info('Redis connected');
     startScheduler();
+    await bootstrapAdminGrants();
     app.listen(PORT, () => {
       logger.info({ port: PORT, env: process.env.DSF_ENVIRONMENT }, 'Server started');
     });
