@@ -47,10 +47,11 @@ Das Portal verwaltet ein zentrales Verzeichnis aus fünf miteinander verknüpfte
 - F-XAD-03: `client_cert_thumbprint` kann von Admins auf fremden Instanzen NICHT gesetzt werden (Sicherheits-Gate gegen Identity-Laundering).
 
 ### 3.5 Bundle-Download
-- F-BND-01: GUI-Download als JSON über `/api/v1/instances/:id/download/bundle?endpointId=...`.
-- F-BND-02: Maschinen-Download über `/fhir/Bundle/:endpointId` mit mTLS-Authentifizierung; Bundle ist RS256-signiert (`X-Bundle-Signature` Header), Inhalt SHA-256-gehasht (`X-Content-Hash` Header).
+- F-BND-01: GUI-Download als JSON über `/api/v1/download/full-bundle` (für authentifizierte Nutzer, kein Instanz-Scope). Liefert das **netzwerkweite** Allow-List-Bundle: alle genehmigten Organisationen mit Endpoints, Zertifikats-Thumbprints und OrganizationAffiliations zu Verbünden (MII, NUM).
+- F-BND-02: Maschinen-Download über `/fhir/Bundle?identifier=http://dsf.dev/fhir/CodeSystem/allow-list|allow_list` mit mTLS-Authentifizierung; identische Bundle-Form wie F-BND-01. Bundle ist RS256-signiert (`X-Bundle-Signature` Header), Inhalt SHA-256-gehasht (`X-Content-Hash` Header).
 - F-BND-03: Excel-Export der IP-Adressen über `/api/v1/download/ip-address-list`.
 - F-BND-04: DSGVO: Kontaktdaten dürfen NIEMALS im Allow-List-Bundle erscheinen.
+- F-BND-05: Bundle-Form folgt exakt dem Upstream-Vertrag von `dsf-process-allow-list/UpdateAllowList` — Identifier `http://dsf.dev/fhir/CodeSystem/allow-list|allow_list`, Transaktion-Bundle mit Organization-, Endpoint- und OrganizationAffiliation-Resourcen.
 
 ### 3.6 Audit-Log
 - F-AUD-01: Append-only `audit_logs` Tabelle; kein UPDATE/DELETE auf Anwendungsebene.
