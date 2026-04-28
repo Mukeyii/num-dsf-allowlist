@@ -3,6 +3,7 @@
  * Status transitions: DRAFT → PENDING (submit), PENDING → APPROVED|REJECTED (operator)
  * Dependencies: db/connection, audit.service, approval-reminder.service, lib/approvalState
  */
+import { Knex } from 'knex';
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,14 +18,14 @@ const notifyImiOnFirstApproval: (instanceId: string, firstApproverEmail: string,
 
 const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
 
-async function buildSnapshot(instanceId: string) {
-  const org = await db('organizations').where({ instance_id: instanceId }).first();
+async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = db) {
+  const org = await trx('organizations').where({ instance_id: instanceId }).first();
   if (!org) return null;
-  const contacts = await db('contacts').where({ organization_id: org.identifier }).select('id', 'types', 'name', 'email_validated', 'phone', 'city', 'country_code');
-  const endpoints = await db('endpoints').where({ organization_id: org.identifier });
-  const ips = await db('endpoint_ips').whereIn('endpoint_id', endpoints.map((e: any) => e.identifier));
-  const certificates = await db('certificates').where({ organization_id: org.identifier }).select('id', 'subject', 'thumbprint', 'valid_until');
-  const memberships = await db('memberships').where({ organization_id: org.identifier });
+  const contacts = await trx('contacts').where({ organization_id: org.identifier }).select('id', 'types', 'name', 'email_validated', 'phone', 'city', 'country_code');
+  const endpoints = await trx('endpoints').where({ organization_id: org.identifier });
+  const ips = await trx('endpoint_ips').whereIn('endpoint_id', endpoints.map((e: any) => e.identifier));
+  const certificates = await trx('certificates').where({ organization_id: org.identifier }).select('id', 'subject', 'thumbprint', 'valid_until');
+  const memberships = await trx('memberships').where({ organization_id: org.identifier });
   const { email: _email, ...orgSafe } = org;
   return {
     organization: orgSafe, contacts,
@@ -34,18 +35,23 @@ async function buildSnapshot(instanceId: string) {
 }
 
 export async function submitApproval(instanceId: string, userEmail: string, ipAddress: string) {
-  const pending = await db('approval_requests').where({ instance_id: instanceId, status: 'PENDING' }).first();
-  if (pending) throw new Error('APPROVAL_ALREADY_PENDING');
-  const snapshot = await buildSnapshot(instanceId);
-  if (!snapshot) throw new Error('ORGANIZATION_NOT_FOUND');
-  const id = uuidv4();
-  const now = new Date();
-  await db('approval_requests').insert({ id, instance_id: instanceId, status: 'PENDING', created_at: now, submitted_at: now, snapshot_json: JSON.stringify(snapshot) });
-  await writeAuditLog({ userEmail, instanceId, resourceType: 'APPROVAL', resourceId: id, operation: 'CREATE', ipAddress });
-  // Notify IMI (non-blocking)
-  const org = await db('organizations').where({ instance_id: instanceId }).first();
-  notifyImiOnSubmit(id, instanceId, org?.identifier || instanceId, org?.name || 'Unknown', userEmail).catch(err => console.error('[ApprovalNotify]', err));
-  return db('approval_requests').where({ id }).first();
+  return db.transaction(async trx => {
+    const pending = await trx('approval_requests')
+      .where({ instance_id: instanceId, status: 'PENDING' })
+      .forUpdate()
+      .first();
+    if (pending) throw new Error('APPROVAL_ALREADY_PENDING');
+    const snapshot = await buildSnapshot(instanceId, trx);
+    if (!snapshot) throw new Error('ORGANIZATION_NOT_FOUND');
+    const id = uuidv4();
+    const now = new Date();
+    await trx('approval_requests').insert({ id, instance_id: instanceId, status: 'PENDING', created_at: now, submitted_at: now, snapshot_json: JSON.stringify(snapshot) });
+    await writeAuditLog({ userEmail, instanceId, resourceType: 'APPROVAL', resourceId: id, operation: 'CREATE', ipAddress });
+    // Notify IMI (non-blocking, outside transaction scope)
+    const org = snapshot.organization;
+    notifyImiOnSubmit(id, instanceId, (org as any).identifier || instanceId, (org as any).name || 'Unknown', userEmail).catch(err => console.error('[ApprovalNotify]', err));
+    return trx('approval_requests').where({ id }).first();
+  });
 }
 
 export async function getApprovalStatus(instanceId: string) {
