@@ -1,0 +1,11 @@
+#!/bin/sh
+# Block commits containing JWT private keys, SendGrid keys, or TOTP secrets.
+# Falls back gracefully if gitleaks isn't installed (warn but allow).
+if command -v gitleaks > /dev/null 2>&1; then
+  gitleaks protect --staged --redact --config .gitleaks.toml || {
+    echo "gitleaks found a potential secret in your staged changes. Review or run with --no-verify if intentional."
+    exit 1
+  }
+else
+  echo "gitleaks not installed - install with 'brew install gitleaks' or 'choco install gitleaks' or skip with --no-verify"
+fi

@@ -152,6 +152,16 @@ cd frontend && npx tsc --noEmit
 cd backend && npx tsc --noEmit
 ```
 
+### Pre-commit hooks
+
+The repo ships gitleaks-based pre-commit hooks to block accidental commit of JWT private keys, SendGrid API keys, or TOTP encryption keys. After cloning, enable them with:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+Install gitleaks (`brew install gitleaks` on macOS, `choco install gitleaks` on Windows) so the hook can run. Bypass with `git commit --no-verify` only if you understand the risk.
+
 ## Testing
 
 ```bash

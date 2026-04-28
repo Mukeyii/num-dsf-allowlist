@@ -1,0 +1,28 @@
+title = "DSF Allow List Portal — gitleaks rules"
+
+[[rules]]
+id = "rsa-private-key"
+description = "RSA private key in plaintext"
+regex = '''-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----'''
+keywords = ["BEGIN", "PRIVATE KEY"]
+
+[[rules]]
+id = "sendgrid-key"
+description = "SendGrid API key"
+regex = '''SG\.[A-Za-z0-9_\-]{16,}\.[A-Za-z0-9_\-]{16,}'''
+keywords = ["SG."]
+
+[[rules]]
+id = "totp-encryption-key"
+description = "32-byte hex secret resembling TOTP_ENCRYPTION_KEY"
+regex = '''TOTP_ENCRYPTION_KEY\s*=\s*[0-9a-fA-F]{64}'''
+keywords = ["TOTP_ENCRYPTION_KEY"]
+
+[allowlist]
+# Allow .env.example AND .env.prod.example (placeholders are intentional).
+paths = [
+  '\.env\..+\.example$',
+  '\.env\.example$',
+  'docs/security-review-.+\.md$',
+  'docs/superpowers/.*',
+]
