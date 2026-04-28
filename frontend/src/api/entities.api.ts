@@ -89,3 +89,10 @@ function api(instanceId: string) {
 }
 
 export { api };
+
+export async function downloadFullAllowListBundle() {
+  return axios.get(`${BASE}/download/full-bundle`, {
+    headers: authHeader(),
+    responseType: 'blob',
+  });
+}
