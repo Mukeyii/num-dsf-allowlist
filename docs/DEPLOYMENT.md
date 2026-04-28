@@ -249,3 +249,37 @@ Before going live, confirm:
 - [ ] Email transport (`SMTP_*`) tested with a real notification.
 - [ ] Database backups configured (see Backups section).
 - [ ] Monitoring covers backend `/health`, MySQL liveness, Redis liveness.
+
+## Secret rotation
+
+If any of these are believed to have leaked, rotate immediately:
+
+### JWT signing keys
+1. Generate new keypair: `bash scripts/generate-keys.sh`
+2. Update `.env.prod` (or k8s secret) with new `JWT_PRIVATE_KEY_BASE64` / `JWT_PUBLIC_KEY_BASE64`.
+3. Restart backend: `docker compose -f docker-compose.prod.yml restart backend`
+4. All existing sessions invalidate immediately (signatures fail).
+5. Users must log in again.
+
+### TOTP encryption key
+This key encrypts TOTP secrets at rest in the `users` table. Rotating it requires re-encrypting every row.
+1. Decrypt all `users.totp_secret` rows with the OLD key.
+2. Re-encrypt with the NEW key.
+3. Update `.env.prod` with new `TOTP_ENCRYPTION_KEY` (32-byte hex).
+4. Restart backend.
+
+A migration script for this is not currently provided — write one if rotation becomes necessary.
+
+### Admin-grant signing keys
+If the `ADMIN_GRANT_PRIVATE_KEY_BASE64` is suspected leaked: every existing `admin_grants` row becomes worthless (an attacker could forge new ones). Procedure:
+1. Generate new keypair (same approach as JWT keys).
+2. Update both `ADMIN_GRANT_PRIVATE_KEY_BASE64` and `ADMIN_GRANT_PUBLIC_KEY_BASE64` in `.env.prod`.
+3. Truncate `admin_grants` table — every row is now invalid because signatures verify with the new public key.
+4. Restart backend; the bootstrap routine will re-sign grants for `IMI_ADMIN_EMAILS`. Set this env var to the trusted bootstrap list before restart.
+5. Use `/app/admin/users` to re-promote anyone who was an admin before the rotation, via the 4-eyes flow.
+
+### TLS server cert + client CA (./certs)
+1. Generate new server cert/key + new client CA via your CA process.
+2. Replace files in `./certs/` (host) with `chmod 600`, owned by the user the nginx container runs as.
+3. Restart nginx: `docker compose -f docker-compose.prod.yml restart nginx`.
+4. Verify with `openssl s_client -connect <host>:443 -showcerts`.
