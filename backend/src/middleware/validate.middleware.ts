@@ -20,6 +20,10 @@ export function validate(schema: ZodSchema, source: 'body' | 'query' = 'body') {
     }
     if (source === 'body') {
       req.body = result.data;
+    } else {
+      // Express 5: req.query is read-only on direct assignment but its keys are mutable.
+      for (const k of Object.keys(req.query)) delete (req.query as any)[k];
+      Object.assign(req.query as any, result.data);
     }
     next();
   };
