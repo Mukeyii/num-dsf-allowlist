@@ -49,7 +49,6 @@ scripts/*.json
 docs/superpowers/
 docs/stitch/
 docs/NOTEBOOKLM_DIFF.md
-docs/security-review-*.md
 SPEC.md
 MASTERPROMPT*.md
 
