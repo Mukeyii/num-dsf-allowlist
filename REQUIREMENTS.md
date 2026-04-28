@@ -24,6 +24,12 @@ Das Portal verwaltet ein zentrales Verzeichnis aus fünf miteinander verknüpfte
 - F-AUTH-03: 10 Backup-Codes pro Konto, bcrypt-gehasht, einmalig verwendbar.
 - F-AUTH-04: Optionaler Client-Zertifikats-Login (`POST /auth/client-cert-login`) gegen `organizations.client_cert_thumbprint` (SHA-256 über DER).
 - F-AUTH-05: Sessions: RS256 JWT (15 Min), httpOnly Refresh-Cookie (7 Tage), revoke-bar.
+- F-AUTH-06: Admin-Rolle wird in `admin_grants` (DB) gehalten, jede Zeile per RS256 über kanonisches `email|granted_at|granted_by_a|granted_by_b` signiert. App verifiziert die Signatur bei jedem Admin-Check; ein DB-only Angreifer ohne den `ADMIN_GRANT_PRIVATE_KEY` kann keinen validen Eintrag erzeugen.
+- F-AUTH-07: Admin-Promotion (User → Admin) folgt dem 4-Augen-Prinzip aus zwei verschiedenen Sites (E-Mail-Domains), OHNE Schweigen-als-Zustimmung. Beide Zustimmungen werden explizit verlangt; alle Admins werden bei einer Anfrage per E-Mail informiert.
+- F-AUTH-08: Demotion und Lock sind Single-Admin-mit-TOTP-Aktionen. Server verweigert Demotion, wenn weniger als 2 Admins aus 2 unterschiedlichen Sites übrig blieben. Lock und Demotion revozieren laufende Sessions des betroffenen Nutzers (Refresh-Token in Redis gelöscht).
+- F-AUTH-09: `IMI_ADMIN_EMAILS` Env-Var ist nur noch Bootstrap (erster Lauf, wenn `admin_grants` leer ist). Im Runtime wird sie ignoriert.
+- F-AUTH-10: Login (`POST /auth/request-otp`) liefert für gesperrte (`locked_at IS NOT NULL`) und nicht-vorhandene E-Mails dieselbe Antwort, kein Enumerationsleak.
+- F-AUTH-11: Änderung der `client_cert_thumbprint` einer Organization erfordert TOTP-Re-Auth durch den Eigentümer (analog Approve/Reject).
 
 ### 3.2 Entitätenverwaltung
 - F-ENT-01: Fünf Entitäten — Organization, Contacts, Endpoints, Certificates, Memberships.
