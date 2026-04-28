@@ -122,6 +122,15 @@ All UTC, configured in `backend/src/services/scheduler.service.ts`:
 
 The scheduler starts at backend boot (`backend/src/index.ts`). Jobs swallow individual failures so one bad iteration doesn't kill the runner.
 
+## Allow-list bundle download
+
+The portal is the central authority that generates the **network-wide** DSF allow-list. There is one bundle — every site downloads the same thing and installs it at its local DSF FHIR server.
+
+- **GUI:** authenticated users hit `GET /api/v1/download/full-bundle` (cookie auth) and receive a FHIR JSON Bundle.
+- **DSF process (mTLS):** the upstream `dsf-process-allow-list/DownloadAllowList` BPMN task reads `GET /fhir/Bundle?identifier=http://dsf.dev/fhir/CodeSystem/allow-list|allow_list` from this portal's FHIR endpoint; client cert is matched by SHA-256 thumbprint against `organizations.client_cert_thumbprint`.
+
+The previous per-instance route (`/api/v1/instances/:id/download/bundle?endpointId=...`) is retained for backward compatibility with older clients but should NOT be used for new integrations.
+
 ## Rollback
 
 Before each production deploy, snapshot the running image SHAs:
