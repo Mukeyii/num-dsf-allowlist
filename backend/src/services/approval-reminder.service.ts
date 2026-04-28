@@ -1,6 +1,6 @@
 /**
  * approval-reminder.service.ts – Approval notification helpers
- * Dependencies: db/connection, notification.service
+ * Dependencies: db/connection, notification.service, lib/adminGrants
  *
  * 1. notifyImiOnSubmit()    – on new approval request submitted
  * 2. notifySiteOnApproval() – after approve/reject (site contacts notified after 30-min delay)
@@ -13,11 +13,17 @@ import {
   sendAdminFirstApprovalEmail,
   sendSiteApprovalResultEmail,
 } from './notification.service';
+import { verifyGrant } from '../lib/adminGrants';
 
 const SITE_NOTIFY_DELAY_MS = 30 * 60 * 1000; // 30 minutes
 
-function getImiEmails(): string[] {
-  return (process.env.IMI_ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+async function getAllAdminEmails(): Promise<string[]> {
+  const rows = await db('admin_grants').select('email', 'granted_at', 'granted_by_a', 'granted_by_b', 'signature_hex');
+  return rows
+    .filter((r: { email: string; granted_at: Date | string; granted_by_a: string; granted_by_b: string; signature_hex: string }) =>
+      verifyGrant(r),
+    )
+    .map((r: { email: string }) => r.email);
 }
 
 export async function notifyImiOnSubmit(
@@ -27,9 +33,9 @@ export async function notifyImiOnSubmit(
   orgName: string,
   submittedBy: string,
 ): Promise<void> {
-  const imiEmails = getImiEmails();
+  const imiEmails = await getAllAdminEmails();
   if (imiEmails.length === 0) {
-    console.warn('[ApprovalNotify] No IMI_ADMIN_EMAILS configured – skipping admin notification');
+    console.warn('[ApprovalNotify] No verified admins found in admin_grants – skipping admin notification');
     return;
   }
 
@@ -54,7 +60,7 @@ export async function notifySiteOnApproval(
     return;
   }
 
-  const imiEmails = getImiEmails();
+  const imiEmails = await getAllAdminEmails();
   // Immediately notify admins of the resolution
   if (imiEmails.length > 0) {
     try {
@@ -102,7 +108,7 @@ export async function notifyImiOnFirstApproval(
   firstApproverEmail: string,
   requestId: string,
 ): Promise<void> {
-  const imiEmails = getImiEmails().filter(e => e.toLowerCase() !== firstApproverEmail.toLowerCase());
+  const imiEmails = (await getAllAdminEmails()).filter(e => e.toLowerCase() !== firstApproverEmail.toLowerCase());
   if (imiEmails.length === 0) return;
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) return;
@@ -122,9 +128,9 @@ export async function runApprovalReminders(): Promise<void> {
 
   console.log(`[ApprovalReminder] ${staleRequests.length} stale pending request(s) – sending reminders`);
 
-  const reminderEmails = getImiEmails();
+  const reminderEmails = await getAllAdminEmails();
   if (reminderEmails.length === 0) {
-    console.warn('[ApprovalReminder] No IMI_ADMIN_EMAILS configured – skipping reminder emails');
+    console.warn('[ApprovalReminder] No verified admins found in admin_grants – skipping reminder emails');
     return;
   }
 
