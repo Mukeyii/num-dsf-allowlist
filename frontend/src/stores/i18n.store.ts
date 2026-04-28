@@ -383,6 +383,11 @@ const translations = {
     downloadIpFailed: 'Failed to download IP address list.',
     downloadCopied: 'URL copied to clipboard.',
     downloadNoEndpoint: 'Please select an endpoint.',
+    downloadFullBundleTitle: 'Network-wide allow list (DSF Bundle)',
+    downloadFullBundleHelp: 'A single FHIR transaction Bundle containing every approved organization, their endpoints, and their certificate thumbprints. Install this at your local DSF FHIR server so it knows every other participant for mTLS verification.',
+    downloadEndpointHint: 'Selecting an endpoint is only a UI hint — the bundle itself is the same for every site.',
+    bundleDownloaded: 'Bundle downloaded.',
+    bundleDownloadFailed: 'Failed to download the bundle.',
 
     // InstanceCreateModal
     instanceCreateTitle: 'Add New Instance',
@@ -905,6 +910,11 @@ const translations = {
     downloadIpFailed: 'IP-Adressliste konnte nicht heruntergeladen werden.',
     downloadCopied: 'URL in die Zwischenablage kopiert.',
     downloadNoEndpoint: 'Bitte einen Endpunkt auswählen.',
+    downloadFullBundleTitle: 'Netzwerkweite Allow-List (DSF-Bundle)',
+    downloadFullBundleHelp: 'Ein einzelnes FHIR-Transaktion-Bundle mit allen genehmigten Organisationen, deren Endpoints und Zertifikats-Thumbprints. Installieren Sie es an Ihrem lokalen DSF-FHIR-Server, damit dieser alle anderen Teilnehmer für die mTLS-Prüfung kennt.',
+    downloadEndpointHint: 'Die Endpoint-Auswahl ist nur ein Hinweis — das Bundle ist für jede Site identisch.',
+    bundleDownloaded: 'Bundle heruntergeladen.',
+    bundleDownloadFailed: 'Bundle-Download fehlgeschlagen.',
 
     // InstanceCreateModal
     instanceCreateTitle: 'Neue Instanz hinzufügen',
