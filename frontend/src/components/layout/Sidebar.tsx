@@ -175,6 +175,52 @@ export function Sidebar() {
         </Link>
       </div>
 
+      {/* User Management link (admin only) */}
+      {me?.isAdmin && (
+        <div style={{ padding: '0 16px', marginTop: '4px' }}>
+          <Link
+            to="/app/admin/users"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '8px 10px', borderRadius: '8px',
+              fontSize: '12px', fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>group</span>
+            {t('sidebarUserManagement')}
+          </Link>
+        </div>
+      )}
+
+      {/* Promotions link (admin only) */}
+      {me?.isAdmin && (
+        <div style={{ padding: '0 16px', marginTop: '4px' }}>
+          <Link
+            to="/app/admin/promotions"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '8px 10px', borderRadius: '8px',
+              fontSize: '12px', fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>verified_user</span>
+            {t('sidebarPromotions')}
+          </Link>
+        </div>
+      )}
+
       {/* Map link (all users) */}
       <div style={{ padding: '0 16px', marginTop: '4px' }}>
         <Link
