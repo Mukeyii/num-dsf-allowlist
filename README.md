@@ -101,18 +101,21 @@ The portal uses **passwordless authentication** designed for a small, known admi
 1. **Email** — Enter a whitelisted email address
 2. **OTP** — 6-digit code sent via email (10 min TTL, single-use)
 3. **TOTP** — Authenticator app verification (setup on first login)
+4. **Optional: client certificate** — if the browser holds a registered client cert, sign in with one click. The cert's SHA-256 thumbprint is matched against `organizations.client_cert_thumbprint`.
 
 Sessions use RS256 JWT (15 min) with httpOnly refresh token cookies (7 days).
 
-## Admin Review
+## Admin Console
 
-IMI administrators can review and approve/reject pending requests at `/app/admin`. Approval actions require TOTP re-confirmation for security.
+IMI administrators access three admin pages:
 
-Admins are configured via the `IMI_ADMIN_EMAILS` environment variable (comma-separated).
+- **`/app/admin`** — pending approval-request review (4-eyes, silent-consent after 7 days).
+- **`/app/admin/users`** — whitelist + admin role management (lock / unlock / promote / demote / remove). All writes require TOTP re-confirmation.
+- **`/app/admin/promotions`** — pending admin-promotion requests; second admin from a different site approves or rejects (NO silent consent).
 
-Notification flow:
-- On submission: All admins receive email notification immediately
-- On approve/reject: Admins notified immediately, site contacts notified after 30-minute delay
+Admin-role assignments are stored in `admin_grants`, each row signed RS256 over a canonical message. A DB-only attacker cannot grant themselves admin without the signing key.
+
+The bootstrap admin set is populated on first backend start from `IMI_ADMIN_EMAILS` env var. After that, the env var is ignored at runtime — the database is authoritative. Operators are encouraged to remove the env var from production after first boot.
 
 ## Bundle Security
 
@@ -120,6 +123,16 @@ Notification flow:
 - **SHA-256 content hash** logged in the audit trail (`X-Content-Hash` header)
 - DSF processes authenticate via **mTLS client certificates** at `/fhir/Bundle/:endpointId`
 - Client certificate thumbprints are stored per organization
+
+## Network map
+
+`/app/map` renders the network-wide allow-list as a schematic Germany silhouette. Pins per organization (clustered by city), peer edges per `parent_organization` verbund (MII / NUM), filters for verbund / cert-status / city / activity. Theme-aware: dark mode inverts the silhouette palette.
+
+## Federation safety
+
+The portal coexists with other Allow-List tools (e.g., a NUM-operated tool, future regional operators). Bundles emit `DELETE` only on `OrganizationAffiliation`; `Organization` and `Endpoint` records are never deleted from a participant's local FHIR server through our bundle (they may be referenced by another tool's allow-list).
+
+Memberships removed via the UI are soft-deleted; the next bundle emission carries the corresponding DELETE-Affiliation entry; a daily cron at 09:00 UTC hard-deletes soft-rows older than 90 days (`MEMBERSHIP_SOFT_DELETE_RETENTION_DAYS` configurable).
 
 ## Project Structure
 
@@ -222,6 +235,24 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full production deployment inst
 # Production build
 docker compose -f docker-compose.prod.yml up -d --build
 ```
+
+**New env vars (Spring 2026):**
+- `APPROVAL_SILENT_CONSENT_DAYS` (default 7)
+- `MEMBERSHIP_SOFT_DELETE_RETENTION_DAYS` (default 90)
+- `ADMIN_GRANT_PRIVATE_KEY_BASE64` (optional, falls back to JWT keys)
+- `ADMIN_GRANT_PUBLIC_KEY_BASE64` (optional, falls back to JWT keys)
+- `IMI_ADMIN_EMAILS` — comma-separated list, used only for first-run admin bootstrap; ignored at runtime once `admin_grants` is populated.
+
+## Database migrations
+
+Migration files live in `db/migrations/*.sql`. They are applied automatically by MySQL's docker entrypoint on FIRST init only. To apply new migrations to an existing dev DB:
+
+````bash
+DB_PASSWORD=$(grep ^DB_PASSWORD .env | cut -d= -f2)
+docker compose exec -T db mysql -udsf -p${DB_PASSWORD} dsf_allowlist < db/migrations/008_*.sql
+````
+
+Each migration is idempotent (uses `information_schema` checks via `PREPARE`/`EXECUTE`), so re-running them is safe. CI loops `for f in db/migrations/*.sql` to apply all of them on every test DB.
 
 ## License
 
