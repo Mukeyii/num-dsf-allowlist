@@ -13,4 +13,5 @@ export const upsertOrganizationSchema = z.object({
   city: z.string().max(100).optional().default(''),
   countryCode: z.string().refine(v => v === '' || v.length === 2, 'Must be empty or a 2-character country code').optional().default(''),
   clientCertThumbprint: z.string().max(128).optional().nullable(),
+  totpCode: z.string().length(6).optional(),
 });
