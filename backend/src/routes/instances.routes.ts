@@ -33,7 +33,7 @@ instancesRouter.post('/', async (req, res) => {
 });
 
 instancesRouter.get('/:id', async (req, res) => {
-  const isAdmin = isAdminEmail(req.user!.email);
+  const isAdmin = await isAdminEmail(req.user!.email);
   const q = db('instances').where({ id: req.params.id });
   if (!isAdmin) q.andWhere({ user_id: req.user!.id });
   const instance = await q.first();

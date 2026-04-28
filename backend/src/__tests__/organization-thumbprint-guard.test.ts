@@ -20,8 +20,8 @@ jest.mock('../middleware/auth.middleware', () => ({
 
 // eslint-disable-next-line import/first
 import { organizationRouter } from '../routes/organization.routes';
-
-process.env.IMI_ADMIN_EMAILS = 'admin@imi-test.example.de';
+// eslint-disable-next-line import/first
+import { signGrant } from '../lib/adminGrants';
 
 function appAs(userId: string, email: string) {
   const app = express();
@@ -57,6 +57,7 @@ describe('PUT /organization — admin cross-user thumbprint guard', () => {
     await db('organizations').where({ identifier: orgIdentifier }).del();
     await db('instances').where({ id: instanceId }).del();
     await db('users').whereIn('email', [ownerEmail, adminEmail]).del();
+    await db('admin_grants').where({ email: adminEmail }).del();
 
     await db('users').insert([
       { id: ownerId, email: ownerEmail, created_at: new Date() },
@@ -73,9 +74,19 @@ describe('PUT /organization — admin cross-user thumbprint guard', () => {
       created_at: new Date(),
       updated_at: new Date(),
     });
+    const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    const sig = signGrant(adminEmail, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
+    await db('admin_grants').insert({
+      email: adminEmail,
+      granted_at: grantedAt,
+      granted_by_a: 'SYSTEM:test',
+      granted_by_b: 'SYSTEM:test',
+      signature_hex: sig,
+    });
   });
 
   afterAll(async () => {
+    await db('admin_grants').where({ email: adminEmail }).del();
     await db('organizations').where({ identifier: orgIdentifier }).del();
     await db('instances').where({ id: instanceId }).del();
     await db('users').whereIn('email', [ownerEmail, adminEmail]).del();

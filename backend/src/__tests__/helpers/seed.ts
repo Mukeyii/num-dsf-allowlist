@@ -1,7 +1,8 @@
 // Purpose: Test seed helpers – insert and clean deterministic test data in the DB
-// Dependencies: db/connection (Knex), uuid
+// Dependencies: db/connection (Knex), uuid, adminGrants
 
 import { db } from '../../db/connection';
+import { signGrant } from '../../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
 
 export const TEST_USER_ID = '00000000-0000-0000-0000-000000000001';
@@ -21,6 +22,7 @@ export async function cleanTestData(): Promise<void> {
   await db('organizations').del();
   await db('instances').del();
   await db('refresh_tokens').del();
+  await db('admin_grants').del();
   await db('users').del();
   await db('email_whitelist').del();
 }
@@ -36,6 +38,11 @@ export async function seedAdminUser() {
   const adminUserId = '00000000-0000-0000-0000-000000000002';
   await db('email_whitelist').insert({ id: uuidv4(), email: TEST_ADMIN_EMAIL, created_by: 'test', created_at: new Date() }).onConflict('email').ignore();
   await db('users').insert({ id: adminUserId, email: TEST_ADMIN_EMAIL, totp_enabled: false, created_at: new Date() }).onConflict('email').ignore();
+  const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+  const sig = signGrant(TEST_ADMIN_EMAIL, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
+  await db('admin_grants')
+    .insert({ email: TEST_ADMIN_EMAIL, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
+    .onConflict('email').ignore();
   return { userId: adminUserId, email: TEST_ADMIN_EMAIL };
 }
 

@@ -23,6 +23,7 @@ import { db } from '../../db/connection';
 import { runSilentConsentSweep } from '../../services/approval-silent-consent.service';
 import { cleanTestData, seedTestUser, seedOrganization, TEST_INSTANCE_ID } from '../helpers/seed';
 import { getTestToken } from '../helpers/auth';
+import { signGrant } from '../../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
 
 // ─── Admin identities ────────────────────────────────────────────────────────
@@ -51,6 +52,11 @@ async function seedAdminUsers(): Promise<void> {
     await db('users')
       .insert({ id: a.id, email: a.email, totp_enabled: true, totp_secret: 'placeholder', created_at: new Date() })
       .onConflict('email').ignore();
+    const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    const sig = signGrant(a.email, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
+    await db('admin_grants')
+      .insert({ email: a.email, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
+      .onConflict('email').ignore();
   }
 }
 
@@ -66,7 +72,6 @@ async function submitPending(userToken: string): Promise<string> {
 // ─── Suite setup ─────────────────────────────────────────────────────────────
 
 beforeAll(() => {
-  process.env.IMI_ADMIN_EMAILS = [ADMIN_A_EMAIL, ADMIN_B_EMAIL, ADMIN_C_EMAIL].join(',');
   process.env.APPROVAL_SILENT_CONSENT_DAYS = '7';
 });
 

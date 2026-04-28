@@ -36,7 +36,7 @@ export const crossInstanceAuditRouter = Router();
 
 crossInstanceAuditRouter.get('/', requireAuth, async (req, res) => {
   const userId = req.user!.id;
-  const isAdmin = isAdminEmail(req.user!.email);
+  const isAdmin = await isAdminEmail(req.user!.email);
   const limit = Math.min(parseInt(String(req.query.limit ?? '50'), 10) || 50, 200);
   const page = Math.max(parseInt(String(req.query.page ?? '1'), 10) || 1, 1);
   const offset = (page - 1) * limit;

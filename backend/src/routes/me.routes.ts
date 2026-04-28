@@ -8,11 +8,11 @@ import { isAdminEmail } from '../lib/isAdmin';
 
 export const meRouter = Router();
 
-meRouter.get('/', requireAuth, (req, res) => {
+meRouter.get('/', requireAuth, async (req, res) => {
   res.json({
     data: {
       email: req.user!.email,
-      isAdmin: isAdminEmail(req.user!.email),
+      isAdmin: await isAdminEmail(req.user!.email),
     },
   });
 });
