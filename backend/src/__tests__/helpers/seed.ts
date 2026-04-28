@@ -14,6 +14,7 @@ export const TEST_ADMIN_EMAIL = 'admin@imi.uni-muenster.de';
 export async function cleanTestData(): Promise<void> {
   await db('audit_logs').del();
   await db('approval_requests').del();
+  await db('admin_promotion_requests').del();
   await db('memberships').del();
   await db('endpoint_ips').del();
   await db('certificates').del();
