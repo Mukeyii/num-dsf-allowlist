@@ -86,3 +86,36 @@ export const adminUsersApi = {
     return res.data;
   },
 };
+
+export interface PromotionRequest {
+  id: string;
+  target_email: string;
+  requested_by: string;
+  requested_at: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  approver_b: string | null;
+  approved_at: string | null;
+  rejected_by: string | null;
+  rejection_reason: string | null;
+  resolved_at: string | null;
+}
+
+export const adminPromotionsApi = {
+  list: async (): Promise<PromotionRequest[]> => {
+    const res = await api.get<{ data: PromotionRequest[] }>('/admin/promotions');
+    return res.data.data;
+  },
+  create: async (targetEmail: string, totpCode: string) => {
+    const res = await api.post<{ data: { id: string } }>('/admin/promotions', { targetEmail, totpCode });
+    return res.data.data;
+  },
+  approve: async (id: string, totpCode: string) => {
+    return api.post(`/admin/promotions/${encodeURIComponent(id)}/approve`, { totpCode });
+  },
+  reject: async (id: string, reason: string, totpCode: string) => {
+    return api.post(`/admin/promotions/${encodeURIComponent(id)}/reject`, { reason, totpCode });
+  },
+  cancel: async (id: string, totpCode: string) => {
+    return api.post(`/admin/promotions/${encodeURIComponent(id)}/cancel`, { totpCode });
+  },
+};

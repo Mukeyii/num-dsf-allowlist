@@ -6,11 +6,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { adminUsersApi, type WhitelistEntry } from '../api/admin.api';
+import { adminUsersApi, adminPromotionsApi, type WhitelistEntry } from '../api/admin.api';
 import { useI18n } from '../stores/i18n.store';
 import { useMe } from '../hooks/useMe';
 
-type ActionKind = 'add' | 'lock' | 'unlock' | 'demote' | 'remove';
+type ActionKind = 'add' | 'lock' | 'unlock' | 'demote' | 'remove' | 'promote';
 
 interface PendingAction {
   kind: ActionKind;
@@ -90,6 +90,20 @@ export function AdminUsersPage() {
     },
   });
 
+  const mutPromote = useMutation({
+    mutationFn: (vars: { email: string; totpCode: string }) =>
+      adminPromotionsApi.create(vars.email, vars.totpCode),
+    onSuccess: () => {
+      toast.success(t('adminUsersPromoteRequestedToast'));
+      qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
+        ?.response?.data?.error?.message;
+      toast.error(msg || 'Failed');
+    },
+  });
+
   function reset() {
     setPending(null);
     setTotpCode('');
@@ -112,6 +126,8 @@ export function AdminUsersPage() {
       mutDemote.mutate({ email: pending.email!, totpCode }, { onSettled: reset });
     } else if (pending.kind === 'remove') {
       mutRemove.mutate({ email: pending.email!, totpCode }, { onSettled: reset });
+    } else if (pending.kind === 'promote') {
+      mutPromote.mutate({ email: pending.email!, totpCode }, { onSettled: reset });
     }
   }
 
@@ -319,6 +335,9 @@ function Row({
           )}
           {u.is_admin && !isMe && (
             <button onClick={() => onAction('demote')} style={actBtn}>{t('adminUsersDemote')}</button>
+          )}
+          {!u.is_admin && !isLocked && !isMe && (
+            <button onClick={() => onAction('promote')} style={actBtn}>{t('adminUsersPromote')}</button>
           )}
           {!isMe && (
             <button onClick={() => onAction('remove')} style={{ ...actBtn, color: '#b91c1c' }}>
