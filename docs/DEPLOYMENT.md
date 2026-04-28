@@ -131,6 +131,16 @@ The portal is the central authority that generates the **network-wide** DSF allo
 
 The previous per-instance route (`/api/v1/instances/:id/download/bundle?endpointId=...`) is retained for backward compatibility with older clients but should NOT be used for new integrations.
 
+## Federation safety
+
+This portal is designed to coexist with other Allow-List tools (e.g. a NUM-operated tool, future regional operators) in a federated DSF P2P network:
+
+- Bundles emit `DELETE` only on `OrganizationAffiliation`. `Organization` and `Endpoint` records are never deleted from a participant's local FHIR server through our bundle — they may be referenced by another tool's allow-list.
+- The site-side `InsertAllowList` BPMN process applies multiple bundles sequentially; conflicts on `Organization` PUTs are idempotent (each tool emits the same single cert thumbprint, since per-site the client cert == server cert).
+- Memberships removed via the UI are soft-deleted; the next bundle emission carries the corresponding DELETE-Affiliation entry; a daily cron at 09:00 UTC hard-deletes soft-rows older than 90 days.
+
+To opt out of soft-delete retention (e.g. for non-federated single-tool deployments), set `MEMBERSHIP_SOFT_DELETE_RETENTION_DAYS=0` (cleanup runs every day and removes immediately).
+
 ## Rollback
 
 Before each production deploy, snapshot the running image SHAs:
