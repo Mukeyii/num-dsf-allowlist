@@ -151,15 +151,15 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
  * mTLS handshakes can verify peers by thumbprint match.
  */
 export async function generateFullBundle(): Promise<object> {
-  // Only approved orgs (latest approval_request.status = 'APPROVED') AND active
+  // Only orgs whose LATEST approval_request (by created_at) is 'APPROVED' AND active.
+  // Using a correlated subquery so a newer REJECTED/PENDING entry supersedes an old APPROVED.
   const orgs = await db('organizations')
     .where({ active: true })
-    .whereExists(
-      db('approval_requests')
-        .select(db.raw('1'))
-        .whereRaw('approval_requests.instance_id = organizations.instance_id')
-        .andWhere('approval_requests.status', 'APPROVED'),
-    );
+    .whereRaw(`(
+      SELECT status FROM approval_requests
+      WHERE instance_id = organizations.instance_id
+      ORDER BY created_at DESC LIMIT 1
+    ) = 'APPROVED'`);
 
   const orgUuids: Record<string, string> = {};
   const epUuids: Record<string, string> = {};
