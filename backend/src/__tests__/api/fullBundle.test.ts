@@ -105,4 +105,36 @@ describe('generateFullBundle', () => {
       expect(fullUrls.has(ref)).toBe(true);
     }
   });
+
+  it('emits DELETE OrganizationAffiliation for soft-deleted memberships', async () => {
+    // Soft-delete the membership seeded in beforeAll.
+    await db('memberships')
+      .where({ organization_id: approvedOrgId })
+      .update({ deleted_at: new Date() });
+
+    try {
+      const bundle = await generateFullBundle() as { entry: Array<{ request?: { method: string; url: string } }> };
+      const deleteEntry = bundle.entry.find(e =>
+        e.request?.method === 'DELETE'
+        && e.request?.url.startsWith('OrganizationAffiliation?')
+        && e.request?.url.includes(`participating-organization:identifier=`)
+        && e.request?.url.includes(approvedOrgId),
+      );
+      expect(deleteEntry).toBeDefined();
+    } finally {
+      // Restore for the next test.
+      await db('memberships')
+        .where({ organization_id: approvedOrgId })
+        .update({ deleted_at: null });
+    }
+  });
+
+  it('NEVER emits DELETE Organization or DELETE Endpoint (federation safety)', async () => {
+    const bundle = await generateFullBundle() as { entry: Array<{ request?: { method: string; url: string } }> };
+    for (const e of bundle.entry) {
+      if (e.request?.method !== 'DELETE') continue;
+      expect(e.request.url.startsWith('Organization?')).toBe(false);
+      expect(e.request.url.startsWith('Endpoint?')).toBe(false);
+    }
+  });
 });
