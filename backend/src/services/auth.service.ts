@@ -198,3 +198,48 @@ export async function logout(refreshToken: string, userEmail: string, ipAddress:
   await deleteRefreshToken(hash);
   await writeAuditLog({ userEmail, resourceType: 'AUTH', operation: 'LOGOUT', ipAddress });
 }
+
+/**
+ * Invalidate ALL refresh tokens for a user. Forces re-login on next API call.
+ * Called when an admin locks / demotes / removes the user.
+ *
+ * Storage scheme: keys are `refresh:<tokenHash>`, values are userId strings.
+ * There is no per-user index, so we scan `refresh:*` and delete matching keys.
+ * Returns the number of tokens revoked (0 if user has no active sessions).
+ */
+export async function revokeAllSessions(emailOrUser: string | { id: string; email?: string }): Promise<number> {
+  const { redis } = await import('./redis.service');
+
+  let userId: string | undefined;
+  if (typeof emailOrUser === 'string') {
+    const user = await db('users').where({ email: emailOrUser.toLowerCase() }).first();
+    if (!user) return 0;
+    userId = user.id as string;
+  } else {
+    userId = emailOrUser.id;
+  }
+  if (!userId) return 0;
+
+  const keys = await redis.keys('refresh:*');
+  if (keys.length === 0) return 0;
+
+  // Check each token's stored userId — only delete tokens belonging to this user.
+  const pipeline = redis.pipeline();
+  for (const key of keys) {
+    pipeline.get(key);
+  }
+  const values = await pipeline.exec();
+  if (!values) return 0;
+
+  const toDelete: string[] = [];
+  for (let i = 0; i < keys.length; i++) {
+    const val = values[i]?.[1];
+    if (val === userId) {
+      toDelete.push(keys[i]);
+    }
+  }
+  if (toDelete.length === 0) return 0;
+
+  await redis.del(...toDelete);
+  return toDelete.length;
+}
