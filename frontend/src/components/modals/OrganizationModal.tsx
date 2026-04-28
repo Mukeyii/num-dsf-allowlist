@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -20,7 +20,8 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
   const { t } = useI18n();
   const { mutateAsync, isPending } = useUpdateOrganization(instanceId);
   const guard = useCrossUserGuard();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<OrganizationFormData>({
+  const [totpCode, setTotpCode] = useState('');
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
     defaultValues: { active: true, ...defaultValues },
   });
@@ -28,6 +29,7 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
   useEffect(() => {
     if (open && defaultValues) {
       reset({ active: true, ...defaultValues });
+      setTotpCode('');
     }
   }, [open, defaultValues, reset]);
 
@@ -35,7 +37,7 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
     try {
       await new Promise<void>((resolve, reject) => {
         guard(async () => {
-          try { await mutateAsync(data); resolve(); } catch (e) { reject(e); }
+          try { await mutateAsync({ ...data, totpCode }); resolve(); } catch (e) { reject(e); }
         });
       });
       toast.success(t('orgModalSaveSuccess'));
@@ -96,6 +98,18 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
             maxLength={128}
           />
         </FormField>
+        {watch('clientCertThumbprint') !== (defaultValues?.clientCertThumbprint ?? '') && (
+          <FormField label={t('orgModalThumbprintTotpLabel')} hint={t('orgModalThumbprintTotpHint')}>
+            <input
+              type="text"
+              value={totpCode}
+              onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              maxLength={6}
+              placeholder="000000"
+              style={{ fontFamily: 'monospace', letterSpacing: '4px', textAlign: 'center' }}
+            />
+          </FormField>
+        )}
         <ModalFooter onCancel={onClose} loading={isPending} submitLabel={t('orgModalSaveBtn')} />
       </form>
     </Modal>
