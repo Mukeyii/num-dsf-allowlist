@@ -232,3 +232,77 @@ export async function sendSiteApprovalResultEmail(
 
   await transporter.sendMail({ from: FROM, to: contactEmails.join(','), subject, text, html });
 }
+
+export async function sendAdminPromotionRequestedEmail(
+  recipientAdminEmails: string[],
+  targetEmail: string,
+  requestedBy: string,
+  requestId: string,
+): Promise<void> {
+  if (recipientAdminEmails.length === 0 || IS_TEST) return;
+  const subject = `[DSF Allow List – ${ENV}] Admin promotion request: ${targetEmail}`;
+  const text = [
+    `DSF Allow List – ${ENV}`,
+    ``,
+    `${requestedBy} has requested to promote ${targetEmail} to IMI admin.`,
+    ``,
+    `Two admins from different sites must approve. Open the portal to review:`,
+    `${process.env.FRONTEND_URL || 'http://localhost:5173'}/app/admin/promotions`,
+    ``,
+    `Request ID: ${requestId}`,
+  ].join('\n');
+  const html = baseHtml('New Admin Promotion Request', `
+    <p><strong>${esc(requestedBy)}</strong> has requested to promote <strong>${esc(targetEmail)}</strong> to IMI admin.</p>
+    <p>Two admins from <strong>different sites</strong> must explicitly approve.</p>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Target</td>
+          <td style="padding:6px 0;font-weight:bold;">${esc(targetEmail)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Requested by</td>
+          <td style="padding:6px 0;">${esc(requestedBy)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Request ID</td>
+          <td style="padding:6px 0;font-family:monospace;font-size:12px;">${esc(requestId)}</td></tr>
+    </table>
+    <p style="margin-top:20px;">
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/app/admin/promotions"
+         style="display:inline-block;padding:10px 20px;background:${BRAND};color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+        Review in Portal
+      </a>
+    </p>
+  `);
+  await transporter.sendMail({ from: FROM, to: recipientAdminEmails.join(','), subject, text, html });
+}
+
+export async function sendAdminPromotionResultEmail(
+  recipients: string[],
+  targetEmail: string,
+  status: 'APPROVED' | 'REJECTED' | 'CANCELLED',
+  reason: string | null,
+): Promise<void> {
+  if (recipients.length === 0 || IS_TEST) return;
+  const subject = status === 'APPROVED'
+    ? `[DSF Allow List – ${ENV}] Admin promotion approved: ${targetEmail}`
+    : status === 'REJECTED'
+      ? `[DSF Allow List – ${ENV}] Admin promotion rejected: ${targetEmail}`
+      : `[DSF Allow List – ${ENV}] Admin promotion cancelled: ${targetEmail}`;
+  const reasonLine = reason ? `\n\nReason: ${reason}` : '';
+  const text = [
+    `DSF Allow List – ${ENV}`,
+    ``,
+    `Promotion request for ${targetEmail} was ${status.toLowerCase()}.`,
+    reasonLine,
+  ].filter(Boolean).join('\n');
+  const reasonHtml = reason
+    ? `<div style="margin-top:16px;padding:12px;background:#f8f8fb;border-left:4px solid #ddd;border-radius:4px;">
+         <p style="margin:0 0 4px 0;color:#666;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Reason</p>
+         <p style="margin:0;">${esc(reason)}</p>
+       </div>`
+    : '';
+  const statusColor = status === 'APPROVED' ? COLOR_APPROVED : status === 'REJECTED' ? COLOR_REJECTED : '#9b9fad';
+  const html = baseHtml(`Admin Promotion ${status.charAt(0) + status.slice(1).toLowerCase()}`, `
+    <p>Promotion request for <strong>${esc(targetEmail)}</strong> was
+      <span style="font-weight:bold;color:${statusColor};">${status.toLowerCase()}</span>.
+    </p>
+    ${reasonHtml}
+  `);
+  await transporter.sendMail({ from: FROM, to: recipients.join(','), subject, text, html });
+}
