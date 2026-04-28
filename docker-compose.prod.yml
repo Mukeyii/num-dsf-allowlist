@@ -23,6 +23,11 @@ services:
       resources:
         limits:
           memory: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   frontend:
     build:
@@ -35,6 +40,11 @@ services:
       resources:
         limits:
           memory: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   backend:
     build:
@@ -60,6 +70,11 @@ services:
       resources:
         limits:
           memory: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   db:
     image: mysql:8.0
@@ -83,6 +98,11 @@ services:
       resources:
         limits:
           memory: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   redis:
     image: redis:7-alpine
@@ -101,6 +121,11 @@ services:
       resources:
         limits:
           memory: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 volumes:
   mysql-data:
