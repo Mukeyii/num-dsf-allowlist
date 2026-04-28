@@ -19,6 +19,13 @@ services:
     restart: always
     networks:
       - frontend-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     deploy:
       resources:
         limits:
@@ -36,6 +43,13 @@ services:
     restart: always
     networks:
       - frontend-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     deploy:
       resources:
         limits:
@@ -66,6 +80,13 @@ services:
     networks:
       - frontend-net
       - backend-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
     deploy:
       resources:
         limits:
@@ -94,6 +115,15 @@ services:
     restart: always
     networks:
       - backend-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
     deploy:
       resources:
         limits:
@@ -117,6 +147,15 @@ services:
     restart: always
     networks:
       - backend-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
     deploy:
       resources:
         limits:
