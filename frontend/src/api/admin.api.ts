@@ -1,5 +1,5 @@
 /**
- * admin.api.ts – API client for IMI admin approval endpoints
+ * admin.api.ts – API client for IMI admin approval + user-management endpoints
  * Dependencies: axios, auth.store
  */
 import axios from 'axios';
@@ -11,6 +11,13 @@ function authHeader() {
   const token = useAuthStore.getState().accessToken;
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+const api = {
+  get: <T>(url: string) => axios.get<T>(`${BASE}${url}`, { headers: authHeader() }),
+  post: <T = unknown>(url: string, data?: unknown) => axios.post<T>(`${BASE}${url}`, data, { headers: authHeader() }),
+  delete: <T = unknown>(url: string, config?: { data?: unknown }) =>
+    axios.request<T>({ method: 'DELETE', url: `${BASE}${url}`, headers: authHeader(), data: config?.data }),
+};
 
 export interface ApprovalSignature {
   id: string;
@@ -32,13 +39,50 @@ export interface PendingRequest {
 
 export const adminApi = {
   getPendingApprovals: () =>
-    axios.get<{ data: PendingRequest[] }>(`${BASE}/admin/approval/pending`, { headers: authHeader() }),
+    api.get<{ data: PendingRequest[] }>('/admin/approval/pending'),
 
   approveRequest: (requestId: string, totpCode: string) =>
-    axios.post<{ data: { status: 'PENDING' | 'APPROVED'; reason?: string } }>(
-      `${BASE}/admin/approval/${requestId}/approve`, { totpCode }, { headers: authHeader() }
+    api.post<{ data: { status: 'PENDING' | 'APPROVED'; reason?: string } }>(
+      `/admin/approval/${requestId}/approve`, { totpCode }
     ),
 
   rejectRequest: (requestId: string, comment: string, totpCode: string) =>
-    axios.post(`${BASE}/admin/approval/${requestId}/reject`, { comment, totpCode }, { headers: authHeader() }),
+    api.post<{ data: { id: string; status: string } }>(`/admin/approval/${requestId}/reject`, { comment, totpCode }),
+};
+
+export interface WhitelistEntry {
+  email: string;
+  created_at: string;
+  created_by: string | null;
+  locked_at: string | null;
+  locked_by: string | null;
+  locked_reason: string | null;
+  is_admin: boolean;
+}
+
+export const adminUsersApi = {
+  list: async (): Promise<WhitelistEntry[]> => {
+    const res = await api.get<{ data: WhitelistEntry[] }>('/admin/users');
+    return res.data.data;
+  },
+  add: async (email: string, totpCode: string) => {
+    const res = await api.post<{ data: { ok: true } }>('/admin/users', { email, totpCode });
+    return res.data.data;
+  },
+  lock: async (email: string, reason: string, totpCode: string) => {
+    const res = await api.post(`/admin/users/${encodeURIComponent(email)}/lock`, { reason, totpCode });
+    return res.data;
+  },
+  unlock: async (email: string, totpCode: string) => {
+    const res = await api.post(`/admin/users/${encodeURIComponent(email)}/unlock`, { totpCode });
+    return res.data;
+  },
+  demote: async (email: string, totpCode: string) => {
+    const res = await api.post(`/admin/users/${encodeURIComponent(email)}/demote`, { totpCode });
+    return res.data;
+  },
+  remove: async (email: string, totpCode: string) => {
+    const res = await api.delete(`/admin/users/${encodeURIComponent(email)}`, { data: { totpCode } });
+    return res.data;
+  },
 };
