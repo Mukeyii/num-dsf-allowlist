@@ -12,6 +12,7 @@ import { AppPage }       from './pages/AppPage';
 import { AuditPage }     from './pages/AuditPage';
 import { AdminPage }     from './pages/AdminPage';
 import { AdminHelpPage } from './pages/AdminHelpPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
 import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
 import { NotFoundPage }  from './pages/NotFoundPage';
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
       { path: 'audit', element: <AuditPage /> },
       { path: 'admin', element: <AdminPage /> },
       { path: 'admin/help', element: <AdminHelpPage /> },
+      { path: 'admin/users', element: <AdminUsersPage /> },
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
     ],
