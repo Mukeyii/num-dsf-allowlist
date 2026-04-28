@@ -119,6 +119,7 @@ All UTC, configured in `backend/src/services/scheduler.service.ts`:
 | 06:00 daily | `runApprovalReminders` | Re-emails admins for approval requests pending > 3 days |
 | 07:00 daily | `runSilentConsentSweep` | Promotes single-approved requests older than `APPROVAL_SILENT_CONSENT_DAYS` to APPROVED |
 | 08:00 daily | `runCertExpiryCheck` | Emails site contacts when their cert is < 30 days from expiry |
+| 09:00 daily | `runMembershipCleanup` | Hard-deletes soft-deleted memberships older than 90 days |
 
 The scheduler starts at backend boot (`backend/src/index.ts`). Jobs swallow individual failures so one bad iteration doesn't kill the runner.
 
