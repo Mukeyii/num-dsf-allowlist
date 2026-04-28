@@ -115,13 +115,18 @@ export async function notifyImiOnFirstApproval(
   await sendAdminFirstApprovalEmail(imiEmails, org.name, org.identifier, firstApproverEmail, requestId);
 }
 
+const REMINDER_THROTTLE_DAYS = 7;
+
 export async function runApprovalReminders(): Promise<void> {
-  const threeDaysAgo = new Date();
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+  const threeDaysAgo = new Date(Date.now() - 3 * 86400000);
+  const throttleCutoff = new Date(Date.now() - REMINDER_THROTTLE_DAYS * 86400000);
 
   const staleRequests = await db('approval_requests')
     .where({ status: 'PENDING' })
     .where('submitted_at', '<=', threeDaysAgo)
+    .where((qb: import('knex').Knex.QueryBuilder) =>
+      qb.whereNull('last_reminded_at').orWhere('last_reminded_at', '<', throttleCutoff),
+    )
     .select('id', 'instance_id');
 
   if (staleRequests.length === 0) return;
@@ -148,6 +153,7 @@ export async function runApprovalReminders(): Promise<void> {
         'Automated reminder – request still pending',
         req.id,
       );
+      await db('approval_requests').where({ id: req.id }).update({ last_reminded_at: new Date() });
       console.log(`[ApprovalReminder] Sent reminder for request ${req.id} (${orgIdentifier})`);
     } catch (err) {
       console.error(`[ApprovalReminder] Failed to send reminder for request ${req.id}:`, err);
