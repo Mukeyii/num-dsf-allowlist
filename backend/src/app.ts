@@ -20,6 +20,7 @@ import { membershipsRouter } from './routes/memberships.routes';
 import { approvalRouter } from './routes/approval.routes';
 import { adminApprovalRouter } from './routes/admin-approval.routes';
 import { adminUsersRouter } from './routes/admin-users.routes';
+import { adminPromotionsRouter } from './routes/admin-promotions.routes';
 import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
 import { auditRouter, crossInstanceAuditRouter } from './routes/audit.routes';
@@ -106,6 +107,7 @@ app.use('/api/v1/network', networkRouter);
 // Admin routes
 app.use('/api/v1/admin/approval', adminApprovalRouter);
 app.use('/api/v1/admin/users', adminUsersRouter);
+app.use('/api/v1/admin/promotions', adminPromotionsRouter);
 app.use('/api/v1/admin', adminRouter);
 
 // Health Check — liveness (always ok) and readiness (checks DB + Redis)
