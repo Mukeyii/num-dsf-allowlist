@@ -205,6 +205,12 @@ authRouter.post('/client-cert-login', async (req: Request, res: Response) => {
     return;
   }
 
+  const wl = await db('email_whitelist').where({ email: user.email }).first();
+  if (!wl || wl.locked_at) {
+    res.status(401).json({ error: { code: 'ACCOUNT_LOCKED', message: 'Account is locked.' } });
+    return;
+  }
+
   const { accessToken, refreshTokenHash } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
   res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
 

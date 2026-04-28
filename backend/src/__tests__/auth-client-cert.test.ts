@@ -52,8 +52,11 @@ describe('POST /auth/client-cert-login', () => {
   const orgIdentifier = 'cert-login-test.example.de';
   const tp = thumbprintOf(SAMPLE_PEM);
 
+  const ownerEmail = 'cert-user@example.de';
+
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: 'cert-user@example.de', created_at: new Date() });
+    await db('users').insert({ id: userId, email: ownerEmail, created_at: new Date() });
+    await db('email_whitelist').insert({ id: uuidv4(), email: ownerEmail, created_at: new Date() });
     await db('instances').insert({ id: instanceId, user_id: userId, label: 'L', created_at: new Date() });
     await db('organizations').insert({
       identifier: orgIdentifier, instance_id: instanceId,
@@ -67,6 +70,7 @@ describe('POST /auth/client-cert-login', () => {
     await db('organizations').where({ identifier: orgIdentifier }).del();
     await db('instances').where({ id: instanceId }).del();
     await db('users').where({ id: userId }).del();
+    await db('email_whitelist').where({ email: ownerEmail }).del();
   });
 
   it('401 without cert header', async () => {
@@ -89,6 +93,16 @@ describe('POST /auth/client-cert-login', () => {
       .set('x-client-cert', encodeURIComponent(SAMPLE_PEM));
     expect(res.status).toBe(200);
     expect(typeof res.body.data.accessToken).toBe('string');
-    expect(res.body.data.email).toBe('cert-user@example.de');
+    expect(res.body.data.email).toBe(ownerEmail);
+  });
+
+  it('rejects locked emails (account locked → 401)', async () => {
+    await db('email_whitelist').where({ email: ownerEmail }).update({ locked_at: new Date(), locked_by: 'test', locked_reason: 'test' });
+    const res = await request(appWith())
+      .post('/auth/client-cert-login')
+      .set('x-client-cert', encodeURIComponent(SAMPLE_PEM));
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('ACCOUNT_LOCKED');
+    await db('email_whitelist').where({ email: ownerEmail }).update({ locked_at: null, locked_by: null, locked_reason: null });
   });
 });
