@@ -34,9 +34,14 @@ export function OrganizationCard({ instanceId }: Props) {
     try {
       await updateMut.mutateAsync({
         identifier: org.identifier,
-        name:  field === 'name'  ? editValue : org.name,
-        email: field === 'email' ? editValue : org.email,
+        name:  field === 'name'  ? editValue.trim() : org.name,
+        email: field === 'email' ? editValue.trim() : org.email,
         active: org.active,
+        addressLine: org.address_line || '',
+        postalCode: org.postal_code || '',
+        city: org.city || '',
+        countryCode: org.country_code || '',
+        clientCertThumbprint: org.client_cert_thumbprint || '',
       });
       toast.success(t('orgCardSaveToast'));
     } catch {
