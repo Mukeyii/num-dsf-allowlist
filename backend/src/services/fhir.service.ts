@@ -167,7 +167,8 @@ export async function generateFullBundle(): Promise<object> {
 
   // Collect all parent verbunds referenced in memberships of approved orgs.
   const memberships = await db('memberships')
-    .whereIn('organization_id', orgs.map((o: { identifier: string }) => o.identifier));
+    .whereIn('organization_id', orgs.map((o: { identifier: string }) => o.identifier))
+    .whereNull('deleted_at');
   const parentIdentifiers = Array.from(
     new Set(memberships.map((m: { parent_organization: string }) => m.parent_organization)),
   );
@@ -270,6 +271,23 @@ export async function generateFullBundle(): Promise<object> {
       },
       request: {
         method: 'PUT',
+        url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${ms.parent_organization}&participating-organization:identifier=${ORG_ID_SYSTEM}|${ms.organization_id}&endpoint:identifier=${EP_ID_SYSTEM}|${ms.endpoint_id}`,
+      },
+    });
+  }
+
+  // Federation-safe: emit DELETE OrganizationAffiliation for memberships that
+  // have been soft-deleted (admin removed the membership in the UI). Tool
+  // never emits DELETE for Organization/Endpoint — those records may still be
+  // in another tool's allow-list.
+  const softDeletedMs = await db('memberships')
+    .whereIn('organization_id', orgs.map((o: { identifier: string }) => o.identifier))
+    .whereNotNull('deleted_at');
+
+  for (const ms of softDeletedMs) {
+    entries.push({
+      request: {
+        method: 'DELETE',
         url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${ms.parent_organization}&participating-organization:identifier=${ORG_ID_SYSTEM}|${ms.organization_id}&endpoint:identifier=${EP_ID_SYSTEM}|${ms.endpoint_id}`,
       },
     });
