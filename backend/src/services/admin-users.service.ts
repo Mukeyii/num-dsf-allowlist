@@ -9,6 +9,7 @@
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { writeAuditLog } from './audit.service';
+import { revokeAllSessions } from './auth.service';
 import { siteOfEmail } from '../lib/approvalState';
 import { verifyGrant } from '../lib/adminGrants';
 
@@ -92,6 +93,7 @@ export async function lockWhitelistEntry(
     locked_by: lockedBy,
     locked_reason: reason || null,
   });
+  await revokeAllSessions(email).catch(() => {});
   await writeAuditLog({
     userEmail: lockedBy,
     resourceType: 'AUTH',
@@ -149,6 +151,7 @@ export async function demoteAdmin(
     );
   }
   await db('admin_grants').where({ email }).del();
+  await revokeAllSessions(email).catch(() => {});
   await writeAuditLog({
     userEmail: demotedBy,
     resourceType: 'AUTH',
@@ -186,6 +189,7 @@ export async function removeFromWhitelist(
     await db('admin_grants').where({ email }).del();
   }
   await db('email_whitelist').where({ email }).del();
+  await revokeAllSessions(email).catch(() => {});
   await writeAuditLog({
     userEmail: removedBy,
     resourceType: 'AUTH',
