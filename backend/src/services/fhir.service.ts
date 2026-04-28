@@ -22,7 +22,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
   const endpoint = await db('endpoints').where({ identifier: endpointId, organization_id: org.identifier }).first();
   if (!endpoint) throw new Error('ENDPOINT_NOT_FOUND');
   const certs = await db('certificates').where({ organization_id: org.identifier });
-  const memberships = await db('memberships').where({ organization_id: org.identifier });
+  const memberships = await db('memberships').where({ organization_id: org.identifier }).whereNull('deleted_at');
 
   // Generate stable UUIDs for cross-referencing within the bundle
   const orgUuid = uuidv4();
