@@ -1,6 +1,17 @@
 -- 002_client_cert_thumbprint.sql
--- Adds client_cert_thumbprint column to organizations for mTLS authentication.
--- The DSF BPE process authenticates to the FHIR Bundle endpoint using a client certificate.
--- The SHA-256 thumbprint of that certificate is stored here to verify the identity.
+-- Adds organizations.client_cert_thumbprint for mTLS authentication.
+-- Idempotent: no-op if 001_initial_schema.sql already defined the column.
 
-ALTER TABLE organizations ADD COLUMN client_cert_thumbprint VARCHAR(128) DEFAULT NULL;
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'organizations'
+    AND COLUMN_NAME = 'client_cert_thumbprint'
+);
+SET @sql := IF(@col_exists = 0,
+  'ALTER TABLE organizations ADD COLUMN client_cert_thumbprint VARCHAR(128) DEFAULT NULL',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
