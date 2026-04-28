@@ -30,7 +30,7 @@ export async function requireInstanceOwnership(
     return;
   }
 
-  const isAdmin = isAdminEmail(req.user?.email);
+  const isAdmin = await isAdminEmail(req.user?.email);
   const query = db('instances').where({ id: instanceId });
   if (!isAdmin) {
     query.andWhere({ user_id: req.user!.id });

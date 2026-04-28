@@ -1,12 +1,14 @@
 /**
- * isAdmin.ts – Central check for IMI admin role
- * Reads IMI_ADMIN_EMAILS at call time (not at import) so tests can mutate env.
+ * isAdmin.ts – DB-backed admin role check with cryptographic signature
+ * verification. Reads from admin_grants table; ignores IMI_ADMIN_EMAILS at
+ * runtime (used only for first-run bootstrap by admin-bootstrap.service).
  */
-export function isAdminEmail(email: string | null | undefined): boolean {
+import { db } from '../db/connection';
+import { verifyGrant } from './adminGrants';
+
+export async function isAdminEmail(email: string | null | undefined): Promise<boolean> {
   if (!email) return false;
-  const list = (process.env.IMI_ADMIN_EMAILS || '')
-    .split(',')
-    .map(e => e.trim().toLowerCase())
-    .filter(Boolean);
-  return list.includes(email.toLowerCase());
+  const grant = await db('admin_grants').where({ email: email.toLowerCase() }).first();
+  if (!grant) return false;
+  return verifyGrant(grant);
 }

@@ -8,9 +8,8 @@ import express from 'express';
 import request from 'supertest';
 import { db } from '../db/connection';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
+import { signGrant } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
-
-process.env.IMI_ADMIN_EMAILS = 'admin@imi-test.example.de';
 
 function appWith(user: { id: string; email: string }) {
   const app = express();
@@ -33,9 +32,19 @@ describe('requireInstanceOwnership', () => {
       { id: otherId, email: 'other@example.de', created_at: new Date() },
     ]);
     await db('instances').insert({ id: instanceId, user_id: ownerId, label: 'L', created_at: new Date() });
+    const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
+    const sig = signGrant(adminEmail, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
+    await db('admin_grants').insert({
+      email: adminEmail,
+      granted_at: grantedAt,
+      granted_by_a: 'SYSTEM:test',
+      granted_by_b: 'SYSTEM:test',
+      signature_hex: sig,
+    }).onConflict('email').ignore();
   });
 
   afterAll(async () => {
+    await db('admin_grants').where({ email: adminEmail }).del();
     await db('instances').where({ id: instanceId }).del();
     await db('users').whereIn('id', [ownerId, otherId]).del();
   });

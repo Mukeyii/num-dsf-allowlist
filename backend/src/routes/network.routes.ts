@@ -10,7 +10,7 @@ import { isAdminEmail } from '../lib/isAdmin';
 export const networkRouter = Router();
 
 networkRouter.get('/map', requireAuth, async (req, res) => {
-  const isAdmin = isAdminEmail(req.user!.email);
+  const isAdmin = await isAdminEmail(req.user!.email);
   const data = await getNetworkMap({ isAdmin });
   res.json({ data, meta: { isAdmin } });
 });
