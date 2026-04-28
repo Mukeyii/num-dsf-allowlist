@@ -1,3 +1,3 @@
 # mail/Dockerfile – Mailhog for development email testing
-FROM mailhog/mailhog:latest
+FROM mailhog/mailhog:v1.0.1
 EXPOSE 1025 8025
