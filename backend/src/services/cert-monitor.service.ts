@@ -18,6 +18,7 @@ export async function runCertExpiryCheck(): Promise<void> {
     .where('c.valid_until', '<=', ninetyDays)
     .where('c.valid_until', '>=', now)
     .select('c.id as certId', 'c.subject', 'c.valid_until as validUntil',
+      'c.last_notified_at as lastNotifiedAt',
       'o.identifier as orgIdentifier', 'o.name as orgName', 'i.id as instanceId');
 
   if (expiring.length === 0) {
@@ -31,6 +32,12 @@ export async function runCertExpiryCheck(): Promise<void> {
     const shouldNotify = [90, 60, 30, 14, 7, 3, 1].includes(daysLeft);
     if (!shouldNotify) continue;
 
+    // Idempotency: skip certs already notified today (UTC).
+    const todayUtc = new Date(); todayUtc.setUTCHours(0, 0, 0, 0);
+    if (cert.lastNotifiedAt && new Date(cert.lastNotifiedAt) >= todayUtc) {
+      continue;
+    }
+
     try {
       await writeAuditLog({
         userEmail: 'system@cert-monitor',
@@ -41,6 +48,7 @@ export async function runCertExpiryCheck(): Promise<void> {
         diffJson: { event: 'EXPIRY_WARNING', daysLeft },
         ipAddress: 'system',
       });
+      await db('certificates').where({ id: cert.certId }).update({ last_notified_at: new Date() });
       console.log(`[CertMonitor] Warning: ${cert.subject} → ${daysLeft}d left`);
       sent++;
     } catch (err) {
