@@ -13,6 +13,7 @@ import { AuditPage }     from './pages/AuditPage';
 import { AdminPage }     from './pages/AdminPage';
 import { AdminHelpPage } from './pages/AdminHelpPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminPromotionsPage } from './pages/AdminPromotionsPage';
 import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
 import { NotFoundPage }  from './pages/NotFoundPage';
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: 'admin', element: <AdminPage /> },
       { path: 'admin/help', element: <AdminHelpPage /> },
       { path: 'admin/users', element: <AdminUsersPage /> },
+      { path: 'admin/promotions', element: <AdminPromotionsPage /> },
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
     ],
