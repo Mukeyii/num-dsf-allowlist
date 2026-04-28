@@ -37,6 +37,9 @@ describe('Endpoints API', () => {
       const res = await request(app).post(`/api/v1/instances/${TEST_INSTANCE_ID}/endpoints`).set('Authorization', `Bearer ${token}`)
         .send({ identifier: 'new-ep.de', name: 'New EP', address: 'https://new-ep.de/fhir', ipAddresses: [{ ip: '192.168.1.1', isFhir: true, isBpe: false }] });
       expect(res.status).toBe(201);
+      expect(res.body.data.ipAddresses).toBeDefined();
+      expect(res.body.data.ipAddresses.length).toBeGreaterThan(0);
+      expect(res.body.data.ipAddresses[0].ip).toMatch(/^\d+\.\d+\.\d+\.\d+$/);
     });
   });
 

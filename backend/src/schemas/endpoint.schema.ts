@@ -15,11 +15,11 @@ export const createEndpointSchema = z.object({
   identifier: z.string().min(1).max(255),
   name: z.string().max(255).optional().default(''),
   address: z.string().url().max(500),
-  ips: z.array(ipAddressSchema).optional().default([]),
+  ipAddresses: z.array(ipAddressSchema).optional().default([]),
 });
 
 export const updateEndpointSchema = z.object({
   name: z.string().max(255).optional(),
   address: z.string().url().max(500).optional(),
-  ips: z.array(ipAddressSchema).optional(),
+  ipAddresses: z.array(ipAddressSchema).optional(),
 });
