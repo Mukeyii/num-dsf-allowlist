@@ -52,6 +52,7 @@ Das Portal verwaltet ein zentrales Verzeichnis aus fünf miteinander verknüpfte
 - F-BND-03: Excel-Export der IP-Adressen über `/api/v1/download/ip-address-list`.
 - F-BND-04: DSGVO: Kontaktdaten dürfen NIEMALS im Allow-List-Bundle erscheinen.
 - F-BND-05: Bundle-Form folgt exakt dem Upstream-Vertrag von `dsf-process-allow-list/UpdateAllowList` — Identifier `http://dsf.dev/fhir/CodeSystem/allow-list|allow_list`, Transaktion-Bundle mit Organization-, Endpoint- und OrganizationAffiliation-Resourcen.
+- F-BND-06: Federation-Safety. Tool emittiert ausschließlich `DELETE` auf `OrganizationAffiliation`, nie auf `Organization` oder `Endpoint`. Stamm-Records werden bei Verbund-Austritt nicht entfernt — sie bleiben am Empfänger inert liegen, falls andere Tools sie weiter listen. Soft-deletete Memberships werden 90 Tage aufbewahrt (cron-cleanup), damit alle Standorte mindestens einen Bundle-Roundtrip durchgemacht haben, bevor die Aufbewahrungs-Zeile hart gelöscht wird.
 
 ### 3.6 Audit-Log
 - F-AUD-01: Append-only `audit_logs` Tabelle; kein UPDATE/DELETE auf Anwendungsebene.
