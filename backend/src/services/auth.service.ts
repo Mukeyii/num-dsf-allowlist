@@ -54,9 +54,9 @@ export function verifyTempToken(token: string): TempTokenPayload {
 export async function requestOtp(email: string, ipAddress: string): Promise<void> {
   const normalized = email.toLowerCase().trim();
 
-  // Whitelist check (generic error message on rejection – no hint if email exists)
+  // Whitelist check (generic error message on rejection – no hint if email exists or is locked)
   const whitelisted = await db('email_whitelist').where({ email: normalized }).first();
-  if (!whitelisted) {
+  if (!whitelisted || whitelisted.locked_at) {
     await writeAuditLog({ userEmail: normalized, resourceType: 'AUTH', operation: 'FAILED_LOGIN', ipAddress });
     throw new Error('NOT_WHITELISTED');
   }
