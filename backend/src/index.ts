@@ -51,6 +51,16 @@ async function start() {
     logger.info('Redis connected');
     startScheduler();
     await bootstrapAdminGrants();
+    if (process.env.DEV_AUTO_LOGIN === 'true') {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('DEV_AUTO_LOGIN must NEVER be enabled in production');
+      }
+      const host = process.env.HOST || '0.0.0.0';
+      const isLocal = host === '127.0.0.1' || host === 'localhost';
+      if (!isLocal) {
+        logger.warn(`[security] DEV_AUTO_LOGIN=true but HOST=${host}; binding accepted because NODE_ENV is not production. If exposing this dev process beyond localhost (ngrok, tunnel, etc.), unset DEV_AUTO_LOGIN first.`);
+      }
+    }
     app.listen(PORT, () => {
       logger.info({ port: PORT, env: process.env.DSF_ENVIRONMENT }, 'Server started');
     });
