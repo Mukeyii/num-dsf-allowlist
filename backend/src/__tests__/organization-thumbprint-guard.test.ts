@@ -18,6 +18,12 @@ jest.mock('../middleware/auth.middleware', () => ({
   requireAuth: (_req: any, _res: any, next: any) => next(),
 }));
 
+// TOTP is required for owner-initiated thumbprint changes; mock it to a passthrough
+// so the guard tests focus on the authorization logic, not on TOTP plumbing.
+jest.mock('../services/totp.service', () => ({
+  verifyTotpCode: jest.fn().mockResolvedValue(true),
+}));
+
 // eslint-disable-next-line import/first
 import { organizationRouter } from '../routes/organization.routes';
 // eslint-disable-next-line import/first
@@ -102,7 +108,7 @@ describe('PUT /organization — admin cross-user thumbprint guard', () => {
   it('owner can change their own thumbprint', async () => {
     const res = await request(appAs(ownerId, ownerEmail))
       .put(`/api/v1/instances/${instanceId}/organization`)
-      .send({ ...validBody, clientCertThumbprint: 'c'.repeat(64) });
+      .send({ ...validBody, clientCertThumbprint: 'c'.repeat(64), totpCode: '123456' });
     expect(res.status).toBe(200);
   });
 
