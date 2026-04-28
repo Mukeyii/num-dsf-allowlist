@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { selectClass } from './FormField';
 import { useEndpoints } from '../../hooks/useEndpoints';
-import { api } from '../../api/entities.api';
+import { api, downloadFullAllowListBundle } from '../../api/entities.api';
 import { BundlePreview } from './BundlePreview';
 import { useI18n } from '../../stores/i18n.store';
 
@@ -15,22 +15,25 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
   const [selectedEndpoint, setSelectedEndpoint] = useState('');
   const [downloading, setDownloading] = useState(false);
 
-  const bundleUrl = selectedEndpoint
-    ? `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/instances/${instanceId}/download/bundle?endpointId=${selectedEndpoint}`
-    : '';
+  const bundleUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/download/full-bundle`;
 
   async function downloadBundle() {
-    if (!selectedEndpoint) { toast.error(t('downloadNoEndpoint')); return; }
     setDownloading(true);
     try {
-      const res = await api(instanceId).downloadBundle(selectedEndpoint);
+      const res = await downloadFullAllowListBundle();
       const blob = new Blob([res.data], { type: 'application/fhir+json' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `allowlist-bundle-${selectedEndpoint}.json`; a.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dsf-allow-list-bundle.json';
+      a.click();
       URL.revokeObjectURL(url);
-      toast.success(t('downloadBundleSuccess'));
-    } catch { toast.error(t('downloadBundleFailed')); }
-    finally { setDownloading(false); }
+      toast.success(t('bundleDownloaded'));
+    } catch {
+      toast.error(t('bundleDownloadFailed'));
+    } finally {
+      setDownloading(false);
+    }
   }
 
   async function downloadIpList() {
@@ -59,16 +62,16 @@ export function DownloadModal({ open, onClose, instanceId }: Props) {
           </select>
         </div>
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
-          <p className="text-xs font-bold text-slate-700">{t('downloadModalBundleTitle')}</p>
-          {bundleUrl ? (
-            <div className="relative">
-              <div className="font-mono text-[10px] text-primary bg-white border border-slate-200 rounded-lg p-3 pr-10 break-all leading-relaxed">{bundleUrl}</div>
-              <button type="button" onClick={copyUrl} title={t('downloadModalCopyUrl')} className="absolute right-2 top-2 p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors">
-                <span className="material-symbols-outlined text-[16px]">content_copy</span>
-              </button>
-            </div>
-          ) : (<p className="text-[10px] text-slate-400 italic">{t('downloadModalSelectAbove')}</p>)}
-          <button type="button" disabled={!selectedEndpoint || downloading} onClick={downloadBundle}
+          <p className="text-xs font-bold text-slate-700">{t('downloadFullBundleTitle')}</p>
+          <p className="text-[10px] text-slate-500 leading-relaxed">{t('downloadFullBundleHelp')}</p>
+          <div className="relative">
+            <div className="font-mono text-[10px] text-primary bg-white border border-slate-200 rounded-lg p-3 pr-10 break-all leading-relaxed">{bundleUrl}</div>
+            <button type="button" onClick={copyUrl} title={t('downloadModalCopyUrl')} className="absolute right-2 top-2 p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors">
+              <span className="material-symbols-outlined text-[16px]">content_copy</span>
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-400 italic">{t('downloadEndpointHint')}</p>
+          <button type="button" disabled={downloading} onClick={downloadBundle}
             className="w-full py-2 text-xs font-bold rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             style={{ background: 'linear-gradient(135deg, #8a1750, #675df9)' }}>
             {downloading ? t('downloadModalDownloading') : t('downloadModalDownloadBundle')}
