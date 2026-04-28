@@ -93,7 +93,10 @@ jobs:
       - run: npm install
       - name: Run database migrations
         run: |
-          mysql -h 127.0.0.1 -u root -ptestroot dsf_allowlist < ../db/migrations/001_initial_schema.sql
+          for f in ../db/migrations/*.sql; do
+            echo "Applying $f"
+            mysql -h 127.0.0.1 -u root -ptestroot dsf_allowlist < "$f"
+          done
       - name: Generate test JWT keys
         run: |
           openssl genrsa 2048 > /tmp/jwt_private.pem
