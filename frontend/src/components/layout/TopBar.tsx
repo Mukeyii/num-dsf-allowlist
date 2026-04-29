@@ -10,9 +10,10 @@ import { useThemeStore } from '../../stores/theme.store';
 
 const ENV = import.meta.env.VITE_DSF_ENVIRONMENT || 'TEST';
 
-export function TopBar({ onDownload, onApproval }: {
+export function TopBar({ onDownload, onApproval, showInstanceActions = false }: {
   onDownload: () => void;
   onApproval: () => void;
+  showInstanceActions?: boolean;
 }) {
   const { t, lang, setLang } = useI18n();
   const { dark, toggleTheme } = useThemeStore();
@@ -45,7 +46,7 @@ export function TopBar({ onDownload, onApproval }: {
         </div>
       </div>
 
-      <SearchBar />
+      {showInstanceActions && <SearchBar />}
 
       <div className="flex items-center gap-3">
         {/* Theme toggle */}
@@ -61,19 +62,23 @@ export function TopBar({ onDownload, onApproval }: {
         </button>
 
         <NotificationCenter />
-        <button
-          onClick={onDownload}
-          className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
-        >
-          {t('downloadAllowList')}
-        </button>
-        <button
-          onClick={onApproval}
-          className="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
-          style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
-        >
-          {t('sendForApproval')}
-        </button>
+        {showInstanceActions && (
+          <>
+            <button
+              onClick={onDownload}
+              className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
+            >
+              {t('downloadAllowList')}
+            </button>
+            <button
+              onClick={onApproval}
+              className="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
+              style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
+            >
+              {t('sendForApproval')}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

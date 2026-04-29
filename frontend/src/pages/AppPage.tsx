@@ -85,6 +85,7 @@ export function AppPage() {
         <TopBar
           onDownload={() => openModal('download')}
           onApproval={() => openModal('approval')}
+          showInstanceActions={!!isCanvasRoute}
         />
         {isMapRoute && <MapHeader />}
         {isCanvasRoute && <CrossUserInstanceBanner instanceId={activeInstanceId} />}
