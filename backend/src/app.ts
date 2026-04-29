@@ -124,13 +124,15 @@ app.get('/health/ready', async (_req, res) => {
   try {
     const { db: knex } = await import('./db/connection');
     await knex.raw('SELECT 1');
-  } catch {
+  } catch (err) {
+    logger.error({ err }, 'health.ready: db check failed');
     checks.db = 'error';
   }
   try {
     const { redis } = await import('./services/redis.service');
     await redis.ping();
-  } catch {
+  } catch (err) {
+    logger.error({ err }, 'health.ready: redis check failed');
     checks.redis = 'error';
   }
   const allOk = checks.db === 'ok' && checks.redis === 'ok';
