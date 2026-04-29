@@ -47,7 +47,8 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
     } else if (open && !endpointId) {
       reset({ identifier: '', name: '', address: '', ipAddresses: [{ ip: '', isFhir: false, isBpe: false }] });
     }
-  }, [open, endpointId, endpoints, reset]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, endpointId, reset]);
 
   async function onSubmit(data: EndpointFormData) {
     try {

@@ -55,7 +55,8 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
     } else if (open && !contactId) {
       reset({ types: [], name: '', email: '', phone: '', addressLine: '', postalCode: '', city: '', countryCode: '' });
     }
-  }, [open, contactId, contacts, reset]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, contactId, reset]);
 
   async function onSubmit(data: ContactFormData) {
     try {
