@@ -1,12 +1,13 @@
 /**
  * CommandPalette.tsx – Ctrl+K command palette for quick navigation
- * Dependencies: react-router-dom, useInstances, canvas.store, useModals
+ * Dependencies: react-router-dom, useInstances, canvas.store, useModals, useMe
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useInstances } from '../../hooks/useInstance';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useModals } from '../../hooks/useModals';
+import { useMe } from '../../hooks/useMe';
 
 interface Command {
   id: string;
@@ -25,6 +26,7 @@ export function CommandPalette() {
   const navigate = useNavigate();
   const { data: instances = [] } = useInstances();
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
+  const { data: me } = useMe();
 
   // Toggle on Ctrl+K / Cmd+K
   useEffect(() => {
@@ -70,8 +72,16 @@ export function CommandPalette() {
     })),
   ];
 
+  const ADMIN_COMMAND_IDS = ['nav-admin', 'nav-audit', 'nav-users', 'nav-promotions'];
+  const visibleCommands = useMemo(() => {
+    return commands.filter(c => {
+      const adminOnly = ADMIN_COMMAND_IDS.includes(c.id);
+      return !adminOnly || !!me?.isAdmin;
+    });
+  }, [me?.isAdmin, commands]);
+
   const q = query.toLowerCase().trim();
-  const filtered = q ? commands.filter(c => c.label.toLowerCase().includes(q)) : commands;
+  const filtered = q ? visibleCommands.filter(c => c.label.toLowerCase().includes(q)) : visibleCommands;
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIndex(i => Math.min(i + 1, filtered.length - 1)); }
