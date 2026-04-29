@@ -46,3 +46,15 @@ certificatesRouter.delete('/:cid', async (req, res) => {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
+
+certificatesRouter.post('/:cid/renew', async (req, res) => {
+  try {
+    const cert = await svc.renewCertificate(req.instance!.id, req.params.cid, req.body, req.user!.email, req.ip || 'unknown');
+    res.json({ data: cert });
+  } catch (err: any) {
+    if (err.message === 'PRIVATE_KEY_REJECTED') {
+      return res.status(400).json({ error: { code: 'PRIVATE_KEY_REJECTED', message: 'Private keys are not allowed' } });
+    }
+    res.status(400).json({ error: sanitizeError(err) });
+  }
+});
