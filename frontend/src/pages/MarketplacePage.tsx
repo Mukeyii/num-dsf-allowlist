@@ -328,9 +328,9 @@ function EntryRow({
           }}>
             {entry.status}
           </span>
-          {entry.latestReleaseTag && (
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-              {entry.latestReleaseTag}
+          {entry.archived && (
+            <span style={{ fontSize: '10px', background: '#fde7e7', color: '#a01919', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 600 }}>
+              Archived
             </span>
           )}
         </div>
@@ -348,32 +348,62 @@ function EntryRow({
           </p>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '2px' }}>
-          {entry.stars > 0 && (
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>star</span>
-              {entry.stars}
-            </span>
-          )}
+        {entry.topics.length > 0 && (
+          <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {entry.topics.slice(0, 6).map(topic => (
+              <span key={topic} style={{
+                fontSize: '10px',
+                background: '#eef0f4',
+                color: '#5d6470',
+                padding: '2px 6px',
+                borderRadius: '10px',
+              }}>
+                {topic}
+              </span>
+            ))}
+            {entry.topics.length > 6 && (
+              <span style={{ fontSize: '10px', color: '#6c757d' }}>
+                +{entry.topics.length - 6} more
+              </span>
+            )}
+          </div>
+        )}
+
+        <div style={{ fontSize: '10px', color: '#6c757d', marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {entry.language && <span>{entry.language}</span>}
+          {entry.latestReleaseTag && <span>· {entry.latestReleaseTag}</span>}
+          <span>· ★ {entry.stars}</span>
+          <span>· ⑂ {entry.forks}</span>
+          <span>· ⓘ {entry.openIssues}</span>
+          {entry.license && <span>· {entry.license}</span>}
           {entry.syncAt && !entry.syncError && (
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              {t('marketplaceSyncedAgo').replace('{ago}', relTime(entry.syncAt))}
-            </span>
+            <span>· {t('marketplaceSyncedAgo').replace('{ago}', relTime(entry.syncAt))}</span>
           )}
           {entry.lastCommitAt && (
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt))}
-            </span>
+            <span>· {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt))}</span>
           )}
           {entry.syncError && (
-            <span style={{ fontSize: '11px', color: '#ef4444' }}>{t('marketplaceSyncFailed')}</span>
+            <span style={{ color: '#ef4444' }}>{t('marketplaceSyncFailed')}</span>
           )}
         </div>
       </a>
 
-      {/* Admin action buttons */}
-      {isAdmin && (
-        <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
+      {/* Homepage link + Admin action buttons */}
+      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
+        {entry.homepage && (
+          <a
+            href={entry.homepage}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{ fontSize: '10px', color: '#6c63ff', marginLeft: '8px', textDecoration: 'none' }}
+            title={entry.homepage}
+          >
+            ↗ docs
+          </a>
+        )}
+        {isAdmin && (
+          <>
           <button
             onClick={e => { e.stopPropagation(); onEditStatus(); }}
             style={{
@@ -402,8 +432,9 @@ function EntryRow({
           >
             {t('marketplaceDelete')}
           </button>
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

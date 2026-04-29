@@ -32,6 +32,12 @@ export interface MarketplaceEntry {
   lastCommitAt: string | null;
   stars: number;
   license: string | null;
+  topics: string[];
+  forks: number;
+  openIssues: number;
+  archived: boolean;
+  homepage: string | null;
+  language: string | null;
   syncAt: string | null;
   syncError: string | null;
 }
