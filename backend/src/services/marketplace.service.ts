@@ -19,11 +19,24 @@ export interface MarketplaceEntry {
   lastCommitAt: Date | null;
   stars: number;
   license: string | null;
+  topics: string[];
+  forks: number;
+  openIssues: number;
+  archived: boolean;
+  homepage: string | null;
+  language: string | null;
   syncAt: Date | null;
   syncError: string | null;
 }
 
 function rowToEntry(r: any): MarketplaceEntry {
+  let topics: string[] = [];
+  if (r.topics) {
+    try {
+      const parsed = typeof r.topics === 'string' ? JSON.parse(r.topics) : r.topics;
+      if (Array.isArray(parsed)) topics = parsed.filter((x: unknown): x is string => typeof x === 'string');
+    } catch { topics = []; }
+  }
   return {
     id: r.id,
     gitUrl: r.git_url,
@@ -34,6 +47,12 @@ function rowToEntry(r: any): MarketplaceEntry {
     lastCommitAt: r.last_commit_at,
     stars: r.stars,
     license: r.license,
+    topics,
+    forks: Number(r.forks) || 0,
+    openIssues: Number(r.open_issues) || 0,
+    archived: !!r.archived,
+    homepage: r.homepage || null,
+    language: r.language || null,
     syncAt: r.sync_at,
     syncError: r.sync_error,
   };
