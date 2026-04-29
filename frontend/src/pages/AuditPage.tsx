@@ -4,7 +4,9 @@
  * Dependencies: useCrossInstanceAudit, useI18n
  */
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useCrossInstanceAudit } from '../hooks/useAudit';
+import { useMe } from '../hooks/useMe';
 import { useI18n } from '../stores/i18n.store';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -16,6 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function AuditPage() {
   const { t } = useI18n();
+  const { data: me } = useMe();
   const [page, setPage] = useState(1);
   const limit = 50;
   const { data, isLoading, error } = useCrossInstanceAudit(page, limit);
@@ -23,6 +26,8 @@ export function AuditPage() {
   const total = data?.meta.total ?? 0;
   const isAdmin = !!data?.meta.isAdmin;
   const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+  if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
   return (
     <div style={{ flex: 1, padding: '32px', overflowY: 'auto', fontFamily: 'Inter, system-ui, sans-serif' }}>

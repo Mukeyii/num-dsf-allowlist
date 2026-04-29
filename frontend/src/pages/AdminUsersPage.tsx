@@ -4,6 +4,7 @@
  * Dependencies: adminUsersApi, useI18n, useMe, tanstack-query, sonner
  */
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminUsersApi, adminPromotionsApi, type WhitelistEntry } from '../api/admin.api';
@@ -103,6 +104,8 @@ export function AdminUsersPage() {
       toast.error(msg || 'Failed');
     },
   });
+
+  if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
   function reset() {
     setPending(null);

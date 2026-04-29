@@ -5,6 +5,7 @@
  * Dependencies: adminPromotionsApi, useI18n, useMe, tanstack-query, sonner
  */
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminPromotionsApi, type PromotionRequest } from '../api/admin.api';
@@ -83,6 +84,8 @@ export function AdminPromotionsPage() {
       toast.error(msg || 'Failed');
     },
   });
+
+  if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
   function reset() {
     setPending(null);

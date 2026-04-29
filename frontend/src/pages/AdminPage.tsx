@@ -3,7 +3,7 @@
  * Dependencies: useAdmin hooks, sonner toast, Material Symbols icons
  */
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { usePendingApprovals, useApproveRequest, useRejectRequest } from '../hooks/useAdmin';
 import { useMe } from '../hooks/useMe';
@@ -553,6 +553,8 @@ export function AdminPage() {
   const { data: me } = useMe();
 
   const is403 = (error as { response?: { status?: number } } | null)?.response?.status === 403;
+
+  if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
   return (
     <div style={{
