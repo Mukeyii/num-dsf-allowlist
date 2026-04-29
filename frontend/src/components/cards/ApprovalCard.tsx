@@ -27,12 +27,12 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
           <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>{currentInstance?.label || 'Instance'}</span>
           {status?.status === 'PENDING' && (
             <span style={{ padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }}>
-              1 Pending
+              1 {t('pending')}
             </span>
           )}
           {status?.status === 'APPROVED' && (
             <span style={{ padding: '2px 8px', borderRadius: '4px', background: '#dcfce7', color: '#15803d', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }}>
-              Approved
+              {t('approved')}
             </span>
           )}
         </div>
@@ -45,7 +45,7 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
       </div>
 
       <div>
-        <p style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>History</p>
+        <p style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>{t('approvalHistory')}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {history.slice(0, 5).map((req: any, i: number) => (
             <div key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

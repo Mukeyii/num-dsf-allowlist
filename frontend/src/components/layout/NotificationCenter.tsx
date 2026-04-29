@@ -4,14 +4,8 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { useNotificationStore } from '../../stores/notification.store';
+import { useI18n } from '../../stores/i18n.store';
 
-function relTime(ts: number): string {
-  const diff = Math.floor((Date.now() - ts) / 1000);
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
 
 const TYPE_ICON: Record<string, { icon: string; color: string }> = {
   success: { icon: 'check_circle', color: '#22c55e' },
@@ -23,6 +17,15 @@ export function NotificationCenter() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { notifications, unread, markAllRead, clear } = useNotificationStore();
+  const { t } = useI18n();
+
+  function relTime(ts: number): string {
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return t('relJustNow');
+    if (diff < 3600) return t('relAgoMinutes').replace('{n}', String(Math.floor(diff / 60)));
+    if (diff < 86400) return t('relAgoHours').replace('{n}', String(Math.floor(diff / 3600)));
+    return t('relAgoDays').replace('{n}', String(Math.floor(diff / 86400)));
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -61,14 +64,14 @@ export function NotificationCenter() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 100, maxHeight: '400px', overflow: 'hidden',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Notifications</span>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('notifications')}</span>
             {notifications.length > 0 && (
-              <button onClick={clear} aria-label="Clear all notifications" style={{ fontSize: '10px', color: 'var(--text-muted)', border: 'none', background: 'transparent', cursor: 'pointer' }}>Clear all</button>
+              <button onClick={clear} aria-label="Clear all notifications" style={{ fontSize: '10px', color: 'var(--text-muted)', border: 'none', background: 'transparent', cursor: 'pointer' }}>{t('clearAll')}</button>
             )}
           </div>
           <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
             {notifications.length === 0 ? (
-              <p style={{ padding: '24px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>No notifications yet.</p>
+              <p style={{ padding: '24px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>{t('noNotificationsYet')}</p>
             ) : (
               notifications.map(n => {
                 const { icon, color } = TYPE_ICON[n.type];

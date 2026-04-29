@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../api/entities.api';
 import { useCanvasStore } from '../../stores/canvas.store';
+import { useI18n } from '../../stores/i18n.store';
 
 const OP_STYLES: Record<string, { icon: string; color: string }> = {
   CREATE: { icon: 'add_circle', color: '#22c55e' },
@@ -17,13 +18,6 @@ const OP_STYLES: Record<string, { icon: string; color: string }> = {
   DEFAULT: { icon: 'info', color: 'var(--text-muted)' },
 };
 
-function relTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
 
 interface AuditEntry {
   id: string;
@@ -35,6 +29,15 @@ interface AuditEntry {
 export function ActivityFeed() {
   const [expanded, setExpanded] = useState(false);
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
+  const { t } = useI18n();
+
+  function relTime(dateStr: string): string {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    if (diff < 60) return t('relJustNow');
+    if (diff < 3600) return t('relAgoMinutes').replace('{n}', String(Math.floor(diff / 60)));
+    if (diff < 86400) return t('relAgoHours').replace('{n}', String(Math.floor(diff / 3600)));
+    return t('relAgoDays').replace('{n}', String(Math.floor(diff / 86400)));
+  }
 
   const { data } = useQuery({
     queryKey: ['activity-feed', activeInstanceId],
@@ -65,7 +68,7 @@ export function ActivityFeed() {
             padding: '10px 14px', borderBottom: '1px solid var(--bg-page)',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>Recent Activity</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('recentActivity')}</span>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{entries.length} entries</span>
           </div>
           <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
@@ -93,7 +96,7 @@ export function ActivityFeed() {
             })}
             {entries.length === 0 && (
               <p style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
-                No activity yet.
+                {t('noActivityYet')}
               </p>
             )}
           </div>

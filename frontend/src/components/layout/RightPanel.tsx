@@ -7,15 +7,15 @@ import { useCertificates }  from '../../hooks/useCertificates';
 import { ExpiryTimeline }   from './ExpiryTimeline';
 import { useI18n }          from '../../stores/i18n.store';
 
-function relativeTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-  if (diff === 0) return 'today';
-  if (diff === 1) return '1 day ago';
-  return `${diff} days ago`;
-}
-
 export function RightPanel({ instanceId }: { instanceId: string | null }) {
   const { t } = useI18n();
+
+  function relativeTime(dateStr: string): string {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+    if (diff === 0) return t('relJustNow');
+    if (diff === 1) return t('relAgoDays').replace('{n}', '1');
+    return t('relAgoDays').replace('{n}', String(diff));
+  }
   const { data: approval }          = useApprovalStatus(instanceId);
   const { data: history = [] }      = useApprovalHistory(instanceId);
   const { data: memberships = [] }  = useMemberships(instanceId);
@@ -32,7 +32,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
-              Current Status
+              {t('currentStatus')}
             </span>
             {approval?.status === 'PENDING' && (
               <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold">
@@ -52,7 +52,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
           </div>
           {approval?.status === 'PENDING' && (
             <p className="text-xs text-amber-700">
-              Awaiting verification for pending changes.
+              {t('awaitingVerification')}
             </p>
           )}
         </div>
