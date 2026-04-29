@@ -30,11 +30,12 @@ export async function runSilentConsentSweep(now: Date = new Date()): Promise<num
     const firstAt = new Date(first.signed_at);
     if (firstAt > cutoff) continue;
 
-    await db('approval_requests').where({ id: r.id }).update({
+    const updated = await db('approval_requests').where({ id: r.id, status: 'PENDING' }).update({
       status: 'APPROVED',
       resolved_at: now,
       resolved_by: 'SYSTEM:silent-consent',
     });
+    if (updated === 0) continue; // race: someone resolved this request first
     await writeAuditLog({
       userEmail: 'SYSTEM:silent-consent',
       instanceId: r.instance_id,
