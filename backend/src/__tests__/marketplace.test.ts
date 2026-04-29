@@ -99,6 +99,16 @@ describe('Marketplace REST routes', () => {
         .send({ gitUrl: 'https://github.com/Foo/Bar.git/', totpCode: TOTP });
       expect(res.status).toBe(201);
       expect(res.body.data.gitUrl).toBe('https://github.com/Foo/Bar');
+      expect(res.body.data).toMatchObject({
+        topics: expect.any(Array),
+        forks: expect.any(Number),
+        openIssues: expect.any(Number),
+        archived: expect.any(Boolean),
+      });
+      expect(res.body.data.archived).toBe(false);
+      expect(res.body.data.forks).toBe(0);
+      expect(res.body.data.openIssues).toBe(0);
+      expect(res.body.data.topics).toEqual([]);
     });
 
     it('rejects a duplicate URL with 409 ALREADY_EXISTS', async () => {
