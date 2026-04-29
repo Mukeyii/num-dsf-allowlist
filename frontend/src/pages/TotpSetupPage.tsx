@@ -28,21 +28,15 @@ export function TotpSetupPage() {
 
   useEffect(() => {
     if (!tempToken) { navigate('/login', { replace: true }); return; }
-    loadQrCode();
-  }, []);
-
-  async function loadQrCode() {
     setLoading(true);
-    try {
-      const res = await authApi.setupTotp(tempToken);
-      setQrCodeUrl(res.data.data.qrCodeUrl);
-      setStep('qr');
-    } catch {
-      setError(t('totpSetupSessionExpired'));
-    } finally {
-      setLoading(false);
-    }
-  }
+    authApi.setupTotp(tempToken)
+      .then((res) => {
+        setQrCodeUrl(res.data.data.qrCodeUrl);
+        setStep('qr');
+      })
+      .catch(() => setError(t('totpSetupSessionExpired')))
+      .finally(() => setLoading(false));
+  }, [tempToken, navigate, t]);
 
   async function handleConfirm(e: React.FormEvent) {
     e.preventDefault();

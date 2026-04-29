@@ -36,7 +36,7 @@ export function useInstances() {
     if (query.data?.length && !activeInstanceId) {
       setActiveInstance(query.data[0].id);
     }
-  }, [query.data, activeInstanceId]);
+  }, [query.data, activeInstanceId, setActiveInstance]);
 
   return query;
 }

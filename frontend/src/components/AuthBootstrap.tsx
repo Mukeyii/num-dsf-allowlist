@@ -43,7 +43,7 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (isAuthenticated) {
+    if (useAuthStore.getState().isAuthenticated) {
       setReady(true);
       return;
     }

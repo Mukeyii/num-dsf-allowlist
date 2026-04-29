@@ -20,10 +20,15 @@ export function OtpPage() {
   const [error, setError]     = useState('');
   const [resent, setResent]   = useState(false);
   const inputRefs             = useRef<(HTMLInputElement | null)[]>([]);
+  const resendTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!email) navigate('/login', { replace: true });
     inputRefs.current[0]?.focus();
+  }, [email, navigate]);
+
+  useEffect(() => () => {
+    if (resendTimerRef.current) clearTimeout(resendTimerRef.current);
   }, []);
 
   function handleDigit(index: number, value: string) {
@@ -82,7 +87,8 @@ export function OtpPage() {
     setResent(true);
     setDigits(Array(6).fill(''));
     inputRefs.current[0]?.focus();
-    setTimeout(() => setResent(false), 4000);
+    if (resendTimerRef.current) clearTimeout(resendTimerRef.current);
+    resendTimerRef.current = setTimeout(() => setResent(false), 4000);
   }
 
   return (
