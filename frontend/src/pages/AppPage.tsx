@@ -79,7 +79,7 @@ export function AppPage() {
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden',
         marginLeft: showSidebar ? '220px' : '0',
-        marginRight: showRightPanel && !isMapRoute ? '280px' : '0',
+        marginRight: showRightPanel && !!isCanvasRoute ? '280px' : '0',
         transition: 'margin 0.2s ease',
       }}>
         <TopBar
@@ -87,9 +87,9 @@ export function AppPage() {
           onApproval={() => openModal('approval')}
         />
         {isMapRoute && <MapHeader />}
-        {!isMapRoute && <CrossUserInstanceBanner instanceId={activeInstanceId} />}
+        {isCanvasRoute && <CrossUserInstanceBanner instanceId={activeInstanceId} />}
         <Breadcrumbs />
-        {!isMapRoute && <ExpiryWarningBanner />}
+        {isCanvasRoute && <ExpiryWarningBanner />}
         {isCanvasRoute ? (
           activeInstanceId ? (
             <EntityCanvas instanceId={activeInstanceId} />
@@ -107,10 +107,10 @@ export function AppPage() {
         <AppFooter />
       </div>
 
-      {showRightPanel && !isMapRoute && <RightPanel instanceId={activeInstanceId} />}
+      {showRightPanel && isCanvasRoute && <RightPanel instanceId={activeInstanceId} />}
 
       {/* Toggle button for right panel when hidden (not on map route) */}
-      {!showRightPanel && !isMapRoute && (
+      {!showRightPanel && isCanvasRoute && (
         <button
           onClick={() => setShowRightPanel(true)}
           style={{
@@ -126,7 +126,7 @@ export function AppPage() {
         </button>
       )}
 
-      {!isMapRoute && <ActivityFeed />}
+      {isCanvasRoute && <ActivityFeed />}
       <CommandPalette />
 
       {activeInstanceId && (
