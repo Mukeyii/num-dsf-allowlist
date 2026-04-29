@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { ModalFooter } from './FormField';
-import { useCertificates, useCreateCertificate, useDeleteCertificate } from '../../hooks/useCertificates';
+import { useCertificates, useRenewCertificate } from '../../hooks/useCertificates';
 import { daysUntil } from '../../lib/dateUtils';
 import { toast } from 'sonner';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
@@ -21,8 +21,7 @@ interface Props {
 export function CertRenewalModal({ open, onClose, instanceId }: Props) {
   const { t } = useI18n();
   const { data: certs = [] } = useCertificates(instanceId);
-  const createMut = useCreateCertificate(instanceId);
-  const deleteMut = useDeleteCertificate(instanceId);
+  const renewMut = useRenewCertificate(instanceId);
   const guard = useCrossUserGuard();
 
   const [step, setStep] = useState<'select' | 'upload' | 'confirm'>('select');
@@ -56,10 +55,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
       await new Promise<void>((resolve, reject) => {
         guard(async () => {
           try {
-            // Upload new cert
-            await createMut.mutateAsync(newPem);
-            // Delete old cert
-            await deleteMut.mutateAsync(selectedCertId);
+            await renewMut.mutateAsync({ certId: selectedCertId, pem: newPem });
             resolve();
           } catch (e) { reject(e); }
         });
@@ -202,7 +198,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
 
           <ModalFooter
             onCancel={() => setStep('upload')}
-            loading={createMut.isPending || deleteMut.isPending}
+            loading={renewMut.isPending}
             submitLabel={t('certRenewalConfirmBtn')}
             onSubmit={handleConfirm}
           />

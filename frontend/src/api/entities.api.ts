@@ -51,6 +51,8 @@ function api(instanceId: string) {
       axios.post(`${base}/certificates`, { pem }, { headers: authHeader() }),
     deleteCertificate: (id: string) =>
       axios.delete(`${base}/certificates/${id}`, { headers: authHeader() }),
+    renewCertificate: (certId: string, pem: string) =>
+      axios.post(`${base}/certificates/${certId}/renew`, { pem }, { headers: authHeader() }),
 
     getMemberships: () =>
       axios.get(`${base}/memberships`, { headers: authHeader() }),

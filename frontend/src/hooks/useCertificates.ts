@@ -25,3 +25,12 @@ export function useDeleteCertificate(instanceId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['certificates', instanceId] }),
   });
 }
+
+export function useRenewCertificate(instanceId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ certId, pem }: { certId: string; pem: string }) =>
+      api(instanceId).renewCertificate(certId, pem),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['certificates', instanceId] }),
+  });
+}

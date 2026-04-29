@@ -54,3 +54,44 @@ export async function deleteCertificate(instanceId: string, certId: string, user
   await db('certificates').where({ id: certId }).delete();
   await writeAuditLog({ userEmail, instanceId, resourceType: 'CERTIFICATE', resourceId: certId, operation: 'DELETE', ipAddress });
 }
+
+export async function renewCertificate(instanceId: string, oldCertId: string, body: { pem: string }, userEmail: string, ipAddress: string) {
+  rejectPrivateKey(body.pem);
+  const { subject, thumbprint, validUntil } = parseCertificate(body.pem.trim());
+
+  return db.transaction(async (trx) => {
+    // Lock old cert row and verify it belongs to this instance's org
+    const org = await trx('organizations').where({ instance_id: instanceId }).first();
+    if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
+
+    const oldCert = await trx('certificates')
+      .where({ id: oldCertId, organization_id: org.identifier })
+      .forUpdate()
+      .first();
+    if (!oldCert) throw new Error('CERTIFICATE_NOT_FOUND');
+
+    // Insert new cert
+    const newId = uuidv4();
+    await trx('certificates').insert({
+      id: newId,
+      organization_id: org.identifier,
+      pem: body.pem.trim(),
+      subject,
+      thumbprint,
+      valid_until: validUntil,
+      created_at: new Date(),
+    });
+
+    // Delete old cert
+    await trx('certificates').where({ id: oldCertId }).delete();
+
+    // Audit both actions (outside transaction lock; failures must not block)
+    await writeAuditLog({ userEmail, instanceId, resourceType: 'CERTIFICATE', resourceId: newId, operation: 'CREATE', diffJson: { subject, thumbprint, validUntil, renewedFrom: oldCertId }, ipAddress });
+    await writeAuditLog({ userEmail, instanceId, resourceType: 'CERTIFICATE', resourceId: oldCertId, operation: 'DELETE', diffJson: { replacedBy: newId }, ipAddress });
+
+    return trx('certificates')
+      .where({ id: newId })
+      .select('id', 'organization_id', 'subject', 'thumbprint', 'valid_until', 'created_at')
+      .first();
+  });
+}
