@@ -16,6 +16,7 @@ import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminPromotionsPage } from './pages/AdminPromotionsPage';
 import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
+import { MarketplacePage } from './pages/MarketplacePage';
 import { NotFoundPage }  from './pages/NotFoundPage';
 import { useAuthStore }  from './stores/auth.store';
 import { CrossUserGuardProvider } from './components/layout/CrossUserGuardProvider';
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { path: 'admin/promotions', element: <AdminPromotionsPage /> },
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
+      { path: 'marketplace', element: <MarketplacePage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
