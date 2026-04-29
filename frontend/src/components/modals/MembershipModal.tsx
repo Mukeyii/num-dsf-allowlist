@@ -27,12 +27,13 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
   const updateMut = useUpdateMembership(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
   const guard = useCrossUserGuard();
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<MembershipFormData>({
+  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<MembershipFormData>({
     resolver: zodResolver(membershipSchema),
     defaultValues: { roles: [], ...defaultValues },
   });
 
   const { data: memberships = [] } = useMemberships(instanceId);
+  const currentParent = watch('parentOrganization');
 
   useEffect(() => {
     if (open && membershipId) {
@@ -78,6 +79,9 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
         <FormField label={t('membershipModalFieldParent')} required error={errors.parentOrganization?.message}>
           <select {...register('parentOrganization')} className={selectClass}>
             <option value="">{t('membershipModalFieldParentPlaceholder')}</option>
+            {currentParent && !PARENT_ORGS.includes(currentParent) && (
+              <option value={currentParent}>{currentParent}</option>
+            )}
             {PARENT_ORGS.map(org => (<option key={org} value={org}>{org}</option>))}
           </select>
         </FormField>
