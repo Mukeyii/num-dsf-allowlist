@@ -48,10 +48,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
     { label: t('approvalModalCheckOrg'), ok: !!org, icon: 'corporate_fare' },
     { label: t('approvalModalCheckEndpoint'), ok: endpoints.length > 0, icon: 'hub' },
     { label: t('approvalModalCheckCert'), ok: certs.length > 0, icon: 'verified_user' },
-    { label: t('approvalModalCheckMedic'), ok: contacts.some((c: any) => {
-      const types = Array.isArray(c.types) ? c.types : JSON.parse(c.types || '[]');
-      return types.includes('MEDIC');
-    }), icon: 'contact_phone' },
+    { label: t('approvalModalCheckMedic'), ok: contacts.some((c: any) => parseJsonArray(c.types).includes('MEDIC')), icon: 'contact_phone' },
     { label: t('approvalModalCheckMembership'), ok: memberships.length > 0, icon: 'groups' },
   ];
 
