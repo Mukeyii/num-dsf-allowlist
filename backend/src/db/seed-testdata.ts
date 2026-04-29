@@ -119,7 +119,16 @@ async function main() {
   await db('users').whereIn('email', [ADMIN_EMAIL, MEMBER_EMAIL, SITE_EMAIL]).del();
   // Clean multi-admin/user enrichment fixtures (added in block 13)
   await db('admin_promotion_requests').whereIn('requested_by', [ADMIN_EMAIL]).del();
-  await db('admin_grants').whereIn('granted_by_a', ['SYSTEM:seed']).del();
+  // Delete by email (not granted_by_a) so any pre-existing bootstrap rows with
+  // potentially-stale signatures are wiped and the seed's re-bootstrap can
+  // create fresh, correctly-signed rows.
+  const seedManagedAdminEmails = [
+    ADMIN_EMAIL,
+    'admin-charite@charite-test.example.de',
+    'admin-koeln@uk-koeln-test.example.de',
+    ...(process.env.IMI_ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean),
+  ];
+  await db('admin_grants').whereIn('email', seedManagedAdminEmails).del();
   await db('email_whitelist').whereIn('email', [
     'admin-charite@charite-test.example.de',
     'admin-koeln@uk-koeln-test.example.de',

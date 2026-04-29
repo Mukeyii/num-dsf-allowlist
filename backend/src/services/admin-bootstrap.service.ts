@@ -20,7 +20,10 @@ export async function bootstrapAdminGrants(): Promise<void> {
       return;
     }
 
-    const now = new Date();
+    // MySQL TIMESTAMP truncates to whole seconds; the signature must be over
+    // the SAME timestamp value that's stored, otherwise verifyGrant fails on
+    // round-trip. Round to seconds before signing AND inserting.
+    const now = new Date(Math.floor(Date.now() / 1000) * 1000);
     for (const email of emails) {
       const sig = signGrant(email, now, 'SYSTEM:bootstrap', 'SYSTEM:bootstrap');
       await db('admin_grants').insert({
