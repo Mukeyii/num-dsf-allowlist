@@ -63,3 +63,6 @@ package-lock.json
 # === Temporary dev artifacts ===
 frontend/calibrate.js
 frontend/germany.svg
+
+# === Storybook build output ===
+frontend/storybook-static/
