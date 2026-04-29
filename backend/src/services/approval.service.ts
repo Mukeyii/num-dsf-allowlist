@@ -80,45 +80,53 @@ export async function approveRequest(
   const adminSite = siteOfEmail(resolvedBy);
   if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
 
-  const request = await db('approval_requests').where({ id: requestId }).first();
-  if (!request) throw new Error('REQUEST_NOT_FOUND');
-  if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
+  return db.transaction(async trx => {
+    // Lock the parent row so concurrent approves serialize.
+    const request = await trx('approval_requests').where({ id: requestId }).forUpdate().first();
+    if (!request) throw new Error('REQUEST_NOT_FOUND');
+    if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
 
-  const sigs = (await db('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
+    const sigs = (await trx('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
 
-  const validation = validateApproval(sigs, resolvedBy, adminSite);
-  if (validation) throw new Error(validation);
+    const validation = validateApproval(sigs, resolvedBy, adminSite);
+    if (validation) throw new Error(validation);
 
-  await db('approval_signatures').insert({
-    id: uuidv4(),
-    approval_request_id: requestId,
-    admin_email: resolvedBy,
-    admin_site: adminSite,
-    decision: 'APPROVE',
-    signed_at: new Date(),
-    comment: null,
-  });
+    try {
+      await trx('approval_signatures').insert({
+        id: uuidv4(),
+        approval_request_id: requestId,
+        admin_email: resolvedBy,
+        admin_site: adminSite,
+        decision: 'APPROVE',
+        signed_at: new Date(),
+        comment: null,
+      });
+    } catch (err: any) {
+      if (err?.code === 'ER_DUP_ENTRY') throw new Error('ALREADY_DECIDED');
+      throw err;
+    }
 
-  const refreshed = (await db('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
-  const newStatus = deriveStatus(refreshed, new Date(), SILENT_CONSENT_DAYS);
+    const refreshed = (await trx('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
+    const newStatus = deriveStatus(refreshed, new Date(), SILENT_CONSENT_DAYS);
 
-  if (newStatus === 'APPROVED') {
-    await db('approval_requests').where({ id: requestId }).update({
-      status: 'APPROVED',
-      resolved_at: new Date(),
-      resolved_by: resolvedBy,
-    });
+    if (newStatus === 'APPROVED') {
+      await trx('approval_requests').where({ id: requestId }).update({
+        status: 'APPROVED',
+        resolved_at: new Date(),
+        resolved_by: resolvedBy,
+      });
+      await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
+        resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
+      notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(() => {});
+      return { status: 'APPROVED' };
+    }
+
     await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
-      resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
-    notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(() => {});
-    return { status: 'APPROVED' };
-  }
-
-  await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
-    resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress,
-    diffJson: { firstApproval: true } });
-  notifyImiOnFirstApproval(request.instance_id, resolvedBy, requestId).catch(() => {});
-  return { status: 'PENDING', reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
+      resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress,
+      diffJson: { firstApproval: true } });
+    notifyImiOnFirstApproval(request.instance_id, resolvedBy, requestId).catch(() => {});
+    return { status: 'PENDING', reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
+  });
 }
 
 export async function rejectRequest(
