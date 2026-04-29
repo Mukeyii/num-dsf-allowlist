@@ -14,7 +14,10 @@ export function useCreateEndpoint(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: object) => api(instanceId).createEndpoint(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['endpoints', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
 
@@ -22,7 +25,10 @@ export function useUpdateEndpoint(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: object }) => api(instanceId).updateEndpoint(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['endpoints', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
 
@@ -30,6 +36,9 @@ export function useDeleteEndpoint(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api(instanceId).deleteEndpoint(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['endpoints', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }

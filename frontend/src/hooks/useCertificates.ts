@@ -14,7 +14,11 @@ export function useCreateCertificate(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (pem: string) => api(instanceId).createCertificate(pem),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['certificates', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['certificates', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['certs-expiring', instanceId] });
+    },
   });
 }
 
@@ -22,7 +26,11 @@ export function useDeleteCertificate(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api(instanceId).deleteCertificate(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['certificates', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['certificates', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['certs-expiring', instanceId] });
+    },
   });
 }
 
@@ -31,6 +39,10 @@ export function useRenewCertificate(instanceId: string) {
   return useMutation({
     mutationFn: ({ certId, pem }: { certId: string; pem: string }) =>
       api(instanceId).renewCertificate(certId, pem),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['certificates', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['certificates', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['certs-expiring', instanceId] });
+    },
   });
 }
