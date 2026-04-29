@@ -14,7 +14,8 @@
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
-    "test:contract": "CONTRACT_BASE_URL=http://nginx vitest run --config tests/contract/vitest.contract.config.ts"
+    "test:contract": "CONTRACT_BASE_URL=http://nginx vitest run --config tests/contract/vitest.contract.config.ts",
+    "check:bundle": "bundlesize"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -49,6 +50,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "axe-playwright": "^2.2.2",
+    "bundlesize2": "^0.0.35",
     "jest-axe": "^10.0.0",
     "jsdom": "^24.0.0",
     "lost-pixel": "^3.22.0",
