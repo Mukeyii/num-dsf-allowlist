@@ -41,7 +41,7 @@ function baseHtml(title: string, body: string): string {
       <h3 style="margin-top:0;color:#333;">${title}</h3>
       ${body}
       <p style="color:#9b9fad;font-size:12px;margin-top:32px;border-top:1px solid #eee;padding-top:12px;">
-        This is an automated message from the DSF Allow List Management Portal.
+        This is an automated message from the DSF Management Portal.
       </p>
     </div>
   `;
