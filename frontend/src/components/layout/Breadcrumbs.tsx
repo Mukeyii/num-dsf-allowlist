@@ -11,6 +11,11 @@ export function Breadcrumbs() {
     app: t('dashboard'),
     admin: t('approvalReview'),
     audit: t('auditLog'),
+    map: t('networkMap'),
+    users: t('sidebarUserManagement'),
+    promotions: t('sidebarPromotions'),
+    help: t('adminHelpLink'),
+    status: t('status'),
   };
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);
