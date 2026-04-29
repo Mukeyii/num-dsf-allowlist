@@ -66,3 +66,7 @@ frontend/germany.svg
 
 # === Storybook build output ===
 frontend/storybook-static/
+
+# === Lost Pixel (only baseline is committed) ===
+frontend/.lost-pixel/current/
+frontend/.lost-pixel/difference/
