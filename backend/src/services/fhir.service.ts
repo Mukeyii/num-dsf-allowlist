@@ -44,7 +44,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     fullUrl: `urn:uuid:${orgUuid}`,
     resource: {
       resourceType: 'Organization',
-      id: `urn:uuid:${orgUuid}`,
+      id: orgUuid,
       meta: { versionId: null, lastUpdated: null },
       extension: certs.map((cert: { thumbprint: string }) => ({
         url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
@@ -66,7 +66,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     fullUrl: `urn:uuid:${epUuid}`,
     resource: {
       resourceType: 'Endpoint',
-      id: `urn:uuid:${epUuid}`,
+      id: epUuid,
       meta: { versionId: null, lastUpdated: null },
       identifier: [{ system: EP_ID_SYSTEM, value: endpoint.identifier }],
       name: endpoint.name || endpoint.identifier,
@@ -88,7 +88,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
       fullUrl: `urn:uuid:${parentUuid}`,
       resource: {
         resourceType: 'Organization',
-        id: `urn:uuid:${parentUuid}`,
+        id: parentUuid,
         meta: { versionId: null, lastUpdated: null },
         identifier: [{ system: ORG_ID_SYSTEM, value: parentId }],
         active: true,
@@ -112,7 +112,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
       fullUrl: `urn:uuid:${affUuid}`,
       resource: {
         resourceType: 'OrganizationAffiliation',
-        id: `urn:uuid:${affUuid}`,
+        id: affUuid,
         meta: { versionId: null, lastUpdated: null },
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
         participatingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
@@ -196,7 +196,7 @@ export async function generateFullBundle(): Promise<object> {
       fullUrl: `urn:uuid:${orgUuid}`,
       resource: {
         resourceType: 'Organization',
-        id: `urn:uuid:${orgUuid}`,
+        id: orgUuid,
         meta: { versionId: null, lastUpdated: null },
         extension: certs.map((c: { thumbprint: string }) => ({
           url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
@@ -218,7 +218,7 @@ export async function generateFullBundle(): Promise<object> {
         fullUrl: `urn:uuid:${epUuids[ep.identifier]}`,
         resource: {
           resourceType: 'Endpoint',
-          id: `urn:uuid:${epUuids[ep.identifier]}`,
+          id: epUuids[ep.identifier],
           meta: { versionId: null, lastUpdated: null },
           identifier: [{ system: EP_ID_SYSTEM, value: ep.identifier }],
           name: ep.name || ep.identifier,
@@ -240,7 +240,7 @@ export async function generateFullBundle(): Promise<object> {
       fullUrl: `urn:uuid:${parentUuid}`,
       resource: {
         resourceType: 'Organization',
-        id: `urn:uuid:${parentUuid}`,
+        id: parentUuid,
         meta: { versionId: null, lastUpdated: null },
         identifier: [{ system: ORG_ID_SYSTEM, value: pid }],
         active: true,
@@ -262,7 +262,7 @@ export async function generateFullBundle(): Promise<object> {
       fullUrl: `urn:uuid:${affUuid}`,
       resource: {
         resourceType: 'OrganizationAffiliation',
-        id: `urn:uuid:${affUuid}`,
+        id: affUuid,
         meta: { versionId: null, lastUpdated: null },
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
         participatingOrganization: { reference: `urn:uuid:${memberOrgUuid}`, type: 'Organization' },
