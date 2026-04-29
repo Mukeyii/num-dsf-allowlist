@@ -180,7 +180,7 @@ describe('GET /api/v1/admin/promotions', () => {
 // ─── Approve ─────────────────────────────────────────────────────────────────
 
 describe('POST /api/v1/admin/promotions/:id/approve', () => {
-  it('same requester cannot approve own request → 400 SELF_APPROVE', async () => {
+  it('same requester cannot approve own request → 403 SELF_APPROVE', async () => {
     const id = await createRequest(); // requested by admin-a
     const tokenA = getTestToken(ADMIN_A_EMAIL, ADMIN_A_ID);
 
@@ -189,11 +189,11 @@ describe('POST /api/v1/admin/promotions/:id/approve', () => {
       .set('Authorization', `Bearer ${tokenA}`)
       .send({ totpCode: '000000' });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(403);
     expect(res.body.error.code).toBe('SELF_APPROVE');
   });
 
-  it('same-site admin cannot approve → 400 SAME_SITE', async () => {
+  it('same-site admin cannot approve → 403 SAME_SITE', async () => {
     const id = await createRequest(); // requested by admin-a (imi-test)
     const tokenB = getTestToken(ADMIN_B_EMAIL, ADMIN_B_ID); // also imi-test
 
@@ -202,7 +202,7 @@ describe('POST /api/v1/admin/promotions/:id/approve', () => {
       .set('Authorization', `Bearer ${tokenB}`)
       .send({ totpCode: '000000' });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(403);
     expect(res.body.error.code).toBe('SAME_SITE');
   });
 

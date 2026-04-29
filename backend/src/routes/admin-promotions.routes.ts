@@ -19,6 +19,9 @@ function handleError(err: unknown, res: Response): Response {
       err.code === 'NOT_FOUND' ? 404
       : err.code === 'ALREADY_PENDING' ? 409
       : err.code === 'ALREADY_ADMIN' ? 409
+      : err.code === 'NOT_PENDING' ? 409
+      : err.code === 'SAME_SITE' ? 403
+      : err.code === 'SELF_APPROVE' ? 403
       : 400;
     return res.status(status).json({ error: { code: err.code, message: err.message } });
   }

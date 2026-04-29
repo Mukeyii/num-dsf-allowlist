@@ -25,7 +25,7 @@ instancesRouter.post('/', async (req, res) => {
     id, user_id: req.user!.id, label: id, created_at: new Date(),
   });
   await writeAuditLog({
-    userEmail: req.user!.email, resourceType: 'ORGANIZATION',
+    userEmail: req.user!.email, resourceType: 'AUTH',
     resourceId: id, operation: 'CREATE', ipAddress: req.ip,
   });
   const instance = await db('instances').where({ id }).first();
