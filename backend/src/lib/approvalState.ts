@@ -50,7 +50,7 @@ export function validateApproval(
   newAdminEmail: string,
   newAdminSite: string,
 ): null | 'ALREADY_DECIDED' | 'ALREADY_APPROVED_SAME_SITE' | 'REQUEST_REJECTED' | 'REQUEST_APPROVED' {
-  if (existingSigs.some(s => s.admin_email === newAdminEmail)) return 'ALREADY_DECIDED';
+  if (existingSigs.some(s => s.admin_email.toLowerCase().trim() === newAdminEmail.toLowerCase().trim())) return 'ALREADY_DECIDED';
   if (existingSigs.some(s => s.decision === 'REJECT')) return 'REQUEST_REJECTED';
   const approveSites = existingSigs.filter(s => s.decision === 'APPROVE').map(s => s.admin_site);
   if (approveSites.length >= 2 && new Set(approveSites).size >= 2) return 'REQUEST_APPROVED';
