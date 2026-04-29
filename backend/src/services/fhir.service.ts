@@ -286,6 +286,7 @@ export async function generateFullBundle(): Promise<object> {
 
   for (const ms of softDeletedMs) {
     entries.push({
+      fullUrl: `urn:uuid:${uuidv4()}`,
       request: {
         method: 'DELETE',
         url: `OrganizationAffiliation?primary-organization:identifier=${ORG_ID_SYSTEM}|${ms.parent_organization}&participating-organization:identifier=${ORG_ID_SYSTEM}|${ms.organization_id}&endpoint:identifier=${EP_ID_SYSTEM}|${ms.endpoint_id}`,
