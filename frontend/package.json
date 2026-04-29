@@ -46,6 +46,7 @@
     "axe-playwright": "^2.2.2",
     "jest-axe": "^10.0.0",
     "jsdom": "^24.0.0",
+    "lost-pixel": "^3.22.0",
     "msw": "^2.1.4",
     "postcss": "^8.4.33",
     "storybook": "^8.6.18",
