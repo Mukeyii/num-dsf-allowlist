@@ -5,12 +5,19 @@
  * Uses node's built-in fetch (no axios) because vitest's worker RPC cannot
  * structuredClone axios default config (transformRequest is a function).
  *
- * The exported `adminClient()` returns an object with the same surface
- * (`.get`, `.post`, `.put`, `.delete`) the contract tests use, returning
- * `{ status, data }` to mirror axios's response shape.
+ * Caches the dev-login bearer token at module scope so the suite stays under
+ * nginx's 5-req/min auth rate limit. Only the token string is cached — never
+ * an axios/fetch response object — so vitest's worker can serialize state.
  */
 
 const BASE = process.env.CONTRACT_BASE_URL || 'http://localhost';
+
+// Stash on globalThis so the token survives even if vitest re-evaluates the
+// module per test file. Required to stay under nginx's 5-req/min auth zone.
+declare global {
+  // eslint-disable-next-line no-var
+  var __dsfContractAdminToken: string | undefined;
+}
 
 export interface FetchResponse<T = any> {
   status: number;
@@ -52,8 +59,13 @@ async function request<T = any>(
 }
 
 export async function adminClient(): Promise<ContractClient> {
-  const login = await request<{ data: { accessToken: string } }>('POST', `${BASE}/auth/dev-login`, null, { role: 'admin' });
-  const token = login.data.data.accessToken;
+  if (!globalThis.__dsfContractAdminToken) {
+    const login = await request<{ data: { accessToken: string } }>(
+      'POST', `${BASE}/auth/dev-login`, null, { role: 'admin' },
+    );
+    globalThis.__dsfContractAdminToken = login.data.data.accessToken;
+  }
+  const token = globalThis.__dsfContractAdminToken;
   return {
     get: (p) => request('GET', `${BASE}${p}`, token),
     post: (p, b) => request('POST', `${BASE}${p}`, token, b),
