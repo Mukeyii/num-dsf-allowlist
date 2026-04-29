@@ -75,6 +75,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
     : null;
 
   async function handleApprove() {
+    if (approveMut.isPending || rejectMut.isPending) return;
     if (!totpCode || totpCode.length !== 6) {
       toast.error(t('adminToastTotpRequired'));
       return;
@@ -90,6 +91,7 @@ function RequestCard({ request, meEmail }: RequestCardProps) {
   }
 
   async function handleReject() {
+    if (approveMut.isPending || rejectMut.isPending) return;
     if (!comment.trim()) {
       toast.error(t('adminToastReasonRequired'));
       return;
