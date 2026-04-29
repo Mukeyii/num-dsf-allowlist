@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { FormField, inputClass, ModalFooter } from './FormField';
 import { contactSchema, ContactFormData } from '../../schemas/contact.schema';
+import { parseJsonArray } from '../../lib/parseJsonArray';
 import { useCreateContact, useUpdateContact, useContacts } from '../../hooks/useContacts';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
@@ -40,7 +41,7 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
     if (open && contactId) {
       const c = contacts.find((ct: any) => ct.id === contactId);
       if (c) {
-        const types = Array.isArray(c.types) ? c.types : JSON.parse(c.types || '[]');
+        const types = parseJsonArray(c.types) as ContactFormData['types'];
         reset({
           types,
           name: c.name || '',

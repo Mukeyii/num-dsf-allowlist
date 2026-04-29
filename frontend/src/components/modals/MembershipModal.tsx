@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Modal } from './Modal';
 import { FormField, selectClass, ModalFooter } from './FormField';
 import { membershipSchema, MembershipFormData } from '../../schemas/membership.schema';
+import { parseJsonArray } from '../../lib/parseJsonArray';
 import { useCreateMembership, useUpdateMembership, useMemberships } from '../../hooks/useMemberships';
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
@@ -39,7 +40,7 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
     if (open && membershipId) {
       const ms = memberships.find((m: any) => m.id === membershipId);
       if (ms) {
-        const roles = Array.isArray(ms.roles) ? ms.roles : JSON.parse(ms.roles || '[]');
+        const roles = parseJsonArray(ms.roles) as MembershipFormData['roles'];
         reset({
           parentOrganization: ms.parent_organization,
           endpointId: ms.endpoint_id || '',
