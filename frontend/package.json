@@ -14,7 +14,7 @@
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
-    "test:contract": "CONTRACT_BASE_URL=http://nginx vitest run --config tests/contract/vitest.contract.config.ts",
+    "test:contract": "vitest run --config tests/contract/vitest.contract.config.ts",
     "check:bundle": "bundlesize"
   },
   "dependencies": {
