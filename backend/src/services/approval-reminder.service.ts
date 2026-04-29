@@ -1,10 +1,11 @@
 /**
  * approval-reminder.service.ts – Approval notification helpers
- * Dependencies: db/connection, notification.service, lib/adminGrants
+ * Dependencies: db/connection, notification.service, lib/adminGrants, uuid
  *
- * 1. notifyImiOnSubmit()    – on new approval request submitted
- * 2. notifySiteOnApproval() – after approve/reject (site contacts notified after 30-min delay)
- * 3. runApprovalReminders() – cron: send reminders for stale pending requests
+ * 1. notifyImiOnSubmit()         – on new approval request submitted
+ * 2. notifySiteOnApproval()      – after approve/reject (inserts pending_notification row, 30-min delay)
+ * 3. runApprovalReminders()      – cron: send reminders for stale pending requests
+ * 4. flushPendingNotifications() – cron (every 5 min): deliver due pending_notifications rows
  */
 import { db } from '../db/connection';
 import {
@@ -14,6 +15,7 @@ import {
   sendSiteApprovalResultEmail,
 } from './notification.service';
 import { verifyGrant } from '../lib/adminGrants';
+import { v4 as uuidv4 } from 'uuid';
 
 const SITE_NOTIFY_DELAY_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -71,36 +73,27 @@ export async function notifySiteOnApproval(
     }
   }
 
-  // Notify site contacts after a 30-minute delay (allows time to reverse the decision)
-  setTimeout(async () => {
-    try {
-      // Re-check request status before sending – skip if it has changed
-      const request = await db('approval_requests').where({ id: requestId }).first();
-      if (!request) {
-        console.warn(`[ApprovalNotify] Request ${requestId} no longer exists – skipping site notification`);
-        return;
-      }
-      if (request.status !== status) {
-        console.log(`[ApprovalNotify] Request ${requestId} status changed to ${request.status} – skipping site notification`);
-        return;
-      }
-
-      const contacts = await db('contacts')
-        .where({ organization_id: org.identifier })
-        .select('email', 'name');
-
-      if (contacts.length === 0) {
-        console.warn(`[ApprovalNotify] No contacts for ${org.identifier} – skipping site notification`);
-        return;
-      }
-
-      const contactEmails = contacts.map((c: { email: string }) => c.email);
-      await sendSiteApprovalResultEmail(contactEmails, org.name, status, comment);
-      console.log(`[ApprovalNotify] Notified ${contactEmails.length} contact(s) of ${status} for ${org.identifier}`);
-    } catch (err) {
-      console.error('[ApprovalNotify] Failed to send site approval-result email:', err);
-    }
-  }, SITE_NOTIFY_DELAY_MS);
+  // Persist the delayed site notification so it survives process restarts
+  try {
+    await db('pending_notifications').insert({
+      id: uuidv4(),
+      kind: 'SITE_APPROVAL',
+      target_email: org.email,
+      payload_json: JSON.stringify({
+        requestId,
+        instanceId,
+        orgIdentifier: org.identifier,
+        orgName: org.name,
+        status,
+        comment,
+      }),
+      send_after: new Date(Date.now() + SITE_NOTIFY_DELAY_MS),
+      created_at: new Date(),
+    });
+    console.log(`[ApprovalNotify] Queued site notification for ${org.identifier} (${status}), due in 30 min`);
+  } catch (err) {
+    console.error('[ApprovalNotify] Failed to queue site notification:', err);
+  }
 }
 
 export async function notifyImiOnFirstApproval(
@@ -157,6 +150,63 @@ export async function runApprovalReminders(): Promise<void> {
       console.log(`[ApprovalReminder] Sent reminder for request ${req.id} (${orgIdentifier})`);
     } catch (err) {
       console.error(`[ApprovalReminder] Failed to send reminder for request ${req.id}:`, err);
+    }
+  }
+}
+
+export async function flushPendingNotifications(): Promise<void> {
+  const now = new Date();
+  const due = await db('pending_notifications').where('send_after', '<=', now);
+  if (due.length === 0) return;
+
+  console.log(`[PendingNotify] ${due.length} notification(s) due – flushing`);
+
+  for (const row of due) {
+    try {
+      const payload = typeof row.payload_json === 'string' ? JSON.parse(row.payload_json) : row.payload_json;
+
+      if (row.kind === 'SITE_APPROVAL') {
+        const { requestId, instanceId, orgName, status, comment } = payload as {
+          requestId: string;
+          instanceId: string;
+          orgIdentifier: string;
+          orgName: string;
+          status: 'APPROVED' | 'REJECTED';
+          comment: string | null;
+        };
+
+        // Re-check request status before sending – drop the notification if it has changed
+        const request = await db('approval_requests').where({ id: requestId }).first();
+        if (!request) {
+          console.warn(`[PendingNotify] Request ${requestId} no longer exists – dropping notification ${row.id}`);
+          await db('pending_notifications').where({ id: row.id }).del();
+          continue;
+        }
+        if (request.status !== status) {
+          console.log(`[PendingNotify] Request ${requestId} status changed to ${request.status} – dropping notification ${row.id}`);
+          await db('pending_notifications').where({ id: row.id }).del();
+          continue;
+        }
+
+        const contacts = await db('contacts')
+          .where({ organization_id: payload.orgIdentifier })
+          .select('email', 'name');
+
+        if (contacts.length === 0) {
+          console.warn(`[PendingNotify] No contacts for ${payload.orgIdentifier} – dropping notification ${row.id}`);
+          await db('pending_notifications').where({ id: row.id }).del();
+          continue;
+        }
+
+        const contactEmails = contacts.map((c: { email: string }) => c.email);
+        await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
+        console.log(`[PendingNotify] Notified ${contactEmails.length} contact(s) of ${status} for ${payload.orgIdentifier}`);
+      }
+
+      await db('pending_notifications').where({ id: row.id }).del();
+    } catch (err) {
+      console.error(`[PendingNotify] Failed to send notification ${row.id}:`, err);
+      // Leave the row for the next sweep
     }
   }
 }
