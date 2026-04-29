@@ -8,7 +8,7 @@
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 
-type ResourceType = 'ORGANIZATION' | 'CONTACT' | 'ENDPOINT' | 'CERTIFICATE' | 'MEMBERSHIP' | 'AUTH' | 'APPROVAL';
+type ResourceType = 'ORGANIZATION' | 'CONTACT' | 'ENDPOINT' | 'CERTIFICATE' | 'MEMBERSHIP' | 'AUTH' | 'APPROVAL' | 'MARKETPLACE';
 type Operation = 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'REJECT' | 'LOGIN' | 'LOGOUT' | 'OTP_REQUEST' | 'OTP_VERIFY' | 'TOTP_SETUP' | 'TOTP_VERIFY' | 'FAILED_LOGIN';
 
 interface AuditEntry {
