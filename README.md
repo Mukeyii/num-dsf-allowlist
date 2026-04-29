@@ -213,7 +213,7 @@ GET    /fhir/Bundle/:endpointId    (mTLS auth — for DSF BPE process)
 GET    /fhir/Bundle                (mTLS auth — search by identifier)
 ```
 
-Full API reference: see the project documentation in `CLAUDE.md`.
+Full API reference: see [`docs/wiki/API-Reference.md`](docs/wiki/API-Reference.md).
 
 ## Security
 
