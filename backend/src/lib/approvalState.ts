@@ -21,6 +21,7 @@ export interface ApprovalSig {
 export type DerivedStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export function siteOfEmail(email: string): string {
+  if (email.startsWith('SYSTEM:')) return '';
   const at = email.indexOf('@');
   if (at < 0 || at === email.length - 1) return '';
   return email.slice(at + 1).toLowerCase();
