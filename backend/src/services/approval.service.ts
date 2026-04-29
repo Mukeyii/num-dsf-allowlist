@@ -25,7 +25,7 @@ async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = 
   const endpoints = await trx('endpoints').where({ organization_id: org.identifier });
   const ips = await trx('endpoint_ips').whereIn('endpoint_id', endpoints.map((e: any) => e.identifier));
   const certificates = await trx('certificates').where({ organization_id: org.identifier }).select('id', 'subject', 'thumbprint', 'valid_until');
-  const memberships = await trx('memberships').where({ organization_id: org.identifier });
+  const memberships = await trx('memberships').where({ organization_id: org.identifier }).whereNull('deleted_at');
   const { email: _email, ...orgSafe } = org;
   return {
     organization: orgSafe, contacts,
