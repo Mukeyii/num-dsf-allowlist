@@ -102,7 +102,7 @@ export function Sidebar() {
                     background: isActive ? '#ede9ff' : 'transparent',
                     transition: 'background 0.1s',
                   }}
-                  onClick={() => setActiveInstance(inst.id)}
+                  onClick={() => { setActiveInstance(inst.id); navigate('/app'); }}
                   onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)'; }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
                 >
