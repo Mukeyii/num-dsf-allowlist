@@ -272,6 +272,55 @@ export async function sendAdminPromotionRequestedEmail(
   await transporter.sendMail({ from: FROM, to: recipientAdminEmails.join(','), subject, text, html });
 }
 
+export async function sendCertExpiryWarning(
+  to: string,
+  opts: { orgName: string; orgIdentifier: string; subject: string; daysLeft: number; validUntil: string },
+): Promise<void> {
+  if (IS_TEST) return;
+
+  const mailSubject = `[DSF Allow List – ${ENV}] Certificate expiring in ${opts.daysLeft} day${opts.daysLeft === 1 ? '' : 's'} for ${opts.orgName}`;
+
+  const text = [
+    `DSF Allow List – ${ENV}`,
+    ``,
+    `A certificate for ${opts.orgName} (${opts.orgIdentifier}) is about to expire.`,
+    ``,
+    `Certificate subject : ${opts.subject}`,
+    `Valid until          : ${opts.validUntil}`,
+    `Days remaining       : ${opts.daysLeft}`,
+    ``,
+    `Please renew it via the DSF Allow List portal before it expires.`,
+  ].join('\n');
+
+  const urgencyColor = opts.daysLeft <= 7 ? '#ef4444' : opts.daysLeft <= 30 ? '#f97316' : '#f59e0b';
+
+  const html = baseHtml('Certificate Expiry Warning', `
+    <div style="padding:16px;border-radius:8px;border:2px solid ${urgencyColor};margin-bottom:20px;">
+      <p style="margin:0;font-weight:bold;color:${urgencyColor};">
+        Certificate expires in ${opts.daysLeft} day${opts.daysLeft === 1 ? '' : 's'}
+      </p>
+    </div>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Organization</td>
+          <td style="padding:6px 0;font-weight:bold;">${esc(opts.orgName)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Identifier</td>
+          <td style="padding:6px 0;">${esc(opts.orgIdentifier)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Certificate subject</td>
+          <td style="padding:6px 0;font-family:monospace;font-size:12px;">${esc(opts.subject)}</td></tr>
+      <tr><td style="padding:6px 12px 6px 0;color:#666;">Valid until</td>
+          <td style="padding:6px 0;">${esc(opts.validUntil)}</td></tr>
+    </table>
+    <p style="margin-top:20px;">
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/app"
+         style="display:inline-block;padding:10px 20px;background:${BRAND};color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+        Renew in Portal
+      </a>
+    </p>
+  `);
+
+  await transporter.sendMail({ from: FROM, to, subject: mailSubject, text, html });
+}
+
 export async function sendAdminPromotionResultEmail(
   recipients: string[],
   targetEmail: string,
