@@ -1,4 +1,4 @@
-# DSF Allow List Management Portal
+# DSF Management Portal
 
 A web application for managing participants in the **Data Sharing Framework (DSF)** of the German Medical Informatics Initiative (MII/NUM).
 
