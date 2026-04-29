@@ -1,7 +1,7 @@
 # Security Review — Docker + .env (2026-04-28)
 
 **Scope:** docker-compose.yml, docker-compose.prod.yml, .env.example, .env.prod.example, all Dockerfiles, .gitignore.
-**Reviewer:** subagent (claude-opus-4-7).
+**Reviewer:** automated audit.
 
 ## Summary
 
