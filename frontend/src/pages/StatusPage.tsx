@@ -50,7 +50,7 @@ export function StatusPage() {
     <div className="flex-1 p-8 overflow-y-auto">
       <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>
-          {org?.name || 'Instance Overview'}
+          {org?.name || t('instanceOverview')}
         </h1>
         <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
           {org?.identifier || 'No organization configured'}
@@ -76,7 +76,7 @@ export function StatusPage() {
         </div>
         {lastApproved && (
           <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
-            Last approved: {new Date(lastApproved.resolved_at || lastApproved.submitted_at).toLocaleDateString('de-DE')}
+            {t('lastApproved')}: {new Date(lastApproved.resolved_at || lastApproved.submitted_at).toLocaleDateString('de-DE')}
           </p>
         )}
       </div>
@@ -95,7 +95,7 @@ export function StatusPage() {
                 {t('certExpiresIn')} {nextExpiry} days
               </p>
               <p style={{ fontSize: '11px', color: nextExpiry < 30 ? '#991b1b' : '#92400e', margin: '2px 0 0' }}>
-                Use the Renew button on the Certificates card to upload a replacement.
+                {t('renewButtonHint')}
               </p>
             </div>
           </div>
