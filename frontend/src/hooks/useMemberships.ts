@@ -14,7 +14,10 @@ export function useCreateMembership(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: object) => api(instanceId).createMembership(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['memberships', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
 
@@ -22,7 +25,10 @@ export function useUpdateMembership(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: object }) => api(instanceId).updateMembership(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['memberships', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
 
@@ -30,6 +36,9 @@ export function useDeleteMembership(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api(instanceId).deleteMembership(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['memberships', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
