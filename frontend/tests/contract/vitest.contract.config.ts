@@ -6,6 +6,9 @@ export default defineConfig({
     testTimeout: 30_000,
     environment: 'node',
     pool: 'threads',
-    poolOptions: { threads: { singleThread: true } }, // serial — shared backend state
+    poolOptions: { threads: { singleThread: true } },
+    server: {
+      deps: { inline: ['axios'] },
+    },
   },
 });
