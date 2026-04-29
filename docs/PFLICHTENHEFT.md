@@ -1,9 +1,9 @@
-# Pflichtenheft – DSF Allow List Management Portal
+# Pflichtenheft – DSF Management Portal
 
 **Version:** 1.0
 **Datum:** 2026-03-28
 **Auftraggeber:** Institute of Medical Informatics Muenster (IMI), Universität Münster
-**Projektbezeichnung:** DSF Allow List Management Portal (Rewrite)
+**Projektbezeichnung:** DSF Management Portal (Rewrite)
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## 1 Zielbestimmung
 
-Das DSF Allow List Management Portal ist eine webbasierte Verwaltungsapplikation für das *Data Sharing Framework* (DSF) medizinischer Forschungsnetze (MII, NUM, Medizininformatik-Initiative). Das Portal ermöglicht dem Institute of Medical Informatics Muenster (IMI) der Universität Münster, ein zentrales Verzeichnis teilnehmender Institutionen zu pflegen, Änderungsanträge zu prüfen und freigegebene Datenpakete (FHIR Bundles, IP-Listen) zu publizieren.
+Das DSF Management Portal ist eine webbasierte Verwaltungsapplikation für das *Data Sharing Framework* (DSF) medizinischer Forschungsnetze (MII, NUM, Medizininformatik-Initiative). Das Portal ermöglicht dem Institute of Medical Informatics Muenster (IMI) der Universität Münster, ein zentrales Verzeichnis teilnehmender Institutionen zu pflegen, Änderungsanträge zu prüfen und freigegebene Datenpakete (FHIR Bundles, IP-Listen) zu publizieren.
 
 ### 1.1 Musskriterien
 
@@ -356,7 +356,7 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 
 ```
 +------------------------------------------------------------------+
-|  LOGO   DSF Allow List Management Portal      [Env: TEST] [User] |
+|  LOGO   DSF Management Portal                 [Env: TEST] [User] |
 +--------+---------------------------------------------------------+
 |        |                                                         |
 | Side-  |  ENTITY GRAPH CANVAS (3-Spalten-Grid)                  |
@@ -487,7 +487,7 @@ Client-seitig: Aktueller Desktop-Browser, Bildschirmauflösung mindestens 1280 �
 | **FHIR Bundle** | Zusammenstellung mehrerer FHIR-Ressourcen in einem JSON-Dokument; hier: Allow-List-Paket einer Instanz |
 | **FK-Highlight** | Visuelles Hervorheben von Entitätskarten, die über einen Fremdschlüssel mit der hovered Karte verbunden sind |
 | **FQDN** | Fully Qualified Domain Name – vollständiger Domainname, z.B. `ukm.de` oder `fhir.ukm.de` |
-| **IMI** | Institute of Medical Informatics Muenster; Betreiber des DSF Allow List Management Portals an der Universität Münster |
+| **IMI** | Institute of Medical Informatics Muenster; Betreiber des DSF Management Portals an der Universität Münster |
 | **HRP** | High-Level Routing Platform – eine der möglichen DSF-Rollen einer Mitgliedschaft |
 | **httpOnly Cookie** | Browser-Cookie, das nicht per JavaScript ausgelesen werden kann; erhöht Session-Sicherheit |
 | **Instanz** | Repräsentation einer DSF-Installation (einer Einrichtung) im Portal; enthält alle zugehörigen Entitäten |
