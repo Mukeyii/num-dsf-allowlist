@@ -130,6 +130,8 @@ async function main() {
     'user5@uk-erlangen-test.example.de',
     'gesperrt@kkh-leer-test.example.de',
   ]).del();
+  // Marketplace fixtures (block 14)
+  await db('marketplace_entries').where({ added_by: 'SYSTEM:seed' }).del();
   console.log('  [~] Cleaned previous seed data');
 
   // 1. Whitelist admin
@@ -530,6 +532,32 @@ async function main() {
     }).onConflict('email').ignore();
   }
   console.log(`  [+] ${imiEmails.length} bootstrap admins (re)signed`);
+
+  // --- Block 14: Marketplace fixtures ---
+  // Inserted directly (not via service) to avoid GitHub API calls during seeding.
+  // The 10:00 UTC sync cron will populate description/stars/release/last_commit
+  // automatically. Mix of statuses for UX richness.
+  const MARKETPLACE_FIXTURES = [
+    { url: 'https://github.com/datasharingframework/dsf-process-allow-list',  name: 'dsf-process-allow-list',  status: 'APPROVED' },
+    { url: 'https://github.com/datasharingframework/dsf-process-feasibility', name: 'dsf-process-feasibility', status: 'APPROVED' },
+    { url: 'https://github.com/datasharingframework/dsf-process-tutorial',    name: 'dsf-process-tutorial',    status: 'APPROVED' },
+    { url: 'https://github.com/datasharingframework/dsf-process-hello-world', name: 'dsf-process-hello-world', status: 'EXPERIMENTAL' },
+    { url: 'https://github.com/datasharingframework/dsf-process-ping-pong',   name: 'dsf-process-ping-pong',   status: 'EXPERIMENTAL' },
+  ];
+  for (const f of MARKETPLACE_FIXTURES) {
+    await db('marketplace_entries').insert({
+      id: uuidv4(),
+      git_url: f.url,
+      name: f.name,
+      description: null,
+      status: f.status,
+      stars: 0,
+      added_by: 'SYSTEM:seed',
+      added_at: new Date(),
+      updated_at: new Date(),
+    }).onConflict('git_url').ignore();
+  }
+  console.log(`  [+] ${MARKETPLACE_FIXTURES.length} marketplace fixtures seeded`);
 
   console.log('\n--- Seed complete ---');
   console.log(`Login (admin):  ${ADMIN_EMAIL}`);
