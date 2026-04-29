@@ -16,7 +16,5 @@ test('login page has no critical/serious a11y violations', async ({ page }) => {
   if (blocking.length > 0) {
     console.log('A11y violations on /login:', JSON.stringify(blocking.map(v => ({ id: v.id, impact: v.impact, description: v.description })), null, 2));
   }
-  // TODO Phase 2: address a11y violations on /login (see plan 2026-04-29-frontend-testing-phase-1)
-  // expect(blocking).toEqual([]);
-  expect(results.violations).toBeDefined();
+  expect(blocking).toEqual([]);
 });
