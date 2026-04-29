@@ -11,12 +11,14 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 
 export function AuthBootstrap({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Dev-only URL shortcut: ?devRole=admin|member forces a fresh dev-login.
@@ -33,10 +35,14 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
         id: decoded.sub,
         email: decoded.email,
       });
+      // Drop any cache from a prior session (esp. ['me']) so role/admin status
+      // refetches with the new token instead of returning stale isAdmin=false.
+      queryClient.clear();
     }
 
     if (devRole) {
       useAuthStore.getState().clearAuth();
+      queryClient.clear();
       devLoginAs(devRole)
         .catch(() => { /* dev-login disabled — fall through to login page */ })
         .finally(() => setReady(true));
@@ -60,6 +66,7 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
           id: decoded.sub,
           email: decoded.email,
         });
+        queryClient.clear();
       })
       .catch(async () => {
         if (!import.meta.env.DEV) return;
