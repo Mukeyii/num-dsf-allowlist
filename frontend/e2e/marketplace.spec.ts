@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from './fixtures/auth';
 
 test('admin can add a marketplace entry through the UI', async ({ page }) => {
-  test.setTimeout(60_000);
+  test.setTimeout(120_000); // accommodate retry/back-off in loginAs
   await loginAs(page, 'admin');
   // Navigate via sidebar link so AuthBootstrap doesn't remount and lose the
   // freshly-set admin auth state.
@@ -10,7 +10,11 @@ test('admin can add a marketplace entry through the UI', async ({ page }) => {
   await page.waitForURL(/\/app\/marketplace/);
   await page.waitForLoadState('networkidle');
 
-  await page.getByRole('button', { name: /add process|prozess hinzufügen/i }).click();
+  // The Add button is admin-gated. Wait for it explicitly so we don't race the
+  // /auth/me settle that drives `me?.isAdmin` in the page.
+  const addBtn = page.getByRole('button', { name: /add process|prozess hinzufügen/i });
+  await expect(addBtn).toBeVisible({ timeout: 30_000 });
+  await addBtn.click();
 
   const url = `https://github.com/example/e2e-test-${Date.now()}`;
   // FormField doesn't pair <label htmlFor> with input id, so getByLabel won't
