@@ -12,6 +12,12 @@ interface RepoResp {
   description: string | null;
   stargazers_count: number;
   license: { spdx_id: string | null } | null;
+  topics?: string[];
+  forks_count?: number;
+  open_issues_count?: number;
+  archived?: boolean;
+  homepage?: string | null;
+  language?: string | null;
 }
 interface ReleaseResp { tag_name: string }
 interface CommitResp { commit: { committer: { date: string } } }
@@ -68,6 +74,12 @@ export async function syncEntry(id: string): Promise<void> {
       description: main.description,
       stars: main.stargazers_count,
       license: main.license?.spdx_id || null,
+      topics: JSON.stringify(main.topics ?? []),
+      forks: main.forks_count ?? 0,
+      open_issues: main.open_issues_count ?? 0,
+      archived: main.archived ? 1 : 0,
+      homepage: main.homepage && main.homepage.trim() ? main.homepage.trim() : null,
+      language: main.language ?? null,
       latest_release_tag: latestTag,
       last_commit_at: lastCommitAt,
       sync_at: new Date(),
