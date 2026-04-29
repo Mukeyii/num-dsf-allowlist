@@ -20,6 +20,15 @@ const KNOWN_ERROR_CODES = new Set([
   'INVALID_TOTP_CODE',
   'INVALID_REFRESH_TOKEN',
   'CONFLICT',
+  'ENDPOINT_NOT_FOUND',
+  'CONTACT_NOT_FOUND',
+  'MEMBERSHIP_NOT_FOUND',
+  'ORGANIZATION_NOT_FOUND',
+  'CERTIFICATE_NOT_FOUND',
+  'INVALID_TYPE',
+  'INVALID_ROLES',
+  'APPROVAL_ALREADY_PENDING',
+  'ALREADY_DECIDED',
 ]);
 
 export function sanitizeError(err: any): { code: string; message: string } {
