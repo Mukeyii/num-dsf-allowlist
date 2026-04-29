@@ -54,6 +54,17 @@ export async function saveTotpSecret(userId: string, plainSecret: string): Promi
 }
 
 export async function verifyTotpCode(userId: string, code: string): Promise<boolean> {
+  // Dev shortcut: bypass TOTP entirely. Only honored when DEV_AUTO_LOGIN=true,
+  // DEV_TOTP_BYPASS=true, and NODE_ENV !== 'production' (matches the same
+  // localhost-only constraints already enforced by the dev-login route).
+  if (
+    process.env.NODE_ENV !== 'production'
+    && process.env.DEV_AUTO_LOGIN === 'true'
+    && process.env.DEV_TOTP_BYPASS === 'true'
+  ) {
+    return true;
+  }
+
   const user = await db('users').where({ id: userId }).first();
   if (!user?.totp_secret) return false;
 
