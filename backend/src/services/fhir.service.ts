@@ -189,7 +189,7 @@ export async function generateFullBundle(): Promise<object> {
     const certs = await db('certificates').where({ organization_id: org.identifier });
 
     for (const ep of endpoints) {
-      epUuids[ep.identifier] = uuidv4();
+      epUuids[`${org.identifier}/${ep.identifier}`] = uuidv4();
     }
 
     entries.push({
@@ -206,7 +206,7 @@ export async function generateFullBundle(): Promise<object> {
         active: true,
         name: org.name,
         endpoint: endpoints.map((ep: { identifier: string }) => ({
-          reference: `urn:uuid:${epUuids[ep.identifier]}`,
+          reference: `urn:uuid:${epUuids[`${org.identifier}/${ep.identifier}`]}`,
           type: 'Endpoint',
         })),
       },
@@ -215,10 +215,10 @@ export async function generateFullBundle(): Promise<object> {
 
     for (const ep of endpoints) {
       entries.push({
-        fullUrl: `urn:uuid:${epUuids[ep.identifier]}`,
+        fullUrl: `urn:uuid:${epUuids[`${org.identifier}/${ep.identifier}`]}`,
         resource: {
           resourceType: 'Endpoint',
-          id: epUuids[ep.identifier],
+          id: epUuids[`${org.identifier}/${ep.identifier}`],
           meta: { versionId: null, lastUpdated: null },
           identifier: [{ system: EP_ID_SYSTEM, value: ep.identifier }],
           name: ep.name || ep.identifier,
@@ -254,7 +254,7 @@ export async function generateFullBundle(): Promise<object> {
   for (const ms of memberships) {
     const memberOrgUuid = orgUuids[ms.organization_id as string];
     const parentUuid = parentUuids[ms.parent_organization as string];
-    const epUuid = epUuids[ms.endpoint_id as string];
+    const epUuid = epUuids[`${ms.organization_id as string}/${ms.endpoint_id as string}`];
     if (!memberOrgUuid || !parentUuid || !epUuid) continue;
 
     const affUuid = uuidv4();
