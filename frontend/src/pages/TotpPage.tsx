@@ -25,7 +25,7 @@ export function TotpPage() {
 
   useEffect(() => {
     if (!tempToken) navigate('/login', { replace: true });
-  }, []);
+  }, [tempToken, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
