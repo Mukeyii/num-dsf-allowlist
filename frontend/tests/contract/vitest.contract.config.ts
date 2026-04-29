@@ -7,6 +7,8 @@ export default defineConfig({
     environment: 'node',
     pool: 'threads',
     poolOptions: { threads: { singleThread: true } },
+    isolate: false,                // share module state across files (token cache)
+    fileParallelism: false,        // serial — shared backend state
     server: {
       deps: { inline: ['axios'] },
     },
