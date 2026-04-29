@@ -8,6 +8,7 @@ import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
 import { useI18n } from '../../stores/i18n.store';
+import { parseJsonArray } from '../../lib/parseJsonArray';
 
 interface Props {
   instanceId: string;
@@ -87,7 +88,7 @@ export function BundlePreview({ instanceId }: Props) {
 
           {/* Memberships (OrganizationAffiliation) */}
           {memberships.map((ms: any) => {
-            const roles = Array.isArray(ms.roles) ? ms.roles : JSON.parse(ms.roles || '[]');
+            const roles = parseJsonArray(ms.roles);
             return (
               <div key={ms.id} style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
