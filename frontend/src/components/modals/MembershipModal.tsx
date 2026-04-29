@@ -48,7 +48,8 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
     } else if (open && !membershipId) {
       reset({ parentOrganization: '', endpointId: '', roles: [] });
     }
-  }, [open, membershipId, memberships, reset]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, membershipId, reset]);
 
   async function onSubmit(data: MembershipFormData) {
     try {
