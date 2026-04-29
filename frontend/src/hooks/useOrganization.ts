@@ -14,6 +14,9 @@ export function useUpdateOrganization(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: object) => api(instanceId).updateOrganization(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['organization', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['organization', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }

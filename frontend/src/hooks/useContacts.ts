@@ -14,7 +14,10 @@ export function useCreateContact(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: object) => api(instanceId).createContact(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['contacts', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
 
@@ -22,7 +25,10 @@ export function useUpdateContact(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: object }) => api(instanceId).updateContact(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['contacts', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
 
@@ -30,6 +36,9 @@ export function useDeleteContact(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api(instanceId).deleteContact(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['contacts', instanceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
+      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+    },
   });
 }
