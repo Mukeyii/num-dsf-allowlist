@@ -146,7 +146,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: npx playwright install --with-deps chromium
+      - run: ./node_modules/lost-pixel/node_modules/.bin/playwright-core install --with-deps chromium
       - run: npm run build-storybook
       - run: npx lost-pixel ci-mode
       - if: failure()
