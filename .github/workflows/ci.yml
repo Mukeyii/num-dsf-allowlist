@@ -171,6 +171,9 @@ jobs:
       - name: Generate dev keys
         run: |
           if [ -f scripts/generate-keys.sh ]; then bash scripts/generate-keys.sh; fi
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm install
       - name: Start docker stack
         run: docker compose up -d --wait
       - name: Apply migrations
@@ -181,9 +184,6 @@ jobs:
           done
       - name: Seed
         run: docker compose exec -T backend npx ts-node src/db/seed-testdata.ts
-      - name: Install frontend deps
-        working-directory: frontend
-        run: npm install
       - name: Install Playwright browsers
         working-directory: frontend
         run: npx playwright install --with-deps chromium
