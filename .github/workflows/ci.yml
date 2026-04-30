@@ -163,14 +163,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Generate dev keys
-        run: |
-          if [ -f scripts/generate-keys.sh ]; then bash scripts/generate-keys.sh; fi
       - name: Setup .env from example
         run: |
           cp .env.example .env || true
           grep -q "DEV_AUTO_LOGIN=true" .env || echo "DEV_AUTO_LOGIN=true" >> .env
           grep -q "DEV_TOTP_BYPASS=true" .env || echo "DEV_TOTP_BYPASS=true" >> .env
+      - name: Generate dev keys
+        run: |
+          if [ -f scripts/generate-keys.sh ]; then bash scripts/generate-keys.sh; fi
       - name: Start docker stack
         run: docker compose up -d --wait
       - name: Apply migrations
