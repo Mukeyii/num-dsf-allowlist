@@ -1,8 +1,19 @@
 <div align="center">
-  <img src="frontend/public/logos/dsf-logo.svg" alt="DSF" height="60" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dsf-dark.svg">
+    <img src="docs/logo-dsf-light.svg" alt="dsf." height="80" />
+  </picture>
+
   <h1>DSF Management Portal</h1>
   <p>A web application for managing participants in the <strong>Data Sharing Framework (DSF)</strong> of the German Medical Informatics Initiative (MII/NUM).</p>
   <p>Operated by the <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html">Institute of Medical Informatics Muenster (IMI)</a> at the University of Muenster.</p>
+
+  <p>
+    <a href="https://github.com/Mukeyii/num-dsf-allowlist/actions/workflows/ci.yml"><img src="https://github.com/Mukeyii/num-dsf-allowlist/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI/CD" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-Proprietary-blue.svg" alt="License: Proprietary" /></a>
+    <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html"><img src="https://img.shields.io/badge/operated%20by-IMI%20M%C3%BCnster-b01e66.svg" alt="Operated by IMI Münster" /></a>
+    <img src="https://img.shields.io/badge/stack-React%20%2B%20Express%20%2B%20MySQL-3a6fb0.svg" alt="Stack: React + Express + MySQL" />
+  </p>
 
   <br />
 
