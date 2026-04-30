@@ -11,7 +11,7 @@ interface AuthLayoutProps {
 }
 
 const ENV = import.meta.env.VITE_DSF_ENVIRONMENT || 'TEST';
-const ENV_COLOR = ENV === 'PRODUCTION' ? '#4a90d9' : '#0f766e';
+const ENV_COLOR = ENV === 'PRODUCTION' ? '#4a90d9' : '#115e59';
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
