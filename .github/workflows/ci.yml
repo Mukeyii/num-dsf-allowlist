@@ -233,6 +233,8 @@ jobs:
             -keyout certs/server.key -out certs/server.crt \
             -subj "/CN=localhost" 2>/dev/null
           cp certs/server.crt certs/client-ca.crt
+      - name: Disable nginx rate limits for CI
+        run: sed -i '/limit_req/d' nginx/nginx.conf
       - name: Start docker stack
         run: docker compose up -d --wait
       - name: Apply migrations
