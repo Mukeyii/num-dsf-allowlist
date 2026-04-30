@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest a new feature or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Please describe the user-facing problem first, before any proposed solution.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user-facing pain or gap does this address? Who runs into it, and how often?
+      placeholder: Site users have no way to revoke an approval request after submitting...
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: One concrete approach. Other approaches go in the "Alternatives" section.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches and why they were rejected.
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope / dependencies
+      description: Which areas of the codebase would change? Any prerequisites (DB migration, new env var, breaking change)?
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (your view)
+      options:
+        - Nice to have
+        - Should have
+        - Must have for next release
+    validations:
+      required: true
