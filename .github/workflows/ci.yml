@@ -221,7 +221,7 @@ jobs:
           cp .env.example .env || true
           grep -q "DEV_AUTO_LOGIN=true" .env || echo "DEV_AUTO_LOGIN=true" >> .env
           grep -q "DEV_TOTP_BYPASS=true" .env || echo "DEV_TOTP_BYPASS=true" >> .env
-          grep -q "IMI_ADMIN_EMAILS=" .env || echo "IMI_ADMIN_EMAILS=admin@imi-test.example.de" >> .env
+          sed -i 's|^IMI_ADMIN_EMAILS=.*|IMI_ADMIN_EMAILS=admin@imi-test.example.de|' .env
       - name: Generate dev keys
         run: |
           if [ -f scripts/generate-keys.sh ]; then bash scripts/generate-keys.sh; fi
