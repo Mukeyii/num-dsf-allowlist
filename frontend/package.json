@@ -12,7 +12,6 @@
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
     "test:contract": "vitest run --config tests/contract/vitest.contract.config.ts",
     "check:bundle": "bundlesize"
@@ -40,7 +39,6 @@
     "@storybook/react": "^8.6.18",
     "@storybook/react-vite": "^8.6.18",
     "@storybook/test": "^8.6.18",
-    "@storybook/test-runner": "^0.24.3",
     "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^6.2.0",
     "@testing-library/react": "^14.1.2",
