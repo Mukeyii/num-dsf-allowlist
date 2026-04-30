@@ -1,0 +1,63 @@
+name: Bug report
+description: Report a bug in the DSF Allow List Management Portal
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug report. Please fill out as much as you can — even partial reports are useful.
+
+        **Security issues:** do NOT open a public issue. Use SECURITY.md instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear, concise description of the bug.
+      placeholder: Clicking "Send for Approval" returns a 500 error...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Numbered list. Be specific about which page, role, and data state.
+      placeholder: |
+        1. Log in as a `site` user
+        2. Navigate to /app
+        3. Click "Send for Approval" in the top bar
+        4. Observe the toast error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: The approval request should be created and the toast should confirm "Submitted for review."
+    validations:
+      required: true
+  - type: input
+    id: deployment
+    attributes:
+      label: Deployment
+      description: Local dev / staging / production / other.
+      placeholder: Local dev (docker compose up)
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & version
+      placeholder: Chromium 120 / Firefox 121 / Safari 17 / N/A
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / screenshots
+      description: Backend log lines, network response bodies, browser console errors. Redact sensitive data.
+      render: shell
+  - type: input
+    id: commit
+    attributes:
+      label: Commit / version
+      description: Output of `git rev-parse HEAD` or the release tag.
+      placeholder: e16fc60 / v0.1.0

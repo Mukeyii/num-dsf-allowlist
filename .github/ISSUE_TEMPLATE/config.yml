@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Mukeyii/num-dsf-allowlist/security/advisories/new
+    about: Please report security issues privately, NOT in public issues. See SECURITY.md.
+  - name: IMI institute contact
+    url: https://www.medizin.uni-muenster.de/imi/das-institut.html
+    about: General inquiries about the DSF Allow List operator.
