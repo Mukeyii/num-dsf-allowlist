@@ -79,9 +79,13 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
   if (!valid) return false;
 
   // Anti-replay: atomically claim the code hash; returns null if already claimed.
+  // TTL must be ≥ the validity window speakeasy accepts. With window: 1 (a code
+  // is valid for the current 30s step plus ±1 step), the worst-case acceptance
+  // window is 90 s. A 60 s TTL would let an attacker re-submit a captured code
+  // in the last 30 s of its lifetime. 120 s gives a 30 s safety margin.
   const codeHash = crypto.createHash('sha256').update(`${userId}:${code}`).digest('hex');
   const replayKey = `totp_used:${codeHash}`;
-  const claimed = await redis.set(replayKey, '1', 'EX', 60, 'NX');
+  const claimed = await redis.set(replayKey, '1', 'EX', 120, 'NX');
   if (claimed === null) return false;
 
   return true;
