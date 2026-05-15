@@ -7,14 +7,12 @@ import { Knex } from 'knex';
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
-import { notifyImiOnSubmit, notifySiteOnApproval } from './approval-reminder.service';
+import {
+  notifyImiOnSubmit,
+  notifySiteOnApproval,
+  notifyImiOnFirstApproval,
+} from './approval-reminder.service';
 import { siteOfEmail, validateApproval, deriveStatus, ApprovalSig } from '../lib/approvalState';
-
-// approval-reminder.service exposes notifyImiOnFirstApproval after Task 4 lands.
-// Fall back to no-op if the runtime export is missing (defensive).
-import * as reminders from './approval-reminder.service';
-const notifyImiOnFirstApproval: (instanceId: string, firstApproverEmail: string, requestId: string) => Promise<void> =
-  (reminders as any).notifyImiOnFirstApproval ?? (async () => {});
 
 const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
 
