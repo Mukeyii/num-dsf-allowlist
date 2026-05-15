@@ -26,7 +26,7 @@ export function Breadcrumbs() {
   return (
     <nav style={{
       display: 'flex', alignItems: 'center', gap: '6px',
-      padding: '8px 24px', fontSize: '12px', color: 'var(--text-muted)',
+      padding: '8px 30px', fontSize: '12px', color: 'var(--text-muted)',
       background: 'var(--bg-card)',
     }}>
       {segments.map((seg, i) => {

@@ -11,7 +11,7 @@ export function ToastProvider() {
           borderRadius: '12px',
           fontSize: '13px',
           color: '#1a1a2e',
-          boxShadow: '0 8px 24px rgba(77,65,223,0.10)',
+          boxShadow: '0 8px 24px rgba(138,23,80,0.10)',
         },
         className: 'font-sans',
       }}

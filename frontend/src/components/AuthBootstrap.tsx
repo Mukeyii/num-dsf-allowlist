@@ -132,7 +132,7 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       >
         <div style={{ textAlign: 'center' }}>
           <span
-            style={{ fontSize: '24px', fontWeight: 700, color: '#6c63ff', letterSpacing: '-0.5px' }}
+            style={{ fontSize: '24px', fontWeight: 700, color: '#b01e66', letterSpacing: '-0.5px' }}
           >
             dsf.
           </span>

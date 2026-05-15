@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <button
               onClick={() => window.location.reload()}
               className="px-5 py-2 text-sm font-bold text-white rounded-xl transition-all active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
+              style={{ background: 'linear-gradient(135deg, #8a1750, #675df9)' }}
             >
               Reload Page
             </button>

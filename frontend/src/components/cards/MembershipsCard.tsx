@@ -56,10 +56,10 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                   title="Edit membership"
                   aria-label="Edit membership"
                   style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#fde3ef')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>edit</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#b01e66' }}>edit</span>
                 </button>
                 <button
                   onClick={(e) => {

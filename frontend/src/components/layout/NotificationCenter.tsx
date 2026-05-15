@@ -10,7 +10,7 @@ import { useI18n } from '../../stores/i18n.store';
 const TYPE_ICON: Record<string, { icon: string; color: string }> = {
   success: { icon: 'check_circle', color: '#22c55e' },
   error: { icon: 'error', color: '#ef4444' },
-  info: { icon: 'info', color: '#6c63ff' },
+  info: { icon: 'info', color: '#b01e66' },
 };
 
 export function NotificationCenter() {

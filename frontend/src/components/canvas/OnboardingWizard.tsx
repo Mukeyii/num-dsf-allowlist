@@ -23,7 +23,7 @@ export function OnboardingWizard({ instanceId }: Props) {
   const { data: approval } = useApprovalStatus(instanceId);
 
   const steps = [
-    { label: 'Organization', icon: 'corporate_fare', done: !!org, action: 'org-edit' as const, color: '#6c63ff' },
+    { label: 'Organization', icon: 'corporate_fare', done: !!org, action: 'org-edit' as const, color: '#b01e66' },
     { label: 'Contact', icon: 'contact_phone', done: contacts.length > 0, action: 'contact-add' as const, color: '#9b59b6' },
     { label: 'Endpoint', icon: 'hub', done: endpoints.length > 0, action: 'endpoint-add' as const, color: '#3ecfb2' },
     { label: 'Certificate', icon: 'verified_user', done: certs.length > 0, action: 'certificate-add' as const, color: '#f5a623' },
@@ -48,7 +48,7 @@ export function OnboardingWizard({ instanceId }: Props) {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#6c63ff' }}>rocket_launch</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#b01e66' }}>rocket_launch</span>
           <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>Getting Started</span>
         </div>
         <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{completedCount}/{steps.length} complete</span>
@@ -56,7 +56,7 @@ export function OnboardingWizard({ instanceId }: Props) {
 
       {/* Progress bar */}
       <div style={{ height: '3px', background: 'var(--bg-hover)', borderRadius: '99px', overflow: 'hidden', marginBottom: '10px' }}>
-        <div style={{ width: `${(completedCount / steps.length) * 100}%`, height: '100%', background: '#6c63ff', borderRadius: '99px', transition: 'width 0.3s' }} />
+        <div style={{ width: `${(completedCount / steps.length) * 100}%`, height: '100%', background: '#b01e66', borderRadius: '99px', transition: 'width 0.3s' }} />
       </div>
 
       {/* Steps */}

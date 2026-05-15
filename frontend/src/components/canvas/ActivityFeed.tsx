@@ -10,7 +10,7 @@ import { useI18n } from '../../stores/i18n.store';
 
 const OP_STYLES: Record<string, { icon: string; color: string }> = {
   CREATE: { icon: 'add_circle', color: '#22c55e' },
-  UPDATE: { icon: 'edit', color: '#6c63ff' },
+  UPDATE: { icon: 'edit', color: '#b01e66' },
   DELETE: { icon: 'remove_circle', color: '#ef4444' },
   APPROVE: { icon: 'check_circle', color: '#22c55e' },
   REJECT: { icon: 'cancel', color: '#ef4444' },
@@ -106,9 +106,9 @@ export function ActivityFeed() {
         onClick={() => setExpanded(!expanded)}
         style={{
           width: '40px', height: '40px', borderRadius: '50%',
-          background: '#6c63ff', border: 'none', cursor: 'pointer',
+          background: '#b01e66', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(108,99,255,0.3)', float: 'right',
+          boxShadow: '0 2px 8px rgba(176,30,102,0.3)', float: 'right',
         }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#fff' }}>

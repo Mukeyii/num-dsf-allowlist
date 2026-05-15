@@ -19,7 +19,7 @@ interface SearchResult {
 }
 
 const TYPE_ICONS: Record<string, { icon: string; color: string }> = {
-  organization: { icon: 'corporate_fare', color: '#6c63ff' },
+  organization: { icon: 'corporate_fare', color: '#b01e66' },
   contact: { icon: 'contact_phone', color: '#9b59b6' },
   endpoint: { icon: 'hub', color: '#3ecfb2' },
   certificate: { icon: 'verified_user', color: '#f5a623' },

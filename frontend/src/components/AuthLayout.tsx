@@ -16,11 +16,16 @@ const ENV_COLOR = ENV === 'PRODUCTION' ? '#4a90d9' : '#115e59';
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-8 relative"
       style={{ background: 'var(--bg-page)', fontFamily: 'Inter, system-ui, sans-serif' }}
     >
+      {/* Animated background — aurora blobs in IMI logo palette */}
+      <div className="auth-aurora" aria-hidden="true">
+        <span />
+      </div>
+
       {/* IMI Logo — prominent, above card */}
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
         <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
           <img
             src="/logos/IMI-Logo-grad-eng.png"
@@ -31,8 +36,8 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       </div>
 
       {/* App title + environment */}
-      <div className="mb-6 text-center">
-        <span className="text-3xl font-bold tracking-tight select-none" style={{ color: '#6c63ff' }}>
+      <div className="mb-6 text-center" style={{ position: 'relative', zIndex: 1 }}>
+        <span className="dsf-wordmark text-4xl font-extrabold tracking-tight select-none">
           dsf.
         </span>
         <div className="flex items-center justify-center gap-2 mt-2">
@@ -50,9 +55,13 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       <div
         className="w-full max-w-md p-8"
         style={{
+          position: 'relative',
+          zIndex: 1,
           borderRadius: '16px',
           background: 'var(--bg-card)',
-          boxShadow: '0 2px 8px rgba(108,99,255,0.07)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          boxShadow: '0 8px 32px rgba(176, 30, 102, 0.10), 0 2px 8px rgba(176, 30, 102, 0.05)',
           border: '1px solid var(--border)',
         }}
       >
@@ -67,29 +76,66 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         {children}
       </div>
 
-      {/* Institutional Logos — 2 rows, large enough to read */}
-      <div style={{ marginTop: '36px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', maxWidth: '600px' }}>
-        {/* Row 1: Uni Münster + Med. Fakultät */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '32px', flexWrap: 'wrap' }}>
-          <img src="https://medic.uni-muenster.de/wp-content/uploads/2023/11/Logo_UniMuenster_2023_RGB-640x177.jpg" alt="Universität Münster" style={{ height: '48px', borderRadius: '4px' }} />
-          <img src="https://medic.uni-muenster.de/wp-content/uploads/2022/11/Logo-Medizinische-Fakultaet-640x325.jpg" alt="Medizinische Fakultät" style={{ height: '48px', borderRadius: '4px' }} />
+      {/* Partner Logos — single elegant row with divider */}
+      <div style={{ marginTop: '44px', width: '100%', maxWidth: '560px', position: 'relative', zIndex: 1 }}>
+        {/* Divider with label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+          <span style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+          }}>
+            In cooperation with
+          </span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
         </div>
-        {/* Row 2: UKM + DIZ */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '32px', flexWrap: 'wrap' }}>
-          <img src="https://medic.uni-muenster.de/wp-content/uploads/2022/11/Logo-UKM-Muenster-640x561.jpg" alt="UKM Münster" style={{ height: '48px', borderRadius: '4px' }} />
-          <img src="https://medic.uni-muenster.de/wp-content/uploads/2025/02/csm_DIZ_deutsch_RGB_6828fe1a4f-640x371.jpg" alt="DIZ" style={{ height: '48px', borderRadius: '4px' }} />
-        </div>
-        {/* Row 3: MeDIC + NUM */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '32px', flexWrap: 'wrap' }}>
+
+        {/* Partner row — uniform heights, muted until hover */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          gap: '28px',
+          flexWrap: 'wrap',
+        }}>
+          <img
+            src="/logos/Logo UKM Münster.PNG"
+            alt="UKM Münster"
+            style={{ height: '40px', opacity: 0.72, transition: 'opacity 0.2s ease' }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.72')}
+          />
           <a href="https://medic.uni-muenster.de/" target="_blank" rel="noopener noreferrer">
-            <img src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png" alt="MeDIC" style={{ height: '44px' }} />
+            <img
+              src="/logos/Logo_MeDIC_RGB_1000pxl_WEB_transp.png"
+              alt="MeDIC"
+              style={{ height: '36px', opacity: 0.72, transition: 'opacity 0.2s ease' }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.72')}
+            />
           </a>
-          <img src="https://medic.uni-muenster.de/wp-content/uploads/2025/09/NUM-LOGO-POS-RGB_neu-640x296.png" alt="NUM" style={{ height: '40px' }} />
+          <img
+            src="/logos/NUM-LOGO-POS-DE-RGB_neu.png"
+            alt="NUM"
+            style={{ height: '34px', opacity: 0.72, transition: 'opacity 0.2s ease' }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.72')}
+          />
+          <img
+            src="/logos/HHN_logo.png"
+            alt="Hochschule Heilbronn"
+            style={{ height: '36px', opacity: 0.72, transition: 'opacity 0.2s ease' }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.72')}
+          />
         </div>
       </div>
 
       {/* Impressum + Footer */}
-      <div style={{ marginTop: '24px', textAlign: 'center' }}>
+      <div style={{ marginTop: '24px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
           Institute of Medical Informatics · University of Muenster
         </p>
