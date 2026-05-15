@@ -42,6 +42,13 @@ coverage/
 # === Tool settings (machine-specific) ===
 .claude/
 
+# === Ruflo / Claude-Flow runtime (machine-specific) ===
+/CLAUDE.md
+/.mcp.json
+/.claude-flow/
+/.swarm/
+/ruvector.db
+
 # === Sensitive data exports (NEVER commit) ===
 scripts/*.json
 
