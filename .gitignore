@@ -1,83 +1,253 @@
-# === Environment ===
+# =============================================================================
+# DSF Allow List Management Portal — .gitignore
+# Comprehensive ignore list for Node.js + React + TypeScript stack with
+# Docker Compose, Playwright, Storybook, and AI coding assistants.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Environment files & secrets — NEVER commit
+# -----------------------------------------------------------------------------
 .env
-.env.prod
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.prod.example
+*.pem
+*.key
+*.crt
+!*.example.pem
+!*.example.crt
+secrets/
+secret.*
+private/
+*.secret
 
-# === Dependencies ===
+# -----------------------------------------------------------------------------
+# TLS / certificates
+# -----------------------------------------------------------------------------
+certs/
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# -----------------------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------------------
 node_modules/
+jspm_packages/
+bower_components/
+.pnp.*
 
-# === Build artifacts ===
+# -----------------------------------------------------------------------------
+# Lock files (regenerated per environment in this project)
+# -----------------------------------------------------------------------------
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# -----------------------------------------------------------------------------
+# Build / dist artifacts
+# -----------------------------------------------------------------------------
 dist/
 build/
+out/
+.next/
+.nuxt/
+.parcel-cache/
+.vite/
+.cache/
+*.tsbuildinfo
 
-# === Logs ===
+# -----------------------------------------------------------------------------
+# Logs & diagnostics
+# -----------------------------------------------------------------------------
 *.log
 logs/
 nginx_logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pids/
+*.pid
+*.seed
+*.pid.lock
+.dump
+*.dmp
 
-# === OS ===
-.DS_Store
-Thumbs.db
-
-# === Docker volumes ===
-mysql-data/
-redis-data/
-
-# === TLS certificates ===
-certs/
-
-# === IDE ===
-.idea/
-.vscode/
-*.iml
-
-# === TypeScript ===
-*.tsbuildinfo
-
-# === Test coverage ===
+# -----------------------------------------------------------------------------
+# Test & coverage output
+# -----------------------------------------------------------------------------
 coverage/
 .nyc_output/
+junit.xml
+test-results.xml
+.jest-cache/
 
-# === Tool settings (machine-specific) ===
+# Playwright
+/test-results/
+frontend/playwright-report/
+frontend/test-results/
+playwright/.cache/
+
+# Lost Pixel (only baselines are tracked)
+frontend/.lost-pixel/current/
+frontend/.lost-pixel/difference/
+
+# Storybook build output
+frontend/storybook-static/
+storybook-static/
+
+# -----------------------------------------------------------------------------
+# OS metadata
+# -----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# -----------------------------------------------------------------------------
+# Editors & IDEs (machine-specific)
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.example.json
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.fleet/
+.zed/
+.history/
+
+# -----------------------------------------------------------------------------
+# AI coding assistants (machine-specific, opinionated)
+# -----------------------------------------------------------------------------
 .claude/
+.claude-flow/
+.swarm/
+.cursor/
+.cursorrules
+.aider*
+.continue/
+.github/copilot/
+.codeium/
+.windsurf/
+.gemini/
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+.mcp.json
+ruvector.db
+.ruflo*
+.codex/
+.codex-plugin/
+.cursor-plugin/
+.opencode/
+.superpowers/
 
-# === Ruflo / Claude-Flow runtime (machine-specific) ===
-/CLAUDE.md
-/.mcp.json
-/.claude-flow/
-/.swarm/
-/ruvector.db
+# -----------------------------------------------------------------------------
+# Docker / runtime volumes
+# -----------------------------------------------------------------------------
+mysql-data/
+redis-data/
+data/
+volumes/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
 
-# === Sensitive data exports (NEVER commit) ===
-scripts/*.json
+# -----------------------------------------------------------------------------
+# Backups & dumps
+# -----------------------------------------------------------------------------
+backups/
+*.bak
+*.backup
+*.orig
+*.dump
+*.sql.gz
 
-# === Internal docs (not part of the product) ===
+# -----------------------------------------------------------------------------
+# Internal / sensitive documents (NEVER publish)
+# -----------------------------------------------------------------------------
+# Security audits & reviews — list vulnerabilities, do NOT publish
+docs/audit-*.md
+docs/security-review-*.md
+docs/SECURITY_AUDIT_*
+docs/pentests/
+audit-*.md
+security-review-*.md
+
+# Internal specifications & plans
+docs/PFLICHTENHEFT.md
+PFLICHTENHEFT*.md
+REQUIREMENTS.md
+SPEC.md
+SPECS.md
+MASTERPROMPT*.md
 docs/superpowers/
 docs/stitch/
 docs/NOTEBOOKLM_DIFF.md
-docs/security-review-2026-04-27.md
-SPEC.md
-MASTERPROMPT*.md
+docs/internal/
+docs/drafts/
 
-# Backups
-backups/
+# Scratch / WIP / notes
+scratch/
+notes/
+NOTES.md
+TODO.md
+WIP*
+*.scratch
+*.wip
+*.draft
 
-# === Lock files (regenerated per environment) ===
-package-lock.json
-.superpowers/
+# -----------------------------------------------------------------------------
+# Sensitive data exports
+# -----------------------------------------------------------------------------
+scripts/*.json
+!scripts/*.example.json
+exports/
+*.csv.bak
 
-# === Temporary dev artifacts ===
+# -----------------------------------------------------------------------------
+# Temporary / generated dev artifacts
+# -----------------------------------------------------------------------------
 frontend/calibrate.js
 frontend/germany.svg
+tmp/
+temp/
+*.tmp
+*.temp
 
-# === Storybook build output ===
-frontend/storybook-static/
+# -----------------------------------------------------------------------------
+# Python tooling (occasionally used for migrations / scripts)
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
 
-# === Playwright output ===
-frontend/playwright-report/
-frontend/test-results/
-
-# === Lost Pixel (only baseline is committed) ===
-frontend/.lost-pixel/current/
-frontend/.lost-pixel/difference/
+# -----------------------------------------------------------------------------
+# Misc tooling
+# -----------------------------------------------------------------------------
+.eslintcache
+.stylelintcache
+.turbo/
+.svelte-kit/
