@@ -1,6 +1,12 @@
 /**
  * redis.service.ts – Redis connection and base functions
- * Key prefixes: otp:{email}, refresh:{tokenHash}, ratelimit:{ip}
+ * Key prefixes:
+ *   otp:{email}              – pending OTP (TTL 10 min)
+ *   refresh:{tokenHash}      – active refresh tokens (TTL 7 d)
+ *   ratelimit:{ip|key}       – express-rate-limit Redis store
+ *   totp_used:{sha256}       – anti-replay window for TOTP codes (TTL 60 s)
+ *   activity:{userId}        – last-activity heartbeat for idle-timeout
+ *                              (TTL = idle window, refreshed in auth middleware)
  * Depends on: REDIS_URL env var
  */
 import Redis from 'ioredis';
