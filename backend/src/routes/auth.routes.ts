@@ -121,10 +121,10 @@ authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Respon
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
   }
   try {
-    const { accessToken, refreshTokenHash, backupCodes } = await confirmTotpSetupAndCreateSession(
+    const { accessToken, refreshToken, backupCodes } = await confirmTotpSetupAndCreateSession(
       tempToken, code, req.ip || 'unknown'
     );
-    res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken, backupCodes } }); // Backup codes returned once
   } catch {
     res.status(401).json({ error: { code: 'AUTH_FAILED', message: 'Invalid TOTP code' } });
@@ -138,10 +138,10 @@ authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Respons
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
   }
   try {
-    const { accessToken, refreshTokenHash } = await verifyTotpAndCreateSession(
+    const { accessToken, refreshToken } = await verifyTotpAndCreateSession(
       tempToken, code, req.ip || 'unknown'
     );
-    res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken } });
   } catch {
     res.status(401).json({ error: { code: 'AUTH_FAILED', message: 'Invalid TOTP code' } });
@@ -202,8 +202,8 @@ authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response)
   }
   await db('users').where({ id: user.id }).update({ last_login: new Date() });
 
-  const { accessToken, refreshTokenHash } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
-  res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
+  const { accessToken, refreshToken } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
+  res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
   console.warn(`[DEV_AUTO_LOGIN] issued ${role} session for ${email} from ${req.ip}`);
   res.json({ data: { accessToken, email, role } });
 });
@@ -238,8 +238,8 @@ authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: R
     return;
   }
 
-  const { accessToken, refreshTokenHash } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
-  res.cookie('refreshToken', refreshTokenHash, REFRESH_COOKIE_OPTIONS);
+  const { accessToken, refreshToken } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
+  res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
 
   writeAuditLog({
     userEmail: user.email,
