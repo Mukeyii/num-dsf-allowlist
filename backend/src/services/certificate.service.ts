@@ -8,8 +8,15 @@ import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
 
+// Match BEGIN/END markers for any private-key variant, case-insensitive.
+// Substring checks against literal upper-case 'PRIVATE KEY' miss PEMs that
+// were lower-cased by an editor, a copy-paste tool, or the OpenSSL output
+// of a non-default locale. Pattern intentionally permissive on whitespace
+// between PRIVATE and KEY because some tooling emits hyphens or extra spaces.
+const PRIVATE_KEY_MARKER = /-----BEGIN\s+(?:ENCRYPTED\s+|RSA\s+|EC\s+|DSA\s+|OPENSSH\s+)?PRIVATE[\s_-]+KEY-----/i;
+
 export function rejectPrivateKey(pem: string): void {
-  if (pem.includes('PRIVATE KEY') || pem.includes('ENCRYPTED PRIVATE KEY') || pem.includes('RSA PRIVATE KEY') || pem.includes('EC PRIVATE KEY')) {
+  if (PRIVATE_KEY_MARKER.test(pem)) {
     throw new Error('PRIVATE_KEY_REJECTED');
   }
 }
