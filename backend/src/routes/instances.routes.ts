@@ -1,14 +1,15 @@
 /**
  * instances.routes.ts – DSF Instance CRUD (list, create, show, rename)
- * Dependencies: auth.middleware, audit.service, isAdmin
+ * Dependencies: auth.middleware, instances.service, asyncHandler, Zod
+ *
+ * All DB work lives in services/instances.service.ts — handlers stay
+ * focused on request parsing + response shape.
  */
 import { Router } from 'express';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.middleware';
-import { db } from '../db/connection';
-import { writeAuditLog } from '../services/audit.service';
-import { isAdminEmail } from '../lib/isAdmin';
-import { v4 as uuidv4 } from 'uuid';
+import { asyncHandler } from '../lib/asyncHandler';
+import * as svc from '../services/instances.service';
 
 const labelSchema = z.object({
   label: z.string().trim().min(1, 'label required').max(255, 'label too long'),
@@ -17,50 +18,29 @@ const labelSchema = z.object({
 export const instancesRouter = Router();
 instancesRouter.use(requireAuth);
 
-instancesRouter.get('/', async (req, res) => {
-  const instances = await db('instances')
-    .where({ user_id: req.user!.id })
-    .orderBy('created_at', 'asc');
-  const enriched = await Promise.all(instances.map(async (inst: any) => {
-    const org = await db('organizations').where({ instance_id: inst.id }).first();
-    return { ...inst, label: org?.identifier || inst.label || inst.id };
-  }));
-  res.json({ data: enriched });
-});
+instancesRouter.get('/', asyncHandler(async (req, res) => {
+  res.json({ data: await svc.listForUser(req.user!.id) });
+}));
 
-instancesRouter.post('/', async (req, res) => {
-  const id = uuidv4();
-  await db('instances').insert({
-    id, user_id: req.user!.id, label: id, created_at: new Date(),
-  });
-  await writeAuditLog({
-    userEmail: req.user!.email, resourceType: 'AUTH',
-    resourceId: id, operation: 'CREATE', ipAddress: req.ip,
-  });
-  const instance = await db('instances').where({ id }).first();
+instancesRouter.post('/', asyncHandler(async (req, res) => {
+  const instance = await svc.createInstance(req.user!.id, req.user!.email, req.ip || 'unknown');
   res.status(201).json({ data: instance });
-});
+}));
 
-instancesRouter.get('/:id', async (req, res) => {
-  const isAdmin = await isAdminEmail(req.user!.email);
-  const q = db('instances').where({ id: req.params.id });
-  if (!isAdmin) q.andWhere({ user_id: req.user!.id });
-  const instance = await q.first();
+instancesRouter.get('/:id', asyncHandler(async (req, res) => {
+  const instance = await svc.getInstance(req.params.id, req.user!.email);
   if (!instance) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Instance not found' } });
-  const owner = await db('users').where({ id: instance.user_id }).first();
-  res.json({ data: { ...instance, owner_email: owner?.email ?? null } });
-});
+  res.json({ data: instance });
+}));
 
-instancesRouter.put('/:id/label', async (req, res) => {
+instancesRouter.put('/:id/label', asyncHandler(async (req, res) => {
   const parsed = labelSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({
       error: { code: 'VALIDATION', message: parsed.error.errors[0]?.message || 'Invalid label' },
     });
   }
-  const { label } = parsed.data;
-  const instance = await db('instances').where({ id: req.params.id, user_id: req.user!.id }).first();
-  if (!instance) return res.status(403).json({ error: { code: 'FORBIDDEN' } });
-  await db('instances').where({ id: req.params.id }).update({ label });
-  res.json({ data: { ...instance, label } });
-});
+  const updated = await svc.renameInstance(req.params.id, req.user!.id, parsed.data.label);
+  if (!updated) return res.status(403).json({ error: { code: 'FORBIDDEN' } });
+  res.json({ data: updated });
+}));
