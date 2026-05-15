@@ -12,7 +12,7 @@ import { requireInstanceOwnership } from '../middleware/instance.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { upsertOrganizationSchema } from '../schemas/organization.schema';
 import * as svc from '../services/organization.service';
-import { sanitizeError } from '../lib/sanitizeError';
+import { asyncHandler } from '../lib/asyncHandler';
 import { db } from '../db/connection';
 import { verifyTotpCode } from '../services/totp.service';
 
@@ -24,7 +24,7 @@ organizationRouter.get('/', async (req, res) => {
   res.json({ data: org });
 });
 
-organizationRouter.put('/', validate(upsertOrganizationSchema), async (req, res) => {
+organizationRouter.put('/', validate(upsertOrganizationSchema), asyncHandler(async (req, res) => {
   const existingOrgRow = await db('organizations').where({ instance_id: req.instance!.id }).first();
   const existingThumb = existingOrgRow?.client_cert_thumbprint ?? null;
   const incomingThumb = (req.body?.clientCertThumbprint ?? null) || null;
@@ -56,23 +56,15 @@ organizationRouter.put('/', validate(upsertOrganizationSchema), async (req, res)
     });
   }
 
-  try {
-    const org = await svc.upsertOrganization(
-      req.instance!.id, req.body,
-      req.user!.email, req.ip || 'unknown'
-    );
-    res.json({ data: org });
-  } catch (err: unknown) {
-    res.status(400).json({ error: sanitizeError(err) });
-  }
-});
+  const org = await svc.upsertOrganization(
+    req.instance!.id, req.body,
+    req.user!.email, req.ip || 'unknown'
+  );
+  res.json({ data: org });
+}));
 
-organizationRouter.post('/request-removal', async (req, res) => {
+organizationRouter.post('/request-removal', asyncHandler(async (req, res) => {
   const { submitApproval } = await import('../services/approval.service');
-  try {
-    const request = await submitApproval(req.instance!.id, req.user!.email, req.ip || 'unknown');
-    res.json({ data: request });
-  } catch (err: unknown) {
-    res.status(400).json({ error: sanitizeError(err) });
-  }
-});
+  const request = await submitApproval(req.instance!.id, req.user!.email, req.ip || 'unknown');
+  res.json({ data: request });
+}));

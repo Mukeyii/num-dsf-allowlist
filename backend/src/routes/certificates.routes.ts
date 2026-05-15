@@ -13,6 +13,7 @@ import { createCertificateSchema } from '../schemas/certificate.schema';
 import * as svc from '../services/certificate.service';
 import { db } from '../db/connection';
 import { sanitizeError } from '../lib/sanitizeError';
+import { asyncHandler } from '../lib/asyncHandler';
 
 export const certificatesRouter = Router({ mergeParams: true });
 certificatesRouter.use(requireAuth, requireInstanceOwnership);
@@ -45,14 +46,10 @@ certificatesRouter.post('/', validate(createCertificateSchema), async (req, res)
   }
 });
 
-certificatesRouter.delete('/:cid', async (req, res) => {
-  try {
-    await svc.deleteCertificate(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
-    res.json({ data: { deleted: true } });
-  } catch (err: unknown) {
-    res.status(400).json({ error: sanitizeError(err) });
-  }
-});
+certificatesRouter.delete('/:cid', asyncHandler(async (req, res) => {
+  await svc.deleteCertificate(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
+  res.json({ data: { deleted: true } });
+}));
 
 certificatesRouter.post('/:cid/renew', async (req, res) => {
   try {
