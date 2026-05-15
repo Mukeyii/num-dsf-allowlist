@@ -6,7 +6,7 @@
  */
 import { Router, Request, Response } from 'express';
 import { db } from '../db/connection';
-import { generateFullBundle } from '../services/fhir.service';
+import { generateBundle, generateFullBundle } from '../services/fhir.service';
 import { writeAuditLog } from '../services/audit.service';
 import { extractClientCert } from '../lib/clientCert';
 
@@ -39,7 +39,14 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
       });
     }
 
-    const bundle = await generateFullBundle();
+    // Scope the bundle to the caller's own instance + the requested endpoint.
+    // generateBundle filters endpoints by `(instance_id, identifier)`, so a
+    // cert registered for org A cannot pull a bundle for org B's endpoint —
+    // the lookup returns ENDPOINT_NOT_FOUND and the catch below maps it to
+    // a 404. Previously this route returned generateFullBundle() ignoring
+    // :endpointId entirely, so ANY cert could enumerate every endpoint in
+    // the federation through this path.
+    const bundle = await generateBundle(org.instance_id, req.params.endpointId);
 
     // Audit: record the download (non-blocking — failure must not disrupt the response).
     // userEmail intentionally omitted — this caller is a client cert, not a user.
