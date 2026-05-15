@@ -1,8 +1,14 @@
-// Purpose: Global Jest setup/teardown – connects to DB and destroys pool after all tests
-// Dependencies: db/connection (Knex instance), redis.service
+// Purpose: Per-test-file Jest setup – verifies DB connectivity once at suite start.
+// Dependencies: db/connection (Knex instance)
+//
+// Note: `setupFilesAfterEnv` runs in every test file's context, so an `afterAll`
+// here would `destroy()` the shared Knex pool / `disconnect()` the shared
+// ioredis singleton after the first file completes — leaving subsequent files
+// in the same Jest worker with closed handles. Jest's `--forceExit` (set in
+// package.json `test` script) reaps the connections at process exit; we don't
+// need (and must not have) a per-file teardown here.
 
 import { db } from '../db/connection';
-import { redis } from '../services/redis.service';
 
 beforeAll(async () => {
   try {
@@ -11,9 +17,4 @@ beforeAll(async () => {
   } catch {
     console.warn('[Test] DB not available – skipping connection check (unit tests)');
   }
-});
-
-afterAll(async () => {
-  await db.destroy();
-  redis.disconnect();
 });
