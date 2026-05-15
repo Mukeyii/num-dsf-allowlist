@@ -19,14 +19,28 @@ import { sanitizeError } from '../lib/sanitizeError';
 
 export const downloadRouter = Router({ mergeParams: true });
 
-downloadRouter.get('/full-bundle', requireAuth, async (_req, res) => {
+downloadRouter.get('/full-bundle', requireAuth, async (req, res) => {
   try {
     const bundle = await generateFullBundle();
     const json = JSON.stringify(bundle);
     res.setHeader('Content-Type', 'application/fhir+json');
     res.setHeader('Content-Disposition', 'attachment; filename="dsf-allow-list-bundle.json"');
+
+    // Log every full-bundle download. The endpoint exposes the entire
+    // federation map (every approved org's identifier, endpoints, IPs,
+    // cert thumbprints) to any authenticated caller — without an audit
+    // trail there is no signal that a compromised non-admin account is
+    // exfiltrating the federation graph.
+    writeAuditLog({
+      userEmail: req.user!.email,
+      resourceType: 'AUTH',
+      operation: 'CREATE',
+      diffJson: { action: 'full_bundle_download', byteSize: json.length },
+      ipAddress: req.ip || 'unknown',
+    }).catch(() => {});
+
     res.send(json);
-  } catch (err: unknown) {
+  } catch {
     res.status(500).json({ error: { code: 'BUNDLE_FAIL', message: 'Failed to generate allow-list bundle.' } });
   }
 });
