@@ -42,7 +42,7 @@ adminApprovalRouter.post('/:rid/approve', requireAuth, requireImiAdmin, ...totpL
       res.status(401).json({ error: { code: 'TOTP_INVALID', message: 'Invalid authenticator code.' } });
       return;
     }
-    const result = await svc.approveRequest(req.params.rid, req.user!.email, req.ip);
+    const result = await svc.approveRequest(req.params.rid, req.user!.email, req.ip || 'unknown');
     res.json({ data: result });
   } catch (e: any) {
     const code = e?.message;
@@ -74,7 +74,7 @@ adminApprovalRouter.post('/:rid/reject', requireAuth, requireImiAdmin, ...totpLi
       res.status(401).json({ error: { code: 'TOTP_INVALID', message: 'Invalid authenticator code.' } });
       return;
     }
-    await svc.rejectRequest(req.params.rid, req.user!.email, comment || '', req.ip);
+    await svc.rejectRequest(req.params.rid, req.user!.email, comment || '', req.ip || 'unknown');
     res.json({ data: { status: 'REJECTED' } });
   } catch (e: any) {
     const code = e?.message;
