@@ -220,22 +220,39 @@ export async function revokeAllSessions(emailOrUser: string | { id: string; emai
   }
   if (!userId) return 0;
 
-  const keys = await redis.keys('refresh:*');
-  if (keys.length === 0) return 0;
+  // Scan the keyspace in cursor-paged batches instead of redis.keys('refresh:*').
+  // KEYS is O(N) over the entire keyspace and blocks Redis while it runs — at
+  // 10K+ active sessions that stalls every other command (auth, rate-limit,
+  // OTP). SCAN streams matching keys in chunks of `count`, never blocking
+  // for more than one chunk at a time.
+  //
+  // Caveat: SCAN can return duplicates across iterations; the user-id check
+  // below still deletes the right keys, but `toDelete.length` may double-count
+  // duplicates. The dedup via Set guards against that.
+  const matched = new Set<string>();
+  let cursor = '0';
+  do {
+    const [next, batch] = await redis.scan(cursor, 'MATCH', 'refresh:*', 'COUNT', 500);
+    cursor = next;
+    for (const key of batch) matched.add(key);
+  } while (cursor !== '0');
+
+  if (matched.size === 0) return 0;
 
   // Check each token's stored userId — only delete tokens belonging to this user.
   const pipeline = redis.pipeline();
-  for (const key of keys) {
+  const keyList = [...matched];
+  for (const key of keyList) {
     pipeline.get(key);
   }
   const values = await pipeline.exec();
   if (!values) return 0;
 
   const toDelete: string[] = [];
-  for (let i = 0; i < keys.length; i++) {
+  for (let i = 0; i < keyList.length; i++) {
     const val = values[i]?.[1];
     if (val === userId) {
-      toDelete.push(keys[i]);
+      toDelete.push(keyList[i]);
     }
   }
   if (toDelete.length === 0) return 0;
