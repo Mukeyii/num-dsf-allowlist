@@ -14,6 +14,13 @@ beforeAll(async () => {
   try {
     const result = await db.raw('SELECT DATABASE() as dbName');
     console.log(`[Test] Connected to DB: ${result[0][0].dbName}`);
+    // Migration 013 makes audit_logs append-only at the DB level via
+    // BEFORE UPDATE/DELETE triggers. That is correct for real environments
+    // but blocks the cleanup deletes the seed helper runs between test
+    // files. The CI test DB is ephemeral, so dropping the triggers here is
+    // safe — they get re-created on the next migration run in real envs.
+    await db.raw('DROP TRIGGER IF EXISTS audit_logs_no_update');
+    await db.raw('DROP TRIGGER IF EXISTS audit_logs_no_delete');
   } catch {
     console.warn('[Test] DB not available – skipping connection check (unit tests)');
   }
