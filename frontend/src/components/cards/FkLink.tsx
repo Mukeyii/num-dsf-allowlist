@@ -27,7 +27,7 @@ export function FkLink({ label, targetEntity, value }: FkLinkProps) {
       <span
         onClick={handleClick}
         style={{
-          color: '#6c63ff', fontFamily: 'monospace', fontSize: '11px',
+          color: '#b01e66', fontFamily: 'monospace', fontSize: '11px',
           cursor: 'pointer', textDecoration: 'underline',
         }}
       >

@@ -73,7 +73,7 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
             <button
               onClick={onApproval}
               className="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
-              style={{ background: 'linear-gradient(135deg, #4d41df, #675df9)' }}
+              style={{ background: 'linear-gradient(135deg, #8a1750, #675df9)' }}
             >
               {t('sendForApproval')}
             </button>

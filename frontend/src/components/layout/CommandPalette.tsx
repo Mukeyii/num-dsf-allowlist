@@ -49,12 +49,12 @@ export function CommandPalette() {
 
   const commands: Command[] = [
     // Navigation
-    { id: 'nav-canvas', label: 'Go to Canvas', icon: 'dashboard', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app'); setOpen(false); } },
-    { id: 'nav-admin', label: 'Approval Review', icon: 'admin_panel_settings', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app/admin'); setOpen(false); } },
-    { id: 'nav-audit', label: 'Audit Log', icon: 'history', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app/audit'); setOpen(false); } },
-    { id: 'nav-map', label: 'Network Map', icon: 'hub', color: '#6c63ff', category: 'Navigation', action: () => { navigate('/app/map'); setOpen(false); } },
+    { id: 'nav-canvas', label: 'Go to Canvas', icon: 'dashboard', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app'); setOpen(false); } },
+    { id: 'nav-admin', label: 'Approval Review', icon: 'admin_panel_settings', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app/admin'); setOpen(false); } },
+    { id: 'nav-audit', label: 'Audit Log', icon: 'history', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app/audit'); setOpen(false); } },
+    { id: 'nav-map', label: 'Network Map', icon: 'hub', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app/map'); setOpen(false); } },
     // Actions
-    { id: 'act-org', label: 'Edit Organization', icon: 'corporate_fare', color: '#4d41df', category: 'Actions', action: () => { useModals.getState().openModal('org-edit'); setOpen(false); } },
+    { id: 'act-org', label: 'Edit Organization', icon: 'corporate_fare', color: '#8a1750', category: 'Actions', action: () => { useModals.getState().openModal('org-edit'); setOpen(false); } },
     { id: 'act-contact', label: 'Add Contact', icon: 'contact_phone', color: '#9b59b6', category: 'Actions', action: () => { useModals.getState().openModal('contact-add'); setOpen(false); } },
     { id: 'act-endpoint', label: 'Add Endpoint', icon: 'hub', color: '#3ecfb2', category: 'Actions', action: () => { useModals.getState().openModal('endpoint-add'); setOpen(false); } },
     { id: 'act-cert', label: 'Add Certificate', icon: 'verified_user', color: '#f5a623', category: 'Actions', action: () => { useModals.getState().openModal('certificate-add'); setOpen(false); } },
