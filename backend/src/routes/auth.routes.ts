@@ -70,7 +70,7 @@ authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response
 });
 
 // POST /auth/setup-totp  → return QR code (first login)
-authRouter.post('/setup-totp', async (req: Request, res: Response) => {
+authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response) => {
   const { tempToken } = req.body;
   if (!tempToken) {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken required' } });
@@ -142,7 +142,7 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
 // Refuses in production and when DEV_AUTO_LOGIN is not 'true'.
 // Body: { role?: 'admin' | 'member' } — picks DEV_AUTO_LOGIN_EMAIL or DEV_AUTO_LOGIN_MEMBER_EMAIL.
 // Defaults to admin when no role is given.
-authRouter.post('/dev-login', async (req: Request, res: Response) => {
+authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response) => {
   if (process.env.NODE_ENV === 'production' || process.env.DEV_AUTO_LOGIN !== 'true') {
     return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
   }
@@ -183,7 +183,7 @@ authRouter.post('/dev-login', async (req: Request, res: Response) => {
 });
 
 // POST /auth/client-cert-login → authenticate by client certificate thumbprint
-authRouter.post('/client-cert-login', async (req: Request, res: Response) => {
+authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: Response) => {
   const cert = extractClientCert(req);
   if (!cert) {
     res.status(401).json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
