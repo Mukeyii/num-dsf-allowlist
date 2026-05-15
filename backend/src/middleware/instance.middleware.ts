@@ -10,6 +10,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { db } from '../db/connection';
 import { isAdminEmail } from '../lib/isAdmin';
+import { writeAuditLog } from '../services/audit.service';
 
 declare global {
   namespace Express {
@@ -40,6 +41,25 @@ export async function requireInstanceOwnership(
   if (!instance) {
     res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Instance not found or access denied' } });
     return;
+  }
+
+  // Admin cross-tenant access leaves a trail. The frontend banner is good UX
+  // but the only durable record that admin X poked instance Y at time T lives
+  // here. Fire-and-forget — a failed audit must not block the request.
+  if (isAdmin && instance.user_id !== req.user?.id) {
+    writeAuditLog({
+      userEmail: req.user!.email,
+      instanceId: instance.id,
+      resourceType: 'AUTH',
+      operation: 'LOGIN',
+      diffJson: {
+        action: 'admin_instance_access',
+        method: req.method,
+        path: req.originalUrl,
+        targetOwnerId: instance.user_id,
+      },
+      ipAddress: req.ip || 'unknown',
+    }).catch(() => {});
   }
 
   req.instance = instance;
