@@ -107,8 +107,15 @@ export async function verifyBackupCode(userId: string, code: string): Promise<bo
 
   let hashed: string[];
   try {
-    hashed = JSON.parse(user.backup_codes);
+    // MySQL JSON columns return parsed objects; plain strings need parsing
+    hashed = typeof user.backup_codes === 'string'
+      ? JSON.parse(user.backup_codes)
+      : user.backup_codes;
   } catch {
+    logger.error({ userId }, 'Corrupt backup_codes JSON in database');
+    return false;
+  }
+  if (!Array.isArray(hashed)) {
     logger.error({ userId }, 'Corrupt backup_codes JSON in database');
     return false;
   }
