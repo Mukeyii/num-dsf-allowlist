@@ -41,13 +41,16 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
 
     const bundle = await generateFullBundle();
 
-    // Audit: record the download (non-blocking — failure must not disrupt the response)
+    // Audit: record the download (non-blocking — failure must not disrupt the response).
+    // userEmail intentionally omitted — this caller is a client cert, not a user.
+    // The thumbprint goes into diffJson so audit-by-user queries stay clean
+    // (filtering 'cert:...' polluted the user_email column previously).
     writeAuditLog({
-      userEmail: `cert:${cert.thumbprint.slice(0, 16)}`,
       instanceId: org.instance_id,
       resourceType: 'CERTIFICATE',
       resourceId: req.params.endpointId,
       operation: 'CREATE',
+      diffJson: { authMethod: 'client_cert', thumbprintPrefix: cert.thumbprint.slice(0, 16) },
       ipAddress: req.ip || 'unknown',
     }).catch(() => {});
 
