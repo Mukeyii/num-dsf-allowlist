@@ -25,7 +25,7 @@ membershipsRouter.post('/', validate(createMembershipSchema), async (req, res) =
   try {
     const ms = await svc.createMembership(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
     res.status(201).json({ data: ms });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
@@ -34,7 +34,7 @@ membershipsRouter.put('/:mid', validate(updateMembershipSchema), async (req, res
   try {
     const ms = await svc.updateMembership(req.instance!.id, req.params.mid, req.body, req.user!.email, req.ip || 'unknown');
     res.json({ data: ms });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
@@ -43,7 +43,7 @@ membershipsRouter.delete('/:mid', async (req, res) => {
   try {
     await svc.deleteMembership(req.instance!.id, req.params.mid, req.user!.email, req.ip || 'unknown');
     res.json({ data: { deleted: true } });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });

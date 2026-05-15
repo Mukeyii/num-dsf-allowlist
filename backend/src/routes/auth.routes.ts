@@ -68,7 +68,7 @@ authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response
   try {
     const result = await verifyOtpAndGetTempToken(email, code, req.ip || 'unknown');
     res.json({ data: result });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(401).json({ error: { code: 'AUTH_FAILED', message: 'Invalid code' } });
   }
 });

@@ -43,8 +43,8 @@ adminMarketplaceRouter.post('/', validate(createMarketplaceSchema), async (req, 
       req.ip || 'unknown',
     );
     res.status(201).json({ data: entry });
-  } catch (err: any) {
-    const status = err.message === 'ALREADY_EXISTS' ? 409 : 400;
+  } catch (err: unknown) {
+    const status = err instanceof Error && err.message === 'ALREADY_EXISTS' ? 409 : 400;
     res.status(status).json({ error: sanitizeError(err) });
   }
 });
@@ -60,8 +60,8 @@ adminMarketplaceRouter.patch('/:id', validate(patchMarketplaceSchema), async (re
       req.ip || 'unknown',
     );
     res.json({ data: entry });
-  } catch (err: any) {
-    const status = err.message === 'NOT_FOUND' ? 404 : 400;
+  } catch (err: unknown) {
+    const status = err instanceof Error && err.message === 'NOT_FOUND' ? 404 : 400;
     res.status(status).json({ error: sanitizeError(err) });
   }
 });
@@ -72,8 +72,8 @@ adminMarketplaceRouter.delete('/:id', validate(deleteMarketplaceSchema), async (
   try {
     await removeEntry(req.params.id, req.user!.email, req.ip || 'unknown');
     res.json({ data: { deleted: true } });
-  } catch (err: any) {
-    const status = err.message === 'NOT_FOUND' ? 404 : 400;
+  } catch (err: unknown) {
+    const status = err instanceof Error && err.message === 'NOT_FOUND' ? 404 : 400;
     res.status(status).json({ error: sanitizeError(err) });
   }
 });

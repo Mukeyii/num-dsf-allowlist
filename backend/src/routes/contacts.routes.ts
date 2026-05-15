@@ -23,7 +23,7 @@ contactsRouter.post('/', validate(createContactSchema), async (req, res) => {
   try {
     const contact = await svc.createContact(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
     res.status(201).json({ data: contact });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
@@ -32,7 +32,7 @@ contactsRouter.put('/:cid', validate(updateContactSchema), async (req, res) => {
   try {
     const contact = await svc.updateContact(req.instance!.id, req.params.cid, req.body, req.user!.email, req.ip || 'unknown');
     res.json({ data: contact });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
@@ -41,7 +41,7 @@ contactsRouter.delete('/:cid', async (req, res) => {
   try {
     await svc.deleteContact(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
     res.json({ data: { deleted: true } });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
@@ -50,7 +50,7 @@ contactsRouter.post('/:cid/resend-verification', async (req, res) => {
   try {
     await svc.resendVerification(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
     res.json({ data: { message: 'Verification email sent.' } });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });

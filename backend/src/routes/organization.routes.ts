@@ -62,7 +62,7 @@ organizationRouter.put('/', validate(upsertOrganizationSchema), async (req, res)
       req.user!.email, req.ip || 'unknown'
     );
     res.json({ data: org });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
@@ -72,7 +72,7 @@ organizationRouter.post('/request-removal', async (req, res) => {
   try {
     const request = await submitApproval(req.instance!.id, req.user!.email, req.ip || 'unknown');
     res.json({ data: request });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });
   }
 });
