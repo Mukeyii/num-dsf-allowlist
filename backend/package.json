@@ -33,6 +33,9 @@
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
+  "overrides": {
+    "tar": "^7.5.11"
+  },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.7",
