@@ -61,6 +61,21 @@ async function start() {
         logger.warn(`[security] DEV_AUTO_LOGIN=true but HOST=${host}; binding accepted because NODE_ENV is not production. If exposing this dev process beyond localhost (ngrok, tunnel, etc.), unset DEV_AUTO_LOGIN first.`);
       }
     }
+    // DEV_TOTP_BYPASS short-circuits ALL admin step-up TOTP checks. Allow
+    // only when this is genuinely a dev container: NODE_ENV === 'development'
+    // AND bound to localhost. Anything else (staging, preview, accidental
+    // prod-like deploy) must hard-abort, regardless of DEV_AUTO_LOGIN state.
+    if (process.env.DEV_TOTP_BYPASS === 'true') {
+      const host = process.env.HOST || '0.0.0.0';
+      const isLocal = host === '127.0.0.1' || host === 'localhost';
+      if (process.env.NODE_ENV !== 'development' || !isLocal) {
+        throw new Error(
+          `DEV_TOTP_BYPASS=true is only allowed with NODE_ENV=development on a localhost bind ` +
+          `(got NODE_ENV=${process.env.NODE_ENV}, HOST=${host}). Refusing to start.`
+        );
+      }
+      logger.warn('[security] DEV_TOTP_BYPASS=true — admin step-up TOTP checks are DISABLED for this dev process');
+    }
     app.listen(PORT, () => {
       logger.info({ port: PORT, env: process.env.DSF_ENVIRONMENT }, 'Server started');
     });
