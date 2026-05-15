@@ -1,9 +1,18 @@
+/**
+ * instances.routes.ts – DSF Instance CRUD (list, create, show, rename)
+ * Dependencies: auth.middleware, audit.service, isAdmin
+ */
 import { Router } from 'express';
+import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.middleware';
 import { db } from '../db/connection';
 import { writeAuditLog } from '../services/audit.service';
 import { isAdminEmail } from '../lib/isAdmin';
 import { v4 as uuidv4 } from 'uuid';
+
+const labelSchema = z.object({
+  label: z.string().trim().min(1, 'label required').max(255, 'label too long'),
+});
 
 export const instancesRouter = Router();
 instancesRouter.use(requireAuth);
@@ -43,8 +52,13 @@ instancesRouter.get('/:id', async (req, res) => {
 });
 
 instancesRouter.put('/:id/label', async (req, res) => {
-  const { label } = req.body;
-  if (!label) return res.status(400).json({ error: { code: 'VALIDATION', message: 'label required' } });
+  const parsed = labelSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: { code: 'VALIDATION', message: parsed.error.errors[0]?.message || 'Invalid label' },
+    });
+  }
+  const { label } = parsed.data;
   const instance = await db('instances').where({ id: req.params.id, user_id: req.user!.id }).first();
   if (!instance) return res.status(403).json({ error: { code: 'FORBIDDEN' } });
   await db('instances').where({ id: req.params.id }).update({ label });
