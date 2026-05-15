@@ -44,7 +44,17 @@ const REFRESH_COOKIE_OPTIONS = {
 };
 
 // POST /auth/request-otp
-const otpLimiter = process.env.NODE_ENV === 'test' ? [] : [otpRateLimit];
+//
+// otpLimiter is the Redis-backed 5-req/15-min bucket. Skip it when running
+// jest (NODE_ENV=test) and when running a dev/CI environment that enabled
+// DEV_AUTO_LOGIN — the e2e suite shares a single CI runner IP and calls
+// /dev-login from every test, blowing past 5 in 15 min and silently 429ing.
+// Production never sets DEV_AUTO_LOGIN, so the limiter still applies there.
+const otpLimiter =
+  process.env.NODE_ENV === 'test' ||
+  (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true')
+    ? []
+    : [otpRateLimit];
 authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Response) => {
   const { email } = req.body;
   if (!email || typeof email !== 'string') {
