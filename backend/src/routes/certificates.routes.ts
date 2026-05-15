@@ -1,3 +1,10 @@
+/**
+ * certificates.routes.ts – Certificate CRUD + renewal + expiry probe
+ * Dependencies: auth/instance middleware, certificate.service, sanitizeError
+ *
+ * SECURITY: PEM uploads are screened by rejectPrivateKey() before any
+ * parsing or storage — see certificate.service.ts.
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';

@@ -1,3 +1,11 @@
+/**
+ * memberships.routes.ts – Membership CRUD (DIC, HRP, parent_organization)
+ * Dependencies: auth/instance middleware, membership.service, membership schema, sanitizeError
+ *
+ * Soft-delete via memberships.deleted_at (see migration 004) — DELETE
+ * emits an OrganizationAffiliation DELETE entry in the FHIR bundle so
+ * consumers can drop the relationship without resyncing.
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';

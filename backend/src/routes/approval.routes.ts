@@ -1,3 +1,14 @@
+/**
+ * approval.routes.ts – Tenant-side approval submission + status
+ * Dependencies: auth.middleware, instance.middleware, approval.service, sanitizeError
+ *
+ * Endpoints (requireAuth + requireInstanceOwnership):
+ *   POST /instances/:id/approval/submit
+ *   GET  /instances/:id/approval/status
+ *   GET  /instances/:id/approval/history
+ *
+ * Admin side (approve/reject) lives in admin-approval.routes.ts.
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
