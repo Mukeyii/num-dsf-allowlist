@@ -168,6 +168,10 @@ jobs:
           cp .env.example .env || true
           grep -q "DEV_AUTO_LOGIN=true" .env || echo "DEV_AUTO_LOGIN=true" >> .env
           grep -q "DEV_TOTP_BYPASS=true" .env || echo "DEV_TOTP_BYPASS=true" >> .env
+          # backend/src/index.ts hard-aborts when DEV_TOTP_BYPASS=true unless
+          # NODE_ENV=development AND HOST is localhost. CI satisfies both.
+          grep -q "^NODE_ENV=" .env || echo "NODE_ENV=development" >> .env
+          grep -q "^HOST=" .env || echo "HOST=127.0.0.1" >> .env
           sed -i 's|^IMI_ADMIN_EMAILS=.*|IMI_ADMIN_EMAILS=admin@imi-test.example.de|' .env
       - name: Generate dev keys
         run: |
@@ -221,6 +225,10 @@ jobs:
           cp .env.example .env || true
           grep -q "DEV_AUTO_LOGIN=true" .env || echo "DEV_AUTO_LOGIN=true" >> .env
           grep -q "DEV_TOTP_BYPASS=true" .env || echo "DEV_TOTP_BYPASS=true" >> .env
+          # backend/src/index.ts hard-aborts when DEV_TOTP_BYPASS=true unless
+          # NODE_ENV=development AND HOST is localhost. CI satisfies both.
+          grep -q "^NODE_ENV=" .env || echo "NODE_ENV=development" >> .env
+          grep -q "^HOST=" .env || echo "HOST=127.0.0.1" >> .env
           sed -i 's|^IMI_ADMIN_EMAILS=.*|IMI_ADMIN_EMAILS=admin@imi-test.example.de|' .env
       - name: Generate dev keys
         run: |
