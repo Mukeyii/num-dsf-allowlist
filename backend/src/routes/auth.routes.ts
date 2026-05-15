@@ -84,6 +84,11 @@ authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response
 });
 
 // POST /auth/setup-totp  → return QR code (first login)
+//
+// Idempotent for legitimate flows (user double-tabs the QR step), but refuses
+// once TOTP is already enabled on the account. Without this gate, a holder
+// of a valid totp_setup tempToken (10-min TTL) could call /setup-totp
+// repeatedly to rotate the TOTP secret out from under the user.
 authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response) => {
   const { tempToken } = req.body;
   if (!tempToken) {
@@ -92,6 +97,13 @@ authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response
   try {
     const payload = verifyTempToken(tempToken);
     if (payload.purpose !== 'totp_setup') throw new Error('Wrong purpose');
+
+    const user = await db('users').where({ id: payload.sub }).first();
+    if (user?.totp_enabled) {
+      return res.status(409).json({
+        error: { code: 'TOTP_ALREADY_ENABLED', message: 'TOTP is already configured for this account' },
+      });
+    }
 
     const { qrCodeUrl, secret } = await generateTotpSetup(payload.email);
     await saveTotpSecret(payload.sub, secret);
