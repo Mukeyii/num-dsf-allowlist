@@ -143,13 +143,13 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
 });
 
 // POST /auth/dev-login → dev-only shortcut that bypasses OTP/TOTP.
-// Refuses in production and when DEV_AUTO_LOGIN is not 'true'.
-// Body: { role?: 'admin' | 'member' } — picks DEV_AUTO_LOGIN_EMAIL or DEV_AUTO_LOGIN_MEMBER_EMAIL.
-// Defaults to admin when no role is given.
+// Route is only REGISTERED when NODE_ENV !== 'production' AND DEV_AUTO_LOGIN
+// === 'true'. In any prod-like image, no handler is mounted and the path
+// returns Express's default 404 — zero attack surface even if a future flag
+// were toggled at runtime.
+// Body: { role?: 'admin' | 'member' | 'site' }
+if (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true') {
 authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response) => {
-  if (process.env.NODE_ENV === 'production' || process.env.DEV_AUTO_LOGIN !== 'true') {
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
-  }
   const inputRole = req.body?.role;
   const role: 'admin' | 'member' | 'site' =
     inputRole === 'member' ? 'member' :
@@ -185,6 +185,7 @@ authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response)
   console.warn(`[DEV_AUTO_LOGIN] issued ${role} session for ${email} from ${req.ip}`);
   res.json({ data: { accessToken, email, role } });
 });
+}
 
 // POST /auth/client-cert-login → authenticate by client certificate thumbprint
 authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: Response) => {
