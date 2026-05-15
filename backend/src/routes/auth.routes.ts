@@ -33,10 +33,14 @@ export const authRouter = Router();
 
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV !== 'test',
+  secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-  path: '/auth/refresh',
+  // Scope on /auth (not /auth/refresh) so /auth/logout also receives the
+  // cookie and can revoke the Redis entry. Previously logout only cleared
+  // the cookie client-side; the server-side refresh token stayed valid
+  // for its 7-day TTL.
+  path: '/auth',
 };
 
 // POST /auth/request-otp
@@ -133,7 +137,7 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
     res.cookie('refreshToken', newRefreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken } });
   } catch {
-    res.clearCookie('refreshToken', { path: '/auth/refresh' });
+    res.clearCookie('refreshToken', { path: '/auth' });
     res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid refresh token' } });
   }
 });
@@ -232,6 +236,6 @@ authRouter.post('/logout', ...otpLimiter, async (req: Request, res: Response) =>
   if (refreshToken) {
     await logout(refreshToken, userEmail, req.ip || 'unknown');
   }
-  res.clearCookie('refreshToken', { path: '/auth/refresh' });
+  res.clearCookie('refreshToken', { path: '/auth' });
   res.json({ data: { message: 'Logged out' } });
 });
