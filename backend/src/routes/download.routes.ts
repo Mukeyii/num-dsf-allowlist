@@ -1,3 +1,12 @@
+/**
+ * download.routes.ts – FHIR-Bundle and IP-list export endpoints
+ * Dependencies: auth/instance/admin middleware, fhir.service, excel.service,
+ *               bundle-signing.service, audit.service, sanitizeError
+ *
+ * /bundle             — tenant export, signed with kid + content hash
+ * /full-bundle        — network-wide bundle (authenticated download)
+ * /ip-address-list    — admin Excel export of all allow-listed IPs
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';

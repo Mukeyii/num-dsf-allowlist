@@ -1,3 +1,13 @@
+/**
+ * audit.routes.ts – Audit-log read endpoints
+ * Dependencies: auth.middleware, instance.middleware, validate.middleware, query schema
+ *
+ * Two routers exported:
+ *   auditRouter              — per-instance audit (requireInstanceOwnership)
+ *   crossInstanceAuditRouter — cross-instance (admin-only; mounted under /admin)
+ *
+ * Audit_logs is append-only at the DB layer (see migration 013).
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';

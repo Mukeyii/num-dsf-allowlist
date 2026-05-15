@@ -1,3 +1,11 @@
+/**
+ * organization.routes.ts – Organization upsert + removal-request
+ * Dependencies: auth/instance middleware, organization.service, schema, sanitizeError
+ *
+ * client_cert_thumbprint writes are gated by an admin-vs-owner check
+ * (FORBIDDEN_THUMBPRINT_WRITE) so an admin's session can't plant a
+ * thumbprint on a victim org.
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';

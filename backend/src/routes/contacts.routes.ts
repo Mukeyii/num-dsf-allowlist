@@ -1,3 +1,9 @@
+/**
+ * contacts.routes.ts – Contact CRUD (MEDIC / DSF_ADMIN / SECURITY persons)
+ * Dependencies: auth/instance middleware, contact.service, contact schema, sanitizeError
+ *
+ * DSGVO: contact data is never embedded in the published allow-list bundle.
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';

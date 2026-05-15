@@ -1,3 +1,11 @@
+/**
+ * admin.routes.ts – IMI admin-only endpoints
+ * Dependencies: auth.middleware, admin.middleware, validate.middleware, audit query schema
+ *
+ * Endpoints (all behind requireAuth + requireImiAdmin):
+ *   GET /admin/instances        — list all instances (cross-tenant view)
+ *   GET /admin/audit            — paginated cross-instance audit log
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireImiAdmin } from '../middleware/admin.middleware';

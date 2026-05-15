@@ -1,3 +1,7 @@
+/**
+ * endpoints.routes.ts – DSF FHIR endpoint CRUD + IP list
+ * Dependencies: auth/instance middleware, endpoint.service, endpoint schema, sanitizeError
+ */
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
