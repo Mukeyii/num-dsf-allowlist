@@ -102,7 +102,7 @@ export async function verifyTotpAndCreateSession(
   tempToken: string,
   code: string,
   ipAddress: string
-): Promise<{ accessToken: string; refreshTokenHash: string }> {
+): Promise<{ accessToken: string; refreshToken: string }> {
   const payload = verifyTempToken(tempToken);
   if (payload.purpose !== 'totp_required') throw new Error('INVALID_TOKEN_PURPOSE');
 
@@ -130,7 +130,7 @@ export async function confirmTotpSetupAndCreateSession(
   tempToken: string,
   code: string,
   ipAddress: string
-): Promise<{ accessToken: string; refreshTokenHash: string; backupCodes: string[] }> {
+): Promise<{ accessToken: string; refreshToken: string; backupCodes: string[] }> {
   const payload = verifyTempToken(tempToken);
   if (payload.purpose !== 'totp_setup') throw new Error('INVALID_TOKEN_PURPOSE');
 
@@ -151,14 +151,17 @@ export async function confirmTotpSetupAndCreateSession(
   return { ...tokens, backupCodes };
 }
 
-// Create token pair + store refresh in Redis
-export async function createTokenPair(user: AuthUser): Promise<{ accessToken: string; refreshTokenHash: string }> {
+// Create token pair + store refresh in Redis.
+// IMPORTANT: the returned `refreshToken` is the PLAINTEXT token (set on the
+// httpOnly cookie). Redis stores the SHA-256 hash so a DB dump of the
+// `refresh:*` keyspace does not yield usable tokens.
+export async function createTokenPair(user: AuthUser): Promise<{ accessToken: string; refreshToken: string }> {
   const accessToken = signAccessToken(user);
   const refreshToken = crypto.randomBytes(48).toString('hex');
   const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
 
   await setRefreshToken(refreshTokenHash, user.id, REFRESH_TTL_SEC);
-  return { accessToken, refreshTokenHash: refreshToken }; // plaintext token to frontend
+  return { accessToken, refreshToken };
 }
 
 // Refresh: rotate refresh token and issue new access token
