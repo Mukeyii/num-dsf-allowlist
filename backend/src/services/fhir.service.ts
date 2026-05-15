@@ -180,13 +180,36 @@ export async function generateFullBundle(): Promise<object> {
     parentUuids[pid] = orgUuids[pid] ?? uuidv4();
   }
 
+  // Batch-load endpoints + certificates for ALL approved orgs in two queries.
+  // Previously this loop ran two queries per org (60 round-trips for 30 orgs).
+  const approvedOrgIds = orgs.map((o: { identifier: string }) => o.identifier);
+  const allEndpoints = approvedOrgIds.length
+    ? await db('endpoints').whereIn('organization_id', approvedOrgIds)
+    : [];
+  const allCerts = approvedOrgIds.length
+    ? await db('certificates').whereIn('organization_id', approvedOrgIds)
+    : [];
+
+  const endpointsByOrg = new Map<string, any[]>();
+  for (const ep of allEndpoints) {
+    const list = endpointsByOrg.get(ep.organization_id) ?? [];
+    list.push(ep);
+    endpointsByOrg.set(ep.organization_id, list);
+  }
+  const certsByOrg = new Map<string, any[]>();
+  for (const c of allCerts) {
+    const list = certsByOrg.get(c.organization_id) ?? [];
+    list.push(c);
+    certsByOrg.set(c.organization_id, list);
+  }
+
   const entries: object[] = [];
 
   // Approved member organizations + their endpoints.
   for (const org of orgs) {
     const orgUuid = orgUuids[org.identifier];
-    const endpoints = await db('endpoints').where({ organization_id: org.identifier });
-    const certs = await db('certificates').where({ organization_id: org.identifier });
+    const endpoints = endpointsByOrg.get(org.identifier) ?? [];
+    const certs = certsByOrg.get(org.identifier) ?? [];
 
     for (const ep of endpoints) {
       epUuids[`${org.identifier}/${ep.identifier}`] = uuidv4();
