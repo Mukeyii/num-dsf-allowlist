@@ -5,7 +5,7 @@
  * Dependencies: all route modules, middleware, express, helmet, cors, cookie-parser
  */
 import 'dotenv/config';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -149,26 +149,48 @@ app.get('/health/ready', async (_req, res) => {
 });
 
 // 404
-app.use((_req: any, res: any) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
 });
 
+// Error codes that map to 404 — exact equality only, so a service throwing
+// 'WHATEVER_NOT_FOUND' doesn't collide with the global handler. Add new codes
+// here explicitly when they appear.
+const NOT_FOUND_CODES = new Set([
+  'NOT_FOUND',
+  'ORGANIZATION_NOT_FOUND',
+  'CONTACT_NOT_FOUND',
+  'ENDPOINT_NOT_FOUND',
+  'MEMBERSHIP_NOT_FOUND',
+  'CERTIFICATE_NOT_FOUND',
+  'REQUEST_NOT_FOUND',
+  'USER_NOT_FOUND',
+]);
+
 // Global error handler
-app.use((err: any, _req: any, res: any, _next: any) => {
-  logger.error({ err, requestId: _req.id }, 'Unhandled error');
-  if (err.name === 'ZodError') {
-    return res.status(400).json({ error: { code: 'VALIDATION', message: 'Invalid input', details: err.errors } });
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  logger.error({ err, requestId: (req as Request & { id?: string }).id }, 'Unhandled error');
+
+  // Narrow err
+  const errObj = err as { name?: string; message?: string; errors?: unknown } | null;
+  const name = errObj?.name;
+  const message = errObj?.message;
+
+  if (name === 'ZodError') {
+    return res.status(400).json({
+      error: { code: 'VALIDATION', message: 'Invalid input', details: errObj?.errors },
+    });
   }
-  if (err.message === 'PRIVATE_KEY_REJECTED') {
+  if (message === 'PRIVATE_KEY_REJECTED') {
     return res.status(400).json({ error: { code: 'SECURITY', message: 'Private key material detected.' } });
   }
-  if (err.message?.includes('NOT_FOUND')) {
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: err.message } });
+  if (message && NOT_FOUND_CODES.has(message)) {
+    return res.status(404).json({ error: { code: message, message: 'Resource not found' } });
   }
   res.status(500).json({
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'production' ? 'An internal error occurred.' : err.message,
+      message: process.env.NODE_ENV === 'production' ? 'An internal error occurred.' : (message || 'Unknown error'),
     },
   });
 });
