@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
 import * as svc from '../services/approval.service';
+import { sanitizeError } from '../lib/sanitizeError';
 
 export const approvalRouter = Router({ mergeParams: true });
 
@@ -9,8 +10,8 @@ approvalRouter.post('/submit', requireAuth, requireInstanceOwnership, async (req
   try {
     const request = await svc.submitApproval(req.instance!.id, req.user!.email, req.ip || 'unknown');
     res.json({ data: request });
-  } catch (err: any) {
-    res.status(400).json({ error: { code: err.message, message: err.message } });
+  } catch (err: unknown) {
+    res.status(400).json({ error: sanitizeError(err) });
   }
 });
 
