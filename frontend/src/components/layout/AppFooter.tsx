@@ -1,12 +1,11 @@
 /**
  * AppFooter.tsx – Persistent footer shown across the app shell.
- * Developer attribution + affiliation, plus a discreet build year.
+ * Affiliation only — no personal developer attribution.
  */
 import { useI18n } from '../../stores/i18n.store';
 
 export function AppFooter() {
   const { t } = useI18n();
-  const year = new Date().getFullYear();
   return (
     <footer
       style={{
@@ -22,8 +21,6 @@ export function AppFooter() {
         color: 'var(--text-muted)',
       }}
     >
-      <span>© {year} {t('footerDeveloper')}</span>
-      <span style={{ color: 'var(--border)' }}>·</span>
       <span>{t('footerAffiliation')}</span>
     </footer>
   );
