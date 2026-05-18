@@ -19,7 +19,7 @@ export const instancesRouter = Router();
 instancesRouter.use(requireAuth);
 
 instancesRouter.get('/', asyncHandler(async (req, res) => {
-  res.json({ data: await svc.listForUser(req.user!.id) });
+  res.json({ data: await svc.listForUser(req.user!.id, req.user!.email) });
 }));
 
 instancesRouter.post('/', asyncHandler(async (req, res) => {
