@@ -527,7 +527,6 @@ export const en = {
   mapClusterMatchedHint: '{matched} matching · {hidden} hidden by filter',
   mapInternationalCount: 'International ({n}): {countries}',
   mapCityUnknown: 'Position unknown — placed in "Other" zone',
-  footerDeveloper: 'Kemal Yildirim',
   footerAffiliation: 'Institute of Medical Informatics, University of Münster',
 
   // AdminHelpPage

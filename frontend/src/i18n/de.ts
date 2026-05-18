@@ -528,7 +528,6 @@ export const de: Record<TranslationKey, string> = {
   mapClusterMatchedHint: '{matched} treffend · {hidden} durch Filter ausgeblendet',
   mapInternationalCount: 'International ({n}): {countries}',
   mapCityUnknown: 'Position unbekannt — im "Sonstige"-Bereich platziert',
-  footerDeveloper: 'Kemal Yildirim',
   footerAffiliation: 'Institut für Medizinische Informatik, Universität Münster',
 
   // AdminHelpPage
