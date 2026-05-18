@@ -25,10 +25,18 @@ export interface EnrichedInstanceRow extends InstanceRow {
   owner_email?: string | null;
 }
 
-export async function listForUser(userId: string): Promise<EnrichedInstanceRow[]> {
-  const instances = await db<InstanceRow>('instances')
-    .where({ user_id: userId })
-    .orderBy('created_at', 'asc');
+/**
+ * List instances visible to the caller.
+ * Admins (per admin_grants table) see every instance cross-tenant;
+ * regular users see only their own. The single-instance fetch
+ * (`getInstance`) already respected admin bypass — this brings the list
+ * endpoint in line with that contract.
+ */
+export async function listForUser(userId: string, callerEmail?: string): Promise<EnrichedInstanceRow[]> {
+  const isAdmin = await isAdminEmail(callerEmail);
+  const query = db<InstanceRow>('instances').orderBy('created_at', 'asc');
+  if (!isAdmin) query.where({ user_id: userId });
+  const instances = await query;
 
   // Single fetch of the orgs that belong to these instances — replaces an
   // N+1 (one org SELECT per instance) with a single whereIn + Map lookup.
