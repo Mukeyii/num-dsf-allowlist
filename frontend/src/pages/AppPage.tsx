@@ -103,7 +103,9 @@ export function AppPage() {
             </div>
           )
         ) : (
-          <Outlet />
+          <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+            <Outlet />
+          </div>
         )}
         <AppFooter />
       </div>
