@@ -1,7 +1,8 @@
 /**
  * AppFooter.tsx – Persistent footer shown across the app shell.
- * Affiliation only — no personal developer attribution.
+ * Affiliation + bundle-verification disclaimer link.
  */
+import { Link } from 'react-router-dom';
 import { useI18n } from '../../stores/i18n.store';
 
 export function AppFooter() {
@@ -22,6 +23,13 @@ export function AppFooter() {
       }}
     >
       <span>{t('footerAffiliation')}</span>
+      <span style={{ color: 'var(--border)' }}>·</span>
+      <Link
+        to="/app/legal"
+        style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}
+      >
+        {t('bundleDisclaimerLinkLabel')}
+      </Link>
     </footer>
   );
 }

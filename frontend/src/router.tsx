@@ -17,6 +17,7 @@ import { AdminPromotionsPage } from './pages/AdminPromotionsPage';
 import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
 import { MarketplacePage } from './pages/MarketplacePage';
+import { LegalPage }     from './pages/LegalPage';
 import { NotFoundPage }  from './pages/NotFoundPage';
 import { useAuthStore }  from './stores/auth.store';
 import { CrossUserGuardProvider } from './components/layout/CrossUserGuardProvider';
@@ -51,6 +52,7 @@ export const router = createBrowserRouter([
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
       { path: 'marketplace', element: <MarketplacePage /> },
+      { path: 'legal', element: <LegalPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
