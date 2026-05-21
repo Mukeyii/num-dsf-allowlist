@@ -22,6 +22,7 @@ import { adminApprovalRouter } from './routes/admin-approval.routes';
 import { adminUsersRouter } from './routes/admin-users.routes';
 import { adminPromotionsRouter } from './routes/admin-promotions.routes';
 import { adminCaBlacklistRouter } from './routes/admin-ca-blacklist.routes';
+import { adminBundleVersionsRouter } from './routes/admin-bundle-versions.routes';
 import { adminRouter } from './routes/admin.routes';
 import { downloadRouter } from './routes/download.routes';
 import { auditRouter, crossInstanceAuditRouter } from './routes/audit.routes';
@@ -113,6 +114,7 @@ app.use('/api/v1/admin/users', adminUsersRouter);
 app.use('/api/v1/admin/promotions', adminPromotionsRouter);
 app.use('/api/v1/admin/marketplace', adminMarketplaceRouter);
 app.use('/api/v1/admin/ca-blacklist', adminCaBlacklistRouter);
+app.use('/api/v1/admin/bundle-versions', adminBundleVersionsRouter);
 app.use('/api/v1/admin', adminRouter);
 
 // Marketplace (read, auth required)
