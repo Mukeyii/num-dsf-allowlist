@@ -201,6 +201,11 @@ GET    /api/v1/instances/:id/download/bundle
 GET    /api/v1/instances/:id/audit
 GET    /api/v1/network/map
 
+GET    /api/v1/admin/ca-blacklist                       (admin only)
+GET    /api/v1/admin/bundle-versions                    (admin only — list)
+GET    /api/v1/admin/bundle-versions/:id/download       (admin only — signed bundle JSON)
+GET    /api/v1/admin/bundle-versions/:idA/diff/:idB     (admin only — added/removed/changed)
+
 GET    /fhir/Bundle/:endpointId    (mTLS — DSF BPE process)
 GET    /fhir/Bundle                (mTLS — search by identifier)
 ```
@@ -228,11 +233,16 @@ Reporting a vulnerability — see [`SECURITY.md`](SECURITY.md). Please use a pri
 
 ### Admin console
 
-IMI administrators access three admin pages:
+IMI administrators access several admin pages, grouped under a collapsible
+**Administration** section in the left sidebar (closed by default; highlighted
+when the active route is one of its children):
 
 - **`/app/admin`** — pending approval-request review (4-eyes, silent-consent after 7 days).
 - **`/app/admin/users`** — whitelist + admin role management (lock / unlock / promote / demote / remove). All writes require TOTP re-confirmation.
 - **`/app/admin/promotions`** — pending admin-promotion requests; second admin from a different site approves or rejects (NO silent consent).
+- **`/app/admin/ca-blacklist`** — distrusted CA subject DNs and fingerprints; certificate uploads issued by a CA on this list are rejected with `CA_BLACKLISTED`. Backed by a cached Mozilla trust-store snapshot as a picker.
+- **`/app/admin/bundle-versions`** — full federation-bundle history with added/removed/changed diff, RS256-signed download, and (in emergencies) restore.
+- **`/app/audit`** — append-only cross-instance audit log.
 
 Admin-role assignments are stored in `admin_grants`, each row signed RS256 over a canonical message. A DB-only attacker cannot grant themselves admin without the signing key.
 
@@ -244,6 +254,8 @@ The bootstrap admin set is populated on first backend start from `IMI_ADMIN_EMAI
 - **SHA-256 content hash** logged in the audit trail (`X-Content-Hash` header)
 - DSF processes authenticate via **mTLS client certificates** at `/fhir/Bundle/:endpointId`
 - Client-certificate thumbprints are stored per organization
+- Bundles carry the DSF `read-access-tag` (`ALL`) on the envelope and every resource, plus the `dsf.dev` `StructureDefinition` `meta.profile` per resource type, so receiving DSF FHIR servers route them through the strict validator
+- A full snapshot of every approved bundle is persisted in `bundle_versions` (versioned, signed, hash-chained); the post-approval notification mail carries the content hash, signature `kid`, change counts, and direct download / verify URLs in the recipient's locale (DE / EN via `contacts.language`)
 
 ### Network map
 
