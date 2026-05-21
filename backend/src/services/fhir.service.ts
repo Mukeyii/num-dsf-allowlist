@@ -10,6 +10,24 @@ const ORG_ID_SYSTEM = 'http://dsf.dev/fhir/NamingSystem/organization-identifier'
 const EP_ID_SYSTEM = 'http://dsf.dev/fhir/NamingSystem/endpoint-identifier';
 const ALLOW_LIST_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/allow-list';
 const ORG_ROLE_SYSTEM = 'http://hl7.org/fhir/organization-role';
+const DISCLAIMER_EXTENSION_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
+
+// Legal disclaimer attached to every emitted bundle's `meta.extension`.
+// Other AllowList tools and DSF FHIR consumers MUST treat this bundle as a
+// recommendation; the receiving site is solely responsible for verifying
+// content, signature, and provenance before deployment.
+const BUNDLE_DISCLAIMER_EXTENSION = {
+  url: DISCLAIMER_EXTENSION_URL,
+  valueString:
+    'This Allow-List bundle is a recommendation. The receiving site is responsible ' +
+    'for verifying its contents, signature, and provenance before deployment. The ' +
+    'Institute of Medical Informatics Muenster operates this tool but does not ' +
+    'assume liability for unverified installation at receiving sites.',
+} as const;
+
+const BUNDLE_META = {
+  extension: [BUNDLE_DISCLAIMER_EXTENSION],
+} as const;
 
 /**
  * Generate a DSF-compliant Allow List transaction bundle for an instance+endpoint.
@@ -129,6 +147,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
   return {
     resourceType: 'Bundle',
     type: 'transaction',
+    meta: BUNDLE_META,
     identifier: { system: ALLOW_LIST_SYSTEM, value: 'allow_list' },
     entry: entries,
   };
@@ -320,6 +339,7 @@ export async function generateFullBundle(): Promise<object> {
   return {
     resourceType: 'Bundle',
     type: 'transaction',
+    meta: BUNDLE_META,
     identifier: { system: ALLOW_LIST_SYSTEM, value: 'allow_list' },
     entry: entries,
   };
