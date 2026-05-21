@@ -35,16 +35,21 @@ export async function seedTestUser() {
   return { userId: TEST_USER_ID, instanceId: TEST_INSTANCE_ID, email: TEST_EMAIL };
 }
 
-export async function seedAdminUser() {
-  const adminUserId = '00000000-0000-0000-0000-000000000002';
-  await db('email_whitelist').insert({ id: uuidv4(), email: TEST_ADMIN_EMAIL, created_by: 'test', created_at: new Date() }).onConflict('email').ignore();
-  await db('users').insert({ id: adminUserId, email: TEST_ADMIN_EMAIL, totp_enabled: false, created_at: new Date() }).onConflict('email').ignore();
+export async function seedAdminUser(
+  emailOverride?: string,
+): Promise<{ userId: string; email: string }> {
+  const email = emailOverride ?? TEST_ADMIN_EMAIL;
+  // Deterministic id for the default email, random for overrides so callers
+  // can seed multiple admins in the same test without uuid collisions.
+  const adminUserId = emailOverride ? uuidv4() : '00000000-0000-0000-0000-000000000002';
+  await db('email_whitelist').insert({ id: uuidv4(), email, created_by: 'test', created_at: new Date() }).onConflict('email').ignore();
+  await db('users').insert({ id: adminUserId, email, totp_enabled: false, created_at: new Date() }).onConflict('email').ignore();
   const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
-  const sig = signGrant(TEST_ADMIN_EMAIL, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
+  const sig = signGrant(email, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
   await db('admin_grants')
-    .insert({ email: TEST_ADMIN_EMAIL, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
+    .insert({ email, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
     .onConflict('email').ignore();
-  return { userId: adminUserId, email: TEST_ADMIN_EMAIL };
+  return { userId: adminUserId, email };
 }
 
 export async function seedOrganization() {
