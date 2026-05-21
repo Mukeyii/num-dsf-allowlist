@@ -10,8 +10,6 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
     "test:contract": "vitest run --config tests/contract/vitest.contract.config.ts",
     "check:bundle": "bundlesize"
