@@ -1,3 +1,13 @@
+/**
+ * AppPage.tsx — Authenticated app shell. Three-column layout (Sidebar, main
+ * column with TopBar + Breadcrumbs + Outlet, RightPanel) plus AppFooter.
+ * The Outlet wrapper is a flex column so route components with `flex: 1`
+ * roots (Map, Admin lists) fill the viewport while block-rooted routes
+ * (Legal) take natural height and the footer stays pinned.
+ *
+ * Dependencies: stores/auth, stores/canvas, hooks/useInstance, hooks/useMe,
+ * layout/Sidebar, layout/TopBar, layout/RightPanel, layout/AppFooter.
+ */
 import { useState, useEffect } from 'react';
 import { useMatch, Outlet } from 'react-router-dom';
 import { useCanvasStore } from '../stores/canvas.store';
