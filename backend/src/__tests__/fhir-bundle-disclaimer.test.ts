@@ -29,7 +29,7 @@ describe('Bundle disclaimer extension', () => {
     const bundle = (await generateFullBundle()) as BundleWithMeta;
     const ext = findDisclaimer(bundle);
     expect(ext).toBeDefined();
-    expect(ext!.valueString).toMatch(/recipient/i);
+    expect(ext!.valueString).toMatch(/receiving site/i);
     expect(ext!.valueString).toMatch(/responsible/i);
     expect(ext!.valueString).toMatch(/verify/i);
   });
