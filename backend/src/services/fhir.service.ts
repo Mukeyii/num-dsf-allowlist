@@ -12,7 +12,26 @@ import { v4 as uuidv4 } from 'uuid';
 // caused silent federation desync because identifier systems didn't match.
 const ORG_ID_SYSTEM = 'http://dsf.dev/sid/organization-identifier';
 const EP_ID_SYSTEM = 'http://dsf.dev/sid/endpoint-identifier';
-const ORG_ROLE_SYSTEM = 'http://hl7.org/fhir/organization-role';
+// DSF namespaces the role code system, separate from the generic HL7 one.
+// Reference XML uses http://dsf.dev/fhir/CodeSystem/organization-role with
+// codes like DIC, DMS, HRP. Federation peers reject our 'member' code as
+// unknown when we use the HL7 system, because their ConceptMap binds the
+// DSF system only.
+const ORG_ROLE_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/organization-role';
+
+// Robustly read the stored roles JSON column. MySQL/Knex returns JSON
+// columns as already-parsed JS arrays in most setups, but tests and older
+// drivers can hand back a string — accept both.
+function readRoles(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.filter((r): r is string => typeof r === 'string');
+  if (typeof raw === 'string' && raw.length > 0) {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter((r): r is string => typeof r === 'string') : [];
+    } catch { return []; }
+  }
+  return [];
+}
 const DISCLAIMER_EXTENSION_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
 
 // DSF FHIR servers require every emitted resource (and the Bundle envelope)
@@ -156,6 +175,14 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     const parentUuid = parentOrgUuids[parentId];
     const affUuid = uuidv4();
 
+    // Emit one <code> block per stored role (DIC, DMS, HRP, ...). DSF
+    // tooling expects multiple <code> entries with single coding inside —
+    // NOT one <code> with multiple codings. Fallback to 'DIC' so the
+    // affiliation always carries at least one valid role.
+    const roles = readRoles(ms.roles);
+    const codeBlocks = (roles.length > 0 ? roles : ['DIC']).map((role) => ({
+      coding: [{ system: ORG_ROLE_SYSTEM, code: role }],
+    }));
     entries.push({
       fullUrl: `urn:uuid:${affUuid}`,
       resource: {
@@ -164,7 +191,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
         meta: resourceMeta(PROFILE_AFFILIATION),
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
         participatingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
-        code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
+        code: codeBlocks,
         endpoint: [{ reference: `urn:uuid:${epUuid}`, type: 'Endpoint' }],
       },
       request: {
@@ -328,6 +355,11 @@ export async function generateFullBundle(): Promise<object> {
     const epUuid = epUuids[`${ms.organization_id as string}/${ms.endpoint_id as string}`];
     if (!memberOrgUuid || !parentUuid || !epUuid) continue;
 
+    // See note in generateBundle: one <code> per stored role, DSF role system.
+    const roles = readRoles(ms.roles);
+    const codeBlocks = (roles.length > 0 ? roles : ['DIC']).map((role) => ({
+      coding: [{ system: ORG_ROLE_SYSTEM, code: role }],
+    }));
     const affUuid = uuidv4();
     entries.push({
       fullUrl: `urn:uuid:${affUuid}`,
@@ -337,7 +369,7 @@ export async function generateFullBundle(): Promise<object> {
         meta: resourceMeta(PROFILE_AFFILIATION),
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
         participatingOrganization: { reference: `urn:uuid:${memberOrgUuid}`, type: 'Organization' },
-        code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
+        code: codeBlocks,
         endpoint: [{ reference: `urn:uuid:${epUuid}`, type: 'Endpoint' }],
       },
       request: {
