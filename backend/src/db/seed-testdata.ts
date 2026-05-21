@@ -141,6 +141,11 @@ async function main() {
   ]).del();
   // Marketplace fixtures (block 14)
   await db('marketplace_entries').where({ added_by: 'SYSTEM:seed' }).del();
+  // CA-blacklist fixtures (block 15)
+  await db('ca_blacklist').where({ added_by: 'SYSTEM:seed' }).del();
+  // Bundle-version history (block 16) — admin-triggered rows only, leaves any
+  // manual-trigger rows a developer created interactively alone.
+  await db('bundle_versions').where({ triggered_by_email: ADMIN_EMAIL }).del();
   console.log('  [~] Cleaned previous seed data');
 
   // 1. Whitelist admin
@@ -567,6 +572,101 @@ async function main() {
     }).onConflict('git_url').ignore();
   }
   console.log(`  [+] ${MARKETPLACE_FIXTURES.length} marketplace fixtures seeded`);
+
+  // --- Block 15: CA blacklist fixtures ---
+  // A mix of real-world distrusted CAs (Symantec/WoSign/Camerfirma/PROCERT)
+  // plus one internal test CA so the picker / search UI has variety. Half
+  // carry an SHA-256 fingerprint so the fingerprinted-vs-subject-only paths
+  // both get exercised on the admin page.
+  const CA_BLACKLIST = [
+    {
+      subject_dn: 'CN=Symantec Class 3 EV SSL CA - G3, O=Symantec Corporation, C=US',
+      fingerprint: 'EB04CF5EB1F39AFA762F2BB120F296CBA520C1B97DB1589565B81CB9A17B7244',
+      reason: 'Distrusted by Mozilla/Chrome (2018) — keine valide DSF-Kette',
+    },
+    {
+      subject_dn: 'CN=WoSign CA Free SSL Certificate G2, O=WoSign CA Limited, C=CN',
+      fingerprint: null,
+      reason: 'WoSign/StartCom backdating incident — entire CA distrusted',
+    },
+    {
+      subject_dn: 'CN=Test-CA, OU=Internal Dev, O=Acme Corp, C=DE',
+      fingerprint: null,
+      reason: 'Hausinternes Test-CA — nicht für Produktion zugelassen',
+    },
+    {
+      subject_dn: 'CN=Camerfirma Chambers of Commerce Root, OU=http://www.chambersign.org, O=Camerfirma S.A., C=EU',
+      fingerprint: '063E4AFAC491DFD332F3089B8542E94617D893D7FE944E10A7937EE29D9693C0',
+      reason: 'Distrusted by Mozilla 2022 — multiple compliance failures',
+    },
+    {
+      subject_dn: 'CN=PROCERT, O=Sistema Nacional de Certificacion Electronica, C=VE',
+      fingerprint: null,
+      reason: 'Distrusted by Mozilla/Apple 2017 — misissuance',
+    },
+    {
+      subject_dn: 'CN=GeoTrust Universal CA 2, O=GeoTrust Inc., C=US',
+      fingerprint: null,
+      reason: 'Legacy CA — Symantec successor, distrusted along with Symantec roots',
+    },
+  ];
+  for (const ca of CA_BLACKLIST) {
+    await db('ca_blacklist').insert({
+      id: uuidv4(),
+      subject_dn: ca.subject_dn,
+      fingerprint: ca.fingerprint,
+      reason: ca.reason,
+      added_by: 'SYSTEM:seed',
+      added_at: pastDate(Math.floor(Math.random() * 30) + 1),
+    }).onConflict('subject_dn').ignore();
+  }
+  console.log(`  [+] ${CA_BLACKLIST.length} CA-blacklist entries seeded`);
+
+  // --- Block 16: Bundle-version history ---
+  // Snapshot the current allow-list state three times with small DB mutations
+  // between calls so the admin Diff view actually has content to render.
+  // signBundle needs JWT_PRIVATE_KEY_BASE64 — if it's missing in this env we
+  // log a warning instead of killing the seed.
+  try {
+    // Reset the orgs we're about to mutate so the seed stays idempotent across
+    // re-runs (without this, "(umbenannt)" suffixes would accumulate).
+    await db('organizations').where({ identifier: ORGS[0].identifier }).update({ active: true });
+    await db('organizations').where({ identifier: ORGS[1].identifier }).update({ name: ORGS[1].name });
+
+    const { createSnapshot } = await import('../services/bundle-versions.service');
+    const approvedRows = await db('approval_requests')
+      .where({ status: 'APPROVED' })
+      .orderBy('resolved_at', 'asc')
+      .limit(3);
+    if (approvedRows.length < 3) {
+      console.warn('  [!] fewer than 3 APPROVED requests — bundle-version block skipped');
+    } else {
+      const v1 = await createSnapshot({
+        triggeredBy: 'APPROVAL', triggeredByEmail: ADMIN_EMAIL,
+        approvalRequestId: approvedRows[0].id,
+        notes: 'Initial baseline snapshot',
+      });
+      // Mutate: deactivate ORGS[0] so v2 differs by one removed org.
+      await db('organizations').where({ identifier: ORGS[0].identifier }).update({ active: false });
+      const v2 = await createSnapshot({
+        triggeredBy: 'APPROVAL', triggeredByEmail: ADMIN_EMAIL,
+        approvalRequestId: approvedRows[1].id,
+        notes: `After deactivating ${ORGS[0].name}`,
+      });
+      // Mutate: reactivate ORGS[0], rename ORGS[1] so v3 differs again.
+      await db('organizations').where({ identifier: ORGS[0].identifier }).update({ active: true });
+      await db('organizations').where({ identifier: ORGS[1].identifier })
+        .update({ name: `${ORGS[1].name} (umbenannt)` });
+      const v3 = await createSnapshot({
+        triggeredBy: 'APPROVAL', triggeredByEmail: ADMIN_EMAIL,
+        approvalRequestId: approvedRows[2].id,
+        notes: `After renaming ${ORGS[1].name}`,
+      });
+      console.log(`  [+] 3 bundle versions seeded (v${v1.versionNumber} → v${v2.versionNumber} → v${v3.versionNumber})`);
+    }
+  } catch (err) {
+    console.warn('  [!] bundle-version seeding failed — JWT keys missing?', (err as Error).message);
+  }
 
   console.log('\n--- Seed complete ---');
   console.log(`Login (admin):  ${ADMIN_EMAIL}`);
