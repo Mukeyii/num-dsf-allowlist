@@ -233,6 +233,30 @@ export async function sendSiteApprovalResultEmail(
   await transporter.sendMail({ from: FROM, to: contactEmails.join(','), subject, text, html });
 }
 
+/**
+ * sendApprovedBundleNotification — the structured post-approval email for a
+ * SITE contact (one recipient at a time so each gets their locale).
+ *
+ * The legacy sendSiteApprovalResultEmail above stays in place for REJECTED
+ * paths (it carries the reviewer comment). For APPROVED we want the new
+ * verification-focused template: bundle version, content hash, signature
+ * kid, download + verify URLs, change counts vs the previous version.
+ */
+import { renderApprovedBundleMail, type ApprovedBundleMailContext } from './mail-templates/approved-bundle-mail';
+
+export async function sendApprovedBundleNotification(
+  recipient: { email: string; name?: string | null; language: 'en' | 'de' },
+  context: Omit<ApprovedBundleMailContext, 'language' | 'recipientName'>,
+): Promise<void> {
+  if (IS_TEST) return;
+  const { subject, text, html } = renderApprovedBundleMail({
+    ...context,
+    language: recipient.language,
+    recipientName: recipient.name ?? null,
+  });
+  await transporter.sendMail({ from: FROM, to: recipient.email, subject, text, html });
+}
+
 export async function sendAdminPromotionRequestedEmail(
   recipientAdminEmails: string[],
   targetEmail: string,

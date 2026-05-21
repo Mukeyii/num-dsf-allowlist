@@ -13,9 +13,11 @@ import {
   sendAdminApprovalResultEmail,
   sendAdminFirstApprovalEmail,
   sendSiteApprovalResultEmail,
+  sendApprovedBundleNotification,
 } from './notification.service';
 import { verifyGrant } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 const SITE_NOTIFY_DELAY_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -190,7 +192,7 @@ export async function flushPendingNotifications(): Promise<void> {
 
         const contacts = await db('contacts')
           .where({ organization_id: payload.orgIdentifier })
-          .select('email', 'name');
+          .select('email', 'name', 'language');
 
         if (contacts.length === 0) {
           console.warn(`[PendingNotify] No contacts for ${payload.orgIdentifier} – dropping notification ${row.id}`);
@@ -198,9 +200,88 @@ export async function flushPendingNotifications(): Promise<void> {
           continue;
         }
 
-        const contactEmails = contacts.map((c: { email: string }) => c.email);
-        await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
-        console.log(`[PendingNotify] Notified ${contactEmails.length} contact(s) of ${status} for ${payload.orgIdentifier}`);
+        if (status === 'APPROVED') {
+          // Look up the snapshot the approval triggered. If it's missing
+          // (snapshot service failed earlier), fall back to the legacy mail
+          // so the site is still notified.
+          const latest = await db('bundle_versions')
+            .where({ approval_request_id: requestId })
+            .orderBy('version_number', 'desc')
+            .first();
+          if (!latest) {
+            const contactEmails = contacts.map((c: { email: string }) => c.email);
+            await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
+            console.warn(`[PendingNotify] No bundle_versions row for request ${requestId} — sent legacy mail`);
+          } else {
+            // Diff against the previous version for added/removed/changed counts.
+            const previous = await db('bundle_versions')
+              .where('version_number', '<', latest.version_number)
+              .orderBy('version_number', 'desc')
+              .first();
+            let changes = { addedOrgs: 0, removedOrgs: 0, changedOrgs: 0 };
+            if (previous) {
+              try {
+                const { diffVersions } = await import('./bundle-versions.service');
+                const diff = await diffVersions(previous.id, latest.id);
+                changes = {
+                  addedOrgs: diff.added.length,
+                  removedOrgs: diff.removed.length,
+                  changedOrgs: diff.changed.length,
+                };
+              } catch (e) {
+                console.warn('[PendingNotify] diffVersions failed, sending mail without diff', e);
+              }
+            }
+
+            // Pick a representative endpoint for the headline. Sites with
+            // multiple endpoints still get a single mail; the recipient can
+            // see the rest by clicking the verify link.
+            const ep = await db('endpoints')
+              .where({ organization_id: payload.orgIdentifier })
+              .orderBy('created_at', 'asc')
+              .first();
+            const endpointIdentifier = ep?.identifier ?? payload.orgIdentifier;
+
+            const portalUrl = process.env.FRONTEND_URL || 'http://localhost';
+            const apiBase = process.env.API_BASE_URL || `${portalUrl}/api/v1`;
+            const supportEmail = process.env.OPERATOR_SUPPORT_EMAIL || 'noreply@dsf-allowlist.local';
+            // Derive the kid the bundle was signed with — same algorithm as
+            // bundle-signing.service so the value in the mail matches the JWT
+            // header the recipient inspects offline.
+            const pub = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString('utf8');
+            const signatureKid = pub
+              ? crypto.createHash('sha256').update(pub).digest('hex').slice(0, 16)
+              : undefined;
+
+            for (const c of contacts as Array<{ email: string; name: string | null; language: string }>) {
+              const language: 'en' | 'de' = c.language === 'de' ? 'de' : 'en';
+              try {
+                await sendApprovedBundleNotification(
+                  { email: c.email, name: c.name, language },
+                  {
+                    endpointIdentifier,
+                    environment: (process.env.DSF_ENVIRONMENT === 'PRODUCTION' ? 'PRODUCTION' : 'TEST'),
+                    portalUrl,
+                    bundleVersionNumber: latest.version_number,
+                    contentHash: latest.content_hash,
+                    signatureKid,
+                    changes,
+                    downloadUrl: `${apiBase}/admin/bundle-versions/${latest.id}/download`,
+                    verifyUrl: `${portalUrl}/app/admin/bundle-versions`,
+                    supportEmail,
+                  },
+                );
+              } catch (e) {
+                console.error(`[PendingNotify] sendApprovedBundleNotification failed for ${c.email}:`, e);
+              }
+            }
+            console.log(`[PendingNotify] Notified ${contacts.length} contact(s) of APPROVED v${latest.version_number} for ${payload.orgIdentifier}`);
+          }
+        } else {
+          const contactEmails = contacts.map((c: { email: string }) => c.email);
+          await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
+          console.log(`[PendingNotify] Notified ${contactEmails.length} contact(s) of REJECTED for ${payload.orgIdentifier}`);
+        }
       }
 
       await db('pending_notifications').where({ id: row.id }).del();
