@@ -315,7 +315,15 @@ jobs:
   build:
     name: Docker Build
     runs-on: ubuntu-latest
-    needs: [backend-test, frontend-test]
+    needs:
+      - backend-test
+      - backend-lint
+      - frontend-test
+      - frontend-lint
+      - frontend-e2e
+      - frontend-contract
+      - frontend-bundle
+      - security-audit
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
