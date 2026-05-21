@@ -30,6 +30,8 @@ const KNOWN_ERROR_CODES = new Set([
   'APPROVAL_ALREADY_PENDING',
   'ALREADY_DECIDED',
   'IDENTIFIER_IMMUTABLE',
+  'CA_BLACKLISTED',
+  'INVALID_PEM',
 ]);
 
 export function sanitizeError(err: any): { code: string; message: string } {

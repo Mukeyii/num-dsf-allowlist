@@ -6,6 +6,7 @@ import forge from 'node-forge';
 import crypto from 'crypto';
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
+import { isCaBlacklisted } from './ca-blacklist.service';
 import { v4 as uuidv4 } from 'uuid';
 
 // Match BEGIN/END markers for any private-key variant, case-insensitive.
@@ -21,7 +22,7 @@ export function rejectPrivateKey(pem: string): void {
   }
 }
 
-export function parseCertificate(pem: string): { subject: string; thumbprint: string; validUntil: Date } {
+export function parseCertificate(pem: string): { subject: string; thumbprint: string; validUntil: Date; issuerDn: string } {
   rejectPrivateKey(pem);
   try {
     const cert = forge.pki.certificateFromPem(pem);
@@ -29,7 +30,12 @@ export function parseCertificate(pem: string): { subject: string; thumbprint: st
     const der = forge.asn1.toDer(forge.pki.certificateToAsn1(cert)).getBytes();
     const thumbprint = crypto.createHash('sha256').update(Buffer.from(der, 'binary')).digest('hex').toUpperCase();
     const validUntil = cert.validity.notAfter;
-    return { subject, thumbprint, validUntil };
+    // Issuer Subject DN, used by the CA-blacklist gate. shortName falls back
+    // to the OID when the attribute has no canonical short form.
+    const issuerDn = cert.issuer.attributes
+      .map((a: any) => `${a.shortName || a.name || a.type}=${a.value}`)
+      .join(',');
+    return { subject, thumbprint, validUntil, issuerDn };
   } catch (err: any) {
     if (err.message === 'PRIVATE_KEY_REJECTED') throw err;
     throw new Error('INVALID_PEM');
@@ -46,7 +52,10 @@ export async function createCertificate(instanceId: string, pem: string, userEma
   rejectPrivateKey(pem);
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
-  const { subject, thumbprint, validUntil } = parseCertificate(pem.trim());
+  const { subject, thumbprint, validUntil, issuerDn } = parseCertificate(pem.trim());
+  if (await isCaBlacklisted({ subjectDn: issuerDn })) {
+    throw new Error('CA_BLACKLISTED');
+  }
   const id = uuidv4();
   await db('certificates').insert({ id, organization_id: org.identifier, pem: pem.trim(), subject, thumbprint, valid_until: validUntil, created_at: new Date() });
   await writeAuditLog({ userEmail, instanceId, resourceType: 'CERTIFICATE', resourceId: id, operation: 'CREATE', diffJson: { subject, thumbprint, validUntil }, ipAddress });
@@ -64,7 +73,10 @@ export async function deleteCertificate(instanceId: string, certId: string, user
 
 export async function renewCertificate(instanceId: string, oldCertId: string, body: { pem: string }, userEmail: string, ipAddress: string) {
   rejectPrivateKey(body.pem);
-  const { subject, thumbprint, validUntil } = parseCertificate(body.pem.trim());
+  const { subject, thumbprint, validUntil, issuerDn } = parseCertificate(body.pem.trim());
+  if (await isCaBlacklisted({ subjectDn: issuerDn })) {
+    throw new Error('CA_BLACKLISTED');
+  }
 
   return db.transaction(async (trx) => {
     // Lock old cert row and verify it belongs to this instance's org
