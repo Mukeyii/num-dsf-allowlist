@@ -16,9 +16,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - name: Backend audit
         working-directory: backend
         run: |
@@ -42,9 +40,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npx tsc --noEmit
 
@@ -99,9 +95,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - name: Run database migrations
         run: |
@@ -129,9 +123,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npx tsc --noEmit
 
@@ -148,9 +140,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npm test
 
@@ -163,9 +153,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - name: Setup .env from example
         run: |
           cp .env.example .env || true
@@ -224,9 +212,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - name: Setup .env from example
         run: |
           cp .env.example .env || true
@@ -280,9 +266,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - run: npx vite build
       - run: npx bundlesize --config .bundlesize.json
