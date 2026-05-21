@@ -6,8 +6,12 @@
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 
-const ORG_ID_SYSTEM = 'http://dsf.dev/fhir/NamingSystem/organization-identifier';
-const EP_ID_SYSTEM = 'http://dsf.dev/fhir/NamingSystem/endpoint-identifier';
+// Canonical DSF identifier systems (the 'sid' / SystemIDentifier slot). Other
+// AllowList tools in production use these exact URLs — see the reference
+// bundle. Our previous fhir/NamingSystem/* paths were non-canonical and
+// caused silent federation desync because identifier systems didn't match.
+const ORG_ID_SYSTEM = 'http://dsf.dev/sid/organization-identifier';
+const EP_ID_SYSTEM = 'http://dsf.dev/sid/endpoint-identifier';
 const ALLOW_LIST_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/allow-list';
 const ORG_ROLE_SYSTEM = 'http://hl7.org/fhir/organization-role';
 const DISCLAIMER_EXTENSION_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
