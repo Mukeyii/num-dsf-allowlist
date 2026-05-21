@@ -90,8 +90,11 @@ describe('generateFullBundle', () => {
   });
 
   it('every internal reference resolves to a fullUrl in the same bundle', async () => {
-    const bundle = await generateFullBundle() as { entry: Entry[]; identifier: { system: string; value: string } };
-    expect(bundle.identifier.value).toBe('allow_list');
+    const bundle = await generateFullBundle() as { entry: Entry[]; type: string };
+    // Bundle.identifier removed — DSF spec does not require it on transaction
+    // bundles, and strict HAPI FHIR validators flag the custom value. Assert
+    // the envelope is still a transaction bundle instead.
+    expect(bundle.type).toBe('transaction');
     const fullUrls = new Set(bundle.entry.map(e => e.fullUrl));
     const refs: string[] = [];
     for (const e of bundle.entry) {
