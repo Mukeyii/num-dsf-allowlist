@@ -623,6 +623,9 @@ export const en = {
   bundleDisclaimerAcknowledge: 'I have read the disclaimer and will verify the bundle before deployment.',
   bundleDisclaimerLinkLabel: 'Disclaimer',
   legalPageTitle: 'Legal — Disclaimer',
+  // ─── FQDN immutability (federation hardening 2026-05-18) ──────────────────
+  identifierLocked: 'FQDN is immutable in federated mode',
+  identifierLockedHelp: 'Other AllowList tools reference this identifier. Changing it would desynchronise the federation. Create a new entry instead.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
