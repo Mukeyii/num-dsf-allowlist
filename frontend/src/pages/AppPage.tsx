@@ -103,7 +103,10 @@ export function AppPage() {
             </div>
           )
         ) : (
-          <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+          <div style={{
+            flex: 1, minHeight: 0, overflow: 'auto',
+            display: 'flex', flexDirection: 'column',
+          }}>
             <Outlet />
           </div>
         )}
