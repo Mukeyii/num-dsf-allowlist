@@ -83,7 +83,7 @@ export async function sendAdminNewRequestEmail(
           <td style="padding:6px 0;font-family:monospace;font-size:12px;">${esc(requestId)}</td></tr>
     </table>
     <p style="margin-top:20px;">
-      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/approvals"
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/app/admin"
          style="display:inline-block;padding:10px 20px;background:${BRAND};color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
         Review in Portal
       </a>
@@ -178,7 +178,7 @@ export async function sendAdminFirstApprovalEmail(
           <td style="padding:6px 0;font-family:monospace;font-size:12px;">${esc(requestId)}</td></tr>
     </table>
     <p style="margin-top:20px;">
-      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/approvals"
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/app/admin"
          style="display:inline-block;padding:10px 20px;background:${BRAND};color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
         Review in Portal
       </a>
