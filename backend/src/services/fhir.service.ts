@@ -16,6 +16,32 @@ const ALLOW_LIST_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/allow-list';
 const ORG_ROLE_SYSTEM = 'http://hl7.org/fhir/organization-role';
 const DISCLAIMER_EXTENSION_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
 
+// DSF FHIR servers require every emitted resource (and the Bundle envelope)
+// to declare its read-access scope via meta.tag. 'ALL' = readable by every
+// authenticated peer in the federation. Without this tag a DSF FHIR server
+// treats the resource as LOCAL scope and rejects the bundle.
+const READ_ACCESS_TAG_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/read-access-tag';
+const READ_ACCESS_TAG_ALL = {
+  system: READ_ACCESS_TAG_SYSTEM,
+  code: 'ALL',
+  display: 'everybody',
+} as const;
+
+// DSF profile URLs for the four resource types in an allow-list bundle.
+const PROFILE_ORG         = 'http://dsf.dev/fhir/StructureDefinition/organization';
+const PROFILE_ORG_PARENT  = 'http://dsf.dev/fhir/StructureDefinition/organization-parent';
+const PROFILE_ENDPOINT    = 'http://dsf.dev/fhir/StructureDefinition/endpoint';
+const PROFILE_AFFILIATION = 'http://dsf.dev/fhir/StructureDefinition/organization-affiliation';
+
+// Build the `meta` block every emitted resource needs. profile picks the
+// strict validator on the receiver side; tag advertises read-access scope.
+function resourceMeta(profile: string) {
+  return {
+    profile: [profile],
+    tag: [READ_ACCESS_TAG_ALL],
+  };
+}
+
 // Legal disclaimer attached to every emitted bundle's `meta.extension`.
 // Other AllowList tools and DSF FHIR consumers MUST treat this bundle as a
 // recommendation; the receiving site is solely responsible for verifying
@@ -30,6 +56,7 @@ const BUNDLE_DISCLAIMER_EXTENSION = {
 } as const;
 
 const BUNDLE_META = {
+  tag: [READ_ACCESS_TAG_ALL],
   extension: [BUNDLE_DISCLAIMER_EXTENSION],
 } as const;
 
@@ -67,7 +94,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     resource: {
       resourceType: 'Organization',
       id: orgUuid,
-      meta: { versionId: null, lastUpdated: null },
+      meta: resourceMeta(PROFILE_ORG),
       extension: certs.map((cert: { thumbprint: string }) => ({
         url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
         valueString: cert.thumbprint,
@@ -89,7 +116,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     resource: {
       resourceType: 'Endpoint',
       id: epUuid,
-      meta: { versionId: null, lastUpdated: null },
+      meta: resourceMeta(PROFILE_ENDPOINT),
       identifier: [{ system: EP_ID_SYSTEM, value: endpoint.identifier }],
       name: endpoint.name || endpoint.identifier,
       address: endpoint.address,
@@ -111,7 +138,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
       resource: {
         resourceType: 'Organization',
         id: parentUuid,
-        meta: { versionId: null, lastUpdated: null },
+        meta: resourceMeta(PROFILE_ORG_PARENT),
         identifier: [{ system: ORG_ID_SYSTEM, value: parentId }],
         active: true,
         name: parentOrg?.name || parentId,
@@ -135,7 +162,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
       resource: {
         resourceType: 'OrganizationAffiliation',
         id: affUuid,
-        meta: { versionId: null, lastUpdated: null },
+        meta: resourceMeta(PROFILE_AFFILIATION),
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
         participatingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
         code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
@@ -243,7 +270,7 @@ export async function generateFullBundle(): Promise<object> {
       resource: {
         resourceType: 'Organization',
         id: orgUuid,
-        meta: { versionId: null, lastUpdated: null },
+        meta: resourceMeta(PROFILE_ORG),
         extension: certs.map((c: { thumbprint: string }) => ({
           url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
           valueString: c.thumbprint,
@@ -265,7 +292,7 @@ export async function generateFullBundle(): Promise<object> {
         resource: {
           resourceType: 'Endpoint',
           id: epUuids[`${org.identifier}/${ep.identifier}`],
-          meta: { versionId: null, lastUpdated: null },
+          meta: resourceMeta(PROFILE_ENDPOINT),
           identifier: [{ system: EP_ID_SYSTEM, value: ep.identifier }],
           name: ep.name || ep.identifier,
           address: ep.address,
@@ -287,7 +314,7 @@ export async function generateFullBundle(): Promise<object> {
       resource: {
         resourceType: 'Organization',
         id: parentUuid,
-        meta: { versionId: null, lastUpdated: null },
+        meta: resourceMeta(PROFILE_ORG_PARENT),
         identifier: [{ system: ORG_ID_SYSTEM, value: pid }],
         active: true,
         name: parentRow?.name || pid,
@@ -309,7 +336,7 @@ export async function generateFullBundle(): Promise<object> {
       resource: {
         resourceType: 'OrganizationAffiliation',
         id: affUuid,
-        meta: { versionId: null, lastUpdated: null },
+        meta: resourceMeta(PROFILE_AFFILIATION),
         organization: { reference: `urn:uuid:${parentUuid}`, type: 'Organization' },
         participatingOrganization: { reference: `urn:uuid:${memberOrgUuid}`, type: 'Organization' },
         code: [{ coding: [{ system: ORG_ROLE_SYSTEM, code: 'member' }] }],
