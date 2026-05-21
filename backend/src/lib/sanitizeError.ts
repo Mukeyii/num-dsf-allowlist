@@ -29,6 +29,7 @@ const KNOWN_ERROR_CODES = new Set([
   'INVALID_ROLES',
   'APPROVAL_ALREADY_PENDING',
   'ALREADY_DECIDED',
+  'IDENTIFIER_IMMUTABLE',
 ]);
 
 export function sanitizeError(err: any): { code: string; message: string } {

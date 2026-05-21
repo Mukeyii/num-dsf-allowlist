@@ -29,6 +29,15 @@ export async function upsertOrganization(
   const now = new Date();
 
   if (existing) {
+    // Federation-critical: identifier is the cross-tool primary key. Other
+    // AllowList tools that already received this org pin the old FQDN; a
+    // silent rename here would desync the federation. The DB-level trigger
+    // (migration 015) is the last line — this guard surfaces a clean
+    // IDENTIFIER_IMMUTABLE error to the API client instead of a raw MySQL
+    // error.
+    if (data.identifier && data.identifier !== existing.identifier) {
+      throw new Error('IDENTIFIER_IMMUTABLE');
+    }
     const before = { ...existing };
     await db('organizations')
       .where({ instance_id: instanceId })
