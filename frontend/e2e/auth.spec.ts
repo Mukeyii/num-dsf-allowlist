@@ -4,6 +4,9 @@ import { loginAs } from './fixtures/auth';
 test.describe('auth + admin sidebar gating', () => {
   test('admin sees admin sidebar entries', async ({ page }) => {
     await loginAs(page, 'admin');
+    // Admin entries live inside a collapsed Administration group — open it
+    // before asserting visibility. Marketplace stays top-level.
+    await page.getByRole('button', { name: /administration/i }).click();
     await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /promotions|beförderungen/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /marketplace|marktplatz/i })).toBeVisible();
@@ -25,6 +28,8 @@ test.describe('auth + admin sidebar gating', () => {
     await loginAs(page, 'member');
     await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toHaveCount(0);
     await loginAs(page, 'admin');
+    // Admin entries live behind the Administration dropdown now.
+    await page.getByRole('button', { name: /administration/i }).click();
     await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toBeVisible({ timeout: 15_000 });
   });
 });
