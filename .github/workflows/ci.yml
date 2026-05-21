@@ -15,15 +15,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
       - name: Backend audit
         working-directory: backend
         run: |
-          npm install
+          npm ci
           npm audit --audit-level=high || true
       - name: Frontend audit
         working-directory: frontend
         run: |
-          npm install
+          npm ci
           npm audit --audit-level=high || true
 
   backend-lint:
@@ -37,7 +41,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
       - run: npx tsc --noEmit
 
   backend-test:
@@ -90,7 +98,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
       - name: Run database migrations
         run: |
           for f in ../db/migrations/*.sql; do
@@ -116,7 +128,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
       - run: npx tsc --noEmit
 
   frontend-test:
@@ -131,7 +147,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
       - run: npm test
 
   frontend-storybook:
@@ -145,7 +165,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
       - run: ./node_modules/lost-pixel/node_modules/.bin/playwright-core install --with-deps chromium
       - run: npm run build-storybook
       - run: npx lost-pixel ci-mode
@@ -163,6 +187,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
       - name: Setup .env from example
         run: |
           cp .env.example .env || true
@@ -178,7 +206,7 @@ jobs:
           if [ -f scripts/generate-keys.sh ]; then bash scripts/generate-keys.sh; fi
       - name: Install frontend deps
         working-directory: frontend
-        run: npm install
+        run: npm ci
       - name: Generate TLS certs
         run: |
           mkdir -p certs
@@ -220,6 +248,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
       - name: Setup .env from example
         run: |
           cp .env.example .env || true
@@ -235,7 +267,7 @@ jobs:
           if [ -f scripts/generate-keys.sh ]; then bash scripts/generate-keys.sh; fi
       - name: Install frontend deps
         working-directory: frontend
-        run: npm install
+        run: npm ci
       - name: Generate TLS certs
         run: |
           mkdir -p certs
@@ -272,7 +304,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
       - run: npx vite build
       - run: npx bundlesize --config .bundlesize.json
 
