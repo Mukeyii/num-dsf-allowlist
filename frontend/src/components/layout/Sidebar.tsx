@@ -133,6 +133,11 @@ export function Sidebar() {
         </div>
       </div>
 
+      {/* Scrollable nav block — fills the gap between the instance switcher
+          and the IMI footer so the link list never overlaps the logo, no
+          matter how many admin-only entries are visible. */}
+      <nav style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+
       {/* Dashboard link (all users) */}
       <div style={{ padding: '0 16px', marginTop: '8px' }}>
         <Link
@@ -355,8 +360,7 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+      </nav>
 
       {/* IMI Logo */}
       <div style={{ padding: '0 16px 12px' }}>
