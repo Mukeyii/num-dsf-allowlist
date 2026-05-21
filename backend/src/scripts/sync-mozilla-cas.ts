@@ -16,10 +16,13 @@ import { logger } from '../lib/logger';
 const URL = process.env.MOZILLA_CA_URL || 'https://curl.se/ca/cacert.pem';
 
 export function splitPems(bundle: string): string[] {
-  const parts = bundle.split(/(?=-----BEGIN CERTIFICATE-----)/g);
-  return parts
-    .map(p => p.trim())
-    .filter(p => p.startsWith('-----BEGIN CERTIFICATE-----') && p.endsWith('-----END CERTIFICATE-----'));
+  // The Mozilla bundle interleaves PEM blocks with metadata comments
+  // ("# Issuer: …", "# Serial: …"). A naive lookahead-split picks up the
+  // following comment as a suffix on each PEM, which then fails the
+  // endsWith('-----END CERTIFICATE-----') check. Match the PEM body
+  // explicitly instead.
+  const re = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;
+  return bundle.match(re) ?? [];
 }
 
 export function fingerprintOf(pem: string): string {
