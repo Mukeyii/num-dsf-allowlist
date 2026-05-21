@@ -129,6 +129,14 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
   });
 
   // --- Endpoint entry ---
+  // DSF spec maps:
+  //   status         = 'active' (FHIR R4 1..1 cardinality)
+  //   connectionType = hl7-fhir-rest from
+  //                    http://terminology.hl7.org/CodeSystem/endpoint-connection-type
+  //   payloadType    = Task from http://hl7.org/fhir/resource-types
+  //                    (the WORK type carried, not the MIME wrapper)
+  //   payloadMimeType = ['application/fhir+json', 'application/fhir+xml']
+  //                    separate top-level array, not folded into payloadType.
   entries.push({
     fullUrl: `urn:uuid:${epUuid}`,
     resource: {
@@ -136,10 +144,18 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
       id: epUuid,
       meta: resourceMeta(PROFILE_ENDPOINT),
       identifier: [{ system: EP_ID_SYSTEM, value: endpoint.identifier }],
-      name: endpoint.name || endpoint.identifier,
-      address: endpoint.address,
-      payloadType: [{ coding: [{ code: 'application/fhir+json' }] }],
+      status: 'active',
+      connectionType: {
+        system: 'http://terminology.hl7.org/CodeSystem/endpoint-connection-type',
+        code: 'hl7-fhir-rest',
+      },
+      name: endpoint.name || `DSF Endpoint for ${endpoint.identifier}`,
       managingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
+      payloadType: [{
+        coding: [{ system: 'http://hl7.org/fhir/resource-types', code: 'Task' }],
+      }],
+      payloadMimeType: ['application/fhir+json', 'application/fhir+xml'],
+      address: endpoint.address,
     },
     request: {
       method: 'PUT',
@@ -312,6 +328,7 @@ export async function generateFullBundle(): Promise<object> {
     });
 
     for (const ep of endpoints) {
+      // Same DSF Endpoint shape as in generateBundle — see comment there.
       entries.push({
         fullUrl: `urn:uuid:${epUuids[`${org.identifier}/${ep.identifier}`]}`,
         resource: {
@@ -319,10 +336,18 @@ export async function generateFullBundle(): Promise<object> {
           id: epUuids[`${org.identifier}/${ep.identifier}`],
           meta: resourceMeta(PROFILE_ENDPOINT),
           identifier: [{ system: EP_ID_SYSTEM, value: ep.identifier }],
-          name: ep.name || ep.identifier,
-          address: ep.address,
-          payloadType: [{ coding: [{ code: 'application/fhir+json' }] }],
+          status: 'active',
+          connectionType: {
+            system: 'http://terminology.hl7.org/CodeSystem/endpoint-connection-type',
+            code: 'hl7-fhir-rest',
+          },
+          name: ep.name || `DSF Endpoint for ${ep.identifier}`,
           managingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
+          payloadType: [{
+            coding: [{ system: 'http://hl7.org/fhir/resource-types', code: 'Task' }],
+          }],
+          payloadMimeType: ['application/fhir+json', 'application/fhir+xml'],
+          address: ep.address,
         },
         request: { method: 'PUT', url: `Endpoint?identifier=${EP_ID_SYSTEM}|${ep.identifier}` },
       });
