@@ -14,6 +14,7 @@ import { AdminPage }     from './pages/AdminPage';
 import { AdminHelpPage } from './pages/AdminHelpPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminPromotionsPage } from './pages/AdminPromotionsPage';
+import { AdminCaBlacklistPage } from './pages/AdminCaBlacklistPage';
 import { StatusPage }    from './pages/StatusPage';
 import { MapPage }       from './pages/MapPage';
 import { MarketplacePage } from './pages/MarketplacePage';
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { path: 'admin/help', element: <AdminHelpPage /> },
       { path: 'admin/users', element: <AdminUsersPage /> },
       { path: 'admin/promotions', element: <AdminPromotionsPage /> },
+      { path: 'admin/ca-blacklist', element: <AdminCaBlacklistPage /> },
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
       { path: 'marketplace', element: <MarketplacePage /> },

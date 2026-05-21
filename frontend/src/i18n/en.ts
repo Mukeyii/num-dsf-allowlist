@@ -626,6 +626,21 @@ export const en = {
   // ─── FQDN immutability (federation hardening 2026-05-18) ──────────────────
   identifierLocked: 'FQDN is immutable in federated mode',
   identifierLockedHelp: 'Other AllowList tools reference this identifier. Changing it would desynchronise the federation. Create a new entry instead.',
+  // ─── CA Blacklist (federation hardening 2026-05-18) ───────────────────────
+  caBlacklistTitle: 'CA Blacklist',
+  caBlacklistIntro: 'Certificate Authorities listed here are refused on PEM upload. Pick from the Mozilla trust store via autocomplete, or paste a Subject DN manually.',
+  caBlacklistAdd: 'Add CA',
+  caBlacklistEntries: 'Blacklisted CAs',
+  caBlacklistEmpty: 'No CAs are currently blacklisted.',
+  caBlacklistAddedToast: 'CA added to blacklist.',
+  caBlacklistRemovedToast: 'CA removed from blacklist.',
+  caBlacklistAddFailed: 'Failed to add CA.',
+  caSubjectDn: 'Issuer Subject DN',
+  caSubjectDnPlaceholder: 'CN=Example CA,O=Example,C=DE',
+  caReason: 'Reason',
+  caReasonPlaceholder: 'Why is this CA blacklisted?',
+  caAddedBy: 'Added by',
+  caBlacklistNavLabel: 'CA Blacklist',
 } as const;
 
 export type TranslationKey = keyof typeof en;

@@ -627,4 +627,19 @@ export const de: Record<TranslationKey, string> = {
   // ─── FQDN-Unveränderlichkeit (Föderationshärtung 2026-05-18) ─────────────
   identifierLocked: 'FQDN ist im Föderationsmodus unveränderlich',
   identifierLockedHelp: 'Andere AllowList-Werkzeuge referenzieren diese Kennung. Eine Änderung würde die Föderation desynchronisieren. Lege stattdessen einen neuen Eintrag an.',
+  // ─── CA-Blacklist (Föderationshärtung 2026-05-18) ─────────────────────────
+  caBlacklistTitle: 'CA-Blacklist',
+  caBlacklistIntro: 'Hier eingetragene Zertifizierungsstellen werden beim PEM-Upload abgelehnt. Eine Auswahl aus dem Mozilla-Trust-Store erscheint per Autovervollständigung; alternativ kann ein Subject-DN manuell eingegeben werden.',
+  caBlacklistAdd: 'CA hinzufügen',
+  caBlacklistEntries: 'Eingetragene CAs',
+  caBlacklistEmpty: 'Keine CAs auf der Blacklist.',
+  caBlacklistAddedToast: 'CA zur Blacklist hinzugefügt.',
+  caBlacklistRemovedToast: 'CA von der Blacklist entfernt.',
+  caBlacklistAddFailed: 'CA konnte nicht hinzugefügt werden.',
+  caSubjectDn: 'Aussteller-Subject-DN',
+  caSubjectDnPlaceholder: 'CN=Beispiel-CA,O=Beispiel,C=DE',
+  caReason: 'Grund',
+  caReasonPlaceholder: 'Warum wird diese CA blockiert?',
+  caAddedBy: 'Eingetragen von',
+  caBlacklistNavLabel: 'CA-Blacklist',
 };
