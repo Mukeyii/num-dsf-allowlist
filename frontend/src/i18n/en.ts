@@ -641,6 +641,22 @@ export const en = {
   caReasonPlaceholder: 'Why is this CA blacklisted?',
   caAddedBy: 'Added by',
   caBlacklistNavLabel: 'CA Blacklist',
+  // ─── Bundle Versions (federation hardening 2026-05-18) ────────────────────
+  download: 'Download',
+  bundleVersionsTitle: 'Bundle versions',
+  bundleVersionsIntro: 'Every approval persists a full snapshot of the federation bundle. Pick two snapshots to diff, or download any version verbatim.',
+  bundleVersionsEmpty: 'No bundle versions yet. Snapshots are created automatically when an approval reaches APPROVED.',
+  bundleVersionsNavLabel: 'Bundle Versions',
+  createdAt: 'Created',
+  triggeredBy: 'Trigger',
+  triggeredByEmail: 'By',
+  diffPickA: 'Pick A',
+  diffPickB: 'Pick B',
+  diff: 'Diff',
+  added: 'Added',
+  removed: 'Removed',
+  changed: 'Changed',
+  details: 'Details',
 } as const;
 
 export type TranslationKey = keyof typeof en;
