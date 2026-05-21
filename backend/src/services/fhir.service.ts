@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 // caused silent federation desync because identifier systems didn't match.
 const ORG_ID_SYSTEM = 'http://dsf.dev/sid/organization-identifier';
 const EP_ID_SYSTEM = 'http://dsf.dev/sid/endpoint-identifier';
-const ALLOW_LIST_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/allow-list';
 const ORG_ROLE_SYSTEM = 'http://hl7.org/fhir/organization-role';
 const DISCLAIMER_EXTENSION_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
 
@@ -179,7 +178,6 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     resourceType: 'Bundle',
     type: 'transaction',
     meta: BUNDLE_META,
-    identifier: { system: ALLOW_LIST_SYSTEM, value: 'allow_list' },
     entry: entries,
   };
 }
@@ -371,7 +369,6 @@ export async function generateFullBundle(): Promise<object> {
     resourceType: 'Bundle',
     type: 'transaction',
     meta: BUNDLE_META,
-    identifier: { system: ALLOW_LIST_SYSTEM, value: 'allow_list' },
     entry: entries,
   };
 }
