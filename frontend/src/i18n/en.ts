@@ -617,6 +617,12 @@ export const en = {
   promotionApprovedToast: 'Promotion approved.',
   promotionRejectedToast: 'Promotion rejected.',
   promotionCancelledToast: 'Request cancelled.',
+  // ─── Bundle-verification disclaimer (federation hardening 2026-05-18) ──────
+  bundleDisclaimerHeading: 'Bundle verification is the recipient\'s responsibility',
+  bundleDisclaimerBody: 'This Allow-List bundle is a recommendation. Before deploying it into your DSF environment, you must independently verify its contents, signature, and provenance. The Institute of Medical Informatics Muenster operates this tool but does not assume liability for blind installation of the bundle at receiving sites.',
+  bundleDisclaimerAcknowledge: 'I have read the disclaimer and will verify the bundle before deployment.',
+  bundleDisclaimerLinkLabel: 'Disclaimer',
+  legalPageTitle: 'Legal — Disclaimer',
 } as const;
 
 export type TranslationKey = keyof typeof en;

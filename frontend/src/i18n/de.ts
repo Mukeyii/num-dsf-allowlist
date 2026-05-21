@@ -618,4 +618,10 @@ export const de: Record<TranslationKey, string> = {
   promotionApprovedToast: 'Beförderung genehmigt.',
   promotionRejectedToast: 'Beförderung abgelehnt.',
   promotionCancelledToast: 'Antrag abgebrochen.',
+  // ─── Bundle-Verifikations-Hinweis (Föderationshärtung 2026-05-18) ─────────
+  bundleDisclaimerHeading: 'Die Verifikation des Bundles obliegt dem empfangenden Standort',
+  bundleDisclaimerBody: 'Dieses Allow-List-Bundle ist eine Empfehlung. Vor dem Deployment in Ihre DSF-Umgebung müssen Sie Inhalt, Signatur und Provenienz eigenständig überprüfen. Das Institut für Medizinische Informatik Münster betreibt dieses Werkzeug, übernimmt aber keine Haftung für die ungeprüfte Übernahme des Bundles an empfangenden Standorten.',
+  bundleDisclaimerAcknowledge: 'Ich habe den Hinweis gelesen und werde das Bundle vor dem Deployment überprüfen.',
+  bundleDisclaimerLinkLabel: 'Rechtlicher Hinweis',
+  legalPageTitle: 'Rechtlicher Hinweis',
 };
