@@ -11,6 +11,7 @@ export const en = {
   darkMode: 'Dark Mode',
   lightMode: 'Light Mode',
   approvalReview: 'Approval Review',
+  sidebarAdminGroup: 'Administration',
   sidebarUserManagement: 'User management',
   sidebarPromotions: 'Promotions',
   sidebarMarketplace: 'Marketplace',

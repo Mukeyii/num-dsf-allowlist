@@ -12,6 +12,7 @@ export const de: Record<TranslationKey, string> = {
   darkMode: 'Dunkelmodus',
   lightMode: 'Hellmodus',
   approvalReview: 'Genehmigungen prüfen',
+  sidebarAdminGroup: 'Administration',
   sidebarUserManagement: 'Benutzerverwaltung',
   sidebarPromotions: 'Beförderungen',
   sidebarMarketplace: 'Marktplatz',

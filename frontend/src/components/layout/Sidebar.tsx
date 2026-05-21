@@ -3,7 +3,7 @@
  * Dependencies: auth.store, canvas.store, useInstance, useModals, authApi, react-router-dom
  */
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore }   from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useI18n }        from '../../stores/i18n.store';
@@ -23,6 +23,11 @@ export function Sidebar() {
   const { data: me } = useMe();
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const { pathname } = useLocation();
+  // Highlight the collapsed admin group when the active route is one of its
+  // children, so the user can see where they are without auto-opening.
+  const isAdminRoute = pathname.startsWith('/app/admin') || pathname === '/app/audit';
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('dsf-pinned-instances') || '[]'); }
     catch { return []; }
@@ -159,118 +164,104 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Admin link (admin only) */}
+      {/* Administration — collapsible group, admins only. Defaults to closed
+          per design; when the active route is one of its children we highlight
+          the header so the user can see where they are without auto-opening. */}
       {me?.isAdmin && (
         <div style={{ padding: '0 16px', marginTop: '8px' }}>
-          <Link
-            to="/app/admin"
+          <button
+            type="button"
+            onClick={() => setAdminOpen(o => !o)}
+            aria-expanded={adminOpen}
             style={{
+              width: '100%',
               display: 'flex', alignItems: 'center', gap: '8px',
               padding: '8px 10px', borderRadius: '8px',
+              border: 'none',
               fontSize: '12px', fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
+              textAlign: 'left', fontFamily: 'inherit',
+              cursor: 'pointer',
+              background: isAdminRoute && !adminOpen ? '#ede9ff' : 'transparent',
+              color: isAdminRoute && !adminOpen ? '#6c63ff' : 'var(--text-secondary)',
               transition: 'all 0.15s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+            onMouseEnter={e => {
+              if (!(isAdminRoute && !adminOpen)) {
+                e.currentTarget.style.background = 'var(--bg-hover)';
+                e.currentTarget.style.color = '#6c63ff';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!(isAdminRoute && !adminOpen)) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }
+            }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>admin_panel_settings</span>
-            {t('approvalReview')}
-          </Link>
-        </div>
-      )}
+            <span style={{ flex: 1 }}>{t('sidebarAdminGroup')}</span>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: '18px',
+                transition: 'transform 0.2s ease',
+                transform: adminOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            >
+              chevron_right
+            </span>
+          </button>
 
-      {/* User Management link (admin only) */}
-      {me?.isAdmin && (
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/admin/users"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 10px', borderRadius: '8px',
-              fontSize: '12px', fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>group</span>
-            {t('sidebarUserManagement')}
-          </Link>
-        </div>
-      )}
-
-      {/* Promotions link (admin only) */}
-      {me?.isAdmin && (
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/admin/promotions"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 10px', borderRadius: '8px',
-              fontSize: '12px', fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>verified_user</span>
-            {t('sidebarPromotions')}
-          </Link>
-        </div>
-      )}
-
-      {/* CA Blacklist link (admin only) */}
-      {me?.isAdmin && (
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/admin/ca-blacklist"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 10px', borderRadius: '8px',
-              fontSize: '12px', fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>block</span>
-            {t('caBlacklistNavLabel')}
-          </Link>
-        </div>
-      )}
-
-      {/* Bundle Versions link (admin only) */}
-      {me?.isAdmin && (
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/admin/bundle-versions"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 10px', borderRadius: '8px',
-              fontSize: '12px', fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>history</span>
-            {t('bundleVersionsNavLabel')}
-          </Link>
+          {adminOpen && (
+            <div style={{
+              marginTop: '4px',
+              marginLeft: '14px',
+              paddingLeft: '10px',
+              borderLeft: '1px solid var(--border)',
+              display: 'flex', flexDirection: 'column', gap: '2px',
+            }}>
+              {[
+                { to: '/app/admin',                 icon: 'task_alt',      label: t('approvalReview') },
+                { to: '/app/admin/users',           icon: 'group',         label: t('sidebarUserManagement') },
+                { to: '/app/admin/promotions',      icon: 'verified_user', label: t('sidebarPromotions') },
+                { to: '/app/admin/ca-blacklist',    icon: 'block',         label: t('caBlacklistNavLabel') },
+                { to: '/app/admin/bundle-versions', icon: 'history',       label: t('bundleVersionsNavLabel') },
+                { to: '/app/audit',                 icon: 'fact_check',    label: t('auditLog') },
+              ].map(item => {
+                const isActive = pathname === item.to;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '7px 10px', borderRadius: '8px',
+                      fontSize: '12px', fontWeight: isActive ? 700 : 500,
+                      textDecoration: 'none',
+                      color: isActive ? '#6c63ff' : 'var(--text-secondary)',
+                      background: isActive ? '#ede9ff' : 'transparent',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'var(--bg-hover)';
+                        e.currentTarget.style.color = '#6c63ff';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                      }
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{item.icon}</span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -315,29 +306,6 @@ export function Sidebar() {
           {t('sidebarMarketplace')}
         </Link>
       </div>
-
-      {/* Audit Log link (admin only) */}
-      {me?.isAdmin && (
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/audit"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 10px', borderRadius: '8px',
-              fontSize: '12px', fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#b01e66'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>history</span>
-            {t('auditLog')}
-          </Link>
-        </div>
-      )}
 
       {/* Status link */}
       <div style={{ padding: '0 16px', marginTop: '4px' }}>
