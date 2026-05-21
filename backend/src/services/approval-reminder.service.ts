@@ -18,8 +18,7 @@ import {
 import { verifyGrant } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
-
-const SITE_NOTIFY_DELAY_MS = 30 * 60 * 1000; // 30 minutes
+import { SITE_NOTIFY_DELAY_MS, DAY_MS } from '../lib/time';
 
 async function getAllAdminEmails(): Promise<string[]> {
   const rows = await db('admin_grants').select('email', 'granted_at', 'granted_by_a', 'granted_by_b', 'signature_hex');
@@ -113,8 +112,8 @@ export async function notifyImiOnFirstApproval(
 const REMINDER_THROTTLE_DAYS = 7;
 
 export async function runApprovalReminders(): Promise<void> {
-  const threeDaysAgo = new Date(Date.now() - 3 * 86400000);
-  const throttleCutoff = new Date(Date.now() - REMINDER_THROTTLE_DAYS * 86400000);
+  const threeDaysAgo = new Date(Date.now() - 3 * DAY_MS);
+  const throttleCutoff = new Date(Date.now() - REMINDER_THROTTLE_DAYS * DAY_MS);
 
   const staleRequests = await db('approval_requests')
     .where({ status: 'PENDING' })

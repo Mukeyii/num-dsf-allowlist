@@ -15,12 +15,12 @@ import { sendOtpEmail } from './mail.service';
 import { setRefreshToken, deleteRefreshToken } from './redis.service';
 import { writeAuditLog } from './audit.service';
 import type { AuthUser, JwtPayload, TempTokenPayload } from '../types/auth.types';
+import { REFRESH_TOKEN_TTL_SEC as REFRESH_TTL_SEC } from '../lib/time';
 
 // JWT keys loaded from Base64 env vars
 const JWT_PRIVATE_KEY = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64 || '', 'base64').toString('utf8');
 const JWT_PUBLIC_KEY  = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString('utf8');
 const JWT_EXPIRES_IN  = process.env.JWT_EXPIRES_IN || '15m';
-const REFRESH_TTL_SEC = 7 * 24 * 60 * 60; // 7 days
 
 // ─── Helper functions ───────────────────────────────────────────────────────
 

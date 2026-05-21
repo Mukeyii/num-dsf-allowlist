@@ -13,6 +13,7 @@
  */
 import { Router, Request, Response } from 'express';
 import { otpRateLimit } from '../middleware/rateLimit.middleware';
+import { REFRESH_TOKEN_TTL_MS } from '../lib/time';
 import {
   requestOtp,
   verifyOtpAndGetTempToken,
@@ -35,7 +36,7 @@ const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+  maxAge: REFRESH_TOKEN_TTL_MS,
   // Scope on /auth (not /auth/refresh) so /auth/logout also receives the
   // cookie and can revoke the Redis entry. Previously logout only cleared
   // the cookie client-side; the server-side refresh token stayed valid
