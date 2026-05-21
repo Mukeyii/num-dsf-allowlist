@@ -141,6 +141,7 @@ export function renderApprovedBundleMail(ctx: ApprovedBundleMailContext): {
   </p>
   <h3 style="color: #b01e66; margin-top: 24px;">${esc(t.verifyHeading)}</h3>
   <p>${esc(t.verifyBody)}</p>
+  <p><a href="${esc(ctx.verifyUrl)}">${esc(ctx.verifyUrl)}</a></p>
   <table style="font-family: ui-monospace, monospace; font-size: 12px; border-collapse: collapse;">
     <tr><td style="padding: 4px 12px 4px 0;"><strong>${esc(t.contentHashLabel)}</strong></td><td>${esc(ctx.contentHash)}</td></tr>
     ${ctx.signatureKid ? `<tr><td style="padding: 4px 12px 4px 0;"><strong>${esc(t.signatureKidLabel)}</strong></td><td>${esc(ctx.signatureKid)}</td></tr>` : ''}
