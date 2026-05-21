@@ -79,8 +79,27 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
         <FormField label={t('endpointModalFieldName')} error={errors.name?.message} hint={t('endpointModalFieldNameHint')}>
           <input {...register('name')} className={inputClass} placeholder={t('endpointModalFieldNamePlaceholder')} />
         </FormField>
-        <FormField label={t('endpointModalFieldIdentifier')} required error={errors.identifier?.message}>
-          <input {...register('identifier')} className={inputClass} placeholder={t('endpointModalFieldIdentifierPlaceholder')} />
+        <FormField
+          label={t('endpointModalFieldIdentifier')}
+          required
+          error={errors.identifier?.message}
+          hint={endpointId ? t('identifierLockedHelp') : undefined}
+        >
+          <input
+            {...register('identifier')}
+            className={inputClass}
+            placeholder={t('endpointModalFieldIdentifierPlaceholder')}
+            readOnly={!!endpointId}
+            disabled={!!endpointId}
+            title={endpointId ? t('identifierLockedHelp') : undefined}
+            data-testid="endpoint-identifier-input"
+          />
+          {endpointId && (
+            <p className="text-[10px] mt-1 flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>lock</span>
+              <span>{t('identifierLocked')}</span>
+            </p>
+          )}
         </FormField>
         <FormField label={t('endpointModalFieldAddress')} required error={errors.address?.message} hint={t('endpointModalFieldAddressHint')}>
           <input {...register('address')} className={inputClass} placeholder={t('endpointModalFieldAddressPlaceholder')} />

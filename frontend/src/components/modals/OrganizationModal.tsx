@@ -51,8 +51,27 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
   return (
     <Modal open={open} onClose={onClose} title={t('orgModalTitle')} subtitle={t('orgModalSubtitle')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField label={t('orgModalFieldIdentifier')} required error={errors.identifier?.message} hint={t('orgModalFieldIdentifierHint')}>
-          <input {...register('identifier')} className={inputClass} placeholder={t('orgModalFieldIdentifierPlaceholder')} />
+        <FormField
+          label={t('orgModalFieldIdentifier')}
+          required
+          error={errors.identifier?.message}
+          hint={defaultValues?.identifier ? t('identifierLockedHelp') : t('orgModalFieldIdentifierHint')}
+        >
+          <input
+            {...register('identifier')}
+            className={inputClass}
+            placeholder={t('orgModalFieldIdentifierPlaceholder')}
+            readOnly={!!defaultValues?.identifier}
+            disabled={!!defaultValues?.identifier}
+            title={defaultValues?.identifier ? t('identifierLockedHelp') : undefined}
+            data-testid="org-identifier-input"
+          />
+          {defaultValues?.identifier && (
+            <p className="text-[10px] mt-1 flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>lock</span>
+              <span>{t('identifierLocked')}</span>
+            </p>
+          )}
         </FormField>
         <FormField label={t('orgModalFieldName')} required error={errors.name?.message}>
           <input {...register('name')} className={inputClass} placeholder={t('orgModalFieldNamePlaceholder')} />

@@ -624,4 +624,7 @@ export const de: Record<TranslationKey, string> = {
   bundleDisclaimerAcknowledge: 'Ich habe den Hinweis gelesen und werde das Bundle vor dem Deployment überprüfen.',
   bundleDisclaimerLinkLabel: 'Rechtlicher Hinweis',
   legalPageTitle: 'Rechtlicher Hinweis',
+  // ─── FQDN-Unveränderlichkeit (Föderationshärtung 2026-05-18) ─────────────
+  identifierLocked: 'FQDN ist im Föderationsmodus unveränderlich',
+  identifierLockedHelp: 'Andere AllowList-Werkzeuge referenzieren diese Kennung. Eine Änderung würde die Föderation desynchronisieren. Lege stattdessen einen neuen Eintrag an.',
 };
