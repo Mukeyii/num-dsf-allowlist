@@ -13,6 +13,7 @@ import {
   notifyImiOnFirstApproval,
 } from './approval-reminder.service';
 import { siteOfEmail, validateApproval, deriveStatus, ApprovalSig } from '../lib/approvalState';
+import { logger } from '../lib/logger';
 
 const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
 
@@ -78,7 +79,7 @@ export async function approveRequest(
   const adminSite = siteOfEmail(resolvedBy);
   if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
 
-  return db.transaction(async trx => {
+  const result = await db.transaction(async trx => {
     // Lock the parent row so concurrent approves serialize.
     const request = await trx('approval_requests').where({ id: requestId }).forUpdate().first();
     if (!request) throw new Error('REQUEST_NOT_FOUND');
@@ -116,15 +117,39 @@ export async function approveRequest(
       await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
         resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
       notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(() => {});
-      return { status: 'APPROVED' };
+      return { status: 'APPROVED' as const };
     }
 
     await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
       resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress,
       diffJson: { firstApproval: true } });
     notifyImiOnFirstApproval(request.instance_id, resolvedBy, requestId).catch(() => {});
-    return { status: 'PENDING', reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
+    return { status: 'PENDING' as const, reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
   });
+
+  // Post-commit hook: snapshot the federation-wide bundle whenever an
+  // approval just transitioned the world to APPROVED. The snapshot runs
+  // OUTSIDE the transaction so generateFullBundle observes the freshly
+  // committed status. Failure here must not undo the approval — the
+  // approval is already on disk and audited.
+  if (result.status === 'APPROVED') {
+    try {
+      const { createSnapshot } = await import('./bundle-versions.service');
+      await createSnapshot({
+        triggeredBy: 'APPROVAL',
+        triggeredByEmail: resolvedBy,
+        approvalRequestId: requestId,
+        notes: `auto-snapshot after approval ${requestId}`,
+      });
+    } catch (err) {
+      logger.error(
+        { err: err instanceof Error ? err.message : 'unknown', requestId },
+        'bundle snapshot after approval failed',
+      );
+    }
+  }
+
+  return result;
 }
 
 export async function rejectRequest(
