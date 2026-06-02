@@ -18,7 +18,7 @@ import { OtpPage } from '../OtpPage';
 describe('OtpPage', () => {
   it('renders the code-entry heading and six digit inputs', () => {
     renderWithProviders(<OtpPage />, {
-      route: { pathname: '/otp', state: { email: 'admin@example.com' } } as never,
+      route: { pathname: '/otp', state: { email: 'admin@example.com' } },
     });
     expect(screen.getByText('Enter your code')).toBeInTheDocument();
     expect(screen.getAllByRole('textbox')).toHaveLength(6);

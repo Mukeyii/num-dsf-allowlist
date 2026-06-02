@@ -17,7 +17,7 @@ import { TotpPage } from '../TotpPage';
 describe('TotpPage', () => {
   it('renders the two-factor heading and a code input', () => {
     renderWithProviders(<TotpPage />, {
-      route: { pathname: '/totp', state: { tempToken: 'temp-123' } } as never,
+      route: { pathname: '/totp', state: { tempToken: 'temp-123' } },
     });
     expect(screen.getByText('Two-factor authentication')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toBeInTheDocument();
