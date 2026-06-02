@@ -24,11 +24,11 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
       borderColor="#e05c5c"
       icon="rule"
       onAdd={() => useModals.getState().openModal('approval')}
-      addLabel="Submit"
+      addLabel={t('approvalCardSubmit')}
     >
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>{currentInstance?.label || 'Instance'}</span>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>{currentInstance?.label || t('approvalCardInstanceFallback')}</span>
           {status?.status === 'PENDING' && (
             <span style={{ padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }}>
               1 {t('pending')}
@@ -58,9 +58,9 @@ export function ApprovalCard({ instanceId }: { instanceId: string }) {
                 background: req.status === 'APPROVED' ? '#22c55e' : req.status === 'PENDING' ? '#f59e0b' : '#ef4444',
               }} />
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: '12px', fontWeight: 700 }}>Request #{history.length - i}</p>
+                <p style={{ fontSize: '12px', fontWeight: 700 }}>{t('approvalCardRequestNum', { n: history.length - i })}</p>
                 <p style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-                  {Math.floor((Date.now() - new Date(req.submitted_at || req.created_at).getTime()) / 86400000)}d ago
+                  {t('approvalCardDaysAgo', { n: Math.floor((Date.now() - new Date(req.submitted_at || req.created_at).getTime()) / 86400000) })}
                 </p>
               </div>
               <span style={{
