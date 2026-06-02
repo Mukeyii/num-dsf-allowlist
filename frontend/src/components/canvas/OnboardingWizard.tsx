@@ -9,12 +9,14 @@ import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
 import { useApprovalStatus } from '../../hooks/useApproval';
 import { useModals } from '../../hooks/useModals';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
   instanceId: string;
 }
 
 export function OnboardingWizard({ instanceId }: Props) {
+  const { t } = useI18n();
   const { data: org } = useOrganization(instanceId);
   const { data: contacts = [] } = useContacts(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
@@ -23,12 +25,12 @@ export function OnboardingWizard({ instanceId }: Props) {
   const { data: approval } = useApprovalStatus(instanceId);
 
   const steps = [
-    { label: 'Organization', icon: 'corporate_fare', done: !!org, action: 'org-edit' as const, color: '#b01e66' },
-    { label: 'Contact', icon: 'contact_phone', done: contacts.length > 0, action: 'contact-add' as const, color: '#9b59b6' },
-    { label: 'Endpoint', icon: 'hub', done: endpoints.length > 0, action: 'endpoint-add' as const, color: '#3ecfb2' },
-    { label: 'Certificate', icon: 'verified_user', done: certs.length > 0, action: 'certificate-add' as const, color: '#f5a623' },
-    { label: 'Membership', icon: 'groups', done: memberships.length > 0, action: 'membership-add' as const, color: '#4a90d9' },
-    { label: 'Submit', icon: 'send', done: !!approval, action: 'approval' as const, color: '#e05c5c' },
+    { key: 'organization', label: t('onboardingStepOrganization'), icon: 'corporate_fare', done: !!org, action: 'org-edit' as const, color: '#b01e66' },
+    { key: 'contact', label: t('onboardingStepContact'), icon: 'contact_phone', done: contacts.length > 0, action: 'contact-add' as const, color: '#9b59b6' },
+    { key: 'endpoint', label: t('onboardingStepEndpoint'), icon: 'hub', done: endpoints.length > 0, action: 'endpoint-add' as const, color: '#3ecfb2' },
+    { key: 'certificate', label: t('onboardingStepCertificate'), icon: 'verified_user', done: certs.length > 0, action: 'certificate-add' as const, color: '#f5a623' },
+    { key: 'membership', label: t('onboardingStepMembership'), icon: 'groups', done: memberships.length > 0, action: 'membership-add' as const, color: '#4a90d9' },
+    { key: 'submit', label: t('onboardingStepSubmit'), icon: 'send', done: !!approval, action: 'approval' as const, color: '#e05c5c' },
   ];
 
   const completedCount = steps.filter(s => s.done).length;
@@ -49,9 +51,9 @@ export function OnboardingWizard({ instanceId }: Props) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#b01e66' }}>rocket_launch</span>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>Getting Started</span>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('onboardingHeader')}</span>
         </div>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{completedCount}/{steps.length} complete</span>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('onboardingProgress', { done: completedCount, total: steps.length })}</span>
       </div>
 
       {/* Progress bar */}
@@ -63,7 +65,7 @@ export function OnboardingWizard({ instanceId }: Props) {
       <div style={{ display: 'flex', gap: '4px' }}>
         {steps.map((step) => (
           <button
-            key={step.label}
+            key={step.key}
             onClick={() => { if (!step.done) useModals.getState().openModal(step.action); }}
             style={{
               flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
