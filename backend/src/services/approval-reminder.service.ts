@@ -19,6 +19,7 @@ import { verifyGrant } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { SITE_NOTIFY_DELAY_MS, DAY_MS } from '../lib/time';
+import { logger } from '../lib/logger';
 
 async function getAllAdminEmails(): Promise<string[]> {
   const rows = await db('admin_grants').select('email', 'granted_at', 'granted_by_a', 'granted_by_b', 'signature_hex');
@@ -38,15 +39,15 @@ export async function notifyImiOnSubmit(
 ): Promise<void> {
   const imiEmails = await getAllAdminEmails();
   if (imiEmails.length === 0) {
-    console.warn('[ApprovalNotify] No verified admins found in admin_grants – skipping admin notification');
+    logger.warn('[ApprovalNotify] No verified admins found in admin_grants – skipping admin notification');
     return;
   }
 
   try {
     await sendAdminNewRequestEmail(imiEmails, orgName, orgIdentifier, submittedBy, requestId);
-    console.log(`[ApprovalNotify] Notified ${imiEmails.length} admin(s) of new request from ${orgIdentifier}`);
+    logger.info(`[ApprovalNotify] Notified ${imiEmails.length} admin(s) of new request from ${orgIdentifier}`);
   } catch (err) {
-    console.error('[ApprovalNotify] Failed to send admin new-request email:', err);
+    logger.error({ err }, '[ApprovalNotify] Failed to send admin new-request email');
   }
 }
 
@@ -59,7 +60,7 @@ export async function notifySiteOnApproval(
 ): Promise<void> {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) {
-    console.warn(`[ApprovalNotify] No organization found for instance ${instanceId}`);
+    logger.warn(`[ApprovalNotify] No organization found for instance ${instanceId}`);
     return;
   }
 
@@ -68,9 +69,9 @@ export async function notifySiteOnApproval(
   if (imiEmails.length > 0) {
     try {
       await sendAdminApprovalResultEmail(imiEmails, org.name, org.identifier, status, resolvedBy, comment);
-      console.log(`[ApprovalNotify] Notified admins of ${status} for ${org.identifier}`);
+      logger.info(`[ApprovalNotify] Notified admins of ${status} for ${org.identifier}`);
     } catch (err) {
-      console.error('[ApprovalNotify] Failed to send admin approval-result email:', err);
+      logger.error({ err }, '[ApprovalNotify] Failed to send admin approval-result email');
     }
   }
 
@@ -91,9 +92,9 @@ export async function notifySiteOnApproval(
       send_after: new Date(Date.now() + SITE_NOTIFY_DELAY_MS),
       created_at: new Date(),
     });
-    console.log(`[ApprovalNotify] Queued site notification for ${org.identifier} (${status}), due in 30 min`);
+    logger.info(`[ApprovalNotify] Queued site notification for ${org.identifier} (${status}), due in 30 min`);
   } catch (err) {
-    console.error('[ApprovalNotify] Failed to queue site notification:', err);
+    logger.error({ err }, '[ApprovalNotify] Failed to queue site notification');
   }
 }
 
@@ -125,11 +126,11 @@ export async function runApprovalReminders(): Promise<void> {
 
   if (staleRequests.length === 0) return;
 
-  console.log(`[ApprovalReminder] ${staleRequests.length} stale pending request(s) – sending reminders`);
+  logger.info(`[ApprovalReminder] ${staleRequests.length} stale pending request(s) – sending reminders`);
 
   const reminderEmails = await getAllAdminEmails();
   if (reminderEmails.length === 0) {
-    console.warn('[ApprovalReminder] No verified admins found in admin_grants – skipping reminder emails');
+    logger.warn('[ApprovalReminder] No verified admins found in admin_grants – skipping reminder emails');
     return;
   }
 
@@ -148,9 +149,9 @@ export async function runApprovalReminders(): Promise<void> {
         req.id,
       );
       await db('approval_requests').where({ id: req.id }).update({ last_reminded_at: new Date() });
-      console.log(`[ApprovalReminder] Sent reminder for request ${req.id} (${orgIdentifier})`);
+      logger.info(`[ApprovalReminder] Sent reminder for request ${req.id} (${orgIdentifier})`);
     } catch (err) {
-      console.error(`[ApprovalReminder] Failed to send reminder for request ${req.id}:`, err);
+      logger.error({ err, requestId: req.id }, '[ApprovalReminder] Failed to send reminder');
     }
   }
 }
@@ -160,7 +161,7 @@ export async function flushPendingNotifications(): Promise<void> {
   const due = await db('pending_notifications').where('send_after', '<=', now);
   if (due.length === 0) return;
 
-  console.log(`[PendingNotify] ${due.length} notification(s) due – flushing`);
+  logger.info(`[PendingNotify] ${due.length} notification(s) due – flushing`);
 
   for (const row of due) {
     try {
@@ -179,12 +180,12 @@ export async function flushPendingNotifications(): Promise<void> {
         // Re-check request status before sending – drop the notification if it has changed
         const request = await db('approval_requests').where({ id: requestId }).first();
         if (!request) {
-          console.warn(`[PendingNotify] Request ${requestId} no longer exists – dropping notification ${row.id}`);
+          logger.warn(`[PendingNotify] Request ${requestId} no longer exists – dropping notification ${row.id}`);
           await db('pending_notifications').where({ id: row.id }).del();
           continue;
         }
         if (request.status !== status) {
-          console.log(`[PendingNotify] Request ${requestId} status changed to ${request.status} – dropping notification ${row.id}`);
+          logger.info(`[PendingNotify] Request ${requestId} status changed to ${request.status} – dropping notification ${row.id}`);
           await db('pending_notifications').where({ id: row.id }).del();
           continue;
         }
@@ -194,7 +195,7 @@ export async function flushPendingNotifications(): Promise<void> {
           .select('email', 'name', 'language');
 
         if (contacts.length === 0) {
-          console.warn(`[PendingNotify] No contacts for ${payload.orgIdentifier} – dropping notification ${row.id}`);
+          logger.warn(`[PendingNotify] No contacts for ${payload.orgIdentifier} – dropping notification ${row.id}`);
           await db('pending_notifications').where({ id: row.id }).del();
           continue;
         }
@@ -210,7 +211,7 @@ export async function flushPendingNotifications(): Promise<void> {
           if (!latest) {
             const contactEmails = contacts.map((c: { email: string }) => c.email);
             await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
-            console.warn(`[PendingNotify] No bundle_versions row for request ${requestId} — sent legacy mail`);
+            logger.warn(`[PendingNotify] No bundle_versions row for request ${requestId} — sent legacy mail`);
           } else {
             // Diff against the previous version for added/removed/changed counts.
             const previous = await db('bundle_versions')
@@ -228,7 +229,7 @@ export async function flushPendingNotifications(): Promise<void> {
                   changedOrgs: diff.changed.length,
                 };
               } catch (e) {
-                console.warn('[PendingNotify] diffVersions failed, sending mail without diff', e);
+                logger.warn({ err: e }, '[PendingNotify] diffVersions failed, sending mail without diff');
               }
             }
 
@@ -271,21 +272,21 @@ export async function flushPendingNotifications(): Promise<void> {
                   },
                 );
               } catch (e) {
-                console.error(`[PendingNotify] sendApprovedBundleNotification failed for ${c.email}:`, e);
+                logger.error({ err: e, email: c.email }, '[PendingNotify] sendApprovedBundleNotification failed');
               }
             }
-            console.log(`[PendingNotify] Notified ${contacts.length} contact(s) of APPROVED v${latest.version_number} for ${payload.orgIdentifier}`);
+            logger.info(`[PendingNotify] Notified ${contacts.length} contact(s) of APPROVED v${latest.version_number} for ${payload.orgIdentifier}`);
           }
         } else {
           const contactEmails = contacts.map((c: { email: string }) => c.email);
           await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
-          console.log(`[PendingNotify] Notified ${contactEmails.length} contact(s) of REJECTED for ${payload.orgIdentifier}`);
+          logger.info(`[PendingNotify] Notified ${contactEmails.length} contact(s) of REJECTED for ${payload.orgIdentifier}`);
         }
       }
 
       await db('pending_notifications').where({ id: row.id }).del();
     } catch (err) {
-      console.error(`[PendingNotify] Failed to send notification ${row.id}:`, err);
+      logger.error({ err, notificationId: row.id }, '[PendingNotify] Failed to send notification');
       // Leave the row for the next sweep
     }
   }
