@@ -1,3 +1,7 @@
+/**
+ * useContacts.ts — TanStack Query hooks for contact list, create, update, and delete.
+ * Wraps the entities API; mutations invalidate contacts and approval-status caches.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
 

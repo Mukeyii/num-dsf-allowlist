@@ -1,3 +1,7 @@
+/**
+ * useInstance.ts — TanStack Query hooks for a single instance and the instance list.
+ * Gated on an authenticated user; useInstances auto-selects the first instance as active.
+ */
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { api } from '../api/entities.api';

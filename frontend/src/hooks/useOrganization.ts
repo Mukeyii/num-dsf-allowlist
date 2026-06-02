@@ -1,3 +1,7 @@
+/**
+ * useOrganization.ts — TanStack Query hooks to fetch and update the instance organization.
+ * Wraps the entities API; update invalidates organization and approval-status caches.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
 

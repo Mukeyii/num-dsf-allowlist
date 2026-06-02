@@ -1,3 +1,7 @@
+/**
+ * useCertificates.ts — TanStack Query hooks for certificate list, create, delete, and renew.
+ * Wraps the entities API; mutations invalidate certificates, approval-status, and certs-expiring caches.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
 

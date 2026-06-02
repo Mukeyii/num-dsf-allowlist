@@ -1,3 +1,7 @@
+/**
+ * useMemberships.ts — TanStack Query hooks for membership list, create, update, and delete.
+ * Wraps the entities API; mutations invalidate memberships and approval-status caches.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
 

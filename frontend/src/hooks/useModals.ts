@@ -1,3 +1,7 @@
+/**
+ * useModals.ts — Zustand store tracking which modal is open and the entity id being edited.
+ * Exposes openModal(type, editId) / closeModal for all entity and approval/download modals.
+ */
 import { create } from 'zustand';
 
 type ModalType =
