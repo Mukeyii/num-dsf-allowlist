@@ -61,7 +61,7 @@ export function Modal({ open, onClose, title, subtitle, children, width = 'max-w
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 anim-fade-in"
       style={{ background: 'rgba(24, 28, 32, 0.25)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
     >
@@ -70,7 +70,7 @@ export function Modal({ open, onClose, title, subtitle, children, width = 'max-w
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`w-full ${width} rounded-2xl shadow-2xl overflow-hidden`}
+        className={`w-full ${width} rounded-2xl shadow-2xl overflow-hidden anim-scale-in`}
         style={{ background: 'var(--bg-card)', boxShadow: '0 24px 64px rgba(138,23,80,0.12)' }}
         onClick={e => e.stopPropagation()}
       >
