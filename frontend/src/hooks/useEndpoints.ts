@@ -1,3 +1,7 @@
+/**
+ * useEndpoints.ts — TanStack Query hooks for endpoint list, create, update, and delete.
+ * Wraps the entities API; mutations invalidate endpoints and approval-status caches.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
 

@@ -1,3 +1,7 @@
+/**
+ * useApproval.ts — TanStack Query hooks for approval status, history, and submission.
+ * Wraps the entities API; submit invalidates approval-status and approval-history caches.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
 
