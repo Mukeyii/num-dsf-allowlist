@@ -20,16 +20,17 @@ function siteOf(email: string): string {
   return (email.split('@')[1] || '').toLowerCase();
 }
 
-function relTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
-
 export function AdminPromotionsPage() {
   const { t } = useI18n();
+
+  function relTime(dateStr: string): string {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    if (diff < 60) return t('relJustNow');
+    if (diff < 3600) return t('relAgoMinutes', { n: Math.floor(diff / 60) });
+    if (diff < 86400) return t('relAgoHours', { n: Math.floor(diff / 3600) });
+    return t('relAgoDays', { n: Math.floor(diff / 86400) });
+  }
+
   const { data: me } = useMe();
   const qc = useQueryClient();
 
