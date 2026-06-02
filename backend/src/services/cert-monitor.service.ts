@@ -6,10 +6,11 @@
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { sendCertExpiryWarning } from './notification.service';
+import { logger } from '../lib/logger';
 
 export async function runCertExpiryCheck(): Promise<void> {
   const now = new Date();
-  console.log(`[CertMonitor] Running at ${now.toISOString()}`);
+  logger.info(`[CertMonitor] Running at ${now.toISOString()}`);
 
   // Fix (b): compare valid_until (DATE) against today at UTC midnight so that
   // certs expiring today are included (not excluded because `now` is mid-day).
@@ -29,7 +30,7 @@ export async function runCertExpiryCheck(): Promise<void> {
       'o.identifier as orgIdentifier', 'o.name as orgName', 'i.id as instanceId');
 
   if (expiring.length === 0) {
-    console.log('[CertMonitor] No expiring certificates found.');
+    logger.info('[CertMonitor] No expiring certificates found.');
     return;
   }
 
@@ -82,12 +83,12 @@ export async function runCertExpiryCheck(): Promise<void> {
         ipAddress: 'system',
       });
       await db('certificates').where({ id: cert.certId }).update({ last_notified_at: new Date() });
-      console.log(`[CertMonitor] Warning: ${cert.subject} → ${daysLeft}d left (notified ${recipientEmails.length})`);
+      logger.info(`[CertMonitor] Warning: ${cert.subject} → ${daysLeft}d left (notified ${recipientEmails.length})`);
       sent++;
     } catch (err) {
-      console.error(`[CertMonitor] Failed for ${cert.subject}:`, err);
+      logger.error({ err, subject: cert.subject }, '[CertMonitor] Failed to process certificate');
     }
   }
 
-  console.log(`[CertMonitor] Done. Warnings: ${sent}`);
+  logger.info(`[CertMonitor] Done. Warnings: ${sent}`);
 }

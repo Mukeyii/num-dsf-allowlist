@@ -7,6 +7,7 @@
  */
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '../lib/logger';
 
 type ResourceType = 'ORGANIZATION' | 'CONTACT' | 'ENDPOINT' | 'CERTIFICATE' | 'MEMBERSHIP' | 'AUTH' | 'APPROVAL' | 'MARKETPLACE';
 type Operation = 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'REJECT' | 'LOGIN' | 'LOGOUT' | 'OTP_REQUEST' | 'OTP_VERIFY' | 'TOTP_SETUP' | 'TOTP_VERIFY' | 'FAILED_LOGIN';
@@ -36,6 +37,6 @@ export async function writeAuditLog(entry: AuditEntry): Promise<void> {
     });
   } catch (err) {
     // Logging failure must never propagate
-    console.error('[AuditLog] Failed to write entry:', err);
+    logger.error({ err }, '[AuditLog] Failed to write entry');
   }
 }
