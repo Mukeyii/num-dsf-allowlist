@@ -2,18 +2,23 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ContactModal } from '../ContactModal';
 
 // Mock useContacts so we can control the array returned on each render.
-let contactsArr: any[] = [
+const initialContacts = () => [
   { id: 'c1', email: 'a@b.de', name: 'Original', types: '["MEDIC"]', phone: '', address_line: '', postal_code: '', city: '', country_code: '' },
 ];
+let contactsArr: any[] = initialContacts();
 vi.mock('../../../hooks/useContacts', () => ({
   useContacts: () => ({ data: contactsArr, isLoading: false }),
   useCreateContact: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useUpdateContact: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
+
+// Reset the mutable fixture before each test so order/shuffle cannot leak the
+// refetch test's mutation into the others.
+beforeEach(() => { contactsArr = initialContacts(); });
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
