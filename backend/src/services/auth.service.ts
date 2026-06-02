@@ -16,6 +16,7 @@ import { setRefreshToken, deleteRefreshToken } from './redis.service';
 import { writeAuditLog } from './audit.service';
 import type { AuthUser, JwtPayload, TempTokenPayload } from '../types/auth.types';
 import { REFRESH_TOKEN_TTL_SEC as REFRESH_TTL_SEC } from '../lib/time';
+import { logger } from '../lib/logger';
 
 // JWT keys loaded from Base64 env vars
 const JWT_PRIVATE_KEY = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64 || '', 'base64').toString('utf8');
@@ -174,10 +175,22 @@ export async function refreshAccessToken(refreshToken: string): Promise<{ access
   const user = await db('users').where({ id: userId }).first();
   if (!user) throw new Error('USER_NOT_FOUND');
 
-  // Idle timeout check: reject refresh if user has been inactive
+  // Idle timeout check: reject refresh if user has been inactive. A missing
+  // activity key means the idle window lapsed. But if Redis itself is
+  // unreachable, the read throws — and treating that as "idle" would log out
+  // every active user during a transient Redis blip. So distinguish the two:
+  // on a Redis error we fail soft (allow the refresh) and log it, instead of
+  // mass-revoking sessions.
   const { redis: redisClient } = await import('./redis.service');
-  const lastActivity = await redisClient.get(`activity:${userId}`);
-  if (!lastActivity && process.env.NODE_ENV !== 'test') {
+  let lastActivity: string | null = null;
+  let redisReachable = true;
+  try {
+    lastActivity = await redisClient.get(`activity:${userId}`);
+  } catch (err) {
+    redisReachable = false;
+    logger.warn({ err, userId }, '[auth] Redis unreachable during idle check — allowing refresh (fail-soft)');
+  }
+  if (redisReachable && !lastActivity && process.env.NODE_ENV !== 'test') {
     // User has been idle too long — revoke all tokens
     await deleteRefreshToken(hash);
     throw new Error('SESSION_EXPIRED');
