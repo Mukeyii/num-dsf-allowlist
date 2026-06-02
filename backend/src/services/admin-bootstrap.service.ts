@@ -6,6 +6,7 @@
  */
 import { db } from '../db/connection';
 import { signGrant } from '../lib/adminGrants';
+import { logger } from '../lib/logger';
 
 export async function bootstrapAdminGrants(): Promise<void> {
   try {
@@ -16,7 +17,7 @@ export async function bootstrapAdminGrants(): Promise<void> {
     const raw = process.env.IMI_ADMIN_EMAILS || '';
     const emails = raw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
     if (emails.length === 0) {
-      console.warn('[admin-bootstrap] admin_grants empty AND IMI_ADMIN_EMAILS not set — no admins exist');
+      logger.warn('[admin-bootstrap] admin_grants empty AND IMI_ADMIN_EMAILS not set — no admins exist');
       return;
     }
 
@@ -34,8 +35,8 @@ export async function bootstrapAdminGrants(): Promise<void> {
         signature_hex: sig,
       }).onConflict('email').ignore();
     }
-    console.warn(`[admin-bootstrap] Created ${emails.length} signed admin_grants from IMI_ADMIN_EMAILS. Future runs will ignore the env var.`);
+    logger.info(`[admin-bootstrap] Created ${emails.length} signed admin_grants from IMI_ADMIN_EMAILS. Future runs will ignore the env var.`);
   } catch (err) {
-    console.error('[admin-bootstrap] failed', err);
+    logger.error({ err }, '[admin-bootstrap] failed');
   }
 }

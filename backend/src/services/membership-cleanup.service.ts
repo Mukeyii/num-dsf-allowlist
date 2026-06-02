@@ -8,6 +8,7 @@
  */
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
+import { logger } from '../lib/logger';
 
 const RETENTION_DAYS = parseInt(process.env.MEMBERSHIP_SOFT_DELETE_RETENTION_DAYS || '90', 10);
 
@@ -26,6 +27,6 @@ export async function runMembershipCleanup(now: Date = new Date()): Promise<numb
     operation: 'DELETE',
     diffJson: { ids },
   }).catch(() => {});
-  console.log(`[membership-cleanup] hard-deleted ${ids.length} soft-row(s) older than ${RETENTION_DAYS}d`);
+  logger.info(`[membership-cleanup] hard-deleted ${ids.length} soft-row(s) older than ${RETENTION_DAYS}d`);
   return ids.length;
 }
