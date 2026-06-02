@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { adminPromotionsApi, type PromotionRequest } from '../api/admin.api';
 import { useI18n } from '../stores/i18n.store';
 import { useMe } from '../hooks/useMe';
+import { getErrorMessage } from '../lib/getErrorMessage';
 
 type ActionKind = 'approve' | 'reject' | 'cancel';
 
@@ -51,9 +52,8 @@ export function AdminPromotionsPage() {
       qc.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -65,9 +65,8 @@ export function AdminPromotionsPage() {
       qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -79,9 +78,8 @@ export function AdminPromotionsPage() {
       qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
