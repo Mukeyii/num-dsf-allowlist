@@ -85,7 +85,7 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
                 req.status === 'REJECTED' ? 'bg-red-500'     : 'bg-slate-300'
               }`} />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold">Request #{req.id.slice(-4)}</p>
+                <p className="text-xs font-bold">{t('approvalCardRequestNum', { n: req.id.slice(-4) })}</p>
                 <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                   {relativeTime(req.submitted_at || req.created_at)}
                 </p>
