@@ -46,6 +46,9 @@ describe('approval-silent-consent.service – runSilentConsentSweep', () => {
 
   afterAll(async () => {
     try {
+      // The sweep promotes a request and writes an (unmocked) audit_logs row
+      // scoped to this instance; audit_logs has no FK, so clean it explicitly.
+      await db('audit_logs').where({ instance_id: instanceId }).del();
       await db('approval_signatures').whereIn('approval_request_id', [eligibleId, recentId]).del();
       await db('approval_requests').whereIn('id', [eligibleId, recentId]).del();
     } finally {
