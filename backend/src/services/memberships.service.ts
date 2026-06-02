@@ -7,12 +7,24 @@ import { v4 as uuidv4 } from 'uuid';
 
 const VALID_ROLES = ['DIC', 'HRP', 'DMS', 'AMS'];
 
+/**
+ * List the organization's active (non-soft-deleted) memberships, ordered by creation time.
+ * @param instanceId Instance whose organization owns the memberships.
+ * @returns Array of membership rows; empty if the instance has no organization.
+ */
 export async function getMemberships(instanceId: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) return [];
   return db('memberships').where({ organization_id: org.identifier }).whereNull('deleted_at').orderBy('created_at', 'asc');
 }
 
+/**
+ * Create a membership and write a CREATE audit log. If a soft-deleted row with the same
+ * (org, parentOrganization, endpoint) identity exists, it is resurrected instead of duplicated.
+ * Throws ORGANIZATION_NOT_FOUND if no org, INVALID_ROLES if roles empty/not in DIC/HRP/DMS/AMS,
+ * ENDPOINT_NOT_FOUND if the referenced endpoint isn't in this org.
+ * @returns The created or resurrected membership row.
+ */
 export async function createMembership(instanceId: string, data: { parentOrganization: string; endpointId: string; roles: string[] }, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
@@ -40,6 +52,12 @@ export async function createMembership(instanceId: string, data: { parentOrganiz
   return db('memberships').where({ id }).first();
 }
 
+/**
+ * Update provided fields of an active membership and write an UPDATE audit log.
+ * Throws ORGANIZATION_NOT_FOUND if no org, MEMBERSHIP_NOT_FOUND if not an active row in this org,
+ * INVALID_ROLES if roles are supplied but not all in DIC/HRP/DMS/AMS.
+ * @returns The updated membership row.
+ */
 export async function updateMembership(instanceId: string, membershipId: string, data: { parentOrganization?: string; endpointId?: string; roles?: string[] }, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
@@ -55,6 +73,10 @@ export async function updateMembership(instanceId: string, membershipId: string,
   return db('memberships').where({ id: membershipId }).first();
 }
 
+/**
+ * Soft-delete a membership (sets deleted_at) and write a DELETE audit log.
+ * Throws ORGANIZATION_NOT_FOUND if no org, MEMBERSHIP_NOT_FOUND if not an active row in this org.
+ */
 export async function deleteMembership(instanceId: string, membershipId: string, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
