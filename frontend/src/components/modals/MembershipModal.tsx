@@ -10,6 +10,7 @@ import { useCreateMembership, useUpdateMembership, useMemberships } from '../../
 import { useEndpoints } from '../../hooks/useEndpoints';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 const PARENT_ORGS = ['medizininformatik-initiative.de', 'netzwerk-universitaetsmedizin.de', 'eyematics.org', 'dktk.dkfz.de'];
 const ROLES = [
@@ -71,7 +72,7 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
         toast.success(t('membershipModalAddSuccess'));
       }
       onClose();
-    } catch (err: any) { toast.error(err?.response?.data?.error?.message || t('membershipModalSaveFailed')); }
+    } catch (err: any) { toast.error(getErrorMessage(err, t('membershipModalSaveFailed'))); }
   }
 
   return (

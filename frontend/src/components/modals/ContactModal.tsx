@@ -9,6 +9,7 @@ import { parseJsonArray } from '../../lib/parseJsonArray';
 import { useCreateContact, useUpdateContact, useContacts } from '../../hooks/useContacts';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 const TYPES = [
   { value: 'MEDIC', label: 'MEDIC', desc: 'Person responsible for the organization' },
@@ -78,7 +79,7 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
       }
       onClose();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || t('contactModalSaveFailed'));
+      toast.error(getErrorMessage(err, t('contactModalSaveFailed')));
     }
   }
 

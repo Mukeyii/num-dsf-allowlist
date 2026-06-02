@@ -11,6 +11,7 @@ import { daysUntil } from '../../lib/dateUtils';
 import { toast } from 'sonner';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface Props {
   open: boolean;
@@ -63,7 +64,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
       toast.success(t('certRenewalSuccess'));
       reset();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || t('certRenewalFailed'));
+      toast.error(getErrorMessage(err, t('certRenewalFailed')));
     }
   }
 

@@ -8,6 +8,7 @@ import { endpointSchema, EndpointFormData } from '../../schemas/endpoint.schema'
 import { useCreateEndpoint, useUpdateEndpoint, useEndpoints } from '../../hooks/useEndpoints';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface Props {
   open: boolean;
@@ -69,7 +70,7 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
       }
       onClose();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || t('endpointModalSaveFailed'));
+      toast.error(getErrorMessage(err, t('endpointModalSaveFailed')));
     }
   }
 
