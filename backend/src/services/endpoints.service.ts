@@ -5,6 +5,11 @@ import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * List the organization's endpoints, each with its IP addresses (isFhir/isBpe flags) attached.
+ * @param instanceId Instance whose organization owns the endpoints.
+ * @returns Array of endpoints with an ipAddresses array; empty if the instance has no organization.
+ */
 export async function getEndpoints(instanceId: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) return [];
@@ -16,6 +21,12 @@ export async function getEndpoints(instanceId: string) {
   }));
 }
 
+/**
+ * Create an endpoint plus any supplied IP rows and write a CREATE audit log.
+ * Throws ORGANIZATION_NOT_FOUND if the instance has no organization.
+ * @param data Endpoint fields; ipAddresses are inserted with isFhir/isBpe flags.
+ * @returns The created endpoint with its IP addresses.
+ */
 export async function createEndpoint(instanceId: string, data: { identifier: string; name?: string; address: string; ipAddresses?: { ip: string; isFhir?: boolean; isBpe?: boolean }[] }, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
@@ -28,6 +39,12 @@ export async function createEndpoint(instanceId: string, data: { identifier: str
   return (await getEndpoints(instanceId)).find((e: any) => e.identifier === data.identifier);
 }
 
+/**
+ * Update endpoint fields and, if ipAddresses is provided, replace all its IP rows; writes an UPDATE audit log.
+ * Throws ORGANIZATION_NOT_FOUND if no org, ENDPOINT_NOT_FOUND if the endpoint isn't in this org.
+ * @param data Partial endpoint fields; passing ipAddresses replaces the existing set wholesale.
+ * @returns The updated endpoint with its IP addresses.
+ */
 export async function updateEndpoint(instanceId: string, endpointId: string, data: { name?: string; address?: string; ipAddresses?: { ip: string; isFhir?: boolean; isBpe?: boolean }[] }, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
@@ -47,6 +64,10 @@ export async function updateEndpoint(instanceId: string, endpointId: string, dat
   return (await getEndpoints(instanceId)).find((e: any) => e.identifier === endpointId);
 }
 
+/**
+ * Hard-delete an endpoint and write a DELETE audit log.
+ * Throws ORGANIZATION_NOT_FOUND if no org, ENDPOINT_NOT_FOUND if the endpoint isn't in this org.
+ */
 export async function deleteEndpoint(instanceId: string, endpointId: string, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
