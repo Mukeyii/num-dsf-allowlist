@@ -37,6 +37,10 @@ export const en = {
   sendForApproval: 'Send for Approval',
   downloadAllowList: 'Download Allow List',
   searchEntities: 'Search entities…',
+  searchCertValidUntil: 'Valid until {date}',
+  searchClearAria: 'Clear search',
+  searchResultsAria: 'Search results',
+  searchNoResults: 'No results for "{query}"',
   organization: 'Organization',
   contacts: 'Contacts',
   endpoints: 'Endpoints',
@@ -77,6 +81,7 @@ export const en = {
   relAgoHours: '{n}h ago',
   relAgoDays: '{n}d ago',
   noActivityYet: 'No activity yet.',
+  activityEntryCount: '{n} entries',
   noNotificationsYet: 'No notifications yet.',
   notifications: 'Notifications',
   clearAll: 'Clear all',
@@ -129,6 +134,17 @@ export const en = {
   adminSnapshotNoCerts: 'No certificates',
   adminSnapshotNoMemberships: 'No memberships',
   adminSnapshotExpires: 'Expires: {date}',
+
+  // RequestCard (admin snapshot viewer)
+  requestCardCountEndpoints: '{n} Endpoint(s)',
+  requestCardCountCertificates: '{n} Certificate(s)',
+  requestCardCountMemberships: '{n} Membership(s)',
+  requestCardCountContacts: '{n} Contact(s)',
+  requestCardFieldId: 'ID',
+  requestCardSectionEndpoints: 'Endpoints ({n})',
+  requestCardSectionCertificates: 'Certificates ({n})',
+  requestCardSectionMemberships: 'Memberships ({n})',
+  requestCardSectionContacts: 'Contacts ({n})',
 
   // AuditPage
   auditPageSubtitle: 'All changes to this instance · {n} entries',

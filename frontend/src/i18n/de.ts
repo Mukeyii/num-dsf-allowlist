@@ -38,6 +38,10 @@ export const de: Record<TranslationKey, string> = {
   sendForApproval: 'Zur Genehmigung senden',
   downloadAllowList: 'Allow-Liste herunterladen',
   searchEntities: 'Entitäten suchen…',
+  searchCertValidUntil: 'Gültig bis {date}',
+  searchClearAria: 'Suche zurücksetzen',
+  searchResultsAria: 'Suchergebnisse',
+  searchNoResults: 'Keine Ergebnisse für „{query}“',
   organization: 'Organisation',
   contacts: 'Kontakte',
   endpoints: 'Endpunkte',
@@ -78,6 +82,7 @@ export const de: Record<TranslationKey, string> = {
   relAgoHours: 'vor {n}h',
   relAgoDays: 'vor {n}d',
   noActivityYet: 'Noch keine Aktivität.',
+  activityEntryCount: '{n} Einträge',
   noNotificationsYet: 'Noch keine Benachrichtigungen.',
   notifications: 'Benachrichtigungen',
   clearAll: 'Alle löschen',
@@ -130,6 +135,17 @@ export const de: Record<TranslationKey, string> = {
   adminSnapshotNoCerts: 'Keine Zertifikate',
   adminSnapshotNoMemberships: 'Keine Mitgliedschaften',
   adminSnapshotExpires: 'Läuft ab: {date}',
+
+  // RequestCard (admin snapshot viewer)
+  requestCardCountEndpoints: '{n} Endpunkt(e)',
+  requestCardCountCertificates: '{n} Zertifikat(e)',
+  requestCardCountMemberships: '{n} Mitgliedschaft(en)',
+  requestCardCountContacts: '{n} Kontakt(e)',
+  requestCardFieldId: 'ID',
+  requestCardSectionEndpoints: 'Endpunkte ({n})',
+  requestCardSectionCertificates: 'Zertifikate ({n})',
+  requestCardSectionMemberships: 'Mitgliedschaften ({n})',
+  requestCardSectionContacts: 'Kontakte ({n})',
 
   // AuditPage
   auditPageSubtitle: 'Alle Änderungen dieser Instanz · {n} Einträge',
