@@ -18,7 +18,7 @@ import { TotpSetupPage } from '../TotpSetupPage';
 describe('TotpSetupPage', () => {
   it('renders the setup heading and loads the QR code', async () => {
     renderWithProviders(<TotpSetupPage />, {
-      route: { pathname: '/totp-setup', state: { tempToken: 'temp-123' } } as never,
+      route: { pathname: '/totp-setup', state: { tempToken: 'temp-123' } },
     });
     expect(screen.getByText('Set up two-factor authentication')).toBeInTheDocument();
     expect(await screen.findByAltText('TOTP QR Code')).toBeInTheDocument();
