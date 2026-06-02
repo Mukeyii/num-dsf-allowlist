@@ -6,12 +6,24 @@ import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * List all contacts for the instance's organization, ordered by creation time.
+ * @param instanceId Instance whose organization owns the contacts.
+ * @returns Array of contact rows; empty array if the instance has no organization.
+ */
 export async function getContacts(instanceId: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) return [];
   return db('contacts').where({ organization_id: org.identifier }).orderBy('created_at', 'asc');
 }
 
+/**
+ * Create a contact (email starts unvalidated) and write a CREATE audit log with the email redacted.
+ * Throws ORGANIZATION_NOT_FOUND if no org, TYPES_REQUIRED if types empty,
+ * INVALID_TYPE if any type is not MEDIC/DSF_ADMIN/SECURITY.
+ * @param data Contact fields; types must be a non-empty subset of valid types.
+ * @returns The newly created contact row.
+ */
 export async function createContact(
   instanceId: string,
   data: { types: string[]; name?: string; email: string; phone?: string; addressLine?: string; city?: string; postalCode?: string; countryCode?: string; },
@@ -36,6 +48,12 @@ export async function createContact(
   return db('contacts').where({ id }).first();
 }
 
+/**
+ * Update provided contact fields and write an UPDATE audit log with the email redacted.
+ * Throws ORGANIZATION_NOT_FOUND if no org, CONTACT_NOT_FOUND if the contact isn't in this org.
+ * @param data Partial contact fields; only defined keys are applied.
+ * @returns The updated contact row.
+ */
 export async function updateContact(
   instanceId: string, contactId: string,
   data: Partial<{ types: string[]; name: string; email: string; phone: string; addressLine: string; city: string; postalCode: string; countryCode: string; }>,
@@ -61,6 +79,10 @@ export async function updateContact(
   return db('contacts').where({ id: contactId }).first();
 }
 
+/**
+ * Hard-delete a contact and write a DELETE audit log.
+ * Throws ORGANIZATION_NOT_FOUND if no org, CONTACT_NOT_FOUND if the contact isn't in this org.
+ */
 export async function deleteContact(instanceId: string, contactId: string, userEmail: string, ipAddress: string) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
@@ -70,6 +92,11 @@ export async function deleteContact(instanceId: string, contactId: string, userE
   await writeAuditLog({ userEmail, instanceId, resourceType: 'CONTACT', resourceId: contactId, operation: 'DELETE', ipAddress });
 }
 
+/**
+ * Re-trigger email verification for an unvalidated contact (currently audit-only; real send is TODO).
+ * Throws ORGANIZATION_NOT_FOUND if no org, CONTACT_NOT_FOUND if not in this org,
+ * ALREADY_VALIDATED if the contact's email is already validated.
+ */
 export async function resendVerification(
   instanceId: string,
   contactId: string,
