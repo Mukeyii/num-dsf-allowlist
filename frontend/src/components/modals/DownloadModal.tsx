@@ -1,3 +1,7 @@
+/**
+ * DownloadModal.tsx — modal to download the FHIR allow-list bundle and the IP-address Excel list.
+ * Gates downloads behind a disclaimer acknowledgment; exposes the bundle URL and a content preview.
+ */
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Modal } from './Modal';

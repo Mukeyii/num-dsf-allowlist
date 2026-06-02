@@ -1,3 +1,7 @@
+/**
+ * FormField.tsx — shared modal form primitives: FormField wrapper, input/select classNames, and ModalFooter.
+ * Renders labels, hints, and error messages; ModalFooter provides cancel/submit buttons with loading state.
+ */
 import React from 'react';
 import { useI18n } from '../../stores/i18n.store';
 

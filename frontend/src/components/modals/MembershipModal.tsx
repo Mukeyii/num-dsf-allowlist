@@ -1,3 +1,7 @@
+/**
+ * MembershipModal.tsx — add/edit modal for a membership (parent org, endpoint, roles).
+ * React Hook Form + membershipSchema; create/update through useMemberships behind the cross-user guard.
+ */
 import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

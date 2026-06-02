@@ -1,3 +1,7 @@
+/**
+ * CertificateModal.tsx — modal to add a certificate by pasting or drag-dropping a PEM file.
+ * Validates via certificateSchema (rejects private keys) and submits through the cross-user guard.
+ */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

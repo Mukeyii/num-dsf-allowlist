@@ -1,3 +1,7 @@
+/**
+ * InstanceCreateModal.tsx — modal that creates a new DSF instance and selects it as active.
+ * Shows onboarding steps; invalidates the instances query and updates the canvas store on success.
+ */
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
