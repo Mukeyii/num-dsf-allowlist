@@ -5,10 +5,21 @@
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 
+/**
+ * Fetch the single organization belonging to an instance.
+ * @param instanceId Instance to look up.
+ * @returns The organization row, or null if none exists.
+ */
 export async function getOrganization(instanceId: string) {
   return db('organizations').where({ instance_id: instanceId }).first() ?? null;
 }
 
+/**
+ * Create or update the instance's organization and write a CREATE/UPDATE audit log (email omitted from the diff).
+ * On update, throws IDENTIFIER_IMMUTABLE if data.identifier differs from the existing FQDN identifier.
+ * @param data Organization fields; identifier is the cross-tool primary key and cannot change after creation.
+ * @returns The resulting organization row.
+ */
 export async function upsertOrganization(
   instanceId: string,
   data: {
