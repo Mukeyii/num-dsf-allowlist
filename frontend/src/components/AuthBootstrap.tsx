@@ -136,7 +136,7 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
           >
             dsf.
           </span>
-          <p style={{ fontSize: '12px', color: '#9b9fad', marginTop: '8px' }}>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
             Restoring session…
           </p>
         </div>
