@@ -182,8 +182,10 @@ State + forms: TanStack Query 5, Zustand, React Hook Form, Zod. Auth: JWT RS256 
 |---|---|
 | API reference | [`docs/wiki/API-Reference.md`](docs/wiki/API-Reference.md) |
 | Architecture | [`docs/wiki/Architecture.md`](docs/wiki/Architecture.md) |
+| Architecture decisions (ADRs) | [`docs/adr/`](docs/adr/) |
 | Database schema, ERD & migrations | [`docs/database/`](docs/database/) |
 | Deployment guide | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) |
+| Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Security policy & threat model | [`SECURITY.md`](SECURITY.md) |
 | License | [`LICENSE`](LICENSE) |
 
