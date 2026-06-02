@@ -24,6 +24,39 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+describe('ContactModal open/close', () => {
+  it('renders nothing when closed', () => {
+    const { container } = render(
+      <Wrapper>
+        <ContactModal open={false} onClose={() => {}} instanceId="i1" />
+      </Wrapper>,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders the title and the email field label when open', () => {
+    render(
+      <Wrapper>
+        <ContactModal open onClose={() => {}} instanceId="i1" />
+      </Wrapper>,
+    );
+    expect(screen.getByRole('heading', { name: /add new contact/i })).toBeInTheDocument();
+    expect(screen.getByText(/^Email$/)).toBeInTheDocument();
+  });
+
+  it('shows a validation error when submitting empty', async () => {
+    const user = userEvent.setup();
+    render(
+      <Wrapper>
+        <ContactModal open onClose={() => {}} instanceId="i1" />
+      </Wrapper>,
+    );
+    await user.click(screen.getByRole('button', { name: /add contact/i }));
+    // Zod requires at least one contact type — an inline error appears.
+    expect(await screen.findByText(/at least one/i)).toBeInTheDocument();
+  });
+});
+
 describe('ContactModal', () => {
   it('does not overwrite user input when contacts list refetches', async () => {
     const user = userEvent.setup();
