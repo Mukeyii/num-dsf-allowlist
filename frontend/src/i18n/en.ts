@@ -241,6 +241,25 @@ export const en = {
   certRenewBtn: 'Renew',
   certDaysLeft: '{n}d left',
   certRemoveBtn: 'Remove',
+  certCardFkOrganization: 'Organization',
+  certCardStatusActive: 'ACTIVE',
+
+  // EndpointsCard
+  endpointCardFkOrganization: 'Organization',
+  endpointCardEditAria: 'Edit endpoint',
+  endpointCardDeleteAria: 'Delete endpoint',
+
+  // MembershipsCard
+  membershipCardFkOrganization: 'Organization',
+  membershipCardFkEndpoint: 'Endpoint',
+  membershipCardEditAria: 'Edit membership',
+  membershipCardDeleteAria: 'Delete membership',
+
+  // ApprovalCard
+  approvalCardSubmit: 'Submit',
+  approvalCardInstanceFallback: 'Instance',
+  approvalCardRequestNum: 'Request #{n}',
+  approvalCardDaysAgo: '{n}d ago',
 
   // OrganizationModal
   orgModalTitle: 'Edit Organization',
