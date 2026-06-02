@@ -659,4 +659,49 @@ export const de: Record<TranslationKey, string> = {
   removed: 'Entfernt',
   changed: 'Geändert',
   details: 'Details',
+
+  // CommandPalette
+  cmdPlaceholder: 'Befehl eingeben…',
+  cmdNoResults: 'Keine Befehle gefunden.',
+  cmdCategoryNavigation: 'Navigation',
+  cmdCategoryActions: 'Aktionen',
+  cmdCategoryInstances: 'Instanzen',
+  cmdGoToCanvas: 'Zur Canvas',
+  cmdApprovalReview: 'Genehmigungen prüfen',
+  cmdAuditLog: 'Audit-Protokoll',
+  cmdNetworkMap: 'Netzwerkkarte',
+  cmdEditOrganization: 'Organisation bearbeiten',
+  cmdAddContact: 'Kontakt hinzufügen',
+  cmdAddEndpoint: 'Endpunkt hinzufügen',
+  cmdAddCertificate: 'Zertifikat hinzufügen',
+  cmdAddMembership: 'Mitgliedschaft hinzufügen',
+  cmdSendForApproval: 'Zur Genehmigung senden',
+  cmdDownloadAllowList: 'Allow-Liste herunterladen',
+  cmdSwitchToInstance: 'Wechseln zu {label}',
+
+  // OnboardingWizard
+  onboardingHeader: 'Erste Schritte',
+  onboardingProgress: '{done}/{total} abgeschlossen',
+  onboardingStepOrganization: 'Organisation',
+  onboardingStepContact: 'Kontakt',
+  onboardingStepEndpoint: 'Endpunkt',
+  onboardingStepCertificate: 'Zertifikat',
+  onboardingStepMembership: 'Mitgliedschaft',
+  onboardingStepSubmit: 'Einreichen',
+
+  // undoDelete (lib)
+  undoDeleteSuccess: '{label} gelöscht.',
+  undoDeleteFailed: '{label} konnte nicht gelöscht werden.',
+  undoDeleteFallbackLabel: 'Kontakt',
+
+  // ARIA labels
+  ariaClose: 'Schließen',
+  ariaEditContact: 'Kontakt bearbeiten',
+  ariaDeleteContact: 'Kontakt löschen',
+  ariaNotifications: 'Benachrichtigungen',
+  ariaClearNotifications: 'Alle Benachrichtigungen löschen',
+  ariaGoBack: 'Zurück',
+  ariaGoForward: 'Vorwärts',
+  ariaToggleTheme: 'Design umschalten',
+  ariaToggleLanguage: 'Sprache umschalten',
 };

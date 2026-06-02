@@ -658,6 +658,51 @@ export const en = {
   removed: 'Removed',
   changed: 'Changed',
   details: 'Details',
+
+  // CommandPalette
+  cmdPlaceholder: 'Type a command…',
+  cmdNoResults: 'No commands found.',
+  cmdCategoryNavigation: 'Navigation',
+  cmdCategoryActions: 'Actions',
+  cmdCategoryInstances: 'Instances',
+  cmdGoToCanvas: 'Go to Canvas',
+  cmdApprovalReview: 'Approval Review',
+  cmdAuditLog: 'Audit Log',
+  cmdNetworkMap: 'Network Map',
+  cmdEditOrganization: 'Edit Organization',
+  cmdAddContact: 'Add Contact',
+  cmdAddEndpoint: 'Add Endpoint',
+  cmdAddCertificate: 'Add Certificate',
+  cmdAddMembership: 'Add Membership',
+  cmdSendForApproval: 'Send for Approval',
+  cmdDownloadAllowList: 'Download Allow List',
+  cmdSwitchToInstance: 'Switch to {label}',
+
+  // OnboardingWizard
+  onboardingHeader: 'Getting Started',
+  onboardingProgress: '{done}/{total} complete',
+  onboardingStepOrganization: 'Organization',
+  onboardingStepContact: 'Contact',
+  onboardingStepEndpoint: 'Endpoint',
+  onboardingStepCertificate: 'Certificate',
+  onboardingStepMembership: 'Membership',
+  onboardingStepSubmit: 'Submit',
+
+  // undoDelete (lib)
+  undoDeleteSuccess: '{label} deleted.',
+  undoDeleteFailed: 'Failed to delete {label}.',
+  undoDeleteFallbackLabel: 'Contact',
+
+  // ARIA labels
+  ariaClose: 'Close',
+  ariaEditContact: 'Edit contact',
+  ariaDeleteContact: 'Delete contact',
+  ariaNotifications: 'Notifications',
+  ariaClearNotifications: 'Clear all notifications',
+  ariaGoBack: 'Go back',
+  ariaGoForward: 'Go forward',
+  ariaToggleTheme: 'Toggle theme',
+  ariaToggleLanguage: 'Toggle language',
 } as const;
 
 export type TranslationKey = keyof typeof en;
