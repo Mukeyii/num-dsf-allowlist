@@ -1,3 +1,11 @@
+-- 001_initial_schema.sql
+--
+-- Base schema: creates the database and the core tables — email_whitelist,
+-- users, refresh_tokens, instances, organizations, contacts, endpoints,
+-- endpoint_ips, certificates, memberships, approval_requests, audit_logs —
+-- with their foreign keys and unique constraints. All later migrations alter
+-- or extend these.
+
 SET NAMES utf8mb4;
 SET time_zone = '+00:00';
 
