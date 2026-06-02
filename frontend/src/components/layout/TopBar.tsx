@@ -25,8 +25,8 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
           onClick={() => navigate(-1)}
           className="transition-colors"
           style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', color: 'var(--text-muted)' }}
-          title="Back"
-          aria-label="Go back"
+          title={t('ariaGoBack')}
+          aria-label={t('ariaGoBack')}
         >
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
@@ -34,8 +34,8 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
           onClick={() => navigate(1)}
           className="transition-colors"
           style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', color: 'var(--text-muted)' }}
-          title="Forward"
-          aria-label="Go forward"
+          title={t('ariaGoForward')}
+          aria-label={t('ariaGoForward')}
         >
           <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
         </button>
@@ -50,14 +50,14 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
 
       <div className="flex items-center gap-3">
         {/* Theme toggle */}
-        <button onClick={toggleTheme} aria-label="Toggle theme" style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px' }} title={dark ? 'Light Mode' : 'Dark Mode'}>
+        <button onClick={toggleTheme} aria-label={t('ariaToggleTheme')} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px' }} title={dark ? t('lightMode') : t('darkMode')}>
           <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-secondary)' }}>
             {dark ? 'light_mode' : 'dark_mode'}
           </span>
         </button>
 
         {/* Language toggle */}
-        <button onClick={() => setLang(lang === 'en' ? 'de' : 'en')} aria-label="Toggle language" style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }} title={lang === 'en' ? 'Deutsch' : 'English'}>
+        <button onClick={() => setLang(lang === 'en' ? 'de' : 'en')} aria-label={t('ariaToggleLanguage')} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }} title={lang === 'en' ? 'Deutsch' : 'English'}>
           {lang.toUpperCase()}
         </button>
 
