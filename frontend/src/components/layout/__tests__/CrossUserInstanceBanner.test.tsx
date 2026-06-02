@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi } from 'vitest';
+import { renderWithProviders } from '../../../test/renderWithProviders';
 import { CrossUserInstanceBanner } from '../CrossUserInstanceBanner';
 
 let me: any = { email: 'admin@imi-test.example.de', isAdmin: true };
@@ -44,6 +45,23 @@ describe('CrossUserInstanceBanner', () => {
     me = { email: 'member@imi-test.example.de', isAdmin: false };
     instance = { id: 'i1', label: 'Foreign', owner_email: 'someone-else@example.de' };
     render(<Wrapper><CrossUserInstanceBanner instanceId="i1" /></Wrapper>);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+});
+
+describe('CrossUserInstanceBanner (shared harness)', () => {
+  it('renders the cross-user alert through renderWithProviders', () => {
+    me = { email: 'admin@imi-test.example.de', isAdmin: true };
+    instance = { id: 'i1', label: 'Foreign', owner_email: 'someone-else@example.de' };
+    renderWithProviders(<CrossUserInstanceBanner instanceId="i1" />);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByText(/someone-else@example\.de/)).toBeInTheDocument();
+  });
+
+  it('renders nothing when no instanceId is supplied', () => {
+    me = { email: 'admin@imi-test.example.de', isAdmin: true };
+    instance = { id: 'i1', label: 'Foreign', owner_email: 'someone-else@example.de' };
+    renderWithProviders(<CrossUserInstanceBanner instanceId={null} />);
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
