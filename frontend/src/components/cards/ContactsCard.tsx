@@ -1,3 +1,7 @@
+/**
+ * ContactsCard.tsx — entity card listing organization contacts with type badges and email-validation state.
+ * Supports add/edit (useModals), resend-verification, and undoable cross-user-guarded deletion.
+ */
 import { useContacts, useDeleteContact } from '../../hooks/useContacts';
 import { EntityCard }      from './EntityCard';
 import { FkLink }          from './FkLink';

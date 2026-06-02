@@ -1,3 +1,7 @@
+/**
+ * CertificatesCard.tsx — entity card listing org certificates with validity bars and expiry days.
+ * Supports renew/add (via useModals) and undoable, cross-user-guarded deletion.
+ */
 import { useCertificates, useDeleteCertificate } from '../../hooks/useCertificates';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { EntityCard }       from './EntityCard';

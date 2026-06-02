@@ -1,3 +1,7 @@
+/**
+ * MembershipsCard.tsx — entity card listing memberships (parent org + roles) with FK links to org/endpoint.
+ * Supports add/edit (useModals) and undoable cross-user-guarded deletion.
+ */
 import { useMemberships, useDeleteMembership } from '../../hooks/useMemberships';
 import { useOrganization }  from '../../hooks/useOrganization';
 import { useEndpoints }     from '../../hooks/useEndpoints';
