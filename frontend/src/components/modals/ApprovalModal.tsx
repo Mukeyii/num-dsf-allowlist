@@ -12,6 +12,7 @@ import { useCertificates } from '../../hooks/useCertificates';
 import { useMemberships } from '../../hooks/useMemberships';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 function Section({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -64,7 +65,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
       toast.success(t('approvalModalSubmitSuccess'));
       onClose();
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || '';
+      const msg = getErrorMessage(err, '');
       if (msg.includes('ALREADY_PENDING')) { toast.error(t('approvalModalAlreadyPending')); }
       else { toast.error(msg || t('approvalModalSubmitFailed')); }
     }

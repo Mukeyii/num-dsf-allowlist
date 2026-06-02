@@ -8,6 +8,7 @@ import { organizationSchema, OrganizationFormData } from '../../schemas/organiza
 import { useUpdateOrganization } from '../../hooks/useOrganization';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface Props {
   open: boolean;
@@ -44,7 +45,7 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
       onClose();
       reset();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || t('orgModalSaveFailed'));
+      toast.error(getErrorMessage(err, t('orgModalSaveFailed')));
     }
   }
 

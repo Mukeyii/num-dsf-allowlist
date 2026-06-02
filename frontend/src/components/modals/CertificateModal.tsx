@@ -8,6 +8,7 @@ import { certificateSchema, CertificateFormData } from '../../schemas/certificat
 import { useCreateCertificate } from '../../hooks/useCertificates';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface Props { open: boolean; onClose: () => void; instanceId: string; }
 
@@ -46,7 +47,7 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
       onClose();
       reset();
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || t('certModalSaveFailed');
+      const msg = getErrorMessage(err, t('certModalSaveFailed'));
       if (msg.includes('PRIVATE_KEY')) {
         toast.error(t('certModalPrivateKeyDetected'));
       } else { toast.error(msg); }
