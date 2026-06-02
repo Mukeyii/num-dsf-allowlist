@@ -54,6 +54,11 @@ export async function listForUser(userId: string, callerEmail?: string): Promise
   }));
 }
 
+/**
+ * Create a new instance owned by the user (label defaults to the generated id) and write a CREATE audit log.
+ * Throws INSTANCE_CREATE_FAILED if the inserted row cannot be read back.
+ * @returns The newly created instance row.
+ */
 export async function createInstance(
   userId: string,
   userEmail: string,
