@@ -38,7 +38,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
       }
       onAdd={() => useModals.getState().openModal('certificate-add')}
     >
-      {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
+      {org && <FkLink label={t('certCardFkOrganization')} targetEntity="organization" value={org.identifier} />}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</p>}
@@ -56,7 +56,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
                 <span style={{
                   padding: '1px 8px', borderRadius: '99px', fontSize: '9px', fontWeight: 700,
                   background: '#dcfce7', color: '#15803d',
-                }}>ACTIVE</span>
+                }}>{t('certCardStatusActive')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ flex: 1, height: '6px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
