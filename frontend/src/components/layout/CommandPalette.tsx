@@ -103,11 +103,12 @@ export function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       {/* Backdrop */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }} />
+      <div className="anim-fade-in" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }} />
 
       {/* Palette */}
       <div
         onClick={e => e.stopPropagation()}
+        className="anim-scale-in"
         style={{
           position: 'relative', width: '480px', maxHeight: '400px',
           background: 'var(--bg-card)', borderRadius: '16px', overflow: 'hidden',
