@@ -30,6 +30,27 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+describe('EndpointModal open/close', () => {
+  it('renders nothing when closed', () => {
+    const { container } = render(
+      <Wrapper>
+        <EndpointModal open={false} onClose={() => {}} instanceId="i1" />
+      </Wrapper>,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders the add title and an identifier field when open', () => {
+    render(
+      <Wrapper>
+        <EndpointModal open onClose={() => {}} instanceId="i1" />
+      </Wrapper>,
+    );
+    expect(screen.getByRole('heading', { name: /add new endpoint/i })).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-identifier-input')).toBeInTheDocument();
+  });
+});
+
 describe('EndpointModal', () => {
   it('does not overwrite user input when endpoints list refetches', async () => {
     const user = userEvent.setup();
