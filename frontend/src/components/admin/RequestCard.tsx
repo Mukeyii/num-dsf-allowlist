@@ -353,16 +353,16 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
         <div style={{ marginTop: '8px', marginBottom: '4px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#ede9ff', color: '#6c63ff', fontWeight: 600 }}>
-              {(snapshot.endpoints || []).length} Endpoint(s)
+              {t('requestCardCountEndpoints', { n: (snapshot.endpoints || []).length })}
             </span>
             <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#fef9e7', color: '#b45309', fontWeight: 600 }}>
-              {(snapshot.certificates || []).length} Certificate(s)
+              {t('requestCardCountCertificates', { n: (snapshot.certificates || []).length })}
             </span>
             <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#e8f4fd', color: '#1d4ed8', fontWeight: 600 }}>
-              {(snapshot.memberships || []).length} Membership(s)
+              {t('requestCardCountMemberships', { n: (snapshot.memberships || []).length })}
             </span>
             <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#f0fff8', color: '#059669', fontWeight: 600 }}>
-              {(snapshot.contacts || []).length} Contact(s)
+              {t('requestCardCountContacts', { n: (snapshot.contacts || []).length })}
             </span>
           </div>
         </div>
@@ -376,14 +376,14 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           gap: '12px',
         }}>
           {/* Organization */}
-          <SnapshotSection title="Organization" color="#6c63ff" icon="corporate_fare">
+          <SnapshotSection title={t('organization')} color="#6c63ff" icon="corporate_fare">
             {snapshot.organization ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <SnapshotField label={t('orgCardName')} value={snapshot.organization.name} />
-                <SnapshotField label="ID" value={snapshot.organization.identifier} mono />
+                <SnapshotField label={t('requestCardFieldId')} value={snapshot.organization.identifier} mono />
                 {snapshot.organization.email && <SnapshotField label={t('orgCardEmail')} value={String(snapshot.organization.email)} />}
                 {snapshot.organization.city && <SnapshotField label={t('orgCardCity')} value={String(snapshot.organization.city)} />}
-                {snapshot.organization.country_code && <SnapshotField label="Country" value={String(snapshot.organization.country_code)} />}
+                {snapshot.organization.country_code && <SnapshotField label={t('mapDetailsCountry')} value={String(snapshot.organization.country_code)} />}
               </div>
             ) : (
               <EmptyNote>{t('adminSnapshotNoOrg')}</EmptyNote>
@@ -391,7 +391,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           </SnapshotSection>
 
           {/* Endpoints */}
-          <SnapshotSection title={`Endpoints (${endpoints.length})`} color="#3ecfb2" icon="dns">
+          <SnapshotSection title={t('requestCardSectionEndpoints', { n: endpoints.length })} color="#3ecfb2" icon="dns">
             {endpoints.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {endpoints.map((ep, i) => (
@@ -423,7 +423,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           </SnapshotSection>
 
           {/* Certificates */}
-          <SnapshotSection title={`Certificates (${certificates.length})`} color="#f5a623" icon="verified_user">
+          <SnapshotSection title={t('requestCardSectionCertificates', { n: certificates.length })} color="#f5a623" icon="verified_user">
             {certificates.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {certificates.map((cert, i) => (
@@ -444,7 +444,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           </SnapshotSection>
 
           {/* Memberships */}
-          <SnapshotSection title={`Memberships (${memberships.length})`} color="#4a90d9" icon="group_work">
+          <SnapshotSection title={t('requestCardSectionMemberships', { n: memberships.length })} color="#4a90d9" icon="group_work">
             {memberships.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {memberships.map((m, i) => (
@@ -478,7 +478,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           {/* Contacts — spans full width if present */}
           {contacts.length > 0 && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <SnapshotSection title={`Contacts (${contacts.length})`} color="#8b5cf6" icon="contacts">
+              <SnapshotSection title={t('requestCardSectionContacts', { n: contacts.length })} color="#8b5cf6" icon="contacts">
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {contacts.map((c, i) => (
                     <div key={i} style={{
