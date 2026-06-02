@@ -10,6 +10,7 @@ import { useAuthStore } from './stores/auth.store';
 import { ToastProvider } from './components/ToastProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
+import { getErrorMessage } from './lib/getErrorMessage';
 import './index.css';
 import './stores/theme.store';
 
@@ -80,7 +81,7 @@ const queryClient = new QueryClient({
     },
     mutations: {
       onError: (error: any) => {
-        const msg = error?.response?.data?.error?.message;
+        const msg = getErrorMessage(error, '');
         if (msg && !msg.includes('ALREADY_')) {
           console.error('[Mutation]', msg);
         }
