@@ -5,12 +5,12 @@
  */
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminUsersApi, adminPromotionsApi, type WhitelistEntry } from '../api/admin.api';
 import { useI18n } from '../stores/i18n.store';
 import { useMe } from '../hooks/useMe';
-import { getErrorMessage } from '../lib/getErrorMessage';
+import { useToastMutation } from '../hooks/useToastMutation';
 
 type ActionKind = 'add' | 'lock' | 'unlock' | 'demote' | 'remove' | 'promote';
 
@@ -37,67 +37,46 @@ export function AdminUsersPage() {
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['admin', 'users'] });
 
-  const mutAdd = useMutation({
+  const mutAdd = useToastMutation({
     mutationFn: (vars: { email: string; totpCode: string }) =>
       adminUsersApi.add(vars.email, vars.totpCode),
-    onSuccess: () => { toast.success(t('adminUsersAddedToast')); invalidate(); },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('adminUsersAddedToast'),
+    onSuccess: invalidate,
   });
 
-  const mutLock = useMutation({
+  const mutLock = useToastMutation({
     mutationFn: (vars: { email: string; reason: string; totpCode: string }) =>
       adminUsersApi.lock(vars.email, vars.reason, vars.totpCode),
-    onSuccess: () => { toast.success(t('adminUsersLockedToast')); invalidate(); },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('adminUsersLockedToast'),
+    onSuccess: invalidate,
   });
 
-  const mutUnlock = useMutation({
+  const mutUnlock = useToastMutation({
     mutationFn: (vars: { email: string; totpCode: string }) =>
       adminUsersApi.unlock(vars.email, vars.totpCode),
-    onSuccess: () => { toast.success(t('adminUsersUnlockedToast')); invalidate(); },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('adminUsersUnlockedToast'),
+    onSuccess: invalidate,
   });
 
-  const mutDemote = useMutation({
+  const mutDemote = useToastMutation({
     mutationFn: (vars: { email: string; totpCode: string }) =>
       adminUsersApi.demote(vars.email, vars.totpCode),
-    onSuccess: () => { toast.success(t('adminUsersDemotedToast')); invalidate(); },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('adminUsersDemotedToast'),
+    onSuccess: invalidate,
   });
 
-  const mutRemove = useMutation({
+  const mutRemove = useToastMutation({
     mutationFn: (vars: { email: string; totpCode: string }) =>
       adminUsersApi.remove(vars.email, vars.totpCode),
-    onSuccess: () => { toast.success(t('adminUsersRemovedToast')); invalidate(); },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('adminUsersRemovedToast'),
+    onSuccess: invalidate,
   });
 
-  const mutPromote = useMutation({
+  const mutPromote = useToastMutation({
     mutationFn: (vars: { email: string; totpCode: string }) =>
       adminPromotionsApi.create(vars.email, vars.totpCode),
-    onSuccess: () => {
-      toast.success(t('adminUsersPromoteRequestedToast'));
-      qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
-    },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('adminUsersPromoteRequestedToast'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'promotions'] }),
   });
 
   if (me && !me.isAdmin) return <Navigate to="/app" replace />;
