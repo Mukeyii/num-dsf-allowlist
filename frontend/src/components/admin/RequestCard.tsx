@@ -12,14 +12,6 @@ import type { ApprovalSignature } from '../../api/admin.api';
 import { useI18n } from '../../stores/i18n.store';
 import { getErrorMessage } from '../../lib/getErrorMessage';
 
-function relTime(dateStr: string): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
-
 interface SnapshotData {
   organization?: { name?: string; identifier?: string; email?: string; city?: string; country_code?: string; active?: boolean; address_line?: string; postal_code?: string };
   endpoints?: Array<{ identifier?: string; address?: string; name?: string; ips?: Array<{ ip: string; is_fhir?: boolean; is_bpe?: boolean }> }>;
@@ -54,6 +46,15 @@ export type { RequestCardProps };
 
 export function RequestCard({ request, meEmail }: RequestCardProps) {
   const { t } = useI18n();
+
+  function relTime(dateStr: string): string {
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    if (diff < 60) return t('relJustNow');
+    if (diff < 3600) return t('relAgoMinutes', { n: Math.floor(diff / 60) });
+    if (diff < 86400) return t('relAgoHours', { n: Math.floor(diff / 3600) });
+    return t('relAgoDays', { n: Math.floor(diff / 86400) });
+  }
+
   const [expanded, setExpanded] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [comment, setComment] = useState('');
