@@ -12,6 +12,7 @@ import { adminPromotionsApi, type PromotionRequest } from '../api/admin.api';
 import { useI18n } from '../stores/i18n.store';
 import { useMe } from '../hooks/useMe';
 import { getErrorMessage } from '../lib/getErrorMessage';
+import { useToastMutation } from '../hooks/useToastMutation';
 
 type ActionKind = 'approve' | 'reject' | 'cancel';
 
@@ -57,30 +58,18 @@ export function AdminPromotionsPage() {
     },
   });
 
-  const mutReject = useMutation({
+  const mutReject = useToastMutation({
     mutationFn: (vars: { id: string; reason: string; totpCode: string }) =>
       adminPromotionsApi.reject(vars.id, vars.reason, vars.totpCode),
-    onSuccess: () => {
-      toast.success(t('promotionRejectedToast'));
-      qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
-    },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('promotionRejectedToast'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'promotions'] }),
   });
 
-  const mutCancel = useMutation({
+  const mutCancel = useToastMutation({
     mutationFn: (vars: { id: string; totpCode: string }) =>
       adminPromotionsApi.cancel(vars.id, vars.totpCode),
-    onSuccess: () => {
-      toast.success(t('promotionCancelledToast'));
-      qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
-    },
-    onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
-      toast.error(msg);
-    },
+    successMessage: t('promotionCancelledToast'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'promotions'] }),
   });
 
   if (me && !me.isAdmin) return <Navigate to="/app" replace />;
