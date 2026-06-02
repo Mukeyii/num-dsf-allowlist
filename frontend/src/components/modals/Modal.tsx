@@ -4,6 +4,7 @@
  */
 import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useI18n } from '../../stores/i18n.store';
 
 interface ModalProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, subtitle, children, width = 'max-w-lg' }: ModalProps) {
+  const { t } = useI18n();
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
     if (open) document.addEventListener('keydown', onKey);
@@ -79,7 +81,7 @@ export function Modal({ open, onClose, title, subtitle, children, width = 'max-w
             <h2 className="text-base font-bold text-slate-900">{title}</h2>
             {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
           </div>
-          <button onClick={onClose} aria-label="Close" className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} aria-label={t('ariaClose')} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>

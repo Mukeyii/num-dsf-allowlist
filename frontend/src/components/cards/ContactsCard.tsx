@@ -94,8 +94,8 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
               <button
                 onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('contact-edit', c.id); }}
-                title="Edit contact"
-                aria-label="Edit contact"
+                title={t('ariaEditContact')}
+                aria-label={t('ariaEditContact')}
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#ede9ff')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -105,14 +105,14 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  undoableDelete(c.name || 'Contact', () => new Promise<void>((resolve, reject) => {
+                  undoableDelete(c.name || t('undoDeleteFallbackLabel'), () => new Promise<void>((resolve, reject) => {
                     guard(async () => {
                       try { await deleteMut.mutateAsync(c.id); resolve(); } catch (e) { reject(e); }
                     });
                   }));
                 }}
-                title="Delete contact"
-                aria-label="Delete contact"
+                title={t('ariaDeleteContact')}
+                aria-label={t('ariaDeleteContact')}
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
