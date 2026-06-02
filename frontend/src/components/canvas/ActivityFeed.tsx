@@ -69,7 +69,7 @@ export function ActivityFeed() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
             <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('recentActivity')}</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{entries.length} entries</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{t('activityEntryCount', { n: entries.length })}</span>
           </div>
           <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
             {entries.map((log) => {
