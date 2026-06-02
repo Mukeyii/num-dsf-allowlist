@@ -14,6 +14,7 @@
 import { Router, Request, Response } from 'express';
 import { otpRateLimit } from '../middleware/rateLimit.middleware';
 import { REFRESH_TOKEN_TTL_MS } from '../lib/time';
+import { logger } from '../lib/logger';
 import {
   requestOtp,
   verifyOtpAndGetTempToken,
@@ -205,7 +206,7 @@ authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response)
 
   const { accessToken, refreshToken } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
   res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
-  console.warn(`[DEV_AUTO_LOGIN] issued ${role} session for ${email} from ${req.ip}`);
+  logger.warn({ role, email, ip: req.ip }, '[DEV_AUTO_LOGIN] issued dev session');
   res.json({ data: { accessToken, email, role } });
 });
 }

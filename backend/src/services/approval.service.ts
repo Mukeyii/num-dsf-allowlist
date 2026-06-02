@@ -48,7 +48,7 @@ export async function submitApproval(instanceId: string, userEmail: string, ipAd
     await writeAuditLog({ userEmail, instanceId, resourceType: 'APPROVAL', resourceId: id, operation: 'CREATE', ipAddress });
     // Notify IMI (non-blocking, outside transaction scope)
     const org = snapshot.organization;
-    notifyImiOnSubmit(id, instanceId, (org as any).identifier || instanceId, (org as any).name || 'Unknown', userEmail).catch(err => console.error('[ApprovalNotify]', err));
+    notifyImiOnSubmit(id, instanceId, (org as any).identifier || instanceId, (org as any).name || 'Unknown', userEmail).catch(err => logger.error({ err }, '[ApprovalNotify] notifyImiOnSubmit failed'));
     return trx('approval_requests').where({ id }).first();
   });
 }
