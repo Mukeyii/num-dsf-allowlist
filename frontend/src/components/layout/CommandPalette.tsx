@@ -8,6 +8,7 @@ import { useInstances } from '../../hooks/useInstance';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useModals } from '../../hooks/useModals';
 import { useMe } from '../../hooks/useMe';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Command {
   id: string;
@@ -27,6 +28,7 @@ export function CommandPalette() {
   const { data: instances = [] } = useInstances();
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const { data: me } = useMe();
+  const { t } = useI18n();
 
   // Toggle on Ctrl+K / Cmd+K
   useEffect(() => {
@@ -49,25 +51,25 @@ export function CommandPalette() {
 
   const commands: Command[] = [
     // Navigation
-    { id: 'nav-canvas', label: 'Go to Canvas', icon: 'dashboard', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app'); setOpen(false); } },
-    { id: 'nav-admin', label: 'Approval Review', icon: 'admin_panel_settings', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app/admin'); setOpen(false); } },
-    { id: 'nav-audit', label: 'Audit Log', icon: 'history', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app/audit'); setOpen(false); } },
-    { id: 'nav-map', label: 'Network Map', icon: 'hub', color: '#b01e66', category: 'Navigation', action: () => { navigate('/app/map'); setOpen(false); } },
+    { id: 'nav-canvas', label: t('cmdGoToCanvas'), icon: 'dashboard', color: '#b01e66', category: t('cmdCategoryNavigation'), action: () => { navigate('/app'); setOpen(false); } },
+    { id: 'nav-admin', label: t('cmdApprovalReview'), icon: 'admin_panel_settings', color: '#b01e66', category: t('cmdCategoryNavigation'), action: () => { navigate('/app/admin'); setOpen(false); } },
+    { id: 'nav-audit', label: t('cmdAuditLog'), icon: 'history', color: '#b01e66', category: t('cmdCategoryNavigation'), action: () => { navigate('/app/audit'); setOpen(false); } },
+    { id: 'nav-map', label: t('cmdNetworkMap'), icon: 'hub', color: '#b01e66', category: t('cmdCategoryNavigation'), action: () => { navigate('/app/map'); setOpen(false); } },
     // Actions
-    { id: 'act-org', label: 'Edit Organization', icon: 'corporate_fare', color: '#8a1750', category: 'Actions', action: () => { useModals.getState().openModal('org-edit'); setOpen(false); } },
-    { id: 'act-contact', label: 'Add Contact', icon: 'contact_phone', color: '#9b59b6', category: 'Actions', action: () => { useModals.getState().openModal('contact-add'); setOpen(false); } },
-    { id: 'act-endpoint', label: 'Add Endpoint', icon: 'hub', color: '#3ecfb2', category: 'Actions', action: () => { useModals.getState().openModal('endpoint-add'); setOpen(false); } },
-    { id: 'act-cert', label: 'Add Certificate', icon: 'verified_user', color: '#f5a623', category: 'Actions', action: () => { useModals.getState().openModal('certificate-add'); setOpen(false); } },
-    { id: 'act-membership', label: 'Add Membership', icon: 'groups', color: '#4a90d9', category: 'Actions', action: () => { useModals.getState().openModal('membership-add'); setOpen(false); } },
-    { id: 'act-approval', label: 'Send for Approval', icon: 'rule', color: '#e05c5c', category: 'Actions', action: () => { useModals.getState().openModal('approval'); setOpen(false); } },
-    { id: 'act-download', label: 'Download Allow List', icon: 'download', color: 'var(--text-secondary)', category: 'Actions', action: () => { useModals.getState().openModal('download'); setOpen(false); } },
+    { id: 'act-org', label: t('cmdEditOrganization'), icon: 'corporate_fare', color: '#8a1750', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('org-edit'); setOpen(false); } },
+    { id: 'act-contact', label: t('cmdAddContact'), icon: 'contact_phone', color: '#9b59b6', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('contact-add'); setOpen(false); } },
+    { id: 'act-endpoint', label: t('cmdAddEndpoint'), icon: 'hub', color: '#3ecfb2', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('endpoint-add'); setOpen(false); } },
+    { id: 'act-cert', label: t('cmdAddCertificate'), icon: 'verified_user', color: '#f5a623', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('certificate-add'); setOpen(false); } },
+    { id: 'act-membership', label: t('cmdAddMembership'), icon: 'groups', color: '#4a90d9', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('membership-add'); setOpen(false); } },
+    { id: 'act-approval', label: t('cmdSendForApproval'), icon: 'rule', color: '#e05c5c', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('approval'); setOpen(false); } },
+    { id: 'act-download', label: t('cmdDownloadAllowList'), icon: 'download', color: 'var(--text-secondary)', category: t('cmdCategoryActions'), action: () => { useModals.getState().openModal('download'); setOpen(false); } },
     // Instances
     ...instances.map((inst: any) => ({
       id: `inst-${inst.id}`,
-      label: `Switch to ${inst.label}`,
+      label: t('cmdSwitchToInstance', { label: inst.label }),
       icon: 'swap_horiz',
       color: '#3ecfb2',
-      category: 'Instances',
+      category: t('cmdCategoryInstances'),
       action: () => { setActiveInstance(inst.id); navigate('/app'); setOpen(false); },
     })),
   ];
@@ -124,7 +126,7 @@ export function CommandPalette() {
             value={query}
             onChange={e => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleKeyDown}
-            placeholder="Type a command…"
+            placeholder={t('cmdPlaceholder')}
             style={{ flex: 1, border: 'none', outline: 'none', fontSize: '14px', color: 'var(--text-primary)', background: 'transparent' }}
           />
           <kbd style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>ESC</kbd>
@@ -157,7 +159,7 @@ export function CommandPalette() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <p style={{ padding: '20px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>No commands found.</p>
+            <p style={{ padding: '20px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>{t('cmdNoResults')}</p>
           )}
         </div>
       </div>
