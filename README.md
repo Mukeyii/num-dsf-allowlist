@@ -39,7 +39,7 @@
 - ✅ **Approval workflow** — 4-eyes IMI review with full snapshot, 7-day silent consent, append-only audit trail
 - 🔐 **Passwordless auth** — email allow-list + OTP + TOTP, optional mTLS client-cert sign-in
 - 📦 **FHIR allow-list bundle** — RS256-signed downloads consumed by DSF BPE processes over mTLS
-- 🧪 **CI / test pipeline** — 55 unit · 12 contract · 7 Playwright E2E · 3 visual baselines, all green on every PR
+- 🧪 **CI / test pipeline** — Jest (backend) · Vitest (frontend) · contract suite · Playwright E2E + visual regression, all green on every push to `main`
 
 ---
 
@@ -181,6 +181,8 @@ State + forms: TanStack Query 5, Zustand, React Hook Form, Zod. Auth: JWT RS256 
 | Topic | Where |
 |---|---|
 | API reference | [`docs/wiki/API-Reference.md`](docs/wiki/API-Reference.md) |
+| Architecture | [`docs/wiki/Architecture.md`](docs/wiki/Architecture.md) |
+| Database schema, ERD & migrations | [`docs/database/`](docs/database/) |
 | Deployment guide | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) |
 | Security policy & threat model | [`SECURITY.md`](SECURITY.md) |
 | License | [`LICENSE`](LICENSE) |
