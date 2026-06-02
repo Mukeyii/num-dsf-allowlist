@@ -30,8 +30,8 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
       onAdd={() => useModals.getState().openModal('membership-add')}
     >
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-        {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
-        {endpoints[0] && <FkLink label="Endpoint" targetEntity="endpoints" value={endpoints[0].identifier} />}
+        {org && <FkLink label={t('membershipCardFkOrganization')} targetEntity="organization" value={org.identifier} />}
+        {endpoints[0] && <FkLink label={t('membershipCardFkEndpoint')} targetEntity="endpoints" value={endpoints[0].identifier} />}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -57,8 +57,8 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('membership-edit', ms.id); }}
-                  title="Edit membership"
-                  aria-label="Edit membership"
+                  title={t('membershipCardEditAria')}
+                  aria-label={t('membershipCardEditAria')}
                   style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#fde3ef')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -74,8 +74,8 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
                       });
                     }));
                   }}
-                  title="Delete membership"
-                  aria-label="Delete membership"
+                  title={t('membershipCardDeleteAria')}
+                  aria-label={t('membershipCardDeleteAria')}
                   style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
