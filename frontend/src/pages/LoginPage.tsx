@@ -10,6 +10,7 @@ import { authApi }    from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 import { jwtDecode }   from 'jwt-decode';
 import { useI18n } from '../stores/i18n.store';
+import { getErrorMessage } from '../lib/getErrorMessage';
 
 export function LoginPage() {
   const { t } = useI18n();
@@ -112,7 +113,7 @@ export function LoginPage() {
               setTokens(accessToken, { id: decoded.sub, email: decoded.email });
               navigate('/app', { replace: true });
             } catch (err: any) {
-              setCertError(err?.response?.data?.error?.message || t('loginCertFailed'));
+              setCertError(getErrorMessage(err, t('loginCertFailed')));
             } finally {
               setCertLoading(false);
             }

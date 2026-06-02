@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useApproveRequest, useRejectRequest } from '../../hooks/useAdmin';
 import type { ApprovalSignature } from '../../api/admin.api';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 function relTime(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -87,7 +88,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
       toast.success(t('adminToastApproveSuccess'));
       setTotpCode('');
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || t('adminToastApproveFailed');
+      const msg = getErrorMessage(err, t('adminToastApproveFailed'));
       toast.error(msg);
     }
   }
@@ -109,7 +110,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
       setComment('');
       setTotpCode('');
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || t('adminToastRejectFailed');
+      const msg = getErrorMessage(err, t('adminToastRejectFailed'));
       toast.error(msg);
     }
   }
