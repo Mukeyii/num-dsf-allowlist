@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { caBlacklistApi, type CaBlacklistRow, type KnownCaRow } from '../api/caBlacklist.api';
 import { useI18n } from '../stores/i18n.store';
+import { getErrorMessage } from '../lib/getErrorMessage';
 
 export function AdminCaBlacklistPage() {
   const { t } = useI18n();
@@ -28,7 +29,7 @@ export function AdminCaBlacklistPage() {
       qc.invalidateQueries({ queryKey: ['ca-blacklist'] });
     },
     onError: (err: any) =>
-      toast.error(err?.response?.data?.error?.message || t('caBlacklistAddFailed')),
+      toast.error(getErrorMessage(err, t('caBlacklistAddFailed'))),
   });
 
   const removeMut = useMutation({

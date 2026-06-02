@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { adminUsersApi, adminPromotionsApi, type WhitelistEntry } from '../api/admin.api';
 import { useI18n } from '../stores/i18n.store';
 import { useMe } from '../hooks/useMe';
+import { getErrorMessage } from '../lib/getErrorMessage';
 
 type ActionKind = 'add' | 'lock' | 'unlock' | 'demote' | 'remove' | 'promote';
 
@@ -41,9 +42,8 @@ export function AdminUsersPage() {
       adminUsersApi.add(vars.email, vars.totpCode),
     onSuccess: () => { toast.success(t('adminUsersAddedToast')); invalidate(); },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -52,9 +52,8 @@ export function AdminUsersPage() {
       adminUsersApi.lock(vars.email, vars.reason, vars.totpCode),
     onSuccess: () => { toast.success(t('adminUsersLockedToast')); invalidate(); },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -63,9 +62,8 @@ export function AdminUsersPage() {
       adminUsersApi.unlock(vars.email, vars.totpCode),
     onSuccess: () => { toast.success(t('adminUsersUnlockedToast')); invalidate(); },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -74,9 +72,8 @@ export function AdminUsersPage() {
       adminUsersApi.demote(vars.email, vars.totpCode),
     onSuccess: () => { toast.success(t('adminUsersDemotedToast')); invalidate(); },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -85,9 +82,8 @@ export function AdminUsersPage() {
       adminUsersApi.remove(vars.email, vars.totpCode),
     onSuccess: () => { toast.success(t('adminUsersRemovedToast')); invalidate(); },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
@@ -99,9 +95,8 @@ export function AdminUsersPage() {
       qc.invalidateQueries({ queryKey: ['admin', 'promotions'] });
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     },
   });
 
