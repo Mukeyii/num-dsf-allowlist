@@ -6,12 +6,14 @@
  */
 import React from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, type Location } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useI18n } from '../stores/i18n.store';
 
 interface ProviderOptions {
-  route?: string;
+  // A path string, or a partial location entry (e.g. with `state`) — both are
+  // accepted by MemoryRouter's initialEntries.
+  route?: string | Partial<Location>;
   lang?: 'en' | 'de';
 }
 
