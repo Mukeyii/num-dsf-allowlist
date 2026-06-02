@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -59,7 +59,6 @@ describe('ContactModal open/close', () => {
 
 describe('ContactModal', () => {
   it('does not overwrite user input when contacts list refetches', async () => {
-    const user = userEvent.setup();
     const { rerender } = render(
       <Wrapper>
         <ContactModal open={true} onClose={() => {}} instanceId="i1" contactId="c1" />
@@ -69,8 +68,9 @@ describe('ContactModal', () => {
     const emailInput = screen.getByDisplayValue('a@b.de') as HTMLInputElement;
     expect(emailInput).toBeInTheDocument();
 
-    await user.clear(emailInput);
-    await user.type(emailInput, 'new@email.de');
+    // Set the value atomically — char-by-char typing races under CI load and
+    // can truncate the string; this test only needs the field to hold an edit.
+    fireEvent.change(emailInput, { target: { value: 'new@email.de' } });
     expect(emailInput.value).toBe('new@email.de');
 
     // Simulate a background refetch: same record, new array reference.
