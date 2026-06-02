@@ -10,7 +10,6 @@ import * as svc from '../services/approval.service';
 import { verifyTotpCode } from '../services/totp.service';
 import { db } from '../db/connection';
 import { otpRateLimit } from '../middleware/rateLimit.middleware';
-import { sanitizeError } from '../lib/sanitizeError';
 
 export const adminApprovalRouter = Router();
 
