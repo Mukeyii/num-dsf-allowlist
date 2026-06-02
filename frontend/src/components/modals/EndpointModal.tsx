@@ -1,3 +1,7 @@
+/**
+ * EndpointModal.tsx — add/edit modal for a FHIR endpoint with a dynamic IP-address field array.
+ * React Hook Form + endpointSchema; create/update through useEndpoints behind the cross-user guard.
+ */
 import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

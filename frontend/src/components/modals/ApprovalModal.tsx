@@ -1,3 +1,7 @@
+/**
+ * ApprovalModal.tsx — review-and-submit modal for an instance approval request.
+ * Runs a readiness checklist (org/endpoint/cert/MEDIC contact/membership) and submits via cross-user guard.
+ */
 import { useState } from 'react';
 import React from 'react';
 import { toast } from 'sonner';

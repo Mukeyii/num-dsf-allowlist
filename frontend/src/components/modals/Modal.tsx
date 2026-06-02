@@ -1,3 +1,7 @@
+/**
+ * Modal.tsx — base portal-rendered modal shell with backdrop, Escape-to-close, and a Tab focus trap.
+ * Locks body scroll while open and auto-focuses the first focusable element; wraps all app modals.
+ */
 import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 

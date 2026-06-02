@@ -1,3 +1,7 @@
+/**
+ * OrganizationModal.tsx — edit modal for the organization record (identity, address, cert thumbprint).
+ * React Hook Form + organizationSchema; thumbprint changes require a TOTP code, saved via the cross-user guard.
+ */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
