@@ -1,3 +1,7 @@
+/**
+ * ErrorBoundary.tsx — React class boundary that catches render errors in its subtree.
+ * Logs to console and shows a reload fallback (with error message in dev builds).
+ */
 import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props { children: ReactNode; }
