@@ -13,44 +13,45 @@ import { runApprovalReminders, flushPendingNotifications } from './approval-remi
 import { runSilentConsentSweep } from './approval-silent-consent.service';
 import { runMembershipCleanup } from './membership-cleanup.service';
 import { syncAll as syncMarketplaceAll } from './marketplace-sync.service';
+import { logger } from '../lib/logger';
 
 export function startScheduler(): void {
   cron.schedule('*/5 * * * *', async () => {
     try { await flushPendingNotifications(); }
-    catch (err) { console.error('[Scheduler] flushPendingNotifications failed:', err); }
+    catch (err) { logger.error({ err }, '[Scheduler] flushPendingNotifications failed'); }
   }, { timezone: 'UTC' });
 
   cron.schedule('0 6 * * *', async () => {
     try { await runApprovalReminders(); }
-    catch (err) { console.error('[Scheduler] ApprovalReminders failed:', err); }
+    catch (err) { logger.error({ err }, '[Scheduler] ApprovalReminders failed'); }
   }, { timezone: 'UTC' });
 
   cron.schedule('0 7 * * *', async () => {
     try {
       const n = await runSilentConsentSweep();
-      if (n > 0) console.log(`[silent-consent] promoted ${n} request(s)`);
+      if (n > 0) logger.info(`[silent-consent] promoted ${n} request(s)`);
     } catch (err) {
-      console.error('[silent-consent] sweep failed', err);
+      logger.error({ err }, '[silent-consent] sweep failed');
     }
   }, { timezone: 'UTC' });
 
   cron.schedule('0 8 * * *', async () => {
     try { await runCertExpiryCheck(); }
-    catch (err) { console.error('[Scheduler] CertExpiryCheck failed:', err); }
+    catch (err) { logger.error({ err }, '[Scheduler] CertExpiryCheck failed'); }
   }, { timezone: 'UTC' });
 
   cron.schedule('0 9 * * *', async () => {
     try {
       await runMembershipCleanup();
     } catch (err) {
-      console.error('[membership-cleanup] sweep failed', err);
+      logger.error({ err }, '[membership-cleanup] sweep failed');
     }
   }, { timezone: 'UTC' });
 
   cron.schedule('0 10 * * *', async () => {
     try { await syncMarketplaceAll(); }
-    catch (err) { console.error('[Scheduler] marketplace syncAll failed:', err); }
+    catch (err) { logger.error({ err }, '[Scheduler] marketplace syncAll failed'); }
   }, { timezone: 'UTC' });
 
-  console.log('✓ Scheduler started (pending-notify */5min, approval-reminders 06:00 UTC, silent-consent 07:00 UTC, cert-check 08:00 UTC, membership-cleanup 09:00 UTC, marketplace-sync 10:00 UTC)');
+  logger.info('Scheduler started (pending-notify */5min, approval-reminders 06:00 UTC, silent-consent 07:00 UTC, cert-check 08:00 UTC, membership-cleanup 09:00 UTC, marketplace-sync 10:00 UTC)');
 }
