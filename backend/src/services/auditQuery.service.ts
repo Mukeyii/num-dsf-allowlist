@@ -44,6 +44,11 @@ export interface AuditPage<T> {
   total: number;
 }
 
+/**
+ * Page through one instance's audit logs (newest first), optionally filtered by resource/operation.
+ * @param params Pagination plus optional resource_type and operation filters.
+ * @returns The matching rows and the total count for the same filter.
+ */
 export async function listInstanceAudit(
   instanceId: string,
   params: AuditQueryParams,
@@ -64,6 +69,11 @@ export async function listInstanceAudit(
   return { rows, total: Number(countRows[0]?.count ?? 0) };
 }
 
+/**
+ * Page through audit logs joined with instance/organization labels (newest first).
+ * Admins see all rows; non-admins are scoped to instances they own (instances.user_id = userId).
+ * @returns The enriched rows and the total count for the caller's scope.
+ */
 export async function listCrossInstanceAudit(
   userId: string,
   isAdmin: boolean,
@@ -102,6 +112,11 @@ export async function listCrossInstanceAudit(
   return { rows, total };
 }
 
+/**
+ * Page through every audit log row (newest first), unscoped — for the admin "everything" view.
+ * @param params Pagination (page, limit).
+ * @returns The rows and the total count across all instances.
+ */
 export async function listAdminAudit(
   params: { page: number; limit: number },
 ): Promise<AuditPage<AuditLogRow>> {
