@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useMarketplace, useDeleteMarketplaceEntry } from '../hooks/useMarketplace';
 import { useMe } from '../hooks/useMe';
 import { useI18n } from '../stores/i18n.store';
+import { getErrorMessage } from '../lib/getErrorMessage';
 import { MarketplaceAddModal } from '../components/modals/MarketplaceAddModal';
 import { MarketplaceEditStatusModal } from '../components/modals/MarketplaceEditStatusModal';
 import type { MarketplaceEntry } from '../api/marketplace.api';
@@ -57,9 +58,8 @@ export function MarketplacePage() {
       setDeleteTarget(null);
       setDeleteTotpCode('');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     }
   }
 

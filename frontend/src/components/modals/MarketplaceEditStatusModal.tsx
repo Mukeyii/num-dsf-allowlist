@@ -11,6 +11,7 @@ import { FormField, selectClass, inputClass, ModalFooter } from './FormField';
 import { marketplaceEditFormSchema, MarketplaceEditForm } from '../../schemas/marketplace.schema';
 import { useUpdateMarketplaceStatus } from '../../hooks/useMarketplace';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface Props {
   open: boolean;
@@ -43,9 +44,8 @@ export function MarketplaceEditStatusModal({ open, onClose, entryId, currentStat
       toast.success(t('marketplaceEdit'));
       onClose();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     }
   }
 
