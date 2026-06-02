@@ -1,3 +1,7 @@
+/**
+ * EndpointsCard.tsx — entity card listing FHIR endpoints with their IP addresses (FHIR/BPE flags).
+ * Supports add/edit (useModals), undoable cross-user-guarded deletion, and an IP-diff badge.
+ */
 import { useEndpoints, useDeleteEndpoint } from '../../hooks/useEndpoints';
 import { useOrganization } from '../../hooks/useOrganization';
 import { EntityCard }      from './EntityCard';

@@ -1,3 +1,7 @@
+/**
+ * ApprovalCard.tsx — entity card showing current approval status, progress bar, and recent history.
+ * Reads useApproval/useInstance hooks; opens the approval submit modal via useModals.
+ */
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { EntityCard } from './EntityCard';
 import { useModals } from '../../hooks/useModals';
