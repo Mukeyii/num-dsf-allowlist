@@ -27,7 +27,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
       icon="hub"
       onAdd={() => useModals.getState().openModal('endpoint-add')}
     >
-      {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
+      {org && <FkLink label={t('endpointCardFkOrganization')} targetEntity="organization" value={org.identifier} />}
 
       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {isLoading && <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>}
@@ -71,8 +71,8 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
               <button
                 onClick={(e) => { e.stopPropagation(); useModals.getState().openModal('endpoint-edit', ep.identifier); }}
-                title="Edit endpoint"
-                aria-label="Edit endpoint"
+                title={t('endpointCardEditAria')}
+                aria-label={t('endpointCardEditAria')}
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#fde3ef')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
@@ -88,8 +88,8 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
                     });
                   }));
                 }}
-                title="Delete endpoint"
-                aria-label="Delete endpoint"
+                title={t('endpointCardDeleteAria')}
+                aria-label={t('endpointCardDeleteAria')}
                 style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
