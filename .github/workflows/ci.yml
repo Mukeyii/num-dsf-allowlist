@@ -80,7 +80,8 @@ jobs:
       DB_PASSWORD: testpass
       DB_ROOT_PASSWORD: testroot
       REDIS_URL: redis://localhost:6379
-      TOTP_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef
+      # 64 hex chars = 32 bytes, required by AES-256-GCM in totp.service.
+      TOTP_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
       SMTP_HOST: localhost
       SMTP_PORT: 1025
       DSF_ENVIRONMENT: TEST
