@@ -1,3 +1,7 @@
+/**
+ * ToastProvider.tsx — mounts the sonner Toaster with app-themed styling.
+ * Bottom-right placement, rich colors; rendered once at the app root.
+ */
 import { Toaster } from 'sonner';
 
 export function ToastProvider() {

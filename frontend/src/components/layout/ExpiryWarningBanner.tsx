@@ -1,3 +1,7 @@
+/**
+ * ExpiryWarningBanner.tsx — banner warning of soon-expiring certificates for the active instance.
+ * Queries getExpiringCerts; hidden when none expiring, highlights <30-day items in red.
+ */
 import { useQuery } from '@tanstack/react-query';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { api } from '../../api/entities.api';
