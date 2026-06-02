@@ -1,3 +1,7 @@
+/**
+ * certificate.schema.ts — Zod schema for certificate PEM input.
+ * Requires BEGIN/END CERTIFICATE markers and rejects any private-key material.
+ */
 import { z } from 'zod';
 
 export const certificateSchema = z.object({

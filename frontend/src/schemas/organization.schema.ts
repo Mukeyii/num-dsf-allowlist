@@ -1,3 +1,7 @@
+/**
+ * organization.schema.ts — Zod schema for organization form input (FQDN identifier, name, email, address).
+ * Validates the identifier as an FQDN and the country code as a 2-letter ISO code.
+ */
 import { z } from 'zod';
 
 export const organizationSchema = z.object({

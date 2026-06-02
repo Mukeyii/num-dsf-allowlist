@@ -1,3 +1,7 @@
+/**
+ * endpoint.schema.ts — Zod schema for endpoint form input (FQDN identifier, https URL, IP list).
+ * Validates each IP as IPv4 with FHIR/BPE flags.
+ */
 import { z } from 'zod';
 
 const ipv4Regex = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;

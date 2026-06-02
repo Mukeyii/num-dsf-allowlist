@@ -1,3 +1,7 @@
+/**
+ * contact.schema.ts — Zod schema for contact form input (types, name, email, phone, address).
+ * Requires at least one contact type and a valid email; optional fields validated when present.
+ */
 import { z } from 'zod';
 
 const CONTACT_TYPES = ['MEDIC', 'DSF_ADMIN', 'SECURITY'] as const;
