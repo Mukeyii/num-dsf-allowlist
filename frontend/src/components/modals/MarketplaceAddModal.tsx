@@ -11,6 +11,7 @@ import { FormField, inputClass, selectClass, ModalFooter } from './FormField';
 import { marketplaceAddFormSchema, MarketplaceAddForm } from '../../schemas/marketplace.schema';
 import { useAddMarketplace } from '../../hooks/useMarketplace';
 import { useI18n } from '../../stores/i18n.store';
+import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface Props {
   open: boolean;
@@ -41,9 +42,8 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
       toast.success(t('marketplaceAdd'));
       onClose();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message;
-      toast.error(msg || 'Failed');
+      const msg = getErrorMessage(err, 'Failed');
+      toast.error(msg);
     }
   }
 
