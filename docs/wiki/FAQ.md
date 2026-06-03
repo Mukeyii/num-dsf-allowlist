@@ -50,3 +50,15 @@ docker compose exec backend npx ts-node src/db/seed-testdata.ts
 
 ### "How do I export the IP address list?"
 Click "Download Allow List" in the top bar → select "IP Address List (Excel)".
+
+## Administration
+
+### "How do I add another admin?"
+After the first admin exists, `IMI_ADMIN_EMAILS` is ignored. An existing admin
+requests a promotion for the target user at `/app/admin/promotions`, and a
+**second** admin from a different site approves it (4-eyes, no silent consent).
+
+### "What is the CA blacklist?"
+A list of distrusted certificate authorities (subject DN, optionally pinned by
+SHA-256 fingerprint), managed at `/app/admin/ca-blacklist`. A certificate upload
+whose issuer matches the list is rejected with `CA_BLACKLISTED`.
