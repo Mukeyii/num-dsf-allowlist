@@ -1,0 +1,13 @@
+{
+  "name": "num-dsf-allowlist-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Repo-level developer tooling (formatting, hooks, commit linting).",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0"
+  }
+}

@@ -1,0 +1,18 @@
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+
+# Generated OpenAPI client
+frontend/src/api/
+
+# Visual snapshots & baselines must stay byte-identical
+**/__snapshots__/
+**/*.snap
+frontend/.lost-pixel/
+
+# Not Prettier-managed
+db/migrations/
+CHANGELOG.md
+*.md
