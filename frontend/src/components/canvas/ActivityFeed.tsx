@@ -18,7 +18,6 @@ const OP_STYLES: Record<string, { icon: string; color: string }> = {
   DEFAULT: { icon: 'info', color: 'var(--text-muted)' },
 };
 
-
 interface AuditEntry {
   id: string;
   timestamp: string;
@@ -54,34 +53,64 @@ export function ActivityFeed() {
   const entries: AuditEntry[] = data || [];
 
   return (
-    <div style={{
-      position: 'fixed', bottom: '20px', right: '300px',
-      zIndex: 30, fontFamily: 'Inter, system-ui, sans-serif',
-    }}>
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '300px',
+        zIndex: 30,
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       {expanded && (
-        <div style={{
-          width: '280px', marginBottom: '8px',
-          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)', overflow: 'hidden',
-        }}>
-          <div style={{
-            padding: '10px 14px', borderBottom: '1px solid var(--bg-page)',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>{t('recentActivity')}</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{t('activityEntryCount', { n: entries.length })}</span>
+        <div
+          style={{
+            width: '280px',
+            marginBottom: '8px',
+            background: 'var(--bg-card)',
+            borderRadius: '12px',
+            border: '1px solid var(--border)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              padding: '10px 14px',
+              borderBottom: '1px solid var(--bg-page)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              {t('recentActivity')}
+            </span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+              {t('activityEntryCount', { n: entries.length })}
+            </span>
           </div>
           <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
             {entries.map((log) => {
               const style = OP_STYLES[log.operation] ?? OP_STYLES.DEFAULT;
               return (
-                <div key={log.id} style={{
-                  display: 'flex', gap: '8px', padding: '8px 14px',
-                  borderBottom: '1px solid var(--bg-hover)',
-                }}>
+                <div
+                  key={log.id}
+                  style={{
+                    display: 'flex',
+                    gap: '8px',
+                    padding: '8px 14px',
+                    borderBottom: '1px solid var(--bg-hover)',
+                  }}
+                >
                   <span
                     className="material-symbols-outlined"
-                    style={{ fontSize: '14px', color: style.color, flexShrink: 0, marginTop: '1px' }}
+                    style={{
+                      fontSize: '14px',
+                      color: style.color,
+                      flexShrink: 0,
+                      marginTop: '1px',
+                    }}
                   >
                     {style.icon}
                   </span>
@@ -89,13 +118,23 @@ export function ActivityFeed() {
                     <p style={{ margin: 0, fontSize: '10px', color: 'var(--text-primary)' }}>
                       <strong>{log.operation}</strong> {log.resource_type}
                     </p>
-                    <p style={{ margin: 0, fontSize: '9px', color: 'var(--text-muted)' }}>{relTime(log.timestamp)}</p>
+                    <p style={{ margin: 0, fontSize: '9px', color: 'var(--text-muted)' }}>
+                      {relTime(log.timestamp)}
+                    </p>
                   </div>
                 </div>
               );
             })}
             {entries.length === 0 && (
-              <p style={{ padding: '16px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
+              <p
+                style={{
+                  padding: '16px',
+                  textAlign: 'center',
+                  fontSize: '11px',
+                  color: 'var(--text-muted)',
+                  margin: 0,
+                }}
+              >
                 {t('noActivityYet')}
               </p>
             )}
@@ -105,10 +144,17 @@ export function ActivityFeed() {
       <button
         onClick={() => setExpanded(!expanded)}
         style={{
-          width: '40px', height: '40px', borderRadius: '50%',
-          background: '#b01e66', border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(176,30,102,0.3)', float: 'right',
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          background: '#b01e66',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(176,30,102,0.3)',
+          float: 'right',
         }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#fff' }}>

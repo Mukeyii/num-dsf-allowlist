@@ -19,7 +19,10 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe('useToastMutation', () => {
-  beforeEach(() => { toast.success.mockClear(); toast.error.mockClear(); });
+  beforeEach(() => {
+    toast.success.mockClear();
+    toast.error.mockClear();
+  });
 
   it('shows the success toast and runs onSuccess when the mutation resolves', async () => {
     const onSuccess = vi.fn();
@@ -36,7 +39,13 @@ describe('useToastMutation', () => {
   it('shows the extracted error message when the mutation rejects', async () => {
     const err = { response: { data: { error: { message: 'Already exists' } } } };
     const { result } = renderHook(
-      () => useToastMutation({ mutationFn: async () => { throw err; }, successMessage: 'Saved' }),
+      () =>
+        useToastMutation({
+          mutationFn: async () => {
+            throw err;
+          },
+          successMessage: 'Saved',
+        }),
       { wrapper },
     );
     result.current.mutate(undefined as never);
@@ -46,7 +55,13 @@ describe('useToastMutation', () => {
 
   it('falls back to the default error text when no envelope is present', async () => {
     const { result } = renderHook(
-      () => useToastMutation({ mutationFn: async () => { throw new Error('boom'); }, successMessage: 'Saved' }),
+      () =>
+        useToastMutation({
+          mutationFn: async () => {
+            throw new Error('boom');
+          },
+          successMessage: 'Saved',
+        }),
       { wrapper },
     );
     result.current.mutate(undefined as never);

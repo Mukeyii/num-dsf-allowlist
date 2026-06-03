@@ -6,34 +6,37 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
-import { authApi }    from '../api/auth.api';
+import { authApi } from '../api/auth.api';
 import { useI18n } from '../stores/i18n.store';
 
 export function OtpPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
-  const email    = (location.state as any)?.email || '';
+  const email = (location.state as any)?.email || '';
 
-  const [digits, setDigits]   = useState<string[]>(Array(6).fill(''));
+  const [digits, setDigits] = useState<string[]>(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
-  const [resent, setResent]   = useState(false);
-  const inputRefs             = useRef<(HTMLInputElement | null)[]>([]);
-  const resendTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [error, setError] = useState('');
+  const [resent, setResent] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const resendTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!email) navigate('/login', { replace: true });
     inputRefs.current[0]?.focus();
   }, [email, navigate]);
 
-  useEffect(() => () => {
-    if (resendTimerRef.current) clearTimeout(resendTimerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (resendTimerRef.current) clearTimeout(resendTimerRef.current);
+    },
+    [],
+  );
 
   function handleDigit(index: number, value: string) {
     const digit = value.replace(/\D/g, '').slice(-1);
-    const next  = [...digits];
+    const next = [...digits];
     next[index] = digit;
     setDigits(next);
     setError('');
@@ -92,17 +95,16 @@ export function OtpPage() {
   }
 
   return (
-    <AuthLayout
-      title={t('otpTitle')}
-      subtitle={t('otpSubtitle', { email })}
-    >
+    <AuthLayout title={t('otpTitle')} subtitle={t('otpSubtitle', { email })}>
       <div className="space-y-5">
         {/* 6 Digit-Inputs */}
         <div className="flex gap-2 justify-between" onPaste={handlePaste}>
           {digits.map((d, i) => (
             <input
               key={i}
-              ref={(el) => { inputRefs.current[i] = el; }}
+              ref={(el) => {
+                inputRefs.current[i] = el;
+              }}
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -126,11 +128,15 @@ export function OtpPage() {
         </div>
 
         {error && (
-          <p className="text-xs text-center" style={{ color: '#e05c5c' }}>{error}</p>
+          <p className="text-xs text-center" style={{ color: '#e05c5c' }}>
+            {error}
+          </p>
         )}
 
         {loading && (
-          <p className="text-xs text-center" style={{ color: '#9b9fad' }}>{t('otpVerifying')}</p>
+          <p className="text-xs text-center" style={{ color: '#9b9fad' }}>
+            {t('otpVerifying')}
+          </p>
         )}
 
         {/* Resend */}

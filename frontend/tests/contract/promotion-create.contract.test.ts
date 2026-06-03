@@ -4,7 +4,9 @@ import { adminClient } from './helpers/api-client';
 
 describe('contract: admin POST /promotions creates a pending request', () => {
   let api: ContractClient;
-  beforeAll(async () => { api = await adminClient(); });
+  beforeAll(async () => {
+    api = await adminClient();
+  });
 
   it('creates a PENDING promotion for the target email (TOTP bypassed)', async () => {
     // Add a fresh whitelist email first so promote has a target.

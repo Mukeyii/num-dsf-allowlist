@@ -42,15 +42,11 @@ describe('FQDN validation – organization.identifier', () => {
 });
 
 describe('FQDN validation – endpoint.identifier', () => {
-  it.each([
-    'dsf-fhir.ukm.de',
-    'fhir.sub.example.de',
-    'Bpe.UKM.De',
-  ])('accepts %s', (id) => expect(epOk(id)).toBe(true));
+  it.each(['dsf-fhir.ukm.de', 'fhir.sub.example.de', 'Bpe.UKM.De'])('accepts %s', (id) =>
+    expect(epOk(id)).toBe(true),
+  );
 
-  it.each([
-    'dsf-fhir.ukm.de:9000',
-    'https://dsf-fhir.ukm.de',
-    'foo bar.de',
-  ])('rejects %s', (id) => expect(epOk(id)).toBe(false));
+  it.each(['dsf-fhir.ukm.de:9000', 'https://dsf-fhir.ukm.de', 'foo bar.de'])('rejects %s', (id) =>
+    expect(epOk(id)).toBe(false),
+  );
 });

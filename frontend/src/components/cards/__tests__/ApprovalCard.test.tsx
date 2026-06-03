@@ -11,7 +11,14 @@ import { useModals } from '../../../hooks/useModals';
 vi.mock('../../../hooks/useApproval', () => ({
   useApprovalStatus: () => ({ data: { status: 'PENDING' } }),
   useApprovalHistory: () => ({
-    data: [{ id: 'r1', status: 'APPROVED', submitted_at: '2026-05-01T00:00:00Z', created_at: '2026-05-01T00:00:00Z' }],
+    data: [
+      {
+        id: 'r1',
+        status: 'APPROVED',
+        submitted_at: '2026-05-01T00:00:00Z',
+        created_at: '2026-05-01T00:00:00Z',
+      },
+    ],
   }),
 }));
 vi.mock('../../../hooks/useInstance', () => ({

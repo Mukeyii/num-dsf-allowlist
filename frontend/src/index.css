@@ -28,7 +28,9 @@
   --shadow: rgba(0, 0, 0, 0.4);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -41,8 +43,9 @@ body {
 }
 
 .entity-card-shadow {
-  box-shadow: 0 4px 20px -2px rgba(138, 23, 80, 0.04),
-              0 2px 8px -1px rgba(138, 23, 80, 0.02);
+  box-shadow:
+    0 4px 20px -2px rgba(138, 23, 80, 0.04),
+    0 2px 8px -1px rgba(138, 23, 80, 0.02);
 }
 
 .glass-panel {
@@ -59,9 +62,15 @@ body {
 }
 
 @keyframes pulse-teal {
-  0%   { box-shadow: 0 0 0 0   rgba(0, 107, 90, 0.2); }
-  70%  { box-shadow: 0 0 0 6px rgba(0, 107, 90, 0);   }
-  100% { box-shadow: 0 0 0 0   rgba(0, 107, 90, 0);   }
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 107, 90, 0.2);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(0, 107, 90, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 107, 90, 0);
+  }
 }
 
 .status-pulse {
@@ -69,21 +78,45 @@ body {
 }
 
 /* ─── Brand color override: Tailwind indigo utilities → dark magenta ───── */
-.bg-indigo-50  { background-color: #fde3ef !important; }
-.bg-indigo-100 { background-color: #fbc9de !important; }
-.bg-indigo-600 { background-color: #b01e66 !important; }
-.bg-indigo-700 { background-color: #8a1750 !important; }
+.bg-indigo-50 {
+  background-color: #fde3ef !important;
+}
+.bg-indigo-100 {
+  background-color: #fbc9de !important;
+}
+.bg-indigo-600 {
+  background-color: #b01e66 !important;
+}
+.bg-indigo-700 {
+  background-color: #8a1750 !important;
+}
 
-.text-indigo-500 { color: #b01e66 !important; }
-.text-indigo-600 { color: #b01e66 !important; }
-.text-indigo-700 { color: #8a1750 !important; }
+.text-indigo-500 {
+  color: #b01e66 !important;
+}
+.text-indigo-600 {
+  color: #b01e66 !important;
+}
+.text-indigo-700 {
+  color: #8a1750 !important;
+}
 
-.border-indigo-100 { border-color: #fbc9de !important; }
-.border-indigo-200 { border-color: #f5a3c4 !important; }
+.border-indigo-100 {
+  border-color: #fbc9de !important;
+}
+.border-indigo-200 {
+  border-color: #f5a3c4 !important;
+}
 
-.hover\:bg-indigo-50:hover  { background-color: #fde3ef !important; }
-.hover\:bg-indigo-100:hover { background-color: #fbc9de !important; }
-.hover\:border-indigo-100:hover { border-color: #fbc9de !important; }
+.hover\:bg-indigo-50:hover {
+  background-color: #fde3ef !important;
+}
+.hover\:bg-indigo-100:hover {
+  background-color: #fbc9de !important;
+}
+.hover\:border-indigo-100:hover {
+  border-color: #fbc9de !important;
+}
 
 /* ─── Auth-screen background: aurora blobs (IMI logo gradient) ──────────── */
 .auth-aurora {
@@ -133,25 +166,44 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at 50% 50%, #10b981 0%, #38bdf8 60%, transparent 100%);
-  opacity: 0.10;
+  opacity: 0.1;
   animation: aurora-drift-3 40s ease-in-out infinite;
 }
 
 @keyframes aurora-drift-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(80px, 60px) scale(1.12); }
-  66%      { transform: translate(40px, 120px) scale(0.95); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(80px, 60px) scale(1.12);
+  }
+  66% {
+    transform: translate(40px, 120px) scale(0.95);
+  }
 }
 
 @keyframes aurora-drift-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(-60px, -40px) scale(1.08); }
-  66%      { transform: translate(-100px, 30px) scale(0.92); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-60px, -40px) scale(1.08);
+  }
+  66% {
+    transform: translate(-100px, 30px) scale(0.92);
+  }
 }
 
 @keyframes aurora-drift-3 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50%      { transform: translate(-42%, -58%) scale(1.15); }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-42%, -58%) scale(1.15);
+  }
 }
 
 /* Gradient wordmark — matches IMI logo palette */
@@ -166,15 +218,20 @@ body {
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
-          background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-          color: transparent;
+  color: transparent;
   animation: wordmark-shimmer 8s ease-in-out infinite;
 }
 
 @keyframes wordmark-shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50%      { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 /* ─── Micro-interactions ──────────────────────────────────────────────────
@@ -183,21 +240,37 @@ body {
    are unaffected. All are disabled under prefers-reduced-motion below. */
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.anim-fade-in  { animation: fade-in 0.15s ease-out; }
-.anim-scale-in { animation: scale-in 0.16s cubic-bezier(0.16, 1, 0.3, 1); }
+.anim-fade-in {
+  animation: fade-in 0.15s ease-out;
+}
+.anim-scale-in {
+  animation: scale-in 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 /* Card lift on hover — resting transform is identity, so no static change. */
 .hover-lift {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .hover-lift:hover {
   transform: translateY(-2px);
@@ -230,15 +303,29 @@ body {
 }
 
 /* Dark mode overrides for Tailwind utility classes */
-:root.dark .bg-white { background-color: var(--bg-card) !important; }
-:root.dark .text-slate-900 { color: var(--text-primary) !important; }
-:root.dark .border-slate-100 { border-color: var(--border) !important; }
-:root.dark .border-slate-200 { border-color: var(--border) !important; }
-:root.dark .bg-slate-50 { background-color: var(--bg-hover) !important; }
+:root.dark .bg-white {
+  background-color: var(--bg-card) !important;
+}
+:root.dark .text-slate-900 {
+  color: var(--text-primary) !important;
+}
+:root.dark .border-slate-100 {
+  border-color: var(--border) !important;
+}
+:root.dark .border-slate-200 {
+  border-color: var(--border) !important;
+}
+:root.dark .bg-slate-50 {
+  background-color: var(--bg-hover) !important;
+}
 :root.dark .text-slate-400,
-:root.dark .text-slate-500 { color: var(--text-muted) !important; }
+:root.dark .text-slate-500 {
+  color: var(--text-muted) !important;
+}
 :root.dark .text-slate-600,
-:root.dark .text-slate-700 { color: var(--text-secondary) !important; }
+:root.dark .text-slate-700 {
+  color: var(--text-secondary) !important;
+}
 
 /* Modern scrollbar styling */
 ::-webkit-scrollbar {
@@ -266,46 +353,110 @@ body {
 }
 
 /* Dark mode: pastel background overrides */
-:root.dark .bg-amber-50 { background-color: rgba(245, 166, 35, 0.1) !important; }
-:root.dark .bg-amber-100 { background-color: rgba(245, 166, 35, 0.15) !important; }
-:root.dark .bg-emerald-100 { background-color: rgba(34, 197, 94, 0.12) !important; }
-:root.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.12) !important; }
-:root.dark .bg-blue-100 { background-color: rgba(99, 102, 241, 0.12) !important; }
-:root.dark .bg-indigo-100 { background-color: rgba(176, 30, 102, 0.12) !important; }
-:root.dark .bg-indigo-50 { background-color: rgba(176, 30, 102, 0.08) !important; }
-:root.dark .bg-teal-100 { background-color: rgba(62, 207, 178, 0.12) !important; }
-:root.dark .bg-orange-100 { background-color: rgba(249, 115, 22, 0.12) !important; }
+:root.dark .bg-amber-50 {
+  background-color: rgba(245, 166, 35, 0.1) !important;
+}
+:root.dark .bg-amber-100 {
+  background-color: rgba(245, 166, 35, 0.15) !important;
+}
+:root.dark .bg-emerald-100 {
+  background-color: rgba(34, 197, 94, 0.12) !important;
+}
+:root.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+}
+:root.dark .bg-blue-100 {
+  background-color: rgba(99, 102, 241, 0.12) !important;
+}
+:root.dark .bg-indigo-100 {
+  background-color: rgba(176, 30, 102, 0.12) !important;
+}
+:root.dark .bg-indigo-50 {
+  background-color: rgba(176, 30, 102, 0.08) !important;
+}
+:root.dark .bg-teal-100 {
+  background-color: rgba(62, 207, 178, 0.12) !important;
+}
+:root.dark .bg-orange-100 {
+  background-color: rgba(249, 115, 22, 0.12) !important;
+}
 
 /* Dark mode: pastel border overrides */
-:root.dark .border-amber-200 { border-color: rgba(245, 166, 35, 0.2) !important; }
-:root.dark .border-indigo-100 { border-color: rgba(176, 30, 102, 0.15) !important; }
+:root.dark .border-amber-200 {
+  border-color: rgba(245, 166, 35, 0.2) !important;
+}
+:root.dark .border-indigo-100 {
+  border-color: rgba(176, 30, 102, 0.15) !important;
+}
 
 /* Dark mode: pastel text overrides */
-:root.dark .text-amber-800 { color: #f5a623 !important; }
-:root.dark .text-amber-700 { color: #f5a623 !important; }
-:root.dark .text-amber-500 { color: #f5a623 !important; }
-:root.dark .text-emerald-700 { color: #22c55e !important; }
-:root.dark .text-red-700 { color: #ef4444 !important; }
-:root.dark .text-red-600 { color: #ef4444 !important; }
-:root.dark .text-indigo-700 { color: #e06399 !important; }
+:root.dark .text-amber-800 {
+  color: #f5a623 !important;
+}
+:root.dark .text-amber-700 {
+  color: #f5a623 !important;
+}
+:root.dark .text-amber-500 {
+  color: #f5a623 !important;
+}
+:root.dark .text-emerald-700 {
+  color: #22c55e !important;
+}
+:root.dark .text-red-700 {
+  color: #ef4444 !important;
+}
+:root.dark .text-red-600 {
+  color: #ef4444 !important;
+}
+:root.dark .text-indigo-700 {
+  color: #e06399 !important;
+}
 
 @media print {
   /* Hide everything except the audit table */
-  aside, nav, .material-symbols-outlined, button, select { display: none !important; }
-  [style*="marginLeft: 220px"] { margin-left: 0 !important; }
-  [style*="marginRight: 280px"] { margin-right: 0 !important; }
-  body { background: white !important; color: black !important; }
-  table { width: 100% !important; font-size: 10px !important; }
-  @page { margin: 1cm; }
+  aside,
+  nav,
+  .material-symbols-outlined,
+  button,
+  select {
+    display: none !important;
+  }
+  [style*='marginLeft: 220px'] {
+    margin-left: 0 !important;
+  }
+  [style*='marginRight: 280px'] {
+    margin-right: 0 !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  table {
+    width: 100% !important;
+    font-size: 10px !important;
+  }
+  @page {
+    margin: 1cm;
+  }
 }
 
 /* Dark mode: inline pastel backgrounds used in components */
-:root.dark [style*="background: #fde3ef"],
-:root.dark [style*="background: rgb(237, 233, 255)"] { background: rgba(176, 30, 102, 0.12) !important; }
-:root.dark [style*="background: #fef3c7"] { background: rgba(245, 166, 35, 0.12) !important; }
-:root.dark [style*="background: #dcfce7"] { background: rgba(34, 197, 94, 0.12) !important; }
-:root.dark [style*="background: #fef2f2"] { background: rgba(239, 68, 68, 0.1) !important; }
-:root.dark [style*="background: #f0fdf4"] { background: rgba(34, 197, 94, 0.08) !important; }
+:root.dark [style*='background: #fde3ef'],
+:root.dark [style*='background: rgb(237, 233, 255)'] {
+  background: rgba(176, 30, 102, 0.12) !important;
+}
+:root.dark [style*='background: #fef3c7'] {
+  background: rgba(245, 166, 35, 0.12) !important;
+}
+:root.dark [style*='background: #dcfce7'] {
+  background: rgba(34, 197, 94, 0.12) !important;
+}
+:root.dark [style*='background: #fef2f2'] {
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+:root.dark [style*='background: #f0fdf4'] {
+  background: rgba(34, 197, 94, 0.08) !important;
+}
 
 /* IMI-logo gradient frame for the GeoMap container on /app/map.
  * Stops mirror the IMI operator logo's diagonal magenta -> blue -> green progression. */

@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: '.',
-  fullyParallel: false,    // shared docker stack — run serially
+  fullyParallel: false, // shared docker stack — run serially
   retries: 0,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
@@ -12,7 +12,5 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  ],
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });

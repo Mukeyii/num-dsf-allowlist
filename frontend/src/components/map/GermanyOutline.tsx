@@ -8,14 +8,14 @@ import { GERMANY_PATHS } from './germanyPaths';
 import { useThemeStore } from '../../stores/theme.store';
 
 export const GermanyOutline = React.memo(function GermanyOutline() {
-  const dark = useThemeStore(s => s.dark);
+  const dark = useThemeStore((s) => s.dark);
   const fill = dark ? '#1e293b' : '#fde3ef';
   const stroke = dark ? '#94a3b8' : '#b01e66';
   const fillOpacity = dark ? 0.7 : 0.55;
   const strokeOpacity = dark ? 0.45 : 0.25;
   return (
     <g style={{ pointerEvents: 'none' }}>
-      {GERMANY_PATHS.map(p => (
+      {GERMANY_PATHS.map((p) => (
         <path
           key={p.id}
           d={p.d}

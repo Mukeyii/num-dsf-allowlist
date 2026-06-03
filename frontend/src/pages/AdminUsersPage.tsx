@@ -109,11 +109,22 @@ export function AdminUsersPage() {
   }
 
   return (
-    <div style={{ flex: 1, padding: '32px', overflowY: 'auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div
+      style={{
+        flex: 1,
+        padding: '32px',
+        overflowY: 'auto',
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>group</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+          group
+        </span>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          <h1
+            style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}
+          >
             {t('adminUsersTitle')}
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
@@ -125,19 +136,21 @@ export function AdminUsersPage() {
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
 
       {/* Add row */}
-      <div style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border)',
-        borderRadius: '12px',
-        padding: '14px 18px',
-        marginBottom: '20px',
-        display: 'flex',
-        gap: '8px',
-        alignItems: 'center',
-      }}>
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: '12px',
+          padding: '14px 18px',
+          marginBottom: '20px',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+        }}
+      >
         <input
           value={newEmail}
-          onChange={e => setNewEmail(e.target.value)}
+          onChange={(e) => setNewEmail(e.target.value)}
           placeholder={t('adminUsersAddPlaceholder')}
           style={{
             flex: 1,
@@ -150,7 +163,10 @@ export function AdminUsersPage() {
         />
         <button
           onClick={() => {
-            if (!newEmail) { toast.error(t('adminUsersAddPlaceholder')); return; }
+            if (!newEmail) {
+              toast.error(t('adminUsersAddPlaceholder'));
+              return;
+            }
             setPending({ kind: 'add' });
           }}
           style={{
@@ -170,12 +186,14 @@ export function AdminUsersPage() {
       {isLoading && <p style={{ color: 'var(--text-muted)' }}>{t('loading')}</p>}
 
       {users && (
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}>
+        <div
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          }}
+        >
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
             <thead>
               <tr style={{ background: 'var(--bg-page)' }}>
@@ -187,7 +205,7 @@ export function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
+              {users.map((u) => (
                 <Row
                   key={u.email}
                   u={u}
@@ -209,7 +227,7 @@ export function AdminUsersPage() {
           {pending.kind === 'lock' && (
             <textarea
               value={lockReason}
-              onChange={e => setLockReason(e.target.value)}
+              onChange={(e) => setLockReason(e.target.value)}
               placeholder={t('adminUsersLockReasonPlaceholder')}
               rows={3}
               style={{
@@ -226,7 +244,7 @@ export function AdminUsersPage() {
           )}
           <input
             value={totpCode}
-            onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             placeholder="000000"
             maxLength={6}
             style={{
@@ -242,9 +260,15 @@ export function AdminUsersPage() {
               color: 'var(--text-primary)',
             }}
           />
-          <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <button onClick={reset} style={cancelBtn}>{t('cancel')}</button>
-            <button onClick={execute} style={confirmBtn}>{t('confirm')}</button>
+          <div
+            style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}
+          >
+            <button onClick={reset} style={cancelBtn}>
+              {t('cancel')}
+            </button>
+            <button onClick={execute} style={confirmBtn}>
+              {t('confirm')}
+            </button>
           </div>
         </ConfirmModal>
       )}
@@ -276,28 +300,28 @@ function Row({
         )}
       </td>
       <td style={td}>
-        {u.is_admin
-          ? <span style={{ fontWeight: 700, color: '#b01e66' }}>{t('adminUsersRoleAdmin')}</span>
-          : <span style={{ color: 'var(--text-muted)' }}>{t('adminUsersRoleUser')}</span>}
+        {u.is_admin ? (
+          <span style={{ fontWeight: 700, color: '#b01e66' }}>{t('adminUsersRoleAdmin')}</span>
+        ) : (
+          <span style={{ color: 'var(--text-muted)' }}>{t('adminUsersRoleUser')}</span>
+        )}
       </td>
       <td style={td}>
-        {isLocked
-          ? (
-            <span style={{
+        {isLocked ? (
+          <span
+            style={{
               background: '#fee2e2',
               color: '#b91c1c',
               padding: '2px 8px',
               borderRadius: '6px',
               fontSize: '10px',
-            }}>
-              {t('adminUsersStatusLocked')}
-            </span>
-          )
-          : (
-            <span style={{ color: '#16a34a' }}>
-              ● {t('adminUsersStatusActive')}
-            </span>
-          )}
+            }}
+          >
+            {t('adminUsersStatusLocked')}
+          </span>
+        ) : (
+          <span style={{ color: '#16a34a' }}>● {t('adminUsersStatusActive')}</span>
+        )}
       </td>
       <td style={{ ...td, fontFamily: 'monospace', color: 'var(--text-muted)' }}>
         {u.created_by ?? '—'}
@@ -305,16 +329,24 @@ function Row({
       <td style={td}>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
           {!isLocked && !isMe && (
-            <button onClick={() => onAction('lock')} style={actBtn}>{t('adminUsersLock')}</button>
+            <button onClick={() => onAction('lock')} style={actBtn}>
+              {t('adminUsersLock')}
+            </button>
           )}
           {isLocked && (
-            <button onClick={() => onAction('unlock')} style={actBtn}>{t('adminUsersUnlock')}</button>
+            <button onClick={() => onAction('unlock')} style={actBtn}>
+              {t('adminUsersUnlock')}
+            </button>
           )}
           {u.is_admin && !isMe && (
-            <button onClick={() => onAction('demote')} style={actBtn}>{t('adminUsersDemote')}</button>
+            <button onClick={() => onAction('demote')} style={actBtn}>
+              {t('adminUsersDemote')}
+            </button>
           )}
           {!u.is_admin && !isLocked && !isMe && (
-            <button onClick={() => onAction('promote')} style={actBtn}>{t('adminUsersPromote')}</button>
+            <button onClick={() => onAction('promote')} style={actBtn}>
+              {t('adminUsersPromote')}
+            </button>
           )}
           {!isMe && (
             <button onClick={() => onAction('remove')} style={{ ...actBtn, color: '#b91c1c' }}>
@@ -354,7 +386,7 @@ function ConfirmModal({
       }}
     >
       <div
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{
           background: 'var(--bg-card)',
           borderRadius: '16px',
@@ -363,11 +395,25 @@ function ConfirmModal({
           width: '90%',
         }}
       >
-        <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+        <h2
+          style={{
+            margin: '0 0 4px',
+            fontSize: '16px',
+            fontWeight: 700,
+            color: 'var(--text-primary)',
+          }}
+        >
           {title}
         </h2>
         {subtitle && (
-          <p style={{ margin: '0 0 16px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
+          <p
+            style={{
+              margin: '0 0 16px',
+              fontFamily: 'monospace',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+            }}
+          >
             {subtitle}
           </p>
         )}

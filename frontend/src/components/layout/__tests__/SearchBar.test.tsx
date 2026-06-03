@@ -15,7 +15,9 @@ vi.mock('../../../hooks/useContacts', () => ({
   useContacts: () => ({ data: [{ name: 'Ada Lovelace', email: 'ada@ukm.de' }] }),
 }));
 vi.mock('../../../hooks/useEndpoints', () => ({
-  useEndpoints: () => ({ data: [{ identifier: 'fhir.ukm.de', name: 'FHIR', address: 'https://fhir.ukm.de' }] }),
+  useEndpoints: () => ({
+    data: [{ identifier: 'fhir.ukm.de', name: 'FHIR', address: 'https://fhir.ukm.de' }],
+  }),
 }));
 vi.mock('../../../hooks/useCertificates', () => ({
   useCertificates: () => ({ data: [] }),

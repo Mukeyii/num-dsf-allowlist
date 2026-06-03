@@ -8,8 +8,12 @@ import { renderWithProviders } from '../../test/renderWithProviders';
 
 vi.mock('../../api/auth.api', () => ({
   authApi: {
-    setupTotp: vi.fn().mockResolvedValue({ data: { data: { qrCodeUrl: 'data:image/png;base64,AAA' } } }),
-    confirmTotp: vi.fn().mockResolvedValue({ data: { data: { accessToken: 'x', backupCodes: [] } } }),
+    setupTotp: vi
+      .fn()
+      .mockResolvedValue({ data: { data: { qrCodeUrl: 'data:image/png;base64,AAA' } } }),
+    confirmTotp: vi
+      .fn()
+      .mockResolvedValue({ data: { data: { accessToken: 'x', backupCodes: [] } } }),
   },
 }));
 

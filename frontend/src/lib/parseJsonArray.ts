@@ -13,6 +13,9 @@ export function parseJsonArray(value: unknown): string[] {
     const parsed = JSON.parse(str);
     return Array.isArray(parsed) ? parsed : [str];
   } catch {
-    return str.split(',').map(s => s.trim()).filter(Boolean);
+    return str
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
 }

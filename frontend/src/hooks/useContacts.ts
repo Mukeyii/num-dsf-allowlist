@@ -8,7 +8,10 @@ import { api } from '../api/entities.api';
 export function useContacts(instanceId: string | null) {
   return useQuery({
     queryKey: ['contacts', instanceId],
-    queryFn: () => api(instanceId!).getContacts().then(r => r.data.data),
+    queryFn: () =>
+      api(instanceId!)
+        .getContacts()
+        .then((r) => r.data.data),
     enabled: !!instanceId,
     staleTime: 30_000,
   });
@@ -28,7 +31,8 @@ export function useCreateContact(instanceId: string) {
 export function useUpdateContact(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: object }) => api(instanceId).updateContact(id, data),
+    mutationFn: ({ id, data }: { id: string; data: object }) =>
+      api(instanceId).updateContact(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });

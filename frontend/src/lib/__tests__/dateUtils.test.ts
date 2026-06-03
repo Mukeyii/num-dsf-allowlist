@@ -10,7 +10,9 @@ describe('daysUntil', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
   });
-  afterEach(() => { vi.useRealTimers(); });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('returns a positive count for a future date', () => {
     expect(daysUntil('2026-01-11T00:00:00Z')).toBe(10);

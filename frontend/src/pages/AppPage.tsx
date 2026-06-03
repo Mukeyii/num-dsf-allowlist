@@ -37,7 +37,7 @@ import { CommandPalette } from '../components/layout/CommandPalette';
 export function AppPage() {
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
   const isCanvasRoute = useMatch('/app');
-  const isMapRoute    = useMatch('/app/map');
+  const isMapRoute = useMatch('/app/map');
   useInstances();
 
   const { open, editId, openModal, closeModal } = useModals();
@@ -62,11 +62,15 @@ export function AppPage() {
   }, []);
 
   return (
-    <div style={{
-      display: 'flex', height: '100vh', overflow: 'hidden',
-      fontFamily: 'Inter, system-ui, sans-serif',
-      background: 'var(--bg-page)',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        height: '100vh',
+        overflow: 'hidden',
+        fontFamily: 'Inter, system-ui, sans-serif',
+        background: 'var(--bg-page)',
+      }}
+    >
       {showSidebar && <Sidebar />}
 
       {/* Toggle button for left sidebar when hidden */}
@@ -74,24 +78,43 @@ export function AppPage() {
         <button
           onClick={() => setShowSidebar(true)}
           style={{
-            position: 'fixed', left: 0, top: '50%', zIndex: 30,
+            position: 'fixed',
+            left: 0,
+            top: '50%',
+            zIndex: 30,
             transform: 'translateY(-50%)',
-            width: '24px', height: '48px', borderRadius: '0 8px 8px 0',
-            border: 'none', background: 'var(--bg-card)', cursor: 'pointer',
+            width: '24px',
+            height: '48px',
+            borderRadius: '0 8px 8px 0',
+            border: 'none',
+            background: 'var(--bg-card)',
+            cursor: 'pointer',
             boxShadow: '2px 0 8px var(--shadow)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>chevron_right</span>
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '16px', color: 'var(--text-muted)' }}
+          >
+            chevron_right
+          </span>
         </button>
       )}
 
-      <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        marginLeft: showSidebar ? '220px' : '0',
-        marginRight: showRightPanel && !!isCanvasRoute ? '280px' : '0',
-        transition: 'margin 0.2s ease',
-      }}>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          marginLeft: showSidebar ? '220px' : '0',
+          marginRight: showRightPanel && !!isCanvasRoute ? '280px' : '0',
+          transition: 'margin 0.2s ease',
+        }}
+      >
         <TopBar
           onDownload={() => openModal('download')}
           onApproval={() => openModal('approval')}
@@ -105,18 +128,29 @@ export function AppPage() {
           activeInstanceId ? (
             <EntityCanvas instanceId={activeInstanceId} />
           ) : (
-            <div style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--text-muted)', fontSize: '14px',
-            }}>
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-muted)',
+                fontSize: '14px',
+              }}
+            >
               Loading instance…
             </div>
           )
         ) : (
-          <div style={{
-            flex: 1, minHeight: 0, overflow: 'auto',
-            display: 'flex', flexDirection: 'column',
-          }}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
             <Outlet />
           </div>
         )}
@@ -130,15 +164,29 @@ export function AppPage() {
         <button
           onClick={() => setShowRightPanel(true)}
           style={{
-            position: 'fixed', right: 0, top: '50%', zIndex: 30,
+            position: 'fixed',
+            right: 0,
+            top: '50%',
+            zIndex: 30,
             transform: 'translateY(-50%)',
-            width: '24px', height: '48px', borderRadius: '8px 0 0 8px',
-            border: 'none', background: 'var(--bg-card)', cursor: 'pointer',
+            width: '24px',
+            height: '48px',
+            borderRadius: '8px 0 0 8px',
+            border: 'none',
+            background: 'var(--bg-card)',
+            cursor: 'pointer',
             boxShadow: '-2px 0 8px var(--shadow)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>chevron_left</span>
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '16px', color: 'var(--text-muted)' }}
+          >
+            chevron_left
+          </span>
         </button>
       )}
 
@@ -151,17 +199,21 @@ export function AppPage() {
             open={open === 'org-edit'}
             onClose={closeModal}
             instanceId={activeInstanceId}
-            defaultValues={org ? {
-              identifier: org.identifier,
-              name: org.name,
-              active: !!org.active,
-              email: org.email,
-              addressLine: org.address_line || '',
-              postalCode: org.postal_code || '',
-              city: org.city || '',
-              countryCode: org.country_code || '',
-              clientCertThumbprint: org.client_cert_thumbprint || '',
-            } : undefined}
+            defaultValues={
+              org
+                ? {
+                    identifier: org.identifier,
+                    name: org.name,
+                    active: !!org.active,
+                    email: org.email,
+                    addressLine: org.address_line || '',
+                    postalCode: org.postal_code || '',
+                    city: org.city || '',
+                    countryCode: org.country_code || '',
+                    clientCertThumbprint: org.client_cert_thumbprint || '',
+                  }
+                : undefined
+            }
           />
           <ContactModal
             open={open === 'contact-add' || open === 'contact-edit'}

@@ -10,7 +10,9 @@ import { useModals } from '../../../hooks/useModals';
 
 vi.mock('../../../hooks/useContacts', () => ({
   useContacts: () => ({
-    data: [{ id: 'c1', name: 'Dr. Test', email: 'd@ukm.de', types: ['MEDIC'], email_validated: true }],
+    data: [
+      { id: 'c1', name: 'Dr. Test', email: 'd@ukm.de', types: ['MEDIC'], email_validated: true },
+    ],
     isLoading: false,
   }),
   useDeleteContact: () => ({ mutate: vi.fn(), mutateAsync: vi.fn() }),

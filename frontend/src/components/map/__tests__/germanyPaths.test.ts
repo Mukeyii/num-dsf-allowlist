@@ -18,7 +18,7 @@ describe('GERMANY_PATHS', () => {
   });
 
   it('ids are unique', () => {
-    const ids = new Set(GERMANY_PATHS.map(p => p.id));
+    const ids = new Set(GERMANY_PATHS.map((p) => p.id));
     expect(ids.size).toBe(GERMANY_PATHS.length);
   });
 });

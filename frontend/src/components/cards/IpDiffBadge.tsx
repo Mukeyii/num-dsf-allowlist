@@ -26,9 +26,10 @@ export function IpDiffBadge({ instanceId }: Props) {
   // Get previous IPs from snapshot
   const previousIps = new Set<string>();
   try {
-    const snapshot = typeof lastApproved.snapshot_json === 'string'
-      ? JSON.parse(lastApproved.snapshot_json)
-      : lastApproved.snapshot_json;
+    const snapshot =
+      typeof lastApproved.snapshot_json === 'string'
+        ? JSON.parse(lastApproved.snapshot_json)
+        : lastApproved.snapshot_json;
     if (snapshot?.endpoints) {
       snapshot.endpoints.forEach((ep: any) => {
         (ep.ipAddresses || ep.ips || []).forEach((ip: any) => previousIps.add(ip.ip));
@@ -38,24 +39,43 @@ export function IpDiffBadge({ instanceId }: Props) {
     return null;
   }
 
-  const added = [...currentIps].filter(ip => !previousIps.has(ip));
-  const removed = [...previousIps].filter(ip => !currentIps.has(ip));
+  const added = [...currentIps].filter((ip) => !previousIps.has(ip));
+  const removed = [...previousIps].filter((ip) => !currentIps.has(ip));
 
   if (added.length === 0 && removed.length === 0) return null;
 
   return (
-    <div style={{
-      padding: '10px 14px', borderRadius: '10px', marginTop: '8px',
-      border: '1px solid var(--border)', background: 'var(--bg-hover)',
-    }}>
+    <div
+      style={{
+        padding: '10px 14px',
+        borderRadius: '10px',
+        marginTop: '8px',
+        border: '1px solid var(--border)',
+        background: 'var(--bg-hover)',
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#f5a623' }}>difference</span>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)' }}>IP Changes since last approval</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#f5a623' }}>
+          difference
+        </span>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)' }}>
+          IP Changes since last approval
+        </span>
       </div>
       {added.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px' }}>
-          {added.map(ip => (
-            <span key={ip} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#dcfce7', color: '#15803d', fontFamily: 'monospace' }}>
+          {added.map((ip) => (
+            <span
+              key={ip}
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                background: '#dcfce7',
+                color: '#15803d',
+                fontFamily: 'monospace',
+              }}
+            >
               + {ip}
             </span>
           ))}
@@ -63,8 +83,19 @@ export function IpDiffBadge({ instanceId }: Props) {
       )}
       {removed.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {removed.map(ip => (
-            <span key={ip} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#fef2f2', color: '#991b1b', fontFamily: 'monospace', textDecoration: 'line-through' }}>
+          {removed.map((ip) => (
+            <span
+              key={ip}
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                background: '#fef2f2',
+                color: '#991b1b',
+                fontFamily: 'monospace',
+                textDecoration: 'line-through',
+              }}
+            >
               − {ip}
             </span>
           ))}

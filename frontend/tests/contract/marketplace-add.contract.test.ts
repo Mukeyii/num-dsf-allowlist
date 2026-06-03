@@ -6,10 +6,16 @@ describe('contract: admin POST /marketplace round-trips every field', () => {
   let api: ContractClient;
   let createdId: string | null = null;
 
-  beforeAll(async () => { api = await adminClient(); });
+  beforeAll(async () => {
+    api = await adminClient();
+  });
   afterAll(async () => {
     if (createdId) {
-      try { await api.delete(`/api/v1/admin/marketplace/${createdId}`, { totpCode: '123456' }); } catch { /* best-effort cleanup */ }
+      try {
+        await api.delete(`/api/v1/admin/marketplace/${createdId}`, { totpCode: '123456' });
+      } catch {
+        /* best-effort cleanup */
+      }
     }
   });
 

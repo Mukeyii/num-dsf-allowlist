@@ -14,7 +14,10 @@ export function LegalPage() {
       <h1 className="text-2xl font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>
         {t('legalPageTitle')}
       </h1>
-      <section className="space-y-4 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+      <section
+        className="space-y-4 text-sm leading-relaxed"
+        style={{ color: 'var(--text-secondary)' }}
+      >
         <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
           {t('bundleDisclaimerHeading')}
         </h2>

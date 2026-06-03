@@ -76,7 +76,8 @@ export const de: Record<TranslationKey, string> = {
   awaitingVerification: 'Ausstehende Änderungen warten auf Prüfung.',
   lastApproved: 'Zuletzt genehmigt',
   instanceOverview: 'Instanzübersicht',
-  renewButtonHint: 'Klicke Verlängern auf der Zertifikatskarte, um ein Ersatz-Zertifikat hochzuladen.',
+  renewButtonHint:
+    'Klicke Verlängern auf der Zertifikatskarte, um ein Ersatz-Zertifikat hochzuladen.',
   relJustNow: 'gerade eben',
   relAgoMinutes: 'vor {n}m',
   relAgoHours: 'vor {n}h',
@@ -100,9 +101,11 @@ export const de: Record<TranslationKey, string> = {
   adminPageTitle: 'Genehmigungen prüfen',
   adminPageSubtitle: 'Ausstehende Genehmigungsanträge von DSF-Teilnehmern prüfen und bearbeiten',
   adminFourEyesTitle: '4-Augen-Prinzip',
-  adminFourEyesBody: 'Zwei Admins von verschiedenen Standorten müssen genehmigen, bevor ein Antrag abgeschlossen wird. Nach der ersten Genehmigung hat ein zweiter Admin 7 Tage Zeit zum Ablehnen; bleibt eine Ablehnung aus, wird der Antrag automatisch genehmigt.',
+  adminFourEyesBody:
+    'Zwei Admins von verschiedenen Standorten müssen genehmigen, bevor ein Antrag abgeschlossen wird. Nach der ersten Genehmigung hat ein zweiter Admin 7 Tage Zeit zum Ablehnen; bleibt eine Ablehnung aus, wird der Antrag automatisch genehmigt.',
   adminAccessDenied: 'Zugriff verweigert. Du hast keine Admin-Rechte.',
-  adminLoadFailed: 'Ausstehende Anträge konnten nicht geladen werden. Bitte später erneut versuchen.',
+  adminLoadFailed:
+    'Ausstehende Anträge konnten nicht geladen werden. Bitte später erneut versuchen.',
   adminLoadingRequests: 'Ausstehende Anträge werden geladen…',
   adminNoPendingTitle: 'Keine ausstehenden Anträge',
   adminNoPendingBody: 'Alle Genehmigungsanträge wurden bearbeitet.',
@@ -206,21 +209,24 @@ export const de: Record<TranslationKey, string> = {
 
   // TotpSetupPage
   totpSetupTitle: 'Zwei-Faktor-Authentifizierung einrichten',
-  totpSetupSubtitle: 'Scanne den QR-Code mit deiner Authenticator-App (Google Authenticator, Authy, etc.)',
+  totpSetupSubtitle:
+    'Scanne den QR-Code mit deiner Authenticator-App (Google Authenticator, Authy, etc.)',
   totpSetupLoadingQr: 'QR-Code wird geladen…',
   totpSetupQrAlt: 'TOTP QR-Code',
   totpSetupQrHint: 'Gib nach dem Scannen den 6-stelligen Code aus deiner App ein.',
   totpSetupScannedBtn: 'QR-Code gescannt →',
   totpSetupSessionExpired: 'Sitzung abgelaufen. Bitte erneut anmelden.',
   totpConfirmTitle: 'Authenticator bestätigen',
-  totpConfirmSubtitle: 'Gib den 6-stelligen Code aus deiner Authenticator-App ein, um die Einrichtung abzuschließen.',
+  totpConfirmSubtitle:
+    'Gib den 6-stelligen Code aus deiner Authenticator-App ein, um die Einrichtung abzuschließen.',
   totpConfirmLabel: 'Authenticator-Code',
   totpConfirmVerifying: 'Wird geprüft…',
   totpConfirmCompleteBtn: 'Einrichtung abschließen →',
   totpConfirmInvalidCode: 'Ungültiger Code. Erneut versuchen.',
   totpConfirmBackToQr: '← Zurück zum QR-Code',
   totpBackupTitle: 'Backup-Codes speichern',
-  totpBackupSubtitle: 'Bewahre diese Codes sicher auf. Jeder Code kann nur einmal verwendet werden, falls du Zugang zu deiner Authenticator-App verlierst.',
+  totpBackupSubtitle:
+    'Bewahre diese Codes sicher auf. Jeder Code kann nur einmal verwendet werden, falls du Zugang zu deiner Authenticator-App verlierst.',
   totpBackupWarning: '⚠ Diese Codes werden nicht erneut angezeigt. Kopiere sie jetzt.',
   totpBackupContinueBtn: 'Codes gespeichert → Weiter',
 
@@ -299,7 +305,8 @@ export const de: Record<TranslationKey, string> = {
   orgModalFieldCountry: 'Länderkennzeichen',
   orgModalFieldCountryHint: 'ISO 3166-1 alpha-2',
   orgModalFieldThumbprint: 'Client-Zertifikat Thumbprint (SHA-256)',
-  orgModalFieldThumbprintHint: 'Für mTLS-Authentifizierung — der DSF-Prozess verwendet dies beim Herunterladen des Allow-List-Bundles',
+  orgModalFieldThumbprintHint:
+    'Für mTLS-Authentifizierung — der DSF-Prozess verwendet dies beim Herunterladen des Allow-List-Bundles',
   orgModalFieldThumbprintPlaceholder: 'z.B. a1b2c3d4e5f6...',
   orgModalThumbprintTotpLabel: 'TOTP-Code (zum Ändern des Cert-Thumbprints erforderlich)',
   orgModalThumbprintTotpHint: 'Sie ändern den Cert-Thumbprint. Mit Authenticator-Code bestätigen.',
@@ -310,7 +317,8 @@ export const de: Record<TranslationKey, string> = {
   // ContactModal
   contactModalTitleAdd: 'Neuen Kontakt hinzufügen',
   contactModalTitleEdit: 'Kontakt bearbeiten',
-  contactModalPrivacyNote: 'Kontaktdaten werden nicht in der Allow-Liste veröffentlicht. Sie dienen nur der internen DSF-Kommunikation.',
+  contactModalPrivacyNote:
+    'Kontaktdaten werden nicht in der Allow-Liste veröffentlicht. Sie dienen nur der internen DSF-Kommunikation.',
   contactModalFieldTypes: 'Typen',
   contactModalFieldName: 'Name',
   contactModalFieldNameHint: 'Oder Organisationsname',
@@ -346,7 +354,8 @@ export const de: Record<TranslationKey, string> = {
   endpointModalFieldAddressHint: 'Die FHIR-Endpunkt-URL deiner DSF-Instanz',
   endpointModalFieldAddressPlaceholder: 'z.B. https://dsf-fhir.krankenhaus.de/fhir',
   endpointModalIpLabel: 'Zugehörige IP-Adressen',
-  endpointModalIpHint: 'Gib ausgehende IP-Adressen an, damit andere Organisationen ihre Firewalls konfigurieren können.',
+  endpointModalIpHint:
+    'Gib ausgehende IP-Adressen an, damit andere Organisationen ihre Firewalls konfigurieren können.',
   endpointModalAddIp: '+ IP hinzufügen',
   endpointModalIpPlaceholder: 'z.B. 128.176.232.132',
   endpointModalFhirLabel: 'FHIR',
@@ -362,14 +371,16 @@ export const de: Record<TranslationKey, string> = {
   // CertificateModal
   certModalTitle: 'Neues Zertifikat hinzufügen',
   certModalPrivateKeyWarningTitle: 'Keinen privaten Schlüssel einfügen',
-  certModalPrivateKeyWarningBody: 'Füge nur den öffentlichen Zertifikat-PEM-Block ein. Niemals den privaten Schlüssel einschließen.',
+  certModalPrivateKeyWarningBody:
+    'Füge nur den öffentlichen Zertifikat-PEM-Block ein. Niemals den privaten Schlüssel einschließen.',
   certModalFieldPem: 'Zertifikat PEM',
   certModalFieldPemHint: 'PEM-Block einfügen, beginnend mit -----BEGIN CERTIFICATE-----',
   certModalDropHint: '.pem-Datei hier ablegen oder unten einfügen',
   certModalSaveBtn: 'Speichern & Analysieren',
   certModalSaveSuccess: 'Zertifikat erfolgreich hinzugefügt und analysiert.',
   certModalSaveFailed: 'Zertifikat konnte nicht hinzugefügt werden.',
-  certModalPrivateKeyDetected: 'Privater Schlüssel erkannt. Entferne den privaten Schlüssel und füge nur das Zertifikat ein.',
+  certModalPrivateKeyDetected:
+    'Privater Schlüssel erkannt. Entferne den privaten Schlüssel und füge nur das Zertifikat ein.',
 
   // MembershipModal
   membershipModalTitleAdd: 'Neue Mitgliedschaft hinzufügen',
@@ -388,8 +399,10 @@ export const de: Record<TranslationKey, string> = {
 
   // ApprovalModal
   approvalModalTitle: 'Zur Genehmigung einreichen',
-  approvalModalSubtitle: 'Alle Daten sorgfältig prüfen. Die Änderungen werden zur Verifizierung an das IMI gesendet.',
-  approvalModalPendingNote: 'Nach dem Einreichen zeigt der Anfragestatus AUSSTEHEND, bis das IMI genehmigt oder ablehnt.',
+  approvalModalSubtitle:
+    'Alle Daten sorgfältig prüfen. Die Änderungen werden zur Verifizierung an das IMI gesendet.',
+  approvalModalPendingNote:
+    'Nach dem Einreichen zeigt der Anfragestatus AUSSTEHEND, bis das IMI genehmigt oder ablehnt.',
   approvalModalAllPassed: 'Alle Prüfungen bestanden',
   approvalModalSomeFailed: 'Einige Prüfungen fehlgeschlagen',
   approvalModalCheckOrg: 'Organisation konfiguriert',
@@ -417,16 +430,19 @@ export const de: Record<TranslationKey, string> = {
   certRenewalReplacingLabel: 'Ersetze:',
   certRenewalDropHint: 'Neue .pem-Datei hier ablegen',
   certRenewalPastePlaceholder: 'Oder PEM-Inhalt hier einfügen...',
-  certRenewalPrivateKeyError: 'Enthält einen PRIVATEN SCHLÜSSEL. Lade nur das öffentliche Zertifikat hoch.',
+  certRenewalPrivateKeyError:
+    'Enthält einen PRIVATEN SCHLÜSSEL. Lade nur das öffentliche Zertifikat hoch.',
   certRenewalBackBtn: 'Zurück',
   certRenewalReviewBtn: 'Prüfen',
   certRenewalConfirmHint: 'Das neue Zertifikat wird hochgeladen und das alte gelöscht:',
   certRenewalRemovingLabel: 'Wird entfernt',
   certRenewalAddingLabel: 'Wird hinzugefügt',
-  certRenewalApprovalHint: 'Nach der Erneuerung zur Genehmigung einreichen, um die Änderungen in der Allow-Liste zu aktivieren.',
+  certRenewalApprovalHint:
+    'Nach der Erneuerung zur Genehmigung einreichen, um die Änderungen in der Allow-Liste zu aktivieren.',
   certRenewalConfirmBtn: 'Erneuerung bestätigen',
   certRenewalUntil: 'Bis: {date}',
-  certRenewalSuccess: 'Zertifikat erfolgreich erneuert. Zur Genehmigung einreichen, um Änderungen zu aktivieren.',
+  certRenewalSuccess:
+    'Zertifikat erfolgreich erneuert. Zur Genehmigung einreichen, um Änderungen zu aktivieren.',
   certRenewalFailed: 'Zertifikat konnte nicht erneuert werden.',
 
   // DownloadModal
@@ -439,10 +455,12 @@ export const de: Record<TranslationKey, string> = {
   downloadModalDownloadBundle: 'Bundle herunterladen (JSON)',
   downloadModalDownloading: 'Wird heruntergeladen…',
   downloadModalIpTitle: 'IP-Adressliste',
-  downloadModalIpDesc: 'Enthält alle ausgehenden IP-Adressen der teilnehmenden Organisationen. Für die Firewall-Konfiguration verwenden.',
+  downloadModalIpDesc:
+    'Enthält alle ausgehenden IP-Adressen der teilnehmenden Organisationen. Für die Firewall-Konfiguration verwenden.',
   downloadModalDownloadIp: 'IP-Adressliste herunterladen (Excel)',
   downloadModalClose: 'Schließen',
-  downloadModalPluginTip: 'Tipp: Installiere das DSF Allow List Plugin, um direkt aus deiner DSF FHIR Server Web-Oberfläche zu aktualisieren.',
+  downloadModalPluginTip:
+    'Tipp: Installiere das DSF Allow List Plugin, um direkt aus deiner DSF FHIR Server Web-Oberfläche zu aktualisieren.',
   downloadBundleSuccess: 'Bundle heruntergeladen.',
   downloadBundleFailed: 'Bundle konnte nicht heruntergeladen werden.',
   downloadIpSuccess: 'IP-Adressliste heruntergeladen.',
@@ -450,14 +468,17 @@ export const de: Record<TranslationKey, string> = {
   downloadCopied: 'URL in die Zwischenablage kopiert.',
   downloadNoEndpoint: 'Bitte einen Endpunkt auswählen.',
   downloadFullBundleTitle: 'Netzwerkweite Allow-List (DSF-Bundle)',
-  downloadFullBundleHelp: 'Ein einzelnes FHIR-Transaktion-Bundle mit allen genehmigten Organisationen, deren Endpoints und Zertifikats-Thumbprints. Installieren Sie es an Ihrem lokalen DSF-FHIR-Server, damit dieser alle anderen Teilnehmer für die mTLS-Prüfung kennt.',
-  downloadEndpointHint: 'Die Endpoint-Auswahl ist nur ein Hinweis — das Bundle ist für jede Site identisch.',
+  downloadFullBundleHelp:
+    'Ein einzelnes FHIR-Transaktion-Bundle mit allen genehmigten Organisationen, deren Endpoints und Zertifikats-Thumbprints. Installieren Sie es an Ihrem lokalen DSF-FHIR-Server, damit dieser alle anderen Teilnehmer für die mTLS-Prüfung kennt.',
+  downloadEndpointHint:
+    'Die Endpoint-Auswahl ist nur ein Hinweis — das Bundle ist für jede Site identisch.',
   bundleDownloaded: 'Bundle heruntergeladen.',
   bundleDownloadFailed: 'Bundle-Download fehlgeschlagen.',
 
   // InstanceCreateModal
   instanceCreateTitle: 'Neue Instanz hinzufügen',
-  instanceCreateInfo: 'Eine neue Instanz wird erstellt und mit einer UUID aufgelistet. Nach der Erstellung alle Pflichtangaben hinterlegen:',
+  instanceCreateInfo:
+    'Eine neue Instanz wird erstellt und mit einer UUID aufgelistet. Nach der Erstellung alle Pflichtangaben hinterlegen:',
   instanceCreateStep1: 'Organisation einrichten (Kennung + Name)',
   instanceCreateStep2: 'Mindestens einen Endpunkt hinzufügen',
   instanceCreateStep3: 'Mindestens ein Zertifikat hinzufügen',
@@ -466,7 +487,8 @@ export const de: Record<TranslationKey, string> = {
   instanceCreateCancelBtn: 'Abbrechen',
   instanceCreateBtn: 'Instanz erstellen',
   instanceCreatingBtn: 'Wird erstellt…',
-  instanceCreateSuccess: 'Instanz erstellt. Sie wird als UUID angezeigt, bis eine Organisation zugewiesen wird.',
+  instanceCreateSuccess:
+    'Instanz erstellt. Sie wird als UUID angezeigt, bis eine Organisation zugewiesen wird.',
   instanceCreateFailed: 'Instanz konnte nicht erstellt werden.',
 
   // BundlePreview
@@ -482,14 +504,16 @@ export const de: Record<TranslationKey, string> = {
 
   // CrossUserConfirmDialog
   crossUserDialogTitle: 'Daten eines anderen Benutzers ändern?',
-  crossUserDialogBody: 'Du bist dabei, Änderungen an einer Instanz zu speichern, die {owner} gehört. Die Änderung wird auf deren Daten angewendet und im Audit-Protokoll unter deinem Konto erfasst.',
+  crossUserDialogBody:
+    'Du bist dabei, Änderungen an einer Instanz zu speichern, die {owner} gehört. Die Änderung wird auf deren Daten angewendet und im Audit-Protokoll unter deinem Konto erfasst.',
   crossUserDialogAnotherUser: 'einem anderen Benutzer',
   crossUserCancelBtn: 'Abbrechen',
   crossUserContinueBtn: 'Fortfahren',
 
   // CrossUserInstanceBanner
   crossUserBannerTitle: 'Du betrachtest die Instanz eines anderen Benutzers',
-  crossUserBannerBody: 'Diese Instanz gehört {owner}. Alle gespeicherten Änderungen werden auf deren Daten angewendet.',
+  crossUserBannerBody:
+    'Diese Instanz gehört {owner}. Alle gespeicherten Änderungen werden auf deren Daten angewendet.',
 
   // ExpiryWarningBanner
   expiryBannerTitle: '{n} Zertifikat läuft bald ab',
@@ -535,8 +559,10 @@ export const de: Record<TranslationKey, string> = {
   mapDetailsCertExpiring: 'Läuft bald ab',
   mapDetailsCertExpired: 'Abgelaufen',
   mapDetailsCertNone: 'Kein Zertifikat',
-  mapDetailsExpiredText: 'Dieses Zertifikat ist abgelaufen. Erneuere es, damit dieser Knoten aktiv bleibt.',
-  mapDetailsExpiringText: 'Dieses Zertifikat läuft bald ab. Plane eine Erneuerung, um Ausfälle zu vermeiden.',
+  mapDetailsExpiredText:
+    'Dieses Zertifikat ist abgelaufen. Erneuere es, damit dieser Knoten aktiv bleibt.',
+  mapDetailsExpiringText:
+    'Dieses Zertifikat läuft bald ab. Plane eine Erneuerung, um Ausfälle zu vermeiden.',
   mapDetailsDayRemainingOne: '1 Tag verbleibend',
   mapDetailsDaysRemainingMany: '{n} Tage verbleibend',
   mapDetailsExpiredAgoOne: 'Vor 1 Tag abgelaufen',
@@ -579,22 +605,32 @@ export const de: Record<TranslationKey, string> = {
   adminHelpToc_support: 'Support',
   adminHelpLink: 'Admin-Anleitung',
   adminHelpApprovalTitle: 'Genehmigungs-Workflow (Vier-Augen-Prinzip)',
-  adminHelpApprovalP1: 'Jede Einreichung erfordert Genehmigungen von zwei Admins unterschiedlicher Sites (unterschiedliche E-Mail-Domains).',
-  adminHelpApprovalP2: 'Nach der ersten Genehmigung beginnt ein 7-tägiges Schweigen-als-Zustimmung-Fenster. Die Anfrage wird täglich um 07:00 UTC automatisch genehmigt, sofern kein zweiter Admin sie ablehnt.',
-  adminHelpApprovalLi1: 'Sie können dieselbe Anfrage nicht sowohl genehmigen als auch ablehnen — Ihre erste Entscheidung ist endgültig.',
-  adminHelpApprovalLi2: 'Zwei Genehmigungen aus derselben E-Mail-Domain schließen die Anfrage nicht ab. Das System zeigt einen Tooltip, der erklärt, warum die Schaltfläche deaktiviert ist.',
+  adminHelpApprovalP1:
+    'Jede Einreichung erfordert Genehmigungen von zwei Admins unterschiedlicher Sites (unterschiedliche E-Mail-Domains).',
+  adminHelpApprovalP2:
+    'Nach der ersten Genehmigung beginnt ein 7-tägiges Schweigen-als-Zustimmung-Fenster. Die Anfrage wird täglich um 07:00 UTC automatisch genehmigt, sofern kein zweiter Admin sie ablehnt.',
+  adminHelpApprovalLi1:
+    'Sie können dieselbe Anfrage nicht sowohl genehmigen als auch ablehnen — Ihre erste Entscheidung ist endgültig.',
+  adminHelpApprovalLi2:
+    'Zwei Genehmigungen aus derselben E-Mail-Domain schließen die Anfrage nicht ab. Das System zeigt einen Tooltip, der erklärt, warum die Schaltfläche deaktiviert ist.',
   adminHelpApprovalLi3: 'Eine einzelne Ablehnung schließt die Anfrage sofort ab.',
   adminHelpCrossUserTitle: 'Instanzen anderer Nutzer bearbeiten',
-  adminHelpCrossUserP1: 'Admins können Instanzen anderer Nutzer laden und bearbeiten. Ein dauerhaftes Banner zeigt den aktuellen Eigentümer; jedes Speichern öffnet einen Bestätigungsdialog, bevor Änderungen angewendet werden.',
-  adminHelpCrossUserP2: 'Das Bearbeiten des client_cert_thumbprint einer fremden Instanz ist blockiert: dieses Feld ist die Anmeldedaten für die Zertifikats-Anmeldung und darf nur vom Instanz-Eigentümer geändert werden.',
+  adminHelpCrossUserP1:
+    'Admins können Instanzen anderer Nutzer laden und bearbeiten. Ein dauerhaftes Banner zeigt den aktuellen Eigentümer; jedes Speichern öffnet einen Bestätigungsdialog, bevor Änderungen angewendet werden.',
+  adminHelpCrossUserP2:
+    'Das Bearbeiten des client_cert_thumbprint einer fremden Instanz ist blockiert: dieses Feld ist die Anmeldedaten für die Zertifikats-Anmeldung und darf nur vom Instanz-Eigentümer geändert werden.',
   adminHelpAuditTitle: 'Audit-Protokoll',
-  adminHelpAuditP1: 'Die Audit-Seite fasst jede Aktion über alle Instanzen zusammen, auf die Sie Zugriff haben. Einträge sind append-only — es gibt keinen Bearbeiten- oder Löschen-Pfad.',
+  adminHelpAuditP1:
+    'Die Audit-Seite fasst jede Aktion über alle Instanzen zusammen, auf die Sie Zugriff haben. Einträge sind append-only — es gibt keinen Bearbeiten- oder Löschen-Pfad.',
   adminHelpDownloadTitle: 'Bundle-Download',
-  adminHelpDownloadP1: 'Wählen Sie einen Endpoint, um sein Allow-List-Bundle abzurufen. Die Bundle-URL kann an den DSF-FHIR-Server über das Allow-List-Plugin übergeben oder direkt als JSON heruntergeladen werden.',
+  adminHelpDownloadP1:
+    'Wählen Sie einen Endpoint, um sein Allow-List-Bundle abzurufen. Die Bundle-URL kann an den DSF-FHIR-Server über das Allow-List-Plugin übergeben oder direkt als JSON heruntergeladen werden.',
   adminHelpCertsTitle: 'Zertifikate',
-  adminHelpCertsP1: 'Laden Sie PEM-kodierte X.509-Zertifikate hoch. Das Portal lehnt PEMs mit privaten Schlüsseln an der Grenze ab; nichts Privates wird jemals gespeichert oder geloggt.',
+  adminHelpCertsP1:
+    'Laden Sie PEM-kodierte X.509-Zertifikate hoch. Das Portal lehnt PEMs mit privaten Schlüsseln an der Grenze ab; nichts Privates wird jemals gespeichert oder geloggt.',
   adminHelpMtlsTitle: 'Mit Client-Zertifikat anmelden',
-  adminHelpMtlsP1: 'Wenn Ihr Browser ein registriertes Client-Zertifikat hält (das mit dem client_cert_thumbprint einer Organisation übereinstimmt), können Sie sich direkt ohne OTP/TOTP anmelden.',
+  adminHelpMtlsP1:
+    'Wenn Ihr Browser ein registriertes Client-Zertifikat hält (das mit dem client_cert_thumbprint einer Organisation übereinstimmt), können Sie sich direkt ohne OTP/TOTP anmelden.',
   adminHelpSupportTitle: 'Support',
   adminHelpSupportP1: 'Bei betrieblichen Problemen wenden Sie sich bitte an das IMI-Betriebsteam.',
   adminHelpDevelopedBy: 'Entwickelt von',
@@ -639,13 +675,15 @@ export const de: Record<TranslationKey, string> = {
   adminPromotionsTitle: 'Admin-Beförderungs-Freigaben',
   adminPromotionsSubtitle: 'Ausstehende 4-Augen-Beförderungsanträge aller Admins.',
   adminPromotionsRule: '4-Augen-Prinzip',
-  adminPromotionsRuleHint: 'Ein zweiter Admin aus einer anderen Site (andere E-Mail-Domain) muss zustimmen, bevor der Nutzer Admin wird.',
+  adminPromotionsRuleHint:
+    'Ein zweiter Admin aus einer anderen Site (andere E-Mail-Domain) muss zustimmen, bevor der Nutzer Admin wird.',
   adminPromotionsEmpty: 'Keine ausstehenden Beförderungsanträge.',
   adminPromotionsRequestedBy: 'Angefordert von',
   adminPromotionsApprove: 'Genehmigen',
   adminPromotionsReject: 'Ablehnen',
   adminPromotionsCancel: 'Eigenen Antrag abbrechen',
-  adminPromotionsSameSiteHint: 'Zustimmender muss aus einer anderen Site kommen als der Antragsteller.',
+  adminPromotionsSameSiteHint:
+    'Zustimmender muss aus einer anderen Site kommen als der Antragsteller.',
   adminPromotionsConfirmApprove: 'Beförderung genehmigen',
   adminPromotionsConfirmReject: 'Beförderung ablehnen',
   adminPromotionsConfirmCancel: 'Eigenen Beförderungsantrag abbrechen',
@@ -656,16 +694,20 @@ export const de: Record<TranslationKey, string> = {
   promotionCancelledToast: 'Antrag abgebrochen.',
   // ─── Bundle-Verifikations-Hinweis (Föderationshärtung 2026-05-18) ─────────
   bundleDisclaimerHeading: 'Die Verifikation des Bundles obliegt dem empfangenden Standort',
-  bundleDisclaimerBody: 'Dieses Allow-List-Bundle ist eine Empfehlung. Vor dem Deployment in Ihre DSF-Umgebung müssen Sie Inhalt, Signatur und Provenienz eigenständig überprüfen. Das Institut für Medizinische Informatik Münster betreibt dieses Werkzeug, übernimmt aber keine Haftung für die ungeprüfte Übernahme des Bundles an empfangenden Standorten.',
-  bundleDisclaimerAcknowledge: 'Ich habe den Hinweis gelesen und werde das Bundle vor dem Deployment überprüfen.',
+  bundleDisclaimerBody:
+    'Dieses Allow-List-Bundle ist eine Empfehlung. Vor dem Deployment in Ihre DSF-Umgebung müssen Sie Inhalt, Signatur und Provenienz eigenständig überprüfen. Das Institut für Medizinische Informatik Münster betreibt dieses Werkzeug, übernimmt aber keine Haftung für die ungeprüfte Übernahme des Bundles an empfangenden Standorten.',
+  bundleDisclaimerAcknowledge:
+    'Ich habe den Hinweis gelesen und werde das Bundle vor dem Deployment überprüfen.',
   bundleDisclaimerLinkLabel: 'Rechtlicher Hinweis',
   legalPageTitle: 'Rechtlicher Hinweis',
   // ─── FQDN-Unveränderlichkeit (Föderationshärtung 2026-05-18) ─────────────
   identifierLocked: 'FQDN ist im Föderationsmodus unveränderlich',
-  identifierLockedHelp: 'Andere AllowList-Werkzeuge referenzieren diese Kennung. Eine Änderung würde die Föderation desynchronisieren. Lege stattdessen einen neuen Eintrag an.',
+  identifierLockedHelp:
+    'Andere AllowList-Werkzeuge referenzieren diese Kennung. Eine Änderung würde die Föderation desynchronisieren. Lege stattdessen einen neuen Eintrag an.',
   // ─── CA-Blacklist (Föderationshärtung 2026-05-18) ─────────────────────────
   caBlacklistTitle: 'CA-Blacklist',
-  caBlacklistIntro: 'Hier eingetragene Zertifizierungsstellen werden beim PEM-Upload abgelehnt. Eine Auswahl aus dem Mozilla-Trust-Store erscheint per Autovervollständigung; alternativ kann ein Subject-DN manuell eingegeben werden.',
+  caBlacklistIntro:
+    'Hier eingetragene Zertifizierungsstellen werden beim PEM-Upload abgelehnt. Eine Auswahl aus dem Mozilla-Trust-Store erscheint per Autovervollständigung; alternativ kann ein Subject-DN manuell eingegeben werden.',
   caBlacklistAdd: 'CA hinzufügen',
   caBlacklistEntries: 'Eingetragene CAs',
   caBlacklistEmpty: 'Keine CAs auf der Blacklist.',
@@ -681,8 +723,10 @@ export const de: Record<TranslationKey, string> = {
   // ─── Bundle-Versionen (Föderationshärtung 2026-05-18) ────────────────────
   download: 'Herunterladen',
   bundleVersionsTitle: 'Bundle-Versionen',
-  bundleVersionsIntro: 'Jede Freigabe speichert einen vollständigen Snapshot des Föderations-Bundles. Wählen Sie zwei Versionen, um zu vergleichen, oder laden Sie eine beliebige Version unverändert herunter.',
-  bundleVersionsEmpty: 'Noch keine Bundle-Versionen. Snapshots entstehen automatisch beim Übergang einer Freigabe in den Zustand APPROVED.',
+  bundleVersionsIntro:
+    'Jede Freigabe speichert einen vollständigen Snapshot des Föderations-Bundles. Wählen Sie zwei Versionen, um zu vergleichen, oder laden Sie eine beliebige Version unverändert herunter.',
+  bundleVersionsEmpty:
+    'Noch keine Bundle-Versionen. Snapshots entstehen automatisch beim Übergang einer Freigabe in den Zustand APPROVED.',
   bundleVersionsNavLabel: 'Bundle-Versionen',
   createdAt: 'Erstellt',
   triggeredBy: 'Auslöser',

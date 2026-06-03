@@ -58,7 +58,9 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
           try {
             await renewMut.mutateAsync({ certId: selectedCertId, pem: newPem });
             resolve();
-          } catch (e) { reject(e); }
+          } catch (e) {
+            reject(e);
+          }
         });
       });
       toast.success(t('certRenewalSuccess'));
@@ -69,8 +71,8 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
   }
 
   // Sort certs by expiry (soonest first)
-  const sortedCerts = [...certs].sort((a: any, b: any) =>
-    new Date(a.valid_until).getTime() - new Date(b.valid_until).getTime()
+  const sortedCerts = [...certs].sort(
+    (a: any, b: any) => new Date(a.valid_until).getTime() - new Date(b.valid_until).getTime(),
   );
 
   return (
@@ -87,25 +89,64 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
               return (
                 <button
                   key={cert.id}
-                  onClick={() => { setSelectedCertId(cert.id); setStep('upload'); }}
+                  onClick={() => {
+                    setSelectedCertId(cert.id);
+                    setStep('upload');
+                  }}
                   style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '12px', borderRadius: '10px', border: '1px solid var(--border)',
-                    background: 'var(--bg-hover)', cursor: 'pointer', textAlign: 'left', width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-hover)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    width: '100%',
                   }}
                 >
                   <div>
-                    <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{cert.subject}</p>
-                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>{t('certRenewalValidUntil', { date: cert.valid_until })}</p>
+                    <p
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        margin: 0,
+                      }}
+                    >
+                      {cert.subject}
+                    </p>
+                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                      {t('certRenewalValidUntil', { date: cert.valid_until })}
+                    </p>
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color, padding: '2px 8px', borderRadius: '6px', background: `${color}18` }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      color,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      background: `${color}18`,
+                    }}
+                  >
                     {days < 0 ? 'EXPIRED' : `${days}d`}
                   </span>
                 </button>
               );
             })}
             {sortedCerts.length === 0 && (
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>{t('certRenewalNoCerts')}</p>
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  textAlign: 'center',
+                  padding: '20px',
+                }}
+              >
+                {t('certRenewalNoCerts')}
+              </p>
             )}
           </div>
         </div>
@@ -114,55 +155,109 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
       {step === 'upload' && selectedCert && (
         <div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
-            {t('certRenewalReplacingLabel')} <strong style={{ color: 'var(--text-primary)' }}>{selectedCert.subject}</strong>
+            {t('certRenewalReplacingLabel')}{' '}
+            <strong style={{ color: 'var(--text-primary)' }}>{selectedCert.subject}</strong>
           </p>
 
           {/* Drop zone */}
           <div
-            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             style={{
               border: `2px dashed ${dragOver ? '#6c63ff' : 'var(--border)'}`,
-              borderRadius: '10px', padding: '20px', textAlign: 'center',
-              background: dragOver ? '#ede9ff' : 'transparent', marginBottom: '12px',
+              borderRadius: '10px',
+              padding: '20px',
+              textAlign: 'center',
+              background: dragOver ? '#ede9ff' : 'transparent',
+              marginBottom: '12px',
               transition: 'all 0.2s',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '32px', color: dragOver ? '#6c63ff' : 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>upload_file</span>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('certRenewalDropHint')}</p>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: '32px',
+                color: dragOver ? '#6c63ff' : 'var(--text-muted)',
+                display: 'block',
+                marginBottom: '4px',
+              }}
+            >
+              upload_file
+            </span>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+              {t('certRenewalDropHint')}
+            </p>
           </div>
 
           <textarea
             value={newPem}
-            onChange={e => setNewPem(e.target.value)}
+            onChange={(e) => setNewPem(e.target.value)}
             placeholder={t('certRenewalPastePlaceholder')}
             rows={6}
             style={{
-              width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid var(--border)',
-              fontSize: '11px', fontFamily: 'monospace', resize: 'vertical', outline: 'none',
-              color: 'var(--text-primary)', background: 'var(--bg-input)',
+              width: '100%',
+              padding: '10px',
+              borderRadius: '10px',
+              border: '1px solid var(--border)',
+              fontSize: '11px',
+              fontFamily: 'monospace',
+              resize: 'vertical',
+              outline: 'none',
+              color: 'var(--text-primary)',
+              background: 'var(--bg-input)',
             }}
           />
 
           {newPem.includes('PRIVATE KEY') && (
-            <div style={{ padding: '8px 12px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca', marginTop: '8px' }}>
-              <p style={{ fontSize: '11px', color: '#991b1b', margin: 0 }}>{t('certRenewalPrivateKeyError')}</p>
+            <div
+              style={{
+                padding: '8px 12px',
+                background: '#fef2f2',
+                borderRadius: '8px',
+                border: '1px solid #fecaca',
+                marginTop: '8px',
+              }}
+            >
+              <p style={{ fontSize: '11px', color: '#991b1b', margin: 0 }}>
+                {t('certRenewalPrivateKeyError')}
+              </p>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-            <button onClick={() => setStep('select')} style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
+            <button
+              onClick={() => setStep('select')}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card)',
+                color: 'var(--text-secondary)',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
               {t('certRenewalBackBtn')}
             </button>
             <button
               onClick={() => setStep('confirm')}
               disabled={!newPem.trim() || newPem.includes('PRIVATE KEY')}
               style={{
-                flex: 1, padding: '8px 16px', borderRadius: '10px', border: 'none',
-                background: newPem.trim() && !newPem.includes('PRIVATE KEY') ? '#6c63ff' : 'var(--bg-hover)',
-                color: newPem.trim() && !newPem.includes('PRIVATE KEY') ? '#fff' : 'var(--text-muted)',
-                fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+                flex: 1,
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background:
+                  newPem.trim() && !newPem.includes('PRIVATE KEY') ? '#6c63ff' : 'var(--bg-hover)',
+                color:
+                  newPem.trim() && !newPem.includes('PRIVATE KEY') ? '#fff' : 'var(--text-muted)',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
               }}
             >
               {t('certRenewalReviewBtn')}
@@ -178,20 +273,75 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
           </p>
 
           <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#fef2f2', border: '1px solid #fecaca' }}>
-              <p style={{ fontSize: '9px', fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', margin: '0 0 4px' }}>{t('certRenewalRemovingLabel')}</p>
-              <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0 }}>{selectedCert.subject}</p>
-              <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>{t('certRenewalUntil', { date: selectedCert.valid_until })}</p>
+            <div
+              style={{
+                flex: 1,
+                padding: '10px',
+                borderRadius: '10px',
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  color: '#991b1b',
+                  textTransform: 'uppercase',
+                  margin: '0 0 4px',
+                }}
+              >
+                {t('certRenewalRemovingLabel')}
+              </p>
+              <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0 }}>
+                {selectedCert.subject}
+              </p>
+              <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                {t('certRenewalUntil', { date: selectedCert.valid_until })}
+              </p>
             </div>
-            <div style={{ flex: 1, padding: '10px', borderRadius: '10px', background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-              <p style={{ fontSize: '9px', fontWeight: 700, color: '#15803d', textTransform: 'uppercase', margin: '0 0 4px' }}>{t('certRenewalAddingLabel')}</p>
-              <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+            <div
+              style={{
+                flex: 1,
+                padding: '10px',
+                borderRadius: '10px',
+                background: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  color: '#15803d',
+                  textTransform: 'uppercase',
+                  margin: '0 0 4px',
+                }}
+              >
+                {t('certRenewalAddingLabel')}
+              </p>
+              <p
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-primary)',
+                  margin: 0,
+                  fontFamily: 'monospace',
+                  wordBreak: 'break-all',
+                }}
+              >
                 {newPem.slice(0, 60)}...
               </p>
             </div>
           </div>
 
-          <div style={{ padding: '8px 12px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '16px' }}>
+          <div
+            style={{
+              padding: '8px 12px',
+              background: 'var(--bg-hover)',
+              borderRadius: '8px',
+              marginBottom: '16px',
+            }}
+          >
             <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: 0 }}>
               {t('certRenewalApprovalHint')}
             </p>

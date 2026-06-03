@@ -15,12 +15,12 @@ export function AdminBundleVersionsPage() {
 
   const list = useQuery({
     queryKey: ['bundle-versions'],
-    queryFn: () => bundleVersionsApi.list().then(r => r.data),
+    queryFn: () => bundleVersionsApi.list().then((r) => r.data),
   });
 
   const diff = useQuery({
     queryKey: ['bundle-versions-diff', selA, selB],
-    queryFn: () => bundleVersionsApi.diff(selA!, selB!).then(r => r.data.data),
+    queryFn: () => bundleVersionsApi.diff(selA!, selB!).then((r) => r.data.data),
     enabled: !!selA && !!selB && selA !== selB,
   });
 
@@ -34,7 +34,9 @@ export function AdminBundleVersionsPage() {
       </p>
 
       {list.isLoading ? (
-        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('loading')}</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+          {t('loading')}
+        </p>
       ) : (list.data?.data?.length ?? 0) === 0 ? (
         <p className="text-sm italic" style={{ color: 'var(--text-muted)' }}>
           {t('bundleVersionsEmpty')}
@@ -102,15 +104,26 @@ export function AdminBundleVersionsPage() {
             {t('diff')}
           </h2>
           {diff.isLoading ? (
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('loading')}</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              {t('loading')}
+            </p>
           ) : diff.data ? (
             <>
-              <p className="text-sm"><strong>{t('added')}:</strong> {diff.data.added.length}</p>
-              <p className="text-sm"><strong>{t('removed')}:</strong> {diff.data.removed.length}</p>
-              <p className="text-sm"><strong>{t('changed')}:</strong> {diff.data.changed.length}</p>
+              <p className="text-sm">
+                <strong>{t('added')}:</strong> {diff.data.added.length}
+              </p>
+              <p className="text-sm">
+                <strong>{t('removed')}:</strong> {diff.data.removed.length}
+              </p>
+              <p className="text-sm">
+                <strong>{t('changed')}:</strong> {diff.data.changed.length}
+              </p>
               <details className="mt-3">
                 <summary className="text-xs cursor-pointer">{t('details')}</summary>
-                <pre className="text-[10px] mt-2 p-2 rounded overflow-auto" style={{ background: 'var(--bg-page)' }}>
+                <pre
+                  className="text-[10px] mt-2 p-2 rounded overflow-auto"
+                  style={{ background: 'var(--bg-page)' }}
+                >
                   {JSON.stringify(diff.data, null, 2)}
                 </pre>
               </details>

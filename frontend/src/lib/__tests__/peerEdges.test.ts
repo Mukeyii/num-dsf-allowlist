@@ -14,7 +14,7 @@ function org(identifier: string, parents: string[]): MapOrganization {
     country_code: 'DE',
     cert_status: 'VALID',
     endpoints: [],
-    memberships: parents.map(p => ({ parent_organization: p, roles: [] })),
+    memberships: parents.map((p) => ({ parent_organization: p, roles: [] })),
   };
 }
 
@@ -33,12 +33,9 @@ describe('derivePeerEdges', () => {
   });
 
   it('returns one edge per shared parent for two orgs in two verbunds', () => {
-    const edges = derivePeerEdges([
-      org('a', ['mii', 'num']),
-      org('b', ['mii', 'num']),
-    ]);
+    const edges = derivePeerEdges([org('a', ['mii', 'num']), org('b', ['mii', 'num'])]);
     expect(edges).toHaveLength(2);
-    const verbunds = edges.map(e => e.verbund).sort();
+    const verbunds = edges.map((e) => e.verbund).sort();
     expect(verbunds).toEqual(['mii', 'num']);
   });
 
@@ -47,7 +44,7 @@ describe('derivePeerEdges', () => {
     const edges = derivePeerEdges(orgs);
     expect(edges).toHaveLength(3); // a-b, a-c, b-c
     for (const e of edges) expect(e.from).not.toBe(e.to);
-    const pairs = new Set(edges.map(e => [e.from, e.to].sort().join('|')));
+    const pairs = new Set(edges.map((e) => [e.from, e.to].sort().join('|')));
     expect(pairs.size).toBe(3);
   });
 

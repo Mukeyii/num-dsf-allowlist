@@ -9,7 +9,9 @@ import { renderWithProviders } from '../../test/renderWithProviders';
 vi.mock('../../api/auth.api', () => ({
   authApi: {
     requestOtp: vi.fn().mockResolvedValue({}),
-    verifyOtp: vi.fn().mockResolvedValue({ data: { data: { tempToken: 't', requiresTotpSetup: false } } }),
+    verifyOtp: vi
+      .fn()
+      .mockResolvedValue({ data: { data: { tempToken: 't', requiresTotpSetup: false } } }),
   },
 }));
 

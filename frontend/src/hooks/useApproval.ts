@@ -8,7 +8,10 @@ import { api } from '../api/entities.api';
 export function useApprovalStatus(instanceId: string | null) {
   return useQuery({
     queryKey: ['approval-status', instanceId],
-    queryFn: () => api(instanceId!).getApprovalStatus().then(r => r.data.data),
+    queryFn: () =>
+      api(instanceId!)
+        .getApprovalStatus()
+        .then((r) => r.data.data),
     enabled: !!instanceId,
     staleTime: 30_000,
   });
@@ -17,7 +20,10 @@ export function useApprovalStatus(instanceId: string | null) {
 export function useApprovalHistory(instanceId: string | null) {
   return useQuery({
     queryKey: ['approval-history', instanceId],
-    queryFn: () => api(instanceId!).getApprovalHistory().then(r => r.data.data),
+    queryFn: () =>
+      api(instanceId!)
+        .getApprovalHistory()
+        .then((r) => r.data.data),
     enabled: !!instanceId,
     staleTime: 30_000,
   });

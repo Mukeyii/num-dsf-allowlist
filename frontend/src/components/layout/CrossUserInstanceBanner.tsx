@@ -7,7 +7,9 @@ import { useMe } from '../../hooks/useMe';
 import { useInstance } from '../../hooks/useInstance';
 import { useI18n } from '../../stores/i18n.store';
 
-interface Props { instanceId: string | null }
+interface Props {
+  instanceId: string | null;
+}
 
 export function CrossUserInstanceBanner({ instanceId }: Props) {
   const { t } = useI18n();
@@ -30,16 +32,15 @@ export function CrossUserInstanceBanner({ instanceId }: Props) {
         gap: '10px',
       }}
     >
-      <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#b45309', flexShrink: 0, marginTop: '1px' }}>
+      <span
+        className="material-symbols-outlined"
+        style={{ fontSize: '20px', color: '#b45309', flexShrink: 0, marginTop: '1px' }}
+      >
         admin_panel_settings
       </span>
       <div style={{ fontSize: '12px', lineHeight: 1.4 }}>
-        <p style={{ margin: 0, fontWeight: 700, color: '#92400e' }}>
-          {t('crossUserBannerTitle')}
-        </p>
-        <p style={{ margin: '2px 0 0', color: '#92400e' }}>
-          {t('crossUserBannerBody', { owner })}
-        </p>
+        <p style={{ margin: 0, fontWeight: 700, color: '#92400e' }}>{t('crossUserBannerTitle')}</p>
+        <p style={{ margin: '2px 0 0', color: '#92400e' }}>{t('crossUserBannerBody', { owner })}</p>
       </div>
     </div>
   );

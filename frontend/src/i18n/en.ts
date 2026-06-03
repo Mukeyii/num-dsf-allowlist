@@ -99,7 +99,8 @@ export const en = {
   adminPageTitle: 'Approval Review',
   adminPageSubtitle: 'Review and action pending approval requests from DSF participants',
   adminFourEyesTitle: '4-eyes approval principle',
-  adminFourEyesBody: 'Two admins from different sites must approve before a request is finalized. After the first approval, a second admin has 7 days to reject; if no rejection arrives, the request is automatically approved.',
+  adminFourEyesBody:
+    'Two admins from different sites must approve before a request is finalized. After the first approval, a second admin has 7 days to reject; if no rejection arrives, the request is automatically approved.',
   adminAccessDenied: 'Access denied. You do not have admin privileges.',
   adminLoadFailed: 'Failed to load pending requests. Please try again later.',
   adminLoadingRequests: 'Loading pending requests…',
@@ -205,11 +206,12 @@ export const en = {
 
   // TotpSetupPage
   totpSetupTitle: 'Set up two-factor authentication',
-  totpSetupSubtitle: 'Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.)',
+  totpSetupSubtitle:
+    'Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.)',
   totpSetupLoadingQr: 'Loading QR code…',
   totpSetupQrAlt: 'TOTP QR Code',
   totpSetupQrHint: 'After scanning, enter the 6-digit code shown in your app.',
-  totpSetupScannedBtn: 'I\'ve scanned the QR code →',
+  totpSetupScannedBtn: "I've scanned the QR code →",
   totpSetupSessionExpired: 'Session expired. Please sign in again.',
   totpConfirmTitle: 'Verify your authenticator',
   totpConfirmSubtitle: 'Enter the 6-digit code from your authenticator app to complete setup.',
@@ -219,12 +221,13 @@ export const en = {
   totpConfirmInvalidCode: 'Invalid code. Try again.',
   totpConfirmBackToQr: '← Back to QR code',
   totpBackupTitle: 'Save your backup codes',
-  totpBackupSubtitle: 'Store these codes somewhere safe. Each code can only be used once if you lose access to your authenticator.',
+  totpBackupSubtitle:
+    'Store these codes somewhere safe. Each code can only be used once if you lose access to your authenticator.',
   totpBackupWarning: '⚠ These codes will not be shown again. Copy them now.',
-  totpBackupContinueBtn: 'I\'ve saved my codes → Continue',
+  totpBackupContinueBtn: "I've saved my codes → Continue",
 
   // NotFoundPage
-  notFoundMessage: 'The page you\'re looking for doesn\'t exist.',
+  notFoundMessage: "The page you're looking for doesn't exist.",
   notFoundBackBtn: 'Back to App',
 
   // OrganizationCard
@@ -279,9 +282,9 @@ export const en = {
 
   // OrganizationModal
   orgModalTitle: 'Edit Organization',
-  orgModalSubtitle: 'Update your organization\'s details.',
+  orgModalSubtitle: "Update your organization's details.",
   orgModalFieldIdentifier: 'Identifier (FQDN)',
-  orgModalFieldIdentifierHint: 'Shortest FQDN of your organization\'s website, e.g. ukm.de',
+  orgModalFieldIdentifierHint: "Shortest FQDN of your organization's website, e.g. ukm.de",
   orgModalFieldIdentifierPlaceholder: 'e.g. ukm.de',
   orgModalFieldName: 'Name',
   orgModalFieldNamePlaceholder: 'e.g. Universitätsklinikum Münster',
@@ -298,10 +301,12 @@ export const en = {
   orgModalFieldCountry: 'Country Code',
   orgModalFieldCountryHint: 'ISO 3166-1 alpha-2',
   orgModalFieldThumbprint: 'Client Certificate Thumbprint (SHA-256)',
-  orgModalFieldThumbprintHint: 'For mTLS authentication — the DSF process uses this to authenticate when downloading the Allow List Bundle',
+  orgModalFieldThumbprintHint:
+    'For mTLS authentication — the DSF process uses this to authenticate when downloading the Allow List Bundle',
   orgModalFieldThumbprintPlaceholder: 'e.g. a1b2c3d4e5f6...',
   orgModalThumbprintTotpLabel: 'TOTP code (required to change cert thumbprint)',
-  orgModalThumbprintTotpHint: 'You are changing the cert thumbprint. Re-confirm with your authenticator code.',
+  orgModalThumbprintTotpHint:
+    'You are changing the cert thumbprint. Re-confirm with your authenticator code.',
   orgModalSaveBtn: 'Save Organization',
   orgModalSaveSuccess: 'Organization saved successfully.',
   orgModalSaveFailed: 'Failed to save organization.',
@@ -309,7 +314,8 @@ export const en = {
   // ContactModal
   contactModalTitleAdd: 'Add New Contact',
   contactModalTitleEdit: 'Edit Contact',
-  contactModalPrivacyNote: 'Contact data will not be shared in the allow list. It is used for internal DSF communication only.',
+  contactModalPrivacyNote:
+    'Contact data will not be shared in the allow list. It is used for internal DSF communication only.',
   contactModalFieldTypes: 'Types',
   contactModalFieldName: 'Name',
   contactModalFieldNameHint: 'Or organization name',
@@ -345,7 +351,8 @@ export const en = {
   endpointModalFieldAddressHint: 'The FHIR endpoint URL of your DSF instance',
   endpointModalFieldAddressPlaceholder: 'e.g. https://dsf-fhir.hospital.de/fhir',
   endpointModalIpLabel: 'Associated IP Addresses',
-  endpointModalIpHint: 'Specify outgoing IP addresses so other organizations can configure their firewalls.',
+  endpointModalIpHint:
+    'Specify outgoing IP addresses so other organizations can configure their firewalls.',
   endpointModalAddIp: '+ Add IP',
   endpointModalIpPlaceholder: 'e.g. 128.176.232.132',
   endpointModalFhirLabel: 'FHIR',
@@ -361,14 +368,16 @@ export const en = {
   // CertificateModal
   certModalTitle: 'Add New Certificate',
   certModalPrivateKeyWarningTitle: 'Do not insert private key information',
-  certModalPrivateKeyWarningBody: 'Paste only the public certificate PEM block. Never include your private key.',
+  certModalPrivateKeyWarningBody:
+    'Paste only the public certificate PEM block. Never include your private key.',
   certModalFieldPem: 'Certificate PEM',
   certModalFieldPemHint: 'Paste the PEM block starting with -----BEGIN CERTIFICATE-----',
   certModalDropHint: 'Drop a .pem file here, or paste below',
   certModalSaveBtn: 'Save & Parse',
   certModalSaveSuccess: 'Certificate added and parsed successfully.',
   certModalSaveFailed: 'Failed to add certificate.',
-  certModalPrivateKeyDetected: 'Private key detected. Remove the private key and paste only the certificate.',
+  certModalPrivateKeyDetected:
+    'Private key detected. Remove the private key and paste only the certificate.',
 
   // MembershipModal
   membershipModalTitleAdd: 'Add New Membership',
@@ -388,7 +397,8 @@ export const en = {
   // ApprovalModal
   approvalModalTitle: 'Submit for Approval',
   approvalModalSubtitle: 'Review all data carefully. Changes will be sent to IMI for verification.',
-  approvalModalPendingNote: 'Once submitted, the request status will show as PENDING until IMI approves or rejects it.',
+  approvalModalPendingNote:
+    'Once submitted, the request status will show as PENDING until IMI approves or rejects it.',
   approvalModalAllPassed: 'All checks passed',
   approvalModalSomeFailed: 'Some checks failed',
   approvalModalCheckOrg: 'Organization configured',
@@ -422,7 +432,8 @@ export const en = {
   certRenewalConfirmHint: 'This will upload the new certificate and delete the old one:',
   certRenewalRemovingLabel: 'Removing',
   certRenewalAddingLabel: 'Adding',
-  certRenewalApprovalHint: 'After renewal, submit for approval to apply the changes to the allow list.',
+  certRenewalApprovalHint:
+    'After renewal, submit for approval to apply the changes to the allow list.',
   certRenewalConfirmBtn: 'Confirm Renewal',
   certRenewalUntil: 'Until: {date}',
   certRenewalSuccess: 'Certificate renewed successfully. Submit for approval to apply changes.',
@@ -438,10 +449,12 @@ export const en = {
   downloadModalDownloadBundle: 'Download Bundle (JSON)',
   downloadModalDownloading: 'Downloading…',
   downloadModalIpTitle: 'IP Address List',
-  downloadModalIpDesc: 'Contains all outgoing IP addresses of participating organizations. Use for firewall configuration.',
+  downloadModalIpDesc:
+    'Contains all outgoing IP addresses of participating organizations. Use for firewall configuration.',
   downloadModalDownloadIp: 'Download IP Address List (Excel)',
   downloadModalClose: 'Close',
-  downloadModalPluginTip: 'Tip: install the DSF Allow List Plugin to update directly from your DSF FHIR Server Web UI.',
+  downloadModalPluginTip:
+    'Tip: install the DSF Allow List Plugin to update directly from your DSF FHIR Server Web UI.',
   downloadBundleSuccess: 'Bundle downloaded.',
   downloadBundleFailed: 'Failed to download bundle.',
   downloadIpSuccess: 'IP address list downloaded.',
@@ -449,14 +462,17 @@ export const en = {
   downloadCopied: 'URL copied to clipboard.',
   downloadNoEndpoint: 'Please select an endpoint.',
   downloadFullBundleTitle: 'Network-wide allow list (DSF Bundle)',
-  downloadFullBundleHelp: 'A single FHIR transaction Bundle containing every approved organization, their endpoints, and their certificate thumbprints. Install this at your local DSF FHIR server so it knows every other participant for mTLS verification.',
-  downloadEndpointHint: 'Selecting an endpoint is only a UI hint — the bundle itself is the same for every site.',
+  downloadFullBundleHelp:
+    'A single FHIR transaction Bundle containing every approved organization, their endpoints, and their certificate thumbprints. Install this at your local DSF FHIR server so it knows every other participant for mTLS verification.',
+  downloadEndpointHint:
+    'Selecting an endpoint is only a UI hint — the bundle itself is the same for every site.',
   bundleDownloaded: 'Bundle downloaded.',
   bundleDownloadFailed: 'Failed to download the bundle.',
 
   // InstanceCreateModal
   instanceCreateTitle: 'Add New Instance',
-  instanceCreateInfo: 'A new instance will be created and listed with a UUID. After creation, assign all mandatory information:',
+  instanceCreateInfo:
+    'A new instance will be created and listed with a UUID. After creation, assign all mandatory information:',
   instanceCreateStep1: 'Set up Organization (identifier + name)',
   instanceCreateStep2: 'Add at least one Endpoint',
   instanceCreateStep3: 'Add at least one Certificate',
@@ -480,15 +496,17 @@ export const en = {
   modalSaveBtn: 'Save',
 
   // CrossUserConfirmDialog
-  crossUserDialogTitle: 'Modify another user\'s data?',
-  crossUserDialogBody: 'You are about to save changes to an instance owned by {owner}. The change will be applied to their data and recorded in the audit log under your account.',
+  crossUserDialogTitle: "Modify another user's data?",
+  crossUserDialogBody:
+    'You are about to save changes to an instance owned by {owner}. The change will be applied to their data and recorded in the audit log under your account.',
   crossUserDialogAnotherUser: 'another user',
   crossUserCancelBtn: 'Cancel',
   crossUserContinueBtn: 'Continue',
 
   // CrossUserInstanceBanner
-  crossUserBannerTitle: 'You are viewing another user\'s instance',
-  crossUserBannerBody: 'This instance belongs to {owner}. Any change you save will be applied to their data.',
+  crossUserBannerTitle: "You are viewing another user's instance",
+  crossUserBannerBody:
+    'This instance belongs to {owner}. Any change you save will be applied to their data.',
 
   // ExpiryWarningBanner
   expiryBannerTitle: '{n} certificate expiring soon',
@@ -534,7 +552,8 @@ export const en = {
   mapDetailsCertExpiring: 'Expiring soon',
   mapDetailsCertExpired: 'Expired',
   mapDetailsCertNone: 'No certificate',
-  mapDetailsExpiredText: 'This certificate has expired. Renew it to keep this node active in the allow list.',
+  mapDetailsExpiredText:
+    'This certificate has expired. Renew it to keep this node active in the allow list.',
   mapDetailsExpiringText: 'This certificate expires soon. Plan a renewal to avoid downtime.',
   mapDetailsDayRemainingOne: '1 day remaining',
   mapDetailsDaysRemainingMany: '{n} days remaining',
@@ -578,22 +597,32 @@ export const en = {
   adminHelpToc_support: 'Support',
   adminHelpLink: 'Admin guide',
   adminHelpApprovalTitle: 'Approval workflow (4-eyes principle)',
-  adminHelpApprovalP1: 'Every submission requires approvals from two admins working at different sites (different email domains).',
-  adminHelpApprovalP2: 'After the first approval, a 7-day silent-consent window opens. The request auto-approves at 07:00 UTC unless a second admin rejects it.',
-  adminHelpApprovalLi1: 'You cannot approve and reject the same request — the first decision is final for you.',
-  adminHelpApprovalLi2: 'Two approvals from the same email domain do not finalize. The system displays a tooltip explaining why the button is disabled.',
+  adminHelpApprovalP1:
+    'Every submission requires approvals from two admins working at different sites (different email domains).',
+  adminHelpApprovalP2:
+    'After the first approval, a 7-day silent-consent window opens. The request auto-approves at 07:00 UTC unless a second admin rejects it.',
+  adminHelpApprovalLi1:
+    'You cannot approve and reject the same request — the first decision is final for you.',
+  adminHelpApprovalLi2:
+    'Two approvals from the same email domain do not finalize. The system displays a tooltip explaining why the button is disabled.',
   adminHelpApprovalLi3: 'A single rejection finalizes the request immediately.',
   adminHelpCrossUserTitle: 'Editing instances you do not own',
-  adminHelpCrossUserP1: 'Admins can load and edit instances belonging to other users. A persistent banner shows the current owner; every save triggers a confirmation dialog before applying changes.',
-  adminHelpCrossUserP2: 'Editing the client_cert_thumbprint of a non-owned instance is blocked: that field is the credential for cert-based sign-in and may only be modified by the instance owner.',
+  adminHelpCrossUserP1:
+    'Admins can load and edit instances belonging to other users. A persistent banner shows the current owner; every save triggers a confirmation dialog before applying changes.',
+  adminHelpCrossUserP2:
+    'Editing the client_cert_thumbprint of a non-owned instance is blocked: that field is the credential for cert-based sign-in and may only be modified by the instance owner.',
   adminHelpAuditTitle: 'Audit log',
-  adminHelpAuditP1: 'The audit page summarizes every action across the instances you have access to. Entries are append-only — there is no edit or delete path.',
+  adminHelpAuditP1:
+    'The audit page summarizes every action across the instances you have access to. Entries are append-only — there is no edit or delete path.',
   adminHelpDownloadTitle: 'Bundle download',
-  adminHelpDownloadP1: 'Pick an endpoint to retrieve its allow-list bundle. The bundle URL can be passed to the DSF FHIR Server via the Allow List Plugin or downloaded directly as JSON.',
+  adminHelpDownloadP1:
+    'Pick an endpoint to retrieve its allow-list bundle. The bundle URL can be passed to the DSF FHIR Server via the Allow List Plugin or downloaded directly as JSON.',
   adminHelpCertsTitle: 'Certificates',
-  adminHelpCertsP1: 'Upload PEM-encoded X.509 certificates. The portal rejects PEMs containing private keys at the boundary; nothing private is ever stored or logged.',
+  adminHelpCertsP1:
+    'Upload PEM-encoded X.509 certificates. The portal rejects PEMs containing private keys at the boundary; nothing private is ever stored or logged.',
   adminHelpMtlsTitle: 'Sign in with a client certificate',
-  adminHelpMtlsP1: 'If your browser holds a registered client certificate (matching an organization\'s client_cert_thumbprint), you can sign in directly without OTP/TOTP.',
+  adminHelpMtlsP1:
+    "If your browser holds a registered client certificate (matching an organization's client_cert_thumbprint), you can sign in directly without OTP/TOTP.",
   adminHelpSupportTitle: 'Support',
   adminHelpSupportP1: 'For operational issues, please reach out to the IMI operator team.',
   adminHelpDevelopedBy: 'Developed by',
@@ -638,7 +667,8 @@ export const en = {
   adminPromotionsTitle: 'Admin promotion approvals',
   adminPromotionsSubtitle: 'Pending 4-eyes promotion requests across all admins.',
   adminPromotionsRule: '4-eyes principle',
-  adminPromotionsRuleHint: 'A second admin from a different site (different email domain) must approve before the user becomes admin.',
+  adminPromotionsRuleHint:
+    'A second admin from a different site (different email domain) must approve before the user becomes admin.',
   adminPromotionsEmpty: 'No pending promotion requests.',
   adminPromotionsRequestedBy: 'Requested by',
   adminPromotionsApprove: 'Approve',
@@ -654,17 +684,21 @@ export const en = {
   promotionRejectedToast: 'Promotion rejected.',
   promotionCancelledToast: 'Request cancelled.',
   // ─── Bundle-verification disclaimer (federation hardening 2026-05-18) ──────
-  bundleDisclaimerHeading: 'Bundle verification is the recipient\'s responsibility',
-  bundleDisclaimerBody: 'This Allow-List bundle is a recommendation. Before deploying it into your DSF environment, you must independently verify its contents, signature, and provenance. The Institute of Medical Informatics Muenster operates this tool but does not assume liability for blind installation of the bundle at receiving sites.',
-  bundleDisclaimerAcknowledge: 'I have read the disclaimer and will verify the bundle before deployment.',
+  bundleDisclaimerHeading: "Bundle verification is the recipient's responsibility",
+  bundleDisclaimerBody:
+    'This Allow-List bundle is a recommendation. Before deploying it into your DSF environment, you must independently verify its contents, signature, and provenance. The Institute of Medical Informatics Muenster operates this tool but does not assume liability for blind installation of the bundle at receiving sites.',
+  bundleDisclaimerAcknowledge:
+    'I have read the disclaimer and will verify the bundle before deployment.',
   bundleDisclaimerLinkLabel: 'Disclaimer',
   legalPageTitle: 'Legal — Disclaimer',
   // ─── FQDN immutability (federation hardening 2026-05-18) ──────────────────
   identifierLocked: 'FQDN is immutable in federated mode',
-  identifierLockedHelp: 'Other AllowList tools reference this identifier. Changing it would desynchronise the federation. Create a new entry instead.',
+  identifierLockedHelp:
+    'Other AllowList tools reference this identifier. Changing it would desynchronise the federation. Create a new entry instead.',
   // ─── CA Blacklist (federation hardening 2026-05-18) ───────────────────────
   caBlacklistTitle: 'CA Blacklist',
-  caBlacklistIntro: 'Certificate Authorities listed here are refused on PEM upload. Pick from the Mozilla trust store via autocomplete, or paste a Subject DN manually.',
+  caBlacklistIntro:
+    'Certificate Authorities listed here are refused on PEM upload. Pick from the Mozilla trust store via autocomplete, or paste a Subject DN manually.',
   caBlacklistAdd: 'Add CA',
   caBlacklistEntries: 'Blacklisted CAs',
   caBlacklistEmpty: 'No CAs are currently blacklisted.',
@@ -680,8 +714,10 @@ export const en = {
   // ─── Bundle Versions (federation hardening 2026-05-18) ────────────────────
   download: 'Download',
   bundleVersionsTitle: 'Bundle versions',
-  bundleVersionsIntro: 'Every approval persists a full snapshot of the federation bundle. Pick two snapshots to diff, or download any version verbatim.',
-  bundleVersionsEmpty: 'No bundle versions yet. Snapshots are created automatically when an approval reaches APPROVED.',
+  bundleVersionsIntro:
+    'Every approval persists a full snapshot of the federation bundle. Pick two snapshots to diff, or download any version verbatim.',
+  bundleVersionsEmpty:
+    'No bundle versions yet. Snapshots are created automatically when an approval reaches APPROVED.',
   bundleVersionsNavLabel: 'Bundle Versions',
   createdAt: 'Created',
   triggeredBy: 'Trigger',

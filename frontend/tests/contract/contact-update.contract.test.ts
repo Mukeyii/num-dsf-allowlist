@@ -13,10 +13,13 @@ describe('contract: PUT /contacts/:id mutates an existing contact', () => {
     instanceId = await createTestInstance(api);
     await api.put(`/api/v1/instances/${instanceId}/organization`, {
       identifier: `cu-host-${Date.now()}.example.de`,
-      name: 'Host', email: 'h@x.de', active: true,
+      name: 'Host',
+      email: 'h@x.de',
+      active: true,
     });
     const c = await api.post(`/api/v1/instances/${instanceId}/contacts`, {
-      types: ['MEDIC'], email: 'orig@x.de',
+      types: ['MEDIC'],
+      email: 'orig@x.de',
     });
     contactId = c.data.data.id;
   });

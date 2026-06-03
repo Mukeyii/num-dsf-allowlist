@@ -7,7 +7,17 @@ import { ContactModal } from '../ContactModal';
 
 // Mock useContacts so we can control the array returned on each render.
 const initialContacts = () => [
-  { id: 'c1', email: 'a@b.de', name: 'Original', types: '["MEDIC"]', phone: '', address_line: '', postal_code: '', city: '', country_code: '' },
+  {
+    id: 'c1',
+    email: 'a@b.de',
+    name: 'Original',
+    types: '["MEDIC"]',
+    phone: '',
+    address_line: '',
+    postal_code: '',
+    city: '',
+    country_code: '',
+  },
 ];
 let contactsArr: any[] = initialContacts();
 vi.mock('../../../hooks/useContacts', () => ({
@@ -18,7 +28,9 @@ vi.mock('../../../hooks/useContacts', () => ({
 
 // Reset the mutable fixture before each test so order/shuffle cannot leak the
 // refetch test's mutation into the others.
-beforeEach(() => { contactsArr = initialContacts(); });
+beforeEach(() => {
+  contactsArr = initialContacts();
+});
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -80,7 +92,17 @@ describe('ContactModal', () => {
 
     // Simulate a background refetch: same record, new array reference.
     contactsArr = [
-      { id: 'c1', email: 'a@b.de', name: 'Original', types: '["MEDIC"]', phone: '', address_line: '', postal_code: '', city: '', country_code: '' },
+      {
+        id: 'c1',
+        email: 'a@b.de',
+        name: 'Original',
+        types: '["MEDIC"]',
+        phone: '',
+        address_line: '',
+        postal_code: '',
+        city: '',
+        country_code: '',
+      },
     ];
     rerender(
       <Wrapper>

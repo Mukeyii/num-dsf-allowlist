@@ -5,7 +5,13 @@ import { useCanvasStore } from '../../stores/canvas.store';
 
 interface FkLinkProps {
   label: string;
-  targetEntity: 'organization' | 'contacts' | 'endpoints' | 'certificates' | 'memberships' | 'approval';
+  targetEntity:
+    | 'organization'
+    | 'contacts'
+    | 'endpoints'
+    | 'certificates'
+    | 'memberships'
+    | 'approval';
   value: string;
 }
 
@@ -19,16 +25,25 @@ export function FkLink({ label, targetEntity, value }: FkLinkProps) {
   }
 
   return (
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '4px 0', borderBottom: '1px solid var(--bg-page)', fontSize: '12px',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '4px 0',
+        borderBottom: '1px solid var(--bg-page)',
+        fontSize: '12px',
+      }}
+    >
       <span style={{ color: 'var(--text-muted)' }}>{label}</span>
       <span
         onClick={handleClick}
         style={{
-          color: '#b01e66', fontFamily: 'monospace', fontSize: '11px',
-          cursor: 'pointer', textDecoration: 'underline',
+          color: '#b01e66',
+          fontFamily: 'monospace',
+          fontSize: '11px',
+          cursor: 'pointer',
+          textDecoration: 'underline',
         }}
       >
         {value}
