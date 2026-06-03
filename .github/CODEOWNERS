@@ -1,0 +1,7 @@
+# Default owner for everything in this repository.
+* @Mukeyii
+
+# Security-sensitive areas
+/backend/src/services/auth.service.ts   @Mukeyii
+/backend/src/middleware/                 @Mukeyii
+/.github/                                @Mukeyii
