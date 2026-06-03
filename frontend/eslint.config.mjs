@@ -60,4 +60,13 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node, ...vitestGlobals } },
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
+  {
+    // CommonJS Node tooling config files (e.g. storybook test-runner config).
+    files: ['**/*.{js,cjs}'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: { ...globals.node },
+    },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
 );
