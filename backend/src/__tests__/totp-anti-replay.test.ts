@@ -12,9 +12,9 @@ import { saveTotpSecret, verifyTotpCode } from '../services/totp.service';
 
 describe('TOTP anti-replay', () => {
   const bypassOn =
-    process.env.NODE_ENV !== 'production'
-    && process.env.DEV_AUTO_LOGIN === 'true'
-    && process.env.DEV_TOTP_BYPASS === 'true';
+    process.env.NODE_ENV !== 'production' &&
+    process.env.DEV_AUTO_LOGIN === 'true' &&
+    process.env.DEV_TOTP_BYPASS === 'true';
 
   (bypassOn ? it.skip : it)('rejects a valid code reused within the replay window', async () => {
     const userId = uuidv4();
@@ -26,8 +26,8 @@ describe('TOTP anti-replay', () => {
     const code = speakeasy.totp({ secret, encoding: 'base32' });
 
     try {
-      expect(await verifyTotpCode(userId, code)).toBe(true);   // first use accepted
-      expect(await verifyTotpCode(userId, code)).toBe(false);  // replay rejected
+      expect(await verifyTotpCode(userId, code)).toBe(true); // first use accepted
+      expect(await verifyTotpCode(userId, code)).toBe(false); // replay rejected
     } finally {
       await db('users').where({ id: userId }).del();
     }

@@ -17,7 +17,10 @@ import {
 } from './notification.service';
 
 export class PromotionError extends Error {
-  constructor(public code: string, message: string) {
+  constructor(
+    public code: string,
+    message: string,
+  ) {
     super(message);
   }
 }
@@ -35,10 +38,14 @@ export interface PromotionRequest {
   resolved_at: Date | null;
 }
 
-function lower(s: string): string { return s.toLowerCase().trim(); }
+function lower(s: string): string {
+  return s.toLowerCase().trim();
+}
 
 async function isVerifiedAdmin(email: string): Promise<boolean> {
-  const grant = await db('admin_grants').where({ email: lower(email) }).first();
+  const grant = await db('admin_grants')
+    .where({ email: lower(email) })
+    .first();
   if (!grant) return false;
   return verifyGrant(grant);
 }
@@ -90,7 +97,7 @@ export async function createPromotionRequest(
 
   // Notify all OTHER admins.
   const allAdmins = await listAllAdmins();
-  const recipients = allAdmins.filter(e => e !== lower(requestedBy));
+  const recipients = allAdmins.filter((e) => e !== lower(requestedBy));
   if (recipients.length > 0) {
     sendAdminPromotionRequestedEmail(recipients, targetEmail, requestedBy, id).catch(() => {});
   }
@@ -118,7 +125,10 @@ export async function approvePromotion(
   const requesterSite = siteOfEmail(req.requested_by);
   const approverSite = siteOfEmail(approverEmail);
   if (!requesterSite || !approverSite || requesterSite === approverSite) {
-    throw new PromotionError('SAME_SITE', 'Approver must be from a different site than the requester');
+    throw new PromotionError(
+      'SAME_SITE',
+      'Approver must be from a different site than the requester',
+    );
   }
 
   const now = new Date();
@@ -126,20 +136,25 @@ export async function approvePromotion(
   const grantedAt = new Date(Math.floor(now.getTime() / 1000) * 1000);
   const sig = signGrant(req.target_email, grantedAt, req.requested_by, lower(approverEmail));
 
-  await db.transaction(async trx => {
-    await trx('admin_promotion_requests').where({ id: requestId }).update({
-      status: 'APPROVED',
-      approver_b: lower(approverEmail),
-      approved_at: now,
-      resolved_at: now,
-    });
-    await trx('admin_grants').insert({
-      email: req.target_email,
-      granted_at: grantedAt,
-      granted_by_a: req.requested_by,
-      granted_by_b: lower(approverEmail),
-      signature_hex: sig,
-    }).onConflict('email').ignore();
+  await db.transaction(async (trx) => {
+    await trx('admin_promotion_requests')
+      .where({ id: requestId })
+      .update({
+        status: 'APPROVED',
+        approver_b: lower(approverEmail),
+        approved_at: now,
+        resolved_at: now,
+      });
+    await trx('admin_grants')
+      .insert({
+        email: req.target_email,
+        granted_at: grantedAt,
+        granted_by_a: req.requested_by,
+        granted_by_b: lower(approverEmail),
+        signature_hex: sig,
+      })
+      .onConflict('email')
+      .ignore();
   });
 
   await writeAuditLog({
@@ -175,12 +190,14 @@ export async function rejectPromotion(
   if (!cleanReason) throw new PromotionError('REASON_REQUIRED', 'Rejection reason required');
 
   const now = new Date();
-  await db('admin_promotion_requests').where({ id: requestId }).update({
-    status: 'REJECTED',
-    rejected_by: lower(rejectorEmail),
-    rejection_reason: cleanReason,
-    resolved_at: now,
-  });
+  await db('admin_promotion_requests')
+    .where({ id: requestId })
+    .update({
+      status: 'REJECTED',
+      rejected_by: lower(rejectorEmail),
+      rejection_reason: cleanReason,
+      resolved_at: now,
+    });
 
   await writeAuditLog({
     userEmail: rejectorEmail,
@@ -226,10 +243,7 @@ export async function cancelPromotion(
     ipAddress,
   }).catch(() => {});
 
-  sendAdminPromotionResultEmail(
-    [req.target_email],
-    req.target_email,
-    'CANCELLED',
-    null,
-  ).catch(() => {});
+  sendAdminPromotionResultEmail([req.target_email], req.target_email, 'CANCELLED', null).catch(
+    () => {},
+  );
 }

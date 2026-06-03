@@ -45,13 +45,19 @@ describe('bundle-versions.service – diffVersions', () => {
   beforeAll(async () => {
     await db('bundle_versions').insert([
       {
-        id: idA, triggered_by: 'MANUAL', triggered_by_email: email,
-        content_hash: 'a'.repeat(64), signature: 'sig-a',
+        id: idA,
+        triggered_by: 'MANUAL',
+        triggered_by_email: email,
+        content_hash: 'a'.repeat(64),
+        signature: 'sig-a',
         bundle_json: JSON.stringify(bundleA),
       },
       {
-        id: idB, triggered_by: 'MANUAL', triggered_by_email: email,
-        content_hash: 'b'.repeat(64), signature: 'sig-b',
+        id: idB,
+        triggered_by: 'MANUAL',
+        triggered_by_email: email,
+        content_hash: 'b'.repeat(64),
+        signature: 'sig-b',
         bundle_json: JSON.stringify(bundleB),
       },
     ]);

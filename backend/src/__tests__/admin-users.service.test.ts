@@ -21,7 +21,10 @@ describe('admin-users.service – lock/unlock', () => {
 
   beforeAll(async () => {
     await db('email_whitelist').insert({
-      id: uuidv4(), email: target, created_by: 'test', created_at: new Date(),
+      id: uuidv4(),
+      email: target,
+      created_by: 'test',
+      created_at: new Date(),
     });
   });
 
@@ -35,7 +38,7 @@ describe('admin-users.service – lock/unlock', () => {
 
   it('listWhitelist includes the seeded row, initially unlocked and not admin', async () => {
     const rows = await listWhitelist();
-    const row = rows.find(r => r.email === target);
+    const row = rows.find((r) => r.email === target);
     expect(row).toBeDefined();
     expect(row!.locked_at).toBeNull();
     expect(row!.is_admin).toBe(false);
@@ -49,7 +52,7 @@ describe('admin-users.service – lock/unlock', () => {
     expect(dbRow.locked_reason).toBe('security review');
 
     const listed = await listWhitelist();
-    const row = listed.find(r => r.email === target);
+    const row = listed.find((r) => r.email === target);
     expect(row!.locked_at).not.toBeNull();
   });
 
@@ -63,11 +66,15 @@ describe('admin-users.service – lock/unlock', () => {
 
   it('rejects locking your own account (CANNOT_LOCK_SELF)', async () => {
     await expect(lockWhitelistEntry(target, target, 'x')).rejects.toThrow(AdminUsersError);
-    await expect(lockWhitelistEntry(target, target, 'x')).rejects.toMatchObject({ code: 'CANNOT_LOCK_SELF' });
+    await expect(lockWhitelistEntry(target, target, 'x')).rejects.toMatchObject({
+      code: 'CANNOT_LOCK_SELF',
+    });
   });
 
   it('rejects locking an email that is not in the whitelist (NOT_FOUND)', async () => {
     const missing = `missing-${uuidv4()}@example.de`;
-    await expect(lockWhitelistEntry(missing, actor, 'x')).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(lockWhitelistEntry(missing, actor, 'x')).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
   });
 });

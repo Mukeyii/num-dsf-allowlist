@@ -25,9 +25,15 @@ export async function runCertExpiryCheck(): Promise<void> {
     .join('instances as i', 'o.instance_id', 'i.id')
     .where('c.valid_until', '<=', ninetyDays)
     .where('c.valid_until', '>=', today)
-    .select('c.id as certId', 'c.subject', 'c.valid_until as validUntil',
+    .select(
+      'c.id as certId',
+      'c.subject',
+      'c.valid_until as validUntil',
       'c.last_notified_at as lastNotifiedAt',
-      'o.identifier as orgIdentifier', 'o.name as orgName', 'i.id as instanceId');
+      'o.identifier as orgIdentifier',
+      'o.name as orgName',
+      'i.id as instanceId',
+    );
 
   if (expiring.length === 0) {
     logger.info('[CertMonitor] No expiring certificates found.');
@@ -43,7 +49,8 @@ export async function runCertExpiryCheck(): Promise<void> {
     if (!shouldNotify) continue;
 
     // Idempotency: skip certs already notified today (UTC).
-    const todayUtc = new Date(); todayUtc.setUTCHours(0, 0, 0, 0);
+    const todayUtc = new Date();
+    todayUtc.setUTCHours(0, 0, 0, 0);
     if (cert.lastNotifiedAt && new Date(cert.lastNotifiedAt) >= todayUtc) {
       continue;
     }
@@ -55,11 +62,11 @@ export async function runCertExpiryCheck(): Promise<void> {
         .select('email', 'types');
 
       const recipientEmails = contacts
-        .filter(c => {
+        .filter((c) => {
           const types: string[] = typeof c.types === 'string' ? JSON.parse(c.types) : c.types;
           return types.includes('SECURITY') || types.includes('DSF_ADMIN');
         })
-        .map(c => c.email);
+        .map((c) => c.email);
 
       for (const email of recipientEmails) {
         await sendCertExpiryWarning(email, {
@@ -67,9 +74,10 @@ export async function runCertExpiryCheck(): Promise<void> {
           orgIdentifier: cert.orgIdentifier,
           subject: cert.subject ?? '',
           daysLeft,
-          validUntil: cert.validUntil instanceof Date
-            ? cert.validUntil.toISOString().slice(0, 10)
-            : String(cert.validUntil).slice(0, 10),
+          validUntil:
+            cert.validUntil instanceof Date
+              ? cert.validUntil.toISOString().slice(0, 10)
+              : String(cert.validUntil).slice(0, 10),
         });
       }
 
@@ -83,7 +91,9 @@ export async function runCertExpiryCheck(): Promise<void> {
         ipAddress: 'system',
       });
       await db('certificates').where({ id: cert.certId }).update({ last_notified_at: new Date() });
-      logger.info(`[CertMonitor] Warning: ${cert.subject} → ${daysLeft}d left (notified ${recipientEmails.length})`);
+      logger.info(
+        `[CertMonitor] Warning: ${cert.subject} → ${daysLeft}d left (notified ${recipientEmails.length})`,
+      );
       sent++;
     } catch (err) {
       logger.error({ err, subject: cert.subject }, '[CertMonitor] Failed to process certificate');

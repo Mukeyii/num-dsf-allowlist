@@ -37,31 +37,35 @@ import { logger } from './lib/logger';
 const app = express();
 
 // Security Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'"],
-      frameAncestors: ["'none'"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        connectSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+      },
     },
-  },
-  hsts: { maxAge: 63072000, includeSubDomains: true, preload: true },
-  frameguard: { action: 'deny' },
-  noSniff: true,
-  xssFilter: true,
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  crossOriginOpenerPolicy: { policy: 'same-origin' },
-}));
+    hsts: { maxAge: 63072000, includeSubDomains: true, preload: true },
+    frameguard: { action: 'deny' },
+    noSniff: true,
+    xssFilter: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+  }),
+);
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
@@ -186,7 +190,9 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     });
   }
   if (message === 'PRIVATE_KEY_REJECTED') {
-    return res.status(400).json({ error: { code: 'SECURITY', message: 'Private key material detected.' } });
+    return res
+      .status(400)
+      .json({ error: { code: 'SECURITY', message: 'Private key material detected.' } });
   }
   if (message && NOT_FOUND_CODES.has(message)) {
     return res.status(404).json({ error: { code: message, message: 'Resource not found' } });
@@ -194,7 +200,10 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'production' ? 'An internal error occurred.' : (message || 'Unknown error'),
+      message:
+        process.env.NODE_ENV === 'production'
+          ? 'An internal error occurred.'
+          : message || 'Unknown error',
     },
   });
 });

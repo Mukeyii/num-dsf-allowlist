@@ -35,11 +35,11 @@ describe('ca-blacklist service', () => {
   it('lists current entries and supports removal', async () => {
     const id = await addToBlacklist({ subjectDn: TEST_SUBJECT, reason: 'jest' }, ADMIN_EMAIL);
     const before = await listBlacklist();
-    expect(before.find(r => r.id === id)).toBeDefined();
+    expect(before.find((r) => r.id === id)).toBeDefined();
 
     await removeFromBlacklist(id, ADMIN_EMAIL);
     const after = await listBlacklist();
-    expect(after.find(r => r.id === id)).toBeUndefined();
+    expect(after.find((r) => r.id === id)).toBeUndefined();
     expect(await isCaBlacklisted({ subjectDn: TEST_SUBJECT })).toBe(false);
   });
 
@@ -52,8 +52,9 @@ describe('ca-blacklist service', () => {
   });
 
   it('removeFromBlacklist with unknown id throws NOT_FOUND', async () => {
-    await expect(removeFromBlacklist('00000000-0000-0000-0000-000000000000', ADMIN_EMAIL))
-      .rejects.toThrow('NOT_FOUND');
+    await expect(
+      removeFromBlacklist('00000000-0000-0000-0000-000000000000', ADMIN_EMAIL),
+    ).rejects.toThrow('NOT_FOUND');
   });
 
   it('listKnownCas returns rows sorted by subject_dn', async () => {

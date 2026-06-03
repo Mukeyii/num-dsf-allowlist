@@ -37,7 +37,9 @@ function decryptSecret(ciphertext: string): string {
   return decipher.update(encrypted).toString('utf8') + decipher.final('utf8');
 }
 
-export async function generateTotpSetup(email: string): Promise<{ qrCodeUrl: string; secret: string }> {
+export async function generateTotpSetup(
+  email: string,
+): Promise<{ qrCodeUrl: string; secret: string }> {
   const secret = speakeasy.generateSecret({
     name: `DSF Allow List (${email})`,
     issuer: 'IMI-Uni-Muenster',
@@ -58,9 +60,9 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
   // DEV_TOTP_BYPASS=true, and NODE_ENV !== 'production' (matches the same
   // localhost-only constraints already enforced by the dev-login route).
   if (
-    process.env.NODE_ENV !== 'production'
-    && process.env.DEV_AUTO_LOGIN === 'true'
-    && process.env.DEV_TOTP_BYPASS === 'true'
+    process.env.NODE_ENV !== 'production' &&
+    process.env.DEV_AUTO_LOGIN === 'true' &&
+    process.env.DEV_TOTP_BYPASS === 'true'
   ) {
     return true;
   }
@@ -98,10 +100,12 @@ export async function enableTotp(userId: string): Promise<void> {
 // Generate 10 backup codes
 export async function generateBackupCodes(userId: string): Promise<string[]> {
   const codes = Array.from({ length: 10 }, () =>
-    crypto.randomBytes(4).toString('hex').toUpperCase()
+    crypto.randomBytes(4).toString('hex').toUpperCase(),
   );
-  const hashed = await Promise.all(codes.map(c => bcrypt.hash(c, BCRYPT_ROUNDS)));
-  await db('users').where({ id: userId }).update({ backup_codes: JSON.stringify(hashed) });
+  const hashed = await Promise.all(codes.map((c) => bcrypt.hash(c, BCRYPT_ROUNDS)));
+  await db('users')
+    .where({ id: userId })
+    .update({ backup_codes: JSON.stringify(hashed) });
   return codes; // returned in plaintext once – never accessible again
 }
 
@@ -121,9 +125,8 @@ export async function verifyBackupCode(userId: string, code: string): Promise<bo
     let hashed: string[];
     try {
       // MySQL JSON columns return parsed objects; plain strings need parsing
-      hashed = typeof user.backup_codes === 'string'
-        ? JSON.parse(user.backup_codes)
-        : user.backup_codes;
+      hashed =
+        typeof user.backup_codes === 'string' ? JSON.parse(user.backup_codes) : user.backup_codes;
     } catch {
       logger.error({ userId }, 'Corrupt backup_codes JSON in database');
       return false;
@@ -137,7 +140,9 @@ export async function verifyBackupCode(userId: string, code: string): Promise<bo
         // Remove consumed code under the row lock so concurrent verifies
         // observe the shrunken array.
         hashed.splice(i, 1);
-        await trx('users').where({ id: userId }).update({ backup_codes: JSON.stringify(hashed) });
+        await trx('users')
+          .where({ id: userId })
+          .update({ backup_codes: JSON.stringify(hashed) });
         return true;
       }
     }

@@ -27,6 +27,8 @@ export async function runMembershipCleanup(now: Date = new Date()): Promise<numb
     operation: 'DELETE',
     diffJson: { ids },
   }).catch(() => {});
-  logger.info(`[membership-cleanup] hard-deleted ${ids.length} soft-row(s) older than ${RETENTION_DAYS}d`);
+  logger.info(
+    `[membership-cleanup] hard-deleted ${ids.length} soft-row(s) older than ${RETENTION_DAYS}d`,
+  );
   return ids.length;
 }

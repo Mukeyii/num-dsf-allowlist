@@ -26,7 +26,9 @@ describe('createCertificateSchema', () => {
   });
 
   it('accepts a PEM right at the 20 KB boundary', () => {
-    const body = 'A'.repeat(20_000 - '-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----'.length);
+    const body = 'A'.repeat(
+      20_000 - '-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----'.length,
+    );
     const atLimit = `-----BEGIN CERTIFICATE-----\n${body}\n-----END CERTIFICATE-----`;
     expect(atLimit.length).toBeLessThanOrEqual(20_000);
     expect(createCertificateSchema.safeParse({ pem: atLimit }).success).toBe(true);

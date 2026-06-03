@@ -7,12 +7,12 @@ import knex from 'knex';
 export const db = knex({
   client: 'mysql2',
   connection: {
-    host:     process.env.DB_HOST     || 'localhost',
-    port:     parseInt(process.env.DB_PORT || '3306'),
-    database: process.env.DB_NAME     || 'dsf_allowlist',
-    user:     process.env.DB_USER     || 'dsf',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '3306'),
+    database: process.env.DB_NAME || 'dsf_allowlist',
+    user: process.env.DB_USER || 'dsf',
     password: process.env.DB_PASSWORD || '',
-    charset:  'utf8mb4',
+    charset: 'utf8mb4',
   },
   pool: { min: 2, max: 10 },
 });

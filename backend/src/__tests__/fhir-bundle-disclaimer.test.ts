@@ -11,7 +11,10 @@ import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { generateFullBundle, generateBundle } from '../services/fhir.service';
 
-interface DisclaimerExt { url: string; valueString: string }
+interface DisclaimerExt {
+  url: string;
+  valueString: string;
+}
 interface BundleWithMeta {
   resourceType: 'Bundle';
   meta?: { extension?: DisclaimerExt[] };
@@ -21,7 +24,7 @@ interface BundleWithMeta {
 const DISCLAIMER_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
 
 function findDisclaimer(bundle: BundleWithMeta): DisclaimerExt | undefined {
-  return bundle.meta?.extension?.find(e => e.url === DISCLAIMER_URL);
+  return bundle.meta?.extension?.find((e) => e.url === DISCLAIMER_URL);
 }
 
 describe('Bundle disclaimer extension', () => {
@@ -43,16 +46,38 @@ describe('Bundle disclaimer extension', () => {
     const endpointIdentifier = `dsf-fhir.${orgIdentifier}`;
     const userEmail = `disclaimer-test-${Date.now()}@example.de`;
 
-    await db('users').insert({ id: userId, email: userEmail, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'disclaimer-test', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: userEmail,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'disclaimer-test',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: orgIdentifier, instance_id: instanceId, name: 'Disclaimer Test Org', active: true,
-      email: `admin@${orgIdentifier}`, address_line: 'x', postal_code: '00000', city: 'x', country_code: 'DE',
-      created_at: new Date(), updated_at: new Date(),
+      identifier: orgIdentifier,
+      instance_id: instanceId,
+      name: 'Disclaimer Test Org',
+      active: true,
+      email: `admin@${orgIdentifier}`,
+      address_line: 'x',
+      postal_code: '00000',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('endpoints').insert({
-      identifier: endpointIdentifier, organization_id: orgIdentifier, name: 'FHIR', address: `https://${endpointIdentifier}/fhir`,
-      created_at: new Date(), updated_at: new Date(),
+      identifier: endpointIdentifier,
+      organization_id: orgIdentifier,
+      name: 'FHIR',
+      address: `https://${endpointIdentifier}/fhir`,
+      created_at: new Date(),
+      updated_at: new Date(),
     });
 
     try {

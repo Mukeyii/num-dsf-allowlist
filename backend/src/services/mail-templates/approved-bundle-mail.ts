@@ -9,20 +9,20 @@
 export interface ApprovedBundleMailContext {
   language: 'en' | 'de';
   recipientName?: string | null;
-  endpointIdentifier: string;        // e.g. dsf-fhir-test.uni-muenster.de
+  endpointIdentifier: string; // e.g. dsf-fhir-test.uni-muenster.de
   environment: 'TEST' | 'PRODUCTION';
-  portalUrl: string;                 // e.g. https://allowlist.imi-muenster.de
-  bundleVersionNumber: number;       // bundle_versions.version_number
-  contentHash: string;               // sha-256 of bundle JSON
-  signatureKid?: string;             // RS256 kid for offline verification
+  portalUrl: string; // e.g. https://allowlist.imi-muenster.de
+  bundleVersionNumber: number; // bundle_versions.version_number
+  contentHash: string; // sha-256 of bundle JSON
+  signatureKid?: string; // RS256 kid for offline verification
   changes: {
     addedOrgs: number;
     removedOrgs: number;
     changedOrgs: number;
   };
-  downloadUrl: string;               // direct download URL
-  verifyUrl: string;                 // /app/admin/bundle-versions/<id>
-  supportEmail: string;              // e.g. dsf-support@imi-muenster.de
+  downloadUrl: string; // direct download URL
+  verifyUrl: string; // /app/admin/bundle-versions/<id>
+  supportEmail: string; // e.g. dsf-support@imi-muenster.de
 }
 
 interface LocaleStrings {
@@ -78,8 +78,7 @@ const STR: Record<'en' | 'de', LocaleStrings> = {
     contentHashLabel: 'Content-Hash (SHA-256)',
     signatureKidLabel: 'Signatur-Schlüssel-ID',
     portalLink: 'Allow-List-Portal öffnen',
-    supportLine: (email) =>
-      `Fragen oder Probleme? Wenden Sie sich an den Betreiber: ${email}`,
+    supportLine: (email) => `Fragen oder Probleme? Wenden Sie sich an den Betreiber: ${email}`,
     footer: (env) =>
       `Diese Nachricht wurde vom DSF-Allow-List-Portal (Umgebung ${env}) versandt. Bitte nicht antworten — diese Adresse wird nicht überwacht.`,
   },
@@ -89,9 +88,17 @@ const STR: Record<'en' | 'de', LocaleStrings> = {
 // support email) cannot inject markup into the HTML body. Plain text body
 // does not need this.
 function esc(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  }[c] as string));
+  return s.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[c] as string,
+  );
 }
 
 export function renderApprovedBundleMail(ctx: ApprovedBundleMailContext): {
@@ -121,7 +128,9 @@ export function renderApprovedBundleMail(ctx: ApprovedBundleMailContext): {
     t.supportLine(ctx.supportEmail),
     '',
     '— ' + t.footer(ctx.environment),
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   // Minimal HTML — no external CSS so mail clients don't strip it.
   const html = `<!DOCTYPE html>

@@ -17,17 +17,38 @@ const endpointIdentifier = `dsf-fhir.${orgIdentifier}`;
 
 describe('identifier immutability (migration 015)', () => {
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: userEmail, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'imm-test', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: userEmail,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'imm-test',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: orgIdentifier, instance_id: instanceId, name: 'Imm Test', active: true,
-      email: `admin@${orgIdentifier}`, address_line: 'x', postal_code: '00000', city: 'x', country_code: 'DE',
-      created_at: new Date(), updated_at: new Date(),
+      identifier: orgIdentifier,
+      instance_id: instanceId,
+      name: 'Imm Test',
+      active: true,
+      email: `admin@${orgIdentifier}`,
+      address_line: 'x',
+      postal_code: '00000',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('endpoints').insert({
-      identifier: endpointIdentifier, organization_id: orgIdentifier,
-      name: 'FHIR', address: `https://${endpointIdentifier}/fhir`,
-      created_at: new Date(), updated_at: new Date(),
+      identifier: endpointIdentifier,
+      organization_id: orgIdentifier,
+      name: 'FHIR',
+      address: `https://${endpointIdentifier}/fhir`,
+      created_at: new Date(),
+      updated_at: new Date(),
     });
   });
 
@@ -40,13 +61,17 @@ describe('identifier immutability (migration 015)', () => {
 
   it('rejects UPDATE that changes endpoints.identifier', async () => {
     await expect(
-      db('endpoints').where({ identifier: endpointIdentifier }).update({ identifier: 'changed.example.de' }),
+      db('endpoints')
+        .where({ identifier: endpointIdentifier })
+        .update({ identifier: 'changed.example.de' }),
     ).rejects.toThrow(/immutable/i);
   });
 
   it('rejects UPDATE that changes organizations.identifier', async () => {
     await expect(
-      db('organizations').where({ identifier: orgIdentifier }).update({ identifier: 'changed-org.example.de' }),
+      db('organizations')
+        .where({ identifier: orgIdentifier })
+        .update({ identifier: 'changed-org.example.de' }),
     ).rejects.toThrow(/immutable/i);
   });
 

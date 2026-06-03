@@ -11,7 +11,11 @@ import forge from 'node-forge';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { createCertificate } from '../services/certificate.service';
-import { addToBlacklist, removeFromBlacklist, listBlacklist } from '../services/ca-blacklist.service';
+import {
+  addToBlacklist,
+  removeFromBlacklist,
+  listBlacklist,
+} from '../services/ca-blacklist.service';
 
 const userEmail = `cab-cert-${Date.now()}@example.de`;
 const userId = uuidv4();
@@ -52,12 +56,30 @@ function generateLeafIssuedBy(issuerCn: string, issuerO: string, issuerC: string
 
 describe('certificate upload — CA blacklist gate', () => {
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: userEmail, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'cab-cert-test', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: userEmail,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'cab-cert-test',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: orgIdentifier, instance_id: instanceId, name: 'CAB Cert Test', active: true,
-      email: `admin@${orgIdentifier}`, address_line: 'x', postal_code: '00000', city: 'x', country_code: 'DE',
-      created_at: new Date(), updated_at: new Date(),
+      identifier: orgIdentifier,
+      instance_id: instanceId,
+      name: 'CAB Cert Test',
+      active: true,
+      email: `admin@${orgIdentifier}`,
+      address_line: 'x',
+      postal_code: '00000',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
   });
 
@@ -68,7 +90,7 @@ describe('certificate upload — CA blacklist gate', () => {
     await db('users').where({ id: userId }).del();
     // Drop any test blacklist rows we may have created
     const rows = await listBlacklist();
-    for (const r of rows.filter(x => x.subject_dn === ISSUER_DN)) {
+    for (const r of rows.filter((x) => x.subject_dn === ISSUER_DN)) {
       await db('ca_blacklist').where({ id: r.id }).del();
     }
   });
@@ -76,19 +98,21 @@ describe('certificate upload — CA blacklist gate', () => {
   it('rejects PEM upload when issuer DN is on the blacklist', async () => {
     const pem = generateLeafIssuedBy(`Test CA`, `ACME-${Date.now()}`, 'DE');
     // Discover the actual issuer DN from the freshly-generated cert
-    const issuerDn = pem ? require('node-forge').pki.certificateFromPem(pem).issuer.attributes
-      .map((a: any) => `${a.shortName || a.name}=${a.value}`).join(',') : '';
+    const issuerDn = pem
+      ? require('node-forge')
+          .pki.certificateFromPem(pem)
+          .issuer.attributes.map((a: any) => `${a.shortName || a.name}=${a.value}`)
+          .join(',')
+      : '';
     await addToBlacklist({ subjectDn: issuerDn, reason: 'jest test' }, userEmail);
-    await expect(
-      createCertificate(instanceId, pem, userEmail, '0.0.0.0'),
-    ).rejects.toThrow('CA_BLACKLISTED');
+    await expect(createCertificate(instanceId, pem, userEmail, '0.0.0.0')).rejects.toThrow(
+      'CA_BLACKLISTED',
+    );
   });
 
   it('accepts the PEM once the blacklist entry is removed', async () => {
     const pem = generateLeafIssuedBy(`Test CA Two`, `ACME-${Date.now()}`, 'DE');
     // First-time upload (no blacklist) should succeed
-    await expect(
-      createCertificate(instanceId, pem, userEmail, '0.0.0.0'),
-    ).resolves.toBeDefined();
+    await expect(createCertificate(instanceId, pem, userEmail, '0.0.0.0')).resolves.toBeDefined();
   });
 });

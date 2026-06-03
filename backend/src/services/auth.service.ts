@@ -19,9 +19,13 @@ import { REFRESH_TOKEN_TTL_SEC as REFRESH_TTL_SEC } from '../lib/time';
 import { logger } from '../lib/logger';
 
 // JWT keys loaded from Base64 env vars
-const JWT_PRIVATE_KEY = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64 || '', 'base64').toString('utf8');
-const JWT_PUBLIC_KEY  = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString('utf8');
-const JWT_EXPIRES_IN  = process.env.JWT_EXPIRES_IN || '15m';
+const JWT_PRIVATE_KEY = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64 || '', 'base64').toString(
+  'utf8',
+);
+const JWT_PUBLIC_KEY = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString(
+  'utf8',
+);
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 
 // ─── Helper functions ───────────────────────────────────────────────────────
 
@@ -29,16 +33,15 @@ function signAccessToken(user: AuthUser): string {
   return jwt.sign(
     { sub: user.id, email: user.email } as Omit<JwtPayload, 'iat' | 'exp'>,
     JWT_PRIVATE_KEY,
-    { algorithm: 'RS256', expiresIn: JWT_EXPIRES_IN } as any
+    { algorithm: 'RS256', expiresIn: JWT_EXPIRES_IN } as any,
   );
 }
 
 function signTempToken(user: AuthUser, purpose: TempTokenPayload['purpose']): string {
-  return jwt.sign(
-    { sub: user.id, email: user.email, purpose },
-    JWT_PRIVATE_KEY,
-    { algorithm: 'RS256', expiresIn: '10m' } as any
-  );
+  return jwt.sign({ sub: user.id, email: user.email, purpose }, JWT_PRIVATE_KEY, {
+    algorithm: 'RS256',
+    expiresIn: '10m',
+  } as any);
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
@@ -58,26 +61,41 @@ export async function requestOtp(email: string, ipAddress: string): Promise<void
   // Whitelist check (generic error message on rejection – no hint if email exists or is locked)
   const whitelisted = await db('email_whitelist').where({ email: normalized }).first();
   if (!whitelisted || whitelisted.locked_at) {
-    await writeAuditLog({ userEmail: normalized, resourceType: 'AUTH', operation: 'FAILED_LOGIN', ipAddress });
+    await writeAuditLog({
+      userEmail: normalized,
+      resourceType: 'AUTH',
+      operation: 'FAILED_LOGIN',
+      ipAddress,
+    });
     throw new Error('NOT_WHITELISTED');
   }
 
   const code = await createAndStoreOtp(normalized);
   await sendOtpEmail(normalized, code);
-  await writeAuditLog({ userEmail: normalized, resourceType: 'AUTH', operation: 'OTP_REQUEST', ipAddress });
+  await writeAuditLog({
+    userEmail: normalized,
+    resourceType: 'AUTH',
+    operation: 'OTP_REQUEST',
+    ipAddress,
+  });
 }
 
 // Step 2: Verify OTP → return temporary token
 export async function verifyOtpAndGetTempToken(
   email: string,
   code: string,
-  ipAddress: string
+  ipAddress: string,
 ): Promise<{ tempToken: string; requiresTotpSetup: boolean }> {
   const normalized = email.toLowerCase().trim();
   const valid = await verifyOtp(normalized, code);
 
   if (!valid) {
-    await writeAuditLog({ userEmail: normalized, resourceType: 'AUTH', operation: 'FAILED_LOGIN', ipAddress });
+    await writeAuditLog({
+      userEmail: normalized,
+      resourceType: 'AUTH',
+      operation: 'FAILED_LOGIN',
+      ipAddress,
+    });
     throw new Error('INVALID_OTP');
   }
 
@@ -89,11 +107,19 @@ export async function verifyOtpAndGetTempToken(
     user = await db('users').where({ id }).first();
   }
 
-  await writeAuditLog({ userEmail: normalized, resourceType: 'AUTH', operation: 'OTP_VERIFY', ipAddress });
+  await writeAuditLog({
+    userEmail: normalized,
+    resourceType: 'AUTH',
+    operation: 'OTP_VERIFY',
+    ipAddress,
+  });
 
   const requiresTotpSetup = !user.totp_enabled;
   const purpose = requiresTotpSetup ? 'totp_setup' : 'totp_required';
-  const tempToken = signTempToken({ id: user.id, email: user.email, totpEnabled: user.totp_enabled }, purpose);
+  const tempToken = signTempToken(
+    { id: user.id, email: user.email, totpEnabled: user.totp_enabled },
+    purpose,
+  );
 
   return { tempToken, requiresTotpSetup };
 }
@@ -102,7 +128,7 @@ export async function verifyOtpAndGetTempToken(
 export async function verifyTotpAndCreateSession(
   tempToken: string,
   code: string,
-  ipAddress: string
+  ipAddress: string,
 ): Promise<{ accessToken: string; refreshToken: string }> {
   const payload = verifyTempToken(tempToken);
   if (payload.purpose !== 'totp_required') throw new Error('INVALID_TOKEN_PURPOSE');
@@ -112,16 +138,31 @@ export async function verifyTotpAndCreateSession(
 
   // Accept TOTP code or backup code
   const totpValid = await verifyTotpCode(user.id, code);
-  const backupValid = !totpValid && await verifyBackupCode(user.id, code);
+  const backupValid = !totpValid && (await verifyBackupCode(user.id, code));
 
   if (!totpValid && !backupValid) {
-    await writeAuditLog({ userEmail: user.email, resourceType: 'AUTH', operation: 'FAILED_LOGIN', ipAddress });
+    await writeAuditLog({
+      userEmail: user.email,
+      resourceType: 'AUTH',
+      operation: 'FAILED_LOGIN',
+      ipAddress,
+    });
     throw new Error('INVALID_TOTP');
   }
 
   await db('users').where({ id: user.id }).update({ last_login: new Date() });
-  await writeAuditLog({ userEmail: user.email, resourceType: 'AUTH', operation: 'TOTP_VERIFY', ipAddress });
-  await writeAuditLog({ userEmail: user.email, resourceType: 'AUTH', operation: 'LOGIN', ipAddress });
+  await writeAuditLog({
+    userEmail: user.email,
+    resourceType: 'AUTH',
+    operation: 'TOTP_VERIFY',
+    ipAddress,
+  });
+  await writeAuditLog({
+    userEmail: user.email,
+    resourceType: 'AUTH',
+    operation: 'LOGIN',
+    ipAddress,
+  });
 
   return createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
 }
@@ -130,7 +171,7 @@ export async function verifyTotpAndCreateSession(
 export async function confirmTotpSetupAndCreateSession(
   tempToken: string,
   code: string,
-  ipAddress: string
+  ipAddress: string,
 ): Promise<{ accessToken: string; refreshToken: string; backupCodes: string[] }> {
   const payload = verifyTempToken(tempToken);
   if (payload.purpose !== 'totp_setup') throw new Error('INVALID_TOKEN_PURPOSE');
@@ -142,8 +183,18 @@ export async function confirmTotpSetupAndCreateSession(
   if (!valid) throw new Error('INVALID_TOTP_CODE');
 
   await db('users').where({ id: user.id }).update({ totp_enabled: true, last_login: new Date() });
-  await writeAuditLog({ userEmail: user.email, resourceType: 'AUTH', operation: 'TOTP_SETUP', ipAddress });
-  await writeAuditLog({ userEmail: user.email, resourceType: 'AUTH', operation: 'LOGIN', ipAddress });
+  await writeAuditLog({
+    userEmail: user.email,
+    resourceType: 'AUTH',
+    operation: 'TOTP_SETUP',
+    ipAddress,
+  });
+  await writeAuditLog({
+    userEmail: user.email,
+    resourceType: 'AUTH',
+    operation: 'LOGIN',
+    ipAddress,
+  });
 
   const { generateBackupCodes } = await import('./totp.service');
   const backupCodes = await generateBackupCodes(user.id);
@@ -156,7 +207,9 @@ export async function confirmTotpSetupAndCreateSession(
 // IMPORTANT: the returned `refreshToken` is the PLAINTEXT token (set on the
 // httpOnly cookie). Redis stores the SHA-256 hash so a DB dump of the
 // `refresh:*` keyspace does not yield usable tokens.
-export async function createTokenPair(user: AuthUser): Promise<{ accessToken: string; refreshToken: string }> {
+export async function createTokenPair(
+  user: AuthUser,
+): Promise<{ accessToken: string; refreshToken: string }> {
   const accessToken = signAccessToken(user);
   const refreshToken = crypto.randomBytes(48).toString('hex');
   const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
@@ -166,7 +219,9 @@ export async function createTokenPair(user: AuthUser): Promise<{ accessToken: st
 }
 
 // Refresh: rotate refresh token and issue new access token
-export async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+export async function refreshAccessToken(
+  refreshToken: string,
+): Promise<{ accessToken: string; refreshToken: string }> {
   const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
   const { getRefreshToken } = await import('./redis.service');
   const userId = await getRefreshToken(hash);
@@ -188,7 +243,10 @@ export async function refreshAccessToken(refreshToken: string): Promise<{ access
     lastActivity = await redisClient.get(`activity:${userId}`);
   } catch (err) {
     redisReachable = false;
-    logger.warn({ err, userId }, '[auth] Redis unreachable during idle check — allowing refresh (fail-soft)');
+    logger.warn(
+      { err, userId },
+      '[auth] Redis unreachable during idle check — allowing refresh (fail-soft)',
+    );
   }
   if (redisReachable && !lastActivity && process.env.NODE_ENV !== 'test') {
     // User has been idle too long — revoke all tokens
@@ -203,13 +261,21 @@ export async function refreshAccessToken(refreshToken: string): Promise<{ access
   await setRefreshToken(newHash, userId, REFRESH_TTL_SEC);
 
   return {
-    accessToken: signAccessToken({ id: user.id, email: user.email, totpEnabled: user.totp_enabled }),
+    accessToken: signAccessToken({
+      id: user.id,
+      email: user.email,
+      totpEnabled: user.totp_enabled,
+    }),
     refreshToken: newRefreshToken,
   };
 }
 
 // Logout: revoke refresh token
-export async function logout(refreshToken: string, userEmail: string, ipAddress: string): Promise<void> {
+export async function logout(
+  refreshToken: string,
+  userEmail: string,
+  ipAddress: string,
+): Promise<void> {
   const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
   await deleteRefreshToken(hash);
   await writeAuditLog({ userEmail, resourceType: 'AUTH', operation: 'LOGOUT', ipAddress });
@@ -223,7 +289,9 @@ export async function logout(refreshToken: string, userEmail: string, ipAddress:
  * There is no per-user index, so we scan `refresh:*` and delete matching keys.
  * Returns the number of tokens revoked (0 if user has no active sessions).
  */
-export async function revokeAllSessions(emailOrUser: string | { id: string; email?: string }): Promise<number> {
+export async function revokeAllSessions(
+  emailOrUser: string | { id: string; email?: string },
+): Promise<number> {
   const { redis } = await import('./redis.service');
 
   let userId: string | undefined;

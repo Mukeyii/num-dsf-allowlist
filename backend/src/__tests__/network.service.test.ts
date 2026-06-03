@@ -17,25 +17,55 @@ describe('network.service', () => {
   const approvalId = uuidv4();
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'svc', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'svc',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: org, instance_id: instanceId, name: 'Net Org', active: 1,
-      email: 'o@x.de', address_line: 'x', postal_code: '0', city: 'Muenster',
-      country_code: 'DE', created_at: new Date(), updated_at: new Date(),
+      identifier: org,
+      instance_id: instanceId,
+      name: 'Net Org',
+      active: 1,
+      email: 'o@x.de',
+      address_line: 'x',
+      postal_code: '0',
+      city: 'Muenster',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('endpoints').insert({
-      identifier: endpointId, organization_id: org, name: 'EP',
-      address: 'https://ep.example.de/fhir', created_at: new Date(), updated_at: new Date(),
+      identifier: endpointId,
+      organization_id: org,
+      name: 'EP',
+      address: 'https://ep.example.de/fhir',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('memberships').insert({
-      id: membershipId, organization_id: org, parent_organization: 'parent.example.de',
-      endpoint_id: endpointId, roles: JSON.stringify(['DIC']),
-      created_at: new Date(), updated_at: new Date(),
+      id: membershipId,
+      organization_id: org,
+      parent_organization: 'parent.example.de',
+      endpoint_id: endpointId,
+      roles: JSON.stringify(['DIC']),
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('approval_requests').insert({
-      id: approvalId, instance_id: instanceId, status: 'APPROVED',
-      created_at: new Date(), submitted_at: new Date(), resolved_at: new Date(),
+      id: approvalId,
+      instance_id: instanceId,
+      status: 'APPROVED',
+      created_at: new Date(),
+      submitted_at: new Date(),
+      resolved_at: new Date(),
     });
   });
 
@@ -57,7 +87,9 @@ describe('network.service', () => {
     expect(found).toBeTruthy();
     expect(found.name).toBe('Net Org');
     expect(found.endpoints.some((e: any) => e.identifier === endpointId)).toBe(true);
-    expect(found.memberships.some((m: any) => m.parent_organization === 'parent.example.de')).toBe(true);
+    expect(found.memberships.some((m: any) => m.parent_organization === 'parent.example.de')).toBe(
+      true,
+    );
     // Non-admins get no contact PII or email.
     expect(found.email).toBeUndefined();
     expect(found.contacts).toBeUndefined();

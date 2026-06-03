@@ -29,7 +29,10 @@ describe('sanitizeError', () => {
 
   it('handles a null/undefined error without throwing', () => {
     expect(sanitizeError(null)).toEqual({ code: 'OPERATION_FAILED', message: 'Operation failed' });
-    expect(sanitizeError(undefined)).toEqual({ code: 'OPERATION_FAILED', message: 'Operation failed' });
+    expect(sanitizeError(undefined)).toEqual({
+      code: 'OPERATION_FAILED',
+      message: 'Operation failed',
+    });
   });
 
   it('does not leak a raw SQL or stack string', () => {

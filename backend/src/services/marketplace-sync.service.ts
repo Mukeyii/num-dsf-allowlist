@@ -19,11 +19,18 @@ interface RepoResp {
   homepage?: string | null;
   language?: string | null;
 }
-interface ReleaseResp { tag_name: string }
-interface CommitResp { commit: { committer: { date: string } } }
+interface ReleaseResp {
+  tag_name: string;
+}
+interface CommitResp {
+  commit: { committer: { date: string } };
+}
 
 function ghHeaders(): Record<string, string> {
-  const h: Record<string, string> = { Accept: 'application/vnd.github+json', 'User-Agent': 'dsf-mgmt-portal' };
+  const h: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'dsf-mgmt-portal',
+  };
   if (GITHUB_TOKEN) h['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
   return h;
 }
@@ -46,7 +53,9 @@ export async function syncEntry(id: string): Promise<void> {
   if (!row) return;
   const parsed = parseOwnerRepo(row.git_url);
   if (!parsed) {
-    await db('marketplace_entries').where({ id }).update({ sync_error: 'invalid url', updated_at: new Date() });
+    await db('marketplace_entries')
+      .where({ id })
+      .update({ sync_error: 'invalid url', updated_at: new Date() });
     return;
   }
   const { owner, repo } = parsed;
@@ -70,26 +79,31 @@ export async function syncEntry(id: string): Promise<void> {
       if (err.message !== 'NOT_FOUND') throw err;
     }
 
-    await db('marketplace_entries').where({ id }).update({
-      description: main.description,
-      stars: main.stargazers_count,
-      license: main.license?.spdx_id || null,
-      topics: JSON.stringify(main.topics ?? []),
-      forks: main.forks_count ?? 0,
-      open_issues: main.open_issues_count ?? 0,
-      archived: main.archived ? 1 : 0,
-      homepage: main.homepage && main.homepage.trim() ? main.homepage.trim() : null,
-      language: main.language ?? null,
-      latest_release_tag: latestTag,
-      last_commit_at: lastCommitAt,
-      sync_at: new Date(),
-      sync_error: null,
-      updated_at: new Date(),
-    });
+    await db('marketplace_entries')
+      .where({ id })
+      .update({
+        description: main.description,
+        stars: main.stargazers_count,
+        license: main.license?.spdx_id || null,
+        topics: JSON.stringify(main.topics ?? []),
+        forks: main.forks_count ?? 0,
+        open_issues: main.open_issues_count ?? 0,
+        archived: main.archived ? 1 : 0,
+        homepage: main.homepage && main.homepage.trim() ? main.homepage.trim() : null,
+        language: main.language ?? null,
+        latest_release_tag: latestTag,
+        last_commit_at: lastCommitAt,
+        sync_at: new Date(),
+        sync_error: null,
+        updated_at: new Date(),
+      });
   } catch (err: any) {
-    const message = err.message === 'NOT_FOUND' ? 'repository not found'
-      : err.message === 'RATE_LIMIT' ? 'github rate limit'
-      : `sync failed: ${err.message || 'unknown'}`;
+    const message =
+      err.message === 'NOT_FOUND'
+        ? 'repository not found'
+        : err.message === 'RATE_LIMIT'
+          ? 'github rate limit'
+          : `sync failed: ${err.message || 'unknown'}`;
     await db('marketplace_entries').where({ id }).update({
       sync_error: message,
       updated_at: new Date(),
@@ -100,7 +114,8 @@ export async function syncEntry(id: string): Promise<void> {
 
 export async function syncAll(): Promise<{ ok: number; failed: number }> {
   const rows = await db('marketplace_entries').select('id');
-  let ok = 0, failed = 0;
+  let ok = 0,
+    failed = 0;
   for (const r of rows) {
     try {
       await syncEntry(r.id);
@@ -112,7 +127,7 @@ export async function syncAll(): Promise<{ ok: number; failed: number }> {
         break;
       }
     }
-    await new Promise(res => setTimeout(res, SLEEP_BETWEEN_MS));
+    await new Promise((res) => setTimeout(res, SLEEP_BETWEEN_MS));
   }
   logger.info({ ok, failed }, 'marketplace sync complete');
   return { ok, failed };

@@ -6,7 +6,9 @@ import { app } from '../../app';
 import { cleanTestData, seedTestUser, TEST_EMAIL } from '../helpers/seed';
 
 describe('Auth API', () => {
-  beforeEach(async () => { await cleanTestData(); });
+  beforeEach(async () => {
+    await cleanTestData();
+  });
 
   describe('POST /auth/request-otp', () => {
     it('should return 200 for whitelisted email', async () => {
@@ -16,7 +18,9 @@ describe('Auth API', () => {
     });
 
     it('should return 200 for non-whitelisted email (no leaking)', async () => {
-      const res = await request(app).post('/auth/request-otp').send({ email: 'unknown@example.com' });
+      const res = await request(app)
+        .post('/auth/request-otp')
+        .send({ email: 'unknown@example.com' });
       expect(res.status).toBe(200);
     });
 

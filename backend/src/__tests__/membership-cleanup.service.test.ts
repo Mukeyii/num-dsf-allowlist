@@ -22,27 +22,59 @@ describe('membership-cleanup.service – runMembershipCleanup', () => {
   const recentDeletedAt = new Date(Date.now() - 1 * day);
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'mcleanup', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'mcleanup',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: org, instance_id: instanceId, name: 'MCleanup', active: 1,
-      email: 'x@x.de', address_line: 'x', postal_code: '0', city: 'x',
-      country_code: 'DE', created_at: new Date(), updated_at: new Date(),
+      identifier: org,
+      instance_id: instanceId,
+      name: 'MCleanup',
+      active: 1,
+      email: 'x@x.de',
+      address_line: 'x',
+      postal_code: '0',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('endpoints').insert({
-      identifier: endpointId, organization_id: org, name: 'EP',
-      address: 'https://ep.example.de/fhir', created_at: new Date(), updated_at: new Date(),
+      identifier: endpointId,
+      organization_id: org,
+      name: 'EP',
+      address: 'https://ep.example.de/fhir',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('memberships').insert([
       {
-        id: oldId, organization_id: org, parent_organization: 'parent.example.de',
-        endpoint_id: endpointId, roles: JSON.stringify(['DIC']),
-        created_at: new Date(), updated_at: new Date(), deleted_at: oldDeletedAt,
+        id: oldId,
+        organization_id: org,
+        parent_organization: 'parent.example.de',
+        endpoint_id: endpointId,
+        roles: JSON.stringify(['DIC']),
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: oldDeletedAt,
       },
       {
-        id: recentId, organization_id: org, parent_organization: 'parent.example.de',
-        endpoint_id: endpointId, roles: JSON.stringify(['HRP']),
-        created_at: new Date(), updated_at: new Date(), deleted_at: recentDeletedAt,
+        id: recentId,
+        organization_id: org,
+        parent_organization: 'parent.example.de',
+        endpoint_id: endpointId,
+        roles: JSON.stringify(['HRP']),
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: recentDeletedAt,
       },
     ]);
   });

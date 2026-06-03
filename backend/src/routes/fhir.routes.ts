@@ -27,7 +27,9 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
     if (!cert) {
       return res.status(401).json({
         resourceType: 'OperationOutcome',
-        issue: [{ severity: 'error', code: 'security', diagnostics: 'Client certificate required' }],
+        issue: [
+          { severity: 'error', code: 'security', diagnostics: 'Client certificate required' },
+        ],
       });
     }
 
@@ -35,7 +37,13 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
     if (!org) {
       return res.status(403).json({
         resourceType: 'OperationOutcome',
-        issue: [{ severity: 'error', code: 'forbidden', diagnostics: 'Client certificate not registered' }],
+        issue: [
+          {
+            severity: 'error',
+            code: 'forbidden',
+            diagnostics: 'Client certificate not registered',
+          },
+        ],
       });
     }
 
@@ -85,7 +93,9 @@ fhirRouter.get('/Bundle', async (req: Request, res: Response) => {
     if (!cert) {
       return res.status(401).json({
         resourceType: 'OperationOutcome',
-        issue: [{ severity: 'error', code: 'security', diagnostics: 'Client certificate required' }],
+        issue: [
+          { severity: 'error', code: 'security', diagnostics: 'Client certificate required' },
+        ],
       });
     }
 
@@ -93,7 +103,13 @@ fhirRouter.get('/Bundle', async (req: Request, res: Response) => {
     if (!org) {
       return res.status(403).json({
         resourceType: 'OperationOutcome',
-        issue: [{ severity: 'error', code: 'forbidden', diagnostics: 'Client certificate not registered' }],
+        issue: [
+          {
+            severity: 'error',
+            code: 'forbidden',
+            diagnostics: 'Client certificate not registered',
+          },
+        ],
       });
     }
 

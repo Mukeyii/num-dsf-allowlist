@@ -15,7 +15,9 @@ describe('Organization API', () => {
     try {
       await db.raw('SELECT client_cert_thumbprint FROM organizations LIMIT 0');
     } catch {
-      await db.raw('ALTER TABLE organizations ADD COLUMN client_cert_thumbprint VARCHAR(128) DEFAULT NULL');
+      await db.raw(
+        'ALTER TABLE organizations ADD COLUMN client_cert_thumbprint VARCHAR(128) DEFAULT NULL',
+      );
     }
   });
 
@@ -27,14 +29,18 @@ describe('Organization API', () => {
 
   describe('GET /api/v1/instances/:id/organization', () => {
     it('should return null when no organization exists', async () => {
-      const res = await request(app).get(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`)
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data ?? null).toBeNull();
     });
 
     it('should return organization when it exists', async () => {
       await seedOrganization();
-      const res = await request(app).get(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .get(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`)
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body.data.name).toBe('Test Hospital');
     });
@@ -47,16 +53,32 @@ describe('Organization API', () => {
 
   describe('PUT /api/v1/instances/:id/organization', () => {
     it('should create organization (upsert)', async () => {
-      const res = await request(app).put(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`)
-        .send({ identifier: 'new-org.de', name: 'New Org', email: 'admin@new-org.de', active: true, countryCode: 'DE' });
+      const res = await request(app)
+        .put(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          identifier: 'new-org.de',
+          name: 'New Org',
+          email: 'admin@new-org.de',
+          active: true,
+          countryCode: 'DE',
+        });
       expect(res.status).toBe(200);
       expect(res.body.data.identifier).toBe('new-org.de');
     });
 
     it('should update existing organization', async () => {
       await seedOrganization();
-      const res = await request(app).put(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`).set('Authorization', `Bearer ${token}`)
-        .send({ identifier: 'test-hospital.de', name: 'Updated Hospital', email: 'updated@test.de', active: true, countryCode: 'DE' });
+      const res = await request(app)
+        .put(`/api/v1/instances/${TEST_INSTANCE_ID}/organization`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          identifier: 'test-hospital.de',
+          name: 'Updated Hospital',
+          email: 'updated@test.de',
+          active: true,
+          countryCode: 'DE',
+        });
       expect(res.status).toBe(200);
       expect(res.body.data.name).toBe('Updated Hospital');
     });

@@ -24,7 +24,10 @@ export interface WhitelistEntry {
 }
 
 export class AdminUsersError extends Error {
-  constructor(public code: string, message: string) {
+  constructor(
+    public code: string,
+    message: string,
+  ) {
     super(message);
   }
 }
@@ -56,7 +59,11 @@ export async function listWhitelist(): Promise<WhitelistEntry[]> {
   return result;
 }
 
-export async function addToWhitelist(rawEmail: string, addedBy: string, ipAddress?: string): Promise<void> {
+export async function addToWhitelist(
+  rawEmail: string,
+  addedBy: string,
+  ipAddress?: string,
+): Promise<void> {
   const email = lower(rawEmail);
   const existing = await db('email_whitelist').where({ email }).first();
   if (existing) throw new AdminUsersError('ALREADY_EXISTS', 'Email already whitelisted');
@@ -88,11 +95,13 @@ export async function lockWhitelistEntry(
   }
   const existing = await db('email_whitelist').where({ email }).first();
   if (!existing) throw new AdminUsersError('NOT_FOUND', 'Email not in whitelist');
-  await db('email_whitelist').where({ email }).update({
-    locked_at: new Date(),
-    locked_by: lockedBy,
-    locked_reason: reason || null,
-  });
+  await db('email_whitelist')
+    .where({ email })
+    .update({
+      locked_at: new Date(),
+      locked_by: lockedBy,
+      locked_reason: reason || null,
+    });
   await revokeAllSessions(email).catch(() => {});
   await writeAuditLog({
     userEmail: lockedBy,

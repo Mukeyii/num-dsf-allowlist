@@ -6,5 +6,8 @@ import { TEST_USER_ID } from './seed';
 
 export function getTestToken(email: string, userId: string = TEST_USER_ID): string {
   const privateKey = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64!, 'base64').toString();
-  return jwt.sign({ sub: userId, email }, privateKey, { algorithm: 'RS256', expiresIn: '15m' } as any);
+  return jwt.sign({ sub: userId, email }, privateKey, {
+    algorithm: 'RS256',
+    expiresIn: '15m',
+  } as any);
 }

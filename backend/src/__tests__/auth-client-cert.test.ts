@@ -31,9 +31,10 @@ b7dUjzKHYESSYsXoPNMiPiX85ysSGrFcdPt4MfrDXJe9Zk/3RmeAAAAAA
 
 function thumbprintOf(pem: string): string {
   const der = Buffer.from(
-    pem.replace(/-----BEGIN CERTIFICATE-----/g, '')
-       .replace(/-----END CERTIFICATE-----/g, '')
-       .replace(/\s+/g, ''),
+    pem
+      .replace(/-----BEGIN CERTIFICATE-----/g, '')
+      .replace(/-----END CERTIFICATE-----/g, '')
+      .replace(/\s+/g, ''),
     'base64',
   );
   return crypto.createHash('sha256').update(der).digest('hex');
@@ -57,12 +58,21 @@ describe('POST /auth/client-cert-login', () => {
   beforeAll(async () => {
     await db('users').insert({ id: userId, email: ownerEmail, created_at: new Date() });
     await db('email_whitelist').insert({ id: uuidv4(), email: ownerEmail, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'L', created_at: new Date() });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'L',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: orgIdentifier, instance_id: instanceId,
-      name: 'CertLogin', email: 'a@b.de', active: true,
+      identifier: orgIdentifier,
+      instance_id: instanceId,
+      name: 'CertLogin',
+      email: 'a@b.de',
+      active: true,
       client_cert_thumbprint: tp,
-      created_at: new Date(), updated_at: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
     });
   });
 
@@ -97,12 +107,16 @@ describe('POST /auth/client-cert-login', () => {
   });
 
   it('rejects locked emails (account locked → 401)', async () => {
-    await db('email_whitelist').where({ email: ownerEmail }).update({ locked_at: new Date(), locked_by: 'test', locked_reason: 'test' });
+    await db('email_whitelist')
+      .where({ email: ownerEmail })
+      .update({ locked_at: new Date(), locked_by: 'test', locked_reason: 'test' });
     const res = await request(appWith())
       .post('/auth/client-cert-login')
       .set('x-client-cert', encodeURIComponent(SAMPLE_PEM));
     expect(res.status).toBe(401);
     expect(res.body.error.code).toBe('ACCOUNT_LOCKED');
-    await db('email_whitelist').where({ email: ownerEmail }).update({ locked_at: null, locked_by: null, locked_reason: null });
+    await db('email_whitelist')
+      .where({ email: ownerEmail })
+      .update({ locked_at: null, locked_by: null, locked_reason: null });
   });
 });

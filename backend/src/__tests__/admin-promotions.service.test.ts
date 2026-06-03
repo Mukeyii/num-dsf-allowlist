@@ -26,16 +26,34 @@ describe('admin-promotions.service – create + list pending', () => {
 
   beforeAll(async () => {
     // Requester: whitelisted + verified admin grant.
-    await db('email_whitelist').insert({ id: uuidv4(), email: requester, created_by: 'test', created_at: new Date() });
-    await db('users').insert({ id: uuidv4(), email: requester, totp_enabled: false, created_at: new Date() });
+    await db('email_whitelist').insert({
+      id: uuidv4(),
+      email: requester,
+      created_by: 'test',
+      created_at: new Date(),
+    });
+    await db('users').insert({
+      id: uuidv4(),
+      email: requester,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
     const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
     const sig = signGrant(requester, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
     await db('admin_grants').insert({
-      email: requester, granted_at: grantedAt,
-      granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig,
+      email: requester,
+      granted_at: grantedAt,
+      granted_by_a: 'SYSTEM:test',
+      granted_by_b: 'SYSTEM:test',
+      signature_hex: sig,
     });
     // Target: whitelisted, unlocked, not an admin.
-    await db('email_whitelist').insert({ id: uuidv4(), email: target, created_by: 'test', created_at: new Date() });
+    await db('email_whitelist').insert({
+      id: uuidv4(),
+      email: target,
+      created_by: 'test',
+      created_at: new Date(),
+    });
   });
 
   afterAll(async () => {
@@ -62,19 +80,23 @@ describe('admin-promotions.service – create + list pending', () => {
 
   it('lists the new request among pending promotions', async () => {
     const pending = await listPendingPromotions();
-    const mine = pending.find(p => p.id === createdId);
+    const mine = pending.find((p) => p.id === createdId);
     expect(mine).toBeDefined();
     expect(mine!.status).toBe('PENDING');
     expect(mine!.target_email).toBe(target);
   });
 
   it('rejects a second pending request for the same target (ALREADY_PENDING)', async () => {
-    await expect(createPromotionRequest(target, requester)).rejects.toMatchObject({ code: 'ALREADY_PENDING' });
+    await expect(createPromotionRequest(target, requester)).rejects.toMatchObject({
+      code: 'ALREADY_PENDING',
+    });
   });
 
   it('rejects a request from a non-admin requester (NOT_ADMIN)', async () => {
     const stranger = `stranger-${uuidv4()}@example.de`;
-    await expect(createPromotionRequest(target, stranger)).rejects.toMatchObject({ code: 'NOT_ADMIN' });
+    await expect(createPromotionRequest(target, stranger)).rejects.toMatchObject({
+      code: 'NOT_ADMIN',
+    });
     await expect(createPromotionRequest(target, stranger)).rejects.toThrow(PromotionError);
   });
 });

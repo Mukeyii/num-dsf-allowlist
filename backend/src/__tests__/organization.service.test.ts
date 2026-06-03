@@ -15,8 +15,18 @@ describe('organization.service', () => {
   const email = 'caller@example.de';
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'svc', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'svc',
+      created_at: new Date(),
+    });
   });
 
   afterAll(async () => {
@@ -33,8 +43,16 @@ describe('organization.service', () => {
 
     const created = await upsertOrganization(
       instanceId,
-      { identifier: org, name: 'Initial', active: true, email: 'o@x.de', city: 'Muenster', countryCode: 'DE' },
-      email, '127.0.0.1',
+      {
+        identifier: org,
+        name: 'Initial',
+        active: true,
+        email: 'o@x.de',
+        city: 'Muenster',
+        countryCode: 'DE',
+      },
+      email,
+      '127.0.0.1',
     );
     expect(created!.identifier).toBe(org);
     expect(created!.name).toBe('Initial');
@@ -42,7 +60,8 @@ describe('organization.service', () => {
     const updated = await upsertOrganization(
       instanceId,
       { identifier: org, name: 'Renamed', active: false, email: 'o@x.de' },
-      email, '127.0.0.1',
+      email,
+      '127.0.0.1',
     );
     expect(updated!.name).toBe('Renamed');
     expect(!!updated!.active).toBe(false);
@@ -56,7 +75,8 @@ describe('organization.service', () => {
       upsertOrganization(
         instanceId,
         { identifier: `other-${org}`, name: 'Renamed', active: true, email: 'o@x.de' },
-        email, '127.0.0.1',
+        email,
+        '127.0.0.1',
       ),
     ).rejects.toThrow('IDENTIFIER_IMMUTABLE');
   });

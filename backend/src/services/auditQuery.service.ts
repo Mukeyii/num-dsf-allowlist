@@ -104,7 +104,11 @@ export async function listCrossInstanceAudit(
     .limit(params.limit)
     .offset(offset);
 
-  const totalQuery = db('audit_logs').leftJoin('instances', 'audit_logs.instance_id', 'instances.id');
+  const totalQuery = db('audit_logs').leftJoin(
+    'instances',
+    'audit_logs.instance_id',
+    'instances.id',
+  );
   if (!isAdmin) totalQuery.where('instances.user_id', userId);
   const totalRow = await totalQuery.count('audit_logs.id as total').first();
   const total = Number(totalRow?.total ?? 0);
@@ -117,9 +121,10 @@ export async function listCrossInstanceAudit(
  * @param params Pagination (page, limit).
  * @returns The rows and the total count across all instances.
  */
-export async function listAdminAudit(
-  params: { page: number; limit: number },
-): Promise<AuditPage<AuditLogRow>> {
+export async function listAdminAudit(params: {
+  page: number;
+  limit: number;
+}): Promise<AuditPage<AuditLogRow>> {
   const offset = (params.page - 1) * params.limit;
   const [rows, countRows] = await Promise.all([
     db<AuditLogRow>('audit_logs').orderBy('timestamp', 'desc').limit(params.limit).offset(offset),

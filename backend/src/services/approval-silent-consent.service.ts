@@ -19,10 +19,11 @@ export async function runSilentConsentSweep(now: Date = new Date()): Promise<num
 
   let promoted = 0;
   for (const r of pending) {
-    const sigs = (await db('approval_signatures')
-      .where({ approval_request_id: r.id })) as ApprovalSig[];
-    if (sigs.some(s => s.decision === 'REJECT')) continue;
-    const approves = sigs.filter(s => s.decision === 'APPROVE');
+    const sigs = (await db('approval_signatures').where({
+      approval_request_id: r.id,
+    })) as ApprovalSig[];
+    if (sigs.some((s) => s.decision === 'REJECT')) continue;
+    const approves = sigs.filter((s) => s.decision === 'APPROVE');
     if (approves.length === 0) continue;
     if (approves.length >= 2) continue; // already at 2 — derived elsewhere
 
@@ -50,7 +51,9 @@ export async function runSilentConsentSweep(now: Date = new Date()): Promise<num
     });
 
     // notifySiteOnApproval signature: (requestId, instanceId, status, comment, resolvedBy)
-    notifySiteOnApproval(r.id, r.instance_id, 'APPROVED', null, 'SYSTEM:silent-consent').catch(() => {});
+    notifySiteOnApproval(r.id, r.instance_id, 'APPROVED', null, 'SYSTEM:silent-consent').catch(
+      () => {},
+    );
     promoted++;
   }
   return promoted;

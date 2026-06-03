@@ -24,7 +24,9 @@ d('signBundle', () => {
   it('produces an RS256 JWT that verifies against the configured public key', () => {
     const bundle = { resourceType: 'Bundle', entry: [] };
     const { signature, contentHash } = signBundle(bundle);
-    const decoded = jwt.verify(signature, pub, { algorithms: ['RS256'] }) as { contentHash: string };
+    const decoded = jwt.verify(signature, pub, { algorithms: ['RS256'] }) as {
+      contentHash: string;
+    };
     expect(decoded.contentHash).toBe(contentHash);
   });
 
@@ -47,7 +49,9 @@ d('signBundle', () => {
     const { signature } = signBundle(original);
     const tampered = { resourceType: 'Bundle', entry: [{ id: 'b' }] };
     const tamperedHash = crypto.createHash('sha256').update(JSON.stringify(tampered)).digest('hex');
-    const decoded = jwt.verify(signature, pub, { algorithms: ['RS256'] }) as { contentHash: string };
+    const decoded = jwt.verify(signature, pub, { algorithms: ['RS256'] }) as {
+      contentHash: string;
+    };
     expect(decoded.contentHash).not.toBe(tamperedHash);
   });
 });

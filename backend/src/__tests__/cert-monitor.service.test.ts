@@ -34,20 +34,47 @@ describe('cert-monitor.service – runCertExpiryCheck', () => {
   const validUntilDate = validUntil.toISOString().slice(0, 10);
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'certmon', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'certmon',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: org, instance_id: instanceId, name: 'CertMon', active: 1,
-      email: 'x@x.de', address_line: 'x', postal_code: '0', city: 'x',
-      country_code: 'DE', created_at: new Date(), updated_at: new Date(),
+      identifier: org,
+      instance_id: instanceId,
+      name: 'CertMon',
+      active: 1,
+      email: 'x@x.de',
+      address_line: 'x',
+      postal_code: '0',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('contacts').insert({
-      id: contactId, organization_id: org, types: JSON.stringify(['DSF_ADMIN']),
-      name: 'Admin', email: adminEmail, created_at: new Date(), updated_at: new Date(),
+      id: contactId,
+      organization_id: org,
+      types: JSON.stringify(['DSF_ADMIN']),
+      name: 'Admin',
+      email: adminEmail,
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('certificates').insert({
-      id: certId, organization_id: org, pem: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
-      subject: 'CN=certmon', thumbprint: 'a'.repeat(40), valid_until: validUntilDate,
+      id: certId,
+      organization_id: org,
+      pem: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
+      subject: 'CN=certmon',
+      thumbprint: 'a'.repeat(40),
+      valid_until: validUntilDate,
       created_at: new Date(),
     });
   });
@@ -67,8 +94,9 @@ describe('cert-monitor.service – runCertExpiryCheck', () => {
     await runCertExpiryCheck();
 
     expect(sendCertExpiryWarning as jest.Mock).toHaveBeenCalled();
-    const calledWith = (sendCertExpiryWarning as jest.Mock).mock.calls
-      .find((c) => c[0] === adminEmail);
+    const calledWith = (sendCertExpiryWarning as jest.Mock).mock.calls.find(
+      (c) => c[0] === adminEmail,
+    );
     expect(calledWith).toBeDefined();
 
     const cert = await db('certificates').where({ id: certId }).first();

@@ -22,10 +22,22 @@ import { SITE_NOTIFY_DELAY_MS, DAY_MS } from '../lib/time';
 import { logger } from '../lib/logger';
 
 async function getAllAdminEmails(): Promise<string[]> {
-  const rows = await db('admin_grants').select('email', 'granted_at', 'granted_by_a', 'granted_by_b', 'signature_hex');
+  const rows = await db('admin_grants').select(
+    'email',
+    'granted_at',
+    'granted_by_a',
+    'granted_by_b',
+    'signature_hex',
+  );
   return rows
-    .filter((r: { email: string; granted_at: Date | string; granted_by_a: string; granted_by_b: string; signature_hex: string }) =>
-      verifyGrant(r),
+    .filter(
+      (r: {
+        email: string;
+        granted_at: Date | string;
+        granted_by_a: string;
+        granted_by_b: string;
+        signature_hex: string;
+      }) => verifyGrant(r),
     )
     .map((r: { email: string }) => r.email);
 }
@@ -39,13 +51,17 @@ export async function notifyImiOnSubmit(
 ): Promise<void> {
   const imiEmails = await getAllAdminEmails();
   if (imiEmails.length === 0) {
-    logger.warn('[ApprovalNotify] No verified admins found in admin_grants – skipping admin notification');
+    logger.warn(
+      '[ApprovalNotify] No verified admins found in admin_grants – skipping admin notification',
+    );
     return;
   }
 
   try {
     await sendAdminNewRequestEmail(imiEmails, orgName, orgIdentifier, submittedBy, requestId);
-    logger.info(`[ApprovalNotify] Notified ${imiEmails.length} admin(s) of new request from ${orgIdentifier}`);
+    logger.info(
+      `[ApprovalNotify] Notified ${imiEmails.length} admin(s) of new request from ${orgIdentifier}`,
+    );
   } catch (err) {
     logger.error({ err }, '[ApprovalNotify] Failed to send admin new-request email');
   }
@@ -68,7 +84,14 @@ export async function notifySiteOnApproval(
   // Immediately notify admins of the resolution
   if (imiEmails.length > 0) {
     try {
-      await sendAdminApprovalResultEmail(imiEmails, org.name, org.identifier, status, resolvedBy, comment);
+      await sendAdminApprovalResultEmail(
+        imiEmails,
+        org.name,
+        org.identifier,
+        status,
+        resolvedBy,
+        comment,
+      );
       logger.info(`[ApprovalNotify] Notified admins of ${status} for ${org.identifier}`);
     } catch (err) {
       logger.error({ err }, '[ApprovalNotify] Failed to send admin approval-result email');
@@ -92,7 +115,9 @@ export async function notifySiteOnApproval(
       send_after: new Date(Date.now() + SITE_NOTIFY_DELAY_MS),
       created_at: new Date(),
     });
-    logger.info(`[ApprovalNotify] Queued site notification for ${org.identifier} (${status}), due in 30 min`);
+    logger.info(
+      `[ApprovalNotify] Queued site notification for ${org.identifier} (${status}), due in 30 min`,
+    );
   } catch (err) {
     logger.error({ err }, '[ApprovalNotify] Failed to queue site notification');
   }
@@ -103,11 +128,19 @@ export async function notifyImiOnFirstApproval(
   firstApproverEmail: string,
   requestId: string,
 ): Promise<void> {
-  const imiEmails = (await getAllAdminEmails()).filter(e => e.toLowerCase() !== firstApproverEmail.toLowerCase());
+  const imiEmails = (await getAllAdminEmails()).filter(
+    (e) => e.toLowerCase() !== firstApproverEmail.toLowerCase(),
+  );
   if (imiEmails.length === 0) return;
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) return;
-  await sendAdminFirstApprovalEmail(imiEmails, org.name, org.identifier, firstApproverEmail, requestId);
+  await sendAdminFirstApprovalEmail(
+    imiEmails,
+    org.name,
+    org.identifier,
+    firstApproverEmail,
+    requestId,
+  );
 }
 
 const REMINDER_THROTTLE_DAYS = 7;
@@ -126,11 +159,15 @@ export async function runApprovalReminders(): Promise<void> {
 
   if (staleRequests.length === 0) return;
 
-  logger.info(`[ApprovalReminder] ${staleRequests.length} stale pending request(s) – sending reminders`);
+  logger.info(
+    `[ApprovalReminder] ${staleRequests.length} stale pending request(s) – sending reminders`,
+  );
 
   const reminderEmails = await getAllAdminEmails();
   if (reminderEmails.length === 0) {
-    logger.warn('[ApprovalReminder] No verified admins found in admin_grants – skipping reminder emails');
+    logger.warn(
+      '[ApprovalReminder] No verified admins found in admin_grants – skipping reminder emails',
+    );
     return;
   }
 
@@ -165,7 +202,8 @@ export async function flushPendingNotifications(): Promise<void> {
 
   for (const row of due) {
     try {
-      const payload = typeof row.payload_json === 'string' ? JSON.parse(row.payload_json) : row.payload_json;
+      const payload =
+        typeof row.payload_json === 'string' ? JSON.parse(row.payload_json) : row.payload_json;
 
       if (row.kind === 'SITE_APPROVAL') {
         const { requestId, instanceId, orgName, status, comment } = payload as {
@@ -180,12 +218,16 @@ export async function flushPendingNotifications(): Promise<void> {
         // Re-check request status before sending – drop the notification if it has changed
         const request = await db('approval_requests').where({ id: requestId }).first();
         if (!request) {
-          logger.warn(`[PendingNotify] Request ${requestId} no longer exists – dropping notification ${row.id}`);
+          logger.warn(
+            `[PendingNotify] Request ${requestId} no longer exists – dropping notification ${row.id}`,
+          );
           await db('pending_notifications').where({ id: row.id }).del();
           continue;
         }
         if (request.status !== status) {
-          logger.info(`[PendingNotify] Request ${requestId} status changed to ${request.status} – dropping notification ${row.id}`);
+          logger.info(
+            `[PendingNotify] Request ${requestId} status changed to ${request.status} – dropping notification ${row.id}`,
+          );
           await db('pending_notifications').where({ id: row.id }).del();
           continue;
         }
@@ -195,7 +237,9 @@ export async function flushPendingNotifications(): Promise<void> {
           .select('email', 'name', 'language');
 
         if (contacts.length === 0) {
-          logger.warn(`[PendingNotify] No contacts for ${payload.orgIdentifier} – dropping notification ${row.id}`);
+          logger.warn(
+            `[PendingNotify] No contacts for ${payload.orgIdentifier} – dropping notification ${row.id}`,
+          );
           await db('pending_notifications').where({ id: row.id }).del();
           continue;
         }
@@ -211,7 +255,9 @@ export async function flushPendingNotifications(): Promise<void> {
           if (!latest) {
             const contactEmails = contacts.map((c: { email: string }) => c.email);
             await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
-            logger.warn(`[PendingNotify] No bundle_versions row for request ${requestId} — sent legacy mail`);
+            logger.warn(
+              `[PendingNotify] No bundle_versions row for request ${requestId} — sent legacy mail`,
+            );
           } else {
             // Diff against the previous version for added/removed/changed counts.
             const previous = await db('bundle_versions')
@@ -229,7 +275,10 @@ export async function flushPendingNotifications(): Promise<void> {
                   changedOrgs: diff.changed.length,
                 };
               } catch (e) {
-                logger.warn({ err: e }, '[PendingNotify] diffVersions failed, sending mail without diff');
+                logger.warn(
+                  { err: e },
+                  '[PendingNotify] diffVersions failed, sending mail without diff',
+                );
               }
             }
 
@@ -244,23 +293,31 @@ export async function flushPendingNotifications(): Promise<void> {
 
             const portalUrl = process.env.FRONTEND_URL || 'http://localhost';
             const apiBase = process.env.API_BASE_URL || `${portalUrl}/api/v1`;
-            const supportEmail = process.env.OPERATOR_SUPPORT_EMAIL || 'noreply@dsf-allowlist.local';
+            const supportEmail =
+              process.env.OPERATOR_SUPPORT_EMAIL || 'noreply@dsf-allowlist.local';
             // Derive the kid the bundle was signed with — same algorithm as
             // bundle-signing.service so the value in the mail matches the JWT
             // header the recipient inspects offline.
-            const pub = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString('utf8');
+            const pub = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString(
+              'utf8',
+            );
             const signatureKid = pub
               ? crypto.createHash('sha256').update(pub).digest('hex').slice(0, 16)
               : undefined;
 
-            for (const c of contacts as Array<{ email: string; name: string | null; language: string }>) {
+            for (const c of contacts as Array<{
+              email: string;
+              name: string | null;
+              language: string;
+            }>) {
               const language: 'en' | 'de' = c.language === 'de' ? 'de' : 'en';
               try {
                 await sendApprovedBundleNotification(
                   { email: c.email, name: c.name, language },
                   {
                     endpointIdentifier,
-                    environment: (process.env.DSF_ENVIRONMENT === 'PRODUCTION' ? 'PRODUCTION' : 'TEST'),
+                    environment:
+                      process.env.DSF_ENVIRONMENT === 'PRODUCTION' ? 'PRODUCTION' : 'TEST',
                     portalUrl,
                     bundleVersionNumber: latest.version_number,
                     contentHash: latest.content_hash,
@@ -272,15 +329,22 @@ export async function flushPendingNotifications(): Promise<void> {
                   },
                 );
               } catch (e) {
-                logger.error({ err: e, email: c.email }, '[PendingNotify] sendApprovedBundleNotification failed');
+                logger.error(
+                  { err: e, email: c.email },
+                  '[PendingNotify] sendApprovedBundleNotification failed',
+                );
               }
             }
-            logger.info(`[PendingNotify] Notified ${contacts.length} contact(s) of APPROVED v${latest.version_number} for ${payload.orgIdentifier}`);
+            logger.info(
+              `[PendingNotify] Notified ${contacts.length} contact(s) of APPROVED v${latest.version_number} for ${payload.orgIdentifier}`,
+            );
           }
         } else {
           const contactEmails = contacts.map((c: { email: string }) => c.email);
           await sendSiteApprovalResultEmail(contactEmails, orgName, status, comment);
-          logger.info(`[PendingNotify] Notified ${contactEmails.length} contact(s) of REJECTED for ${payload.orgIdentifier}`);
+          logger.info(
+            `[PendingNotify] Notified ${contactEmails.length} contact(s) of REJECTED for ${payload.orgIdentifier}`,
+          );
         }
       }
 

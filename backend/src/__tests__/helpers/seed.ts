@@ -29,9 +29,23 @@ export async function cleanTestData(): Promise<void> {
 }
 
 export async function seedTestUser() {
-  await db('email_whitelist').insert({ id: uuidv4(), email: TEST_EMAIL, created_by: 'test', created_at: new Date() }).onConflict('email').ignore();
-  await db('users').insert({ id: TEST_USER_ID, email: TEST_EMAIL, totp_enabled: false, created_at: new Date() }).onConflict('email').ignore();
-  await db('instances').insert({ id: TEST_INSTANCE_ID, user_id: TEST_USER_ID, label: 'Test Hospital', created_at: new Date() }).onConflict('id').ignore();
+  await db('email_whitelist')
+    .insert({ id: uuidv4(), email: TEST_EMAIL, created_by: 'test', created_at: new Date() })
+    .onConflict('email')
+    .ignore();
+  await db('users')
+    .insert({ id: TEST_USER_ID, email: TEST_EMAIL, totp_enabled: false, created_at: new Date() })
+    .onConflict('email')
+    .ignore();
+  await db('instances')
+    .insert({
+      id: TEST_INSTANCE_ID,
+      user_id: TEST_USER_ID,
+      label: 'Test Hospital',
+      created_at: new Date(),
+    })
+    .onConflict('id')
+    .ignore();
   return { userId: TEST_USER_ID, instanceId: TEST_INSTANCE_ID, email: TEST_EMAIL };
 }
 
@@ -42,40 +56,84 @@ export async function seedAdminUser(
   // Deterministic id for the default email, random for overrides so callers
   // can seed multiple admins in the same test without uuid collisions.
   const adminUserId = emailOverride ? uuidv4() : '00000000-0000-0000-0000-000000000002';
-  await db('email_whitelist').insert({ id: uuidv4(), email, created_by: 'test', created_at: new Date() }).onConflict('email').ignore();
-  await db('users').insert({ id: adminUserId, email, totp_enabled: false, created_at: new Date() }).onConflict('email').ignore();
+  await db('email_whitelist')
+    .insert({ id: uuidv4(), email, created_by: 'test', created_at: new Date() })
+    .onConflict('email')
+    .ignore();
+  await db('users')
+    .insert({ id: adminUserId, email, totp_enabled: false, created_at: new Date() })
+    .onConflict('email')
+    .ignore();
   const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
   const sig = signGrant(email, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
   await db('admin_grants')
-    .insert({ email, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
-    .onConflict('email').ignore();
+    .insert({
+      email,
+      granted_at: grantedAt,
+      granted_by_a: 'SYSTEM:test',
+      granted_by_b: 'SYSTEM:test',
+      signature_hex: sig,
+    })
+    .onConflict('email')
+    .ignore();
   return { userId: adminUserId, email };
 }
 
 export async function seedOrganization() {
-  await db('organizations').insert({
-    identifier: TEST_ORG_ID, instance_id: TEST_INSTANCE_ID, name: 'Test Hospital', active: true,
-    email: TEST_EMAIL, address_line: 'Test Street 1', postal_code: '12345', city: 'Teststadt', country_code: 'DE',
-    created_at: new Date(), updated_at: new Date(),
-  }).onConflict('identifier').ignore();
+  await db('organizations')
+    .insert({
+      identifier: TEST_ORG_ID,
+      instance_id: TEST_INSTANCE_ID,
+      name: 'Test Hospital',
+      active: true,
+      email: TEST_EMAIL,
+      address_line: 'Test Street 1',
+      postal_code: '12345',
+      city: 'Teststadt',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
+    })
+    .onConflict('identifier')
+    .ignore();
 }
 
 export async function seedContact(overrides?: Record<string, unknown>): Promise<string> {
   const id = uuidv4();
   await db('contacts').insert({
-    id, organization_id: TEST_ORG_ID, types: JSON.stringify(['MEDIC']), name: 'Dr. Test',
-    email: 'dr.test@test-hospital.de', email_validated: false, phone: '+49123456789',
-    created_at: new Date(), updated_at: new Date(), ...overrides,
+    id,
+    organization_id: TEST_ORG_ID,
+    types: JSON.stringify(['MEDIC']),
+    name: 'Dr. Test',
+    email: 'dr.test@test-hospital.de',
+    email_validated: false,
+    phone: '+49123456789',
+    created_at: new Date(),
+    updated_at: new Date(),
+    ...overrides,
   });
   return id;
 }
 
 export async function seedEndpoint(): Promise<string> {
   const identifier = 'dsf-fhir.test-hospital.de';
-  await db('endpoints').insert({
-    identifier, organization_id: TEST_ORG_ID, name: 'Test FHIR',
-    address: 'https://dsf-fhir.test-hospital.de/fhir', created_at: new Date(), updated_at: new Date(),
-  }).onConflict('identifier').ignore();
-  await db('endpoint_ips').insert({ id: uuidv4(), endpoint_id: identifier, ip: '10.0.0.1', is_fhir: true, is_bpe: false });
+  await db('endpoints')
+    .insert({
+      identifier,
+      organization_id: TEST_ORG_ID,
+      name: 'Test FHIR',
+      address: 'https://dsf-fhir.test-hospital.de/fhir',
+      created_at: new Date(),
+      updated_at: new Date(),
+    })
+    .onConflict('identifier')
+    .ignore();
+  await db('endpoint_ips').insert({
+    id: uuidv4(),
+    endpoint_id: identifier,
+    ip: '10.0.0.1',
+    is_fhir: true,
+    is_bpe: false,
+  });
   return identifier;
 }

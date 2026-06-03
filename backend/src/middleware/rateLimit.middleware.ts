@@ -22,7 +22,9 @@ export const otpRateLimit = rateLimit({
   store: createRedisStore('otp'),
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests. Please wait 15 minutes.' } },
+  message: {
+    error: { code: 'RATE_LIMITED', message: 'Too many requests. Please wait 15 minutes.' },
+  },
 });
 
 export const apiRateLimit = rateLimit({

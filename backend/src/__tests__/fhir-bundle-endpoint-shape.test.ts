@@ -14,9 +14,17 @@ import { generateBundle, generateFullBundle } from '../services/fhir.service';
 const CONNECTION_SYSTEM = 'http://terminology.hl7.org/CodeSystem/endpoint-connection-type';
 const RESOURCE_TYPES_SYSTEM = 'http://hl7.org/fhir/resource-types';
 
-interface Coding { system?: string; code?: string }
-interface ConnectionType { system?: string; code?: string }
-interface PayloadType { coding?: Coding[] }
+interface Coding {
+  system?: string;
+  code?: string;
+}
+interface ConnectionType {
+  system?: string;
+  code?: string;
+}
+interface PayloadType {
+  coding?: Coding[];
+}
 interface EndpointResource {
   resourceType?: string;
   status?: string;
@@ -26,8 +34,12 @@ interface EndpointResource {
   address?: string;
   name?: string;
 }
-interface FhirEntry { resource?: EndpointResource }
-interface FhirBundle { entry?: FhirEntry[] }
+interface FhirEntry {
+  resource?: EndpointResource;
+}
+interface FhirBundle {
+  entry?: FhirEntry[];
+}
 
 function assertEndpoint(ep: EndpointResource) {
   expect(ep.status).toBe('active');
@@ -36,17 +48,16 @@ function assertEndpoint(ep: EndpointResource) {
   const ptCode = ep.payloadType?.[0]?.coding?.[0];
   expect(ptCode?.system).toBe(RESOURCE_TYPES_SYSTEM);
   expect(ptCode?.code).toBe('Task');
-  expect(ep.payloadMimeType).toEqual(expect.arrayContaining([
-    'application/fhir+json',
-    'application/fhir+xml',
-  ]));
+  expect(ep.payloadMimeType).toEqual(
+    expect.arrayContaining(['application/fhir+json', 'application/fhir+xml']),
+  );
   expect(typeof ep.address).toBe('string');
 }
 
 describe('Endpoint resource shape (Phase C)', () => {
   it('generateFullBundle emits the DSF-compliant Endpoint shape for every endpoint', async () => {
     const bundle = (await generateFullBundle()) as FhirBundle;
-    const eps = (bundle.entry ?? []).filter(e => e.resource?.resourceType === 'Endpoint');
+    const eps = (bundle.entry ?? []).filter((e) => e.resource?.resourceType === 'Endpoint');
     if (eps.length === 0) return; // no approved orgs in this DB — acceptable
     for (const e of eps) assertEndpoint(e.resource!);
   });
@@ -57,21 +68,42 @@ describe('Endpoint resource shape (Phase C)', () => {
     const orgIdentifier = `epshape-${Date.now()}.example.de`;
     const endpointIdentifier = `dsf-fhir.${orgIdentifier}`;
     const userEmail = `epshape-${Date.now()}@example.de`;
-    await db('users').insert({ id: userId, email: userEmail, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'epshape-test', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: userEmail,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'epshape-test',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: orgIdentifier, instance_id: instanceId, name: 'Endpoint Shape', active: true,
-      email: `admin@${orgIdentifier}`, address_line: 'x', postal_code: '00000', city: 'x', country_code: 'DE',
-      created_at: new Date(), updated_at: new Date(),
+      identifier: orgIdentifier,
+      instance_id: instanceId,
+      name: 'Endpoint Shape',
+      active: true,
+      email: `admin@${orgIdentifier}`,
+      address_line: 'x',
+      postal_code: '00000',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('endpoints').insert({
-      identifier: endpointIdentifier, organization_id: orgIdentifier,
-      name: null, address: `https://${endpointIdentifier}/fhir`,
-      created_at: new Date(), updated_at: new Date(),
+      identifier: endpointIdentifier,
+      organization_id: orgIdentifier,
+      name: null,
+      address: `https://${endpointIdentifier}/fhir`,
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     try {
       const bundle = (await generateBundle(instanceId, endpointIdentifier)) as FhirBundle;
-      const ep = (bundle.entry ?? []).find(e => e.resource?.resourceType === 'Endpoint');
+      const ep = (bundle.entry ?? []).find((e) => e.resource?.resourceType === 'Endpoint');
       expect(ep).toBeDefined();
       assertEndpoint(ep!.resource!);
       // When endpoint.name is null in the DB, the bundle MUST fall back to

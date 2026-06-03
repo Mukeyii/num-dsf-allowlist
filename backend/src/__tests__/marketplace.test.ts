@@ -63,10 +63,7 @@ describe('Marketplace REST routes', () => {
   // Clean up any rows this test suite inserts so reruns are idempotent.
   afterAll(async () => {
     await db('marketplace_entries')
-      .whereIn('git_url', [
-        'https://github.com/Foo/Bar',
-        'https://github.com/Other/Repo',
-      ])
+      .whereIn('git_url', ['https://github.com/Foo/Bar', 'https://github.com/Other/Repo'])
       .del();
     await db('audit_logs').where({ user_email: ADMIN_EMAIL }).del();
   });
@@ -124,7 +121,9 @@ describe('Marketplace REST routes', () => {
     it('updates status and writes an audit log entry', async () => {
       // Fetch the entry we just created
       const listRes = await request(testApp).get('/api/v1/marketplace');
-      const entry = (listRes.body.data as any[]).find((e) => e.gitUrl === 'https://github.com/Foo/Bar');
+      const entry = (listRes.body.data as any[]).find(
+        (e) => e.gitUrl === 'https://github.com/Foo/Bar',
+      );
       expect(entry).toBeDefined();
 
       const patchRes = await request(testApp)
@@ -145,7 +144,9 @@ describe('Marketplace REST routes', () => {
     it('removes the entry and GET shows it is gone', async () => {
       // Get the id
       const listRes = await request(testApp).get('/api/v1/marketplace');
-      const entry = (listRes.body.data as any[]).find((e) => e.gitUrl === 'https://github.com/Foo/Bar');
+      const entry = (listRes.body.data as any[]).find(
+        (e) => e.gitUrl === 'https://github.com/Foo/Bar',
+      );
       expect(entry).toBeDefined();
 
       const delRes = await request(testApp)
@@ -155,7 +156,9 @@ describe('Marketplace REST routes', () => {
       expect(delRes.body.data.deleted).toBe(true);
 
       const listRes2 = await request(testApp).get('/api/v1/marketplace');
-      const gone = (listRes2.body.data as any[]).find((e) => e.gitUrl === 'https://github.com/Foo/Bar');
+      const gone = (listRes2.body.data as any[]).find(
+        (e) => e.gitUrl === 'https://github.com/Foo/Bar',
+      );
       expect(gone).toBeUndefined();
     });
 

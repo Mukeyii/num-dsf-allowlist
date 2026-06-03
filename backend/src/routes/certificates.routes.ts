@@ -36,28 +36,51 @@ certificatesRouter.get('/expiring', async (req, res) => {
 
 certificatesRouter.post('/', validate(createCertificateSchema), async (req, res) => {
   try {
-    const cert = await svc.createCertificate(req.instance!.id, req.body.pem, req.user!.email, req.ip || 'unknown');
+    const cert = await svc.createCertificate(
+      req.instance!.id,
+      req.body.pem,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
     res.status(201).json({ data: cert });
   } catch (err: unknown) {
     if (err instanceof Error && err.message === 'PRIVATE_KEY_REJECTED') {
-      return res.status(400).json({ error: { code: 'PRIVATE_KEY_REJECTED', message: 'Private keys are not allowed' } });
+      return res
+        .status(400)
+        .json({ error: { code: 'PRIVATE_KEY_REJECTED', message: 'Private keys are not allowed' } });
     }
     res.status(400).json({ error: { code: 'FAILED', message: 'Certificate upload failed' } });
   }
 });
 
-certificatesRouter.delete('/:cid', asyncHandler(async (req, res) => {
-  await svc.deleteCertificate(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
-  res.json({ data: { deleted: true } });
-}));
+certificatesRouter.delete(
+  '/:cid',
+  asyncHandler(async (req, res) => {
+    await svc.deleteCertificate(
+      req.instance!.id,
+      req.params.cid,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: { deleted: true } });
+  }),
+);
 
 certificatesRouter.post('/:cid/renew', async (req, res) => {
   try {
-    const cert = await svc.renewCertificate(req.instance!.id, req.params.cid, req.body, req.user!.email, req.ip || 'unknown');
+    const cert = await svc.renewCertificate(
+      req.instance!.id,
+      req.params.cid,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
     res.json({ data: cert });
   } catch (err: unknown) {
     if (err instanceof Error && err.message === 'PRIVATE_KEY_REJECTED') {
-      return res.status(400).json({ error: { code: 'PRIVATE_KEY_REJECTED', message: 'Private keys are not allowed' } });
+      return res
+        .status(400)
+        .json({ error: { code: 'PRIVATE_KEY_REJECTED', message: 'Private keys are not allowed' } });
     }
     res.status(400).json({ error: sanitizeError(err) });
   }

@@ -23,7 +23,10 @@ describe('createEndpointSchema', () => {
   });
 
   it('accepts valid IPv4 addresses', () => {
-    const r = createEndpointSchema.safeParse({ ...base, ipAddresses: [{ ip: '192.0.2.10', isFhir: true }] });
+    const r = createEndpointSchema.safeParse({
+      ...base,
+      ipAddresses: [{ ip: '192.0.2.10', isFhir: true }],
+    });
     expect(r.success).toBe(true);
   });
 

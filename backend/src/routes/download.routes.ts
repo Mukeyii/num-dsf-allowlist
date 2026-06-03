@@ -41,20 +41,27 @@ downloadRouter.get('/full-bundle', requireAuth, async (req, res) => {
 
     res.send(json);
   } catch {
-    res.status(500).json({ error: { code: 'BUNDLE_FAIL', message: 'Failed to generate allow-list bundle.' } });
+    res
+      .status(500)
+      .json({ error: { code: 'BUNDLE_FAIL', message: 'Failed to generate allow-list bundle.' } });
   }
 });
 
 downloadRouter.get('/bundle', requireAuth, requireInstanceOwnership, async (req, res) => {
   const endpointId = req.query.endpointId as string;
   if (!endpointId) {
-    return res.status(400).json({ error: { code: 'MISSING_ENDPOINT', message: 'endpointId required' } });
+    return res
+      .status(400)
+      .json({ error: { code: 'MISSING_ENDPOINT', message: 'endpointId required' } });
   }
   try {
     const bundle = await generateBundle(req.instance!.id, endpointId);
     const { signature, contentHash } = signBundle(bundle);
     res.setHeader('Content-Type', 'application/fhir+json');
-    res.setHeader('Content-Disposition', `attachment; filename="allowlist-bundle-${endpointId}.json"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="allowlist-bundle-${endpointId}.json"`,
+    );
     res.setHeader('X-Bundle-Signature', signature);
     res.setHeader('X-Content-Hash', contentHash);
 
@@ -78,7 +85,10 @@ downloadRouter.get('/ip-address-list', requireAuth, requireImiAdmin, async (req,
   try {
     const buffer = await generateIpAddressListExcel();
     const date = new Date().toISOString().split('T')[0];
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
     res.setHeader('Content-Disposition', `attachment; filename="dsf-ip-address-list-${date}.xlsx"`);
     res.send(buffer);
   } catch (err: unknown) {
