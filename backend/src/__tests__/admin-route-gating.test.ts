@@ -36,9 +36,8 @@ describe('admin-route gating', () => {
   });
 
   it.each(ADMIN_ROUTES)('non-admin gets 403 on $method $path', async (route) => {
-    const res = await (request(app) as unknown as Record<string, (p: string) => request.Test>)
-      [route.method](route.path)
-      .set('Authorization', `Bearer ${token}`);
+    const agent = request(app) as unknown as Record<string, (p: string) => request.Test>;
+    const res = await agent[route.method](route.path).set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(403);
   });
 });
