@@ -1,0 +1,5 @@
+# Bulk Prettier reformatting — ignored by `git blame`.
+# Configure locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+b56ccc3eaa886d1d41556284c0f9c840ef39b6ef
+9d4ad6f00ee325757e0859b8ee1f5686771860e7
