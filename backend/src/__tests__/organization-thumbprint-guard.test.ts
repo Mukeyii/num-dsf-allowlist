@@ -24,9 +24,7 @@ jest.mock('../services/totp.service', () => ({
   verifyTotpCode: jest.fn().mockResolvedValue(true),
 }));
 
-// eslint-disable-next-line import/first
 import { organizationRouter } from '../routes/organization.routes';
-// eslint-disable-next-line import/first
 import { signGrant } from '../lib/adminGrants';
 
 function appAs(userId: string, email: string) {
