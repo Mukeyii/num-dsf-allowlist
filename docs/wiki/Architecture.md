@@ -212,7 +212,7 @@ Prefixes documented in
 | `otp:{email}` | Pending SHA-256-hashed OTP code | 10 min |
 | `refresh:{tokenHash}` | Active refresh token (value = userId) | 7 d |
 | `ratelimit:{ip\|key}` | express-rate-limit Redis store buckets | per limiter window |
-| `totp_used:{sha256}` | Anti-replay marker for a consumed TOTP code | 60 s |
+| `totp_used:{sha256}` | Anti-replay marker for a consumed TOTP code | 120 s |
 | `activity:{userId}` | Last-activity heartbeat for idle-timeout | idle window (`IDLE_TIMEOUT_MS`, default 30 min) |
 
 ## 7. Security posture
