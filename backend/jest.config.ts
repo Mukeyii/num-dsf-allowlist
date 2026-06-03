@@ -14,6 +14,15 @@ const config: Config = {
   verbose: true,
   forceExit: true,
   detectOpenHandles: true,
+  collectCoverageFrom: ['**/*.ts', '!**/__tests__/**', '!**/*.d.ts', '!index.ts'],
+  coverageThreshold: {
+    global: {
+      statements: 59,
+      branches: 38,
+      functions: 55,
+      lines: 61,
+    },
+  },
 };
 
 export default config;
