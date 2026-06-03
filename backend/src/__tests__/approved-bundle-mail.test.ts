@@ -2,7 +2,10 @@
  * approved-bundle-mail.test.ts — render tests for the post-approval
  * notification template. No DB or network — pure unit tests.
  */
-import { renderApprovedBundleMail, type ApprovedBundleMailContext } from '../services/mail-templates/approved-bundle-mail';
+import {
+  renderApprovedBundleMail,
+  type ApprovedBundleMailContext,
+} from '../services/mail-templates/approved-bundle-mail';
 
 const baseCtx: ApprovedBundleMailContext = {
   language: 'en',

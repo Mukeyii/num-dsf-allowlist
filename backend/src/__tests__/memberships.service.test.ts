@@ -22,16 +22,38 @@ describe('memberships.service', () => {
   const email = 'caller@example.de';
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'svc', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'svc',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: org, instance_id: instanceId, name: 'Svc', active: 1,
-      email: 'x@x.de', address_line: 'x', postal_code: '0', city: 'x',
-      country_code: 'DE', created_at: new Date(), updated_at: new Date(),
+      identifier: org,
+      instance_id: instanceId,
+      name: 'Svc',
+      active: 1,
+      email: 'x@x.de',
+      address_line: 'x',
+      postal_code: '0',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
     await db('endpoints').insert({
-      identifier: endpointId, organization_id: org, name: 'EP',
-      address: 'https://ep.example.de/fhir', created_at: new Date(), updated_at: new Date(),
+      identifier: endpointId,
+      organization_id: org,
+      name: 'EP',
+      address: 'https://ep.example.de/fhir',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
   });
 
@@ -50,14 +72,21 @@ describe('memberships.service', () => {
     const created = await createMembership(
       instanceId,
       { parentOrganization: 'parent.example.de', endpointId, roles: ['DIC'] },
-      email, '127.0.0.1',
+      email,
+      '127.0.0.1',
     );
     const membershipId = created!.id as string;
 
     const listed = await getMemberships(instanceId);
     expect(listed.some((m: any) => m.id === membershipId)).toBe(true);
 
-    const updated = await updateMembership(instanceId, membershipId, { roles: ['DIC', 'HRP'] }, email, '127.0.0.1');
+    const updated = await updateMembership(
+      instanceId,
+      membershipId,
+      { roles: ['DIC', 'HRP'] },
+      email,
+      '127.0.0.1',
+    );
     const roles = typeof updated!.roles === 'string' ? JSON.parse(updated!.roles) : updated!.roles;
     expect(roles).toEqual(['DIC', 'HRP']);
 

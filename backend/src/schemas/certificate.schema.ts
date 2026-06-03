@@ -8,8 +8,11 @@ import { z } from 'zod';
 const MAX_PEM_BYTES = 20_000;
 
 export const createCertificateSchema = z.object({
-  pem: z.string().min(1).max(MAX_PEM_BYTES).refine(
-    (val) => val.includes('-----BEGIN CERTIFICATE-----'),
-    { message: 'Must contain a valid PEM certificate' }
-  ),
+  pem: z
+    .string()
+    .min(1)
+    .max(MAX_PEM_BYTES)
+    .refine((val) => val.includes('-----BEGIN CERTIFICATE-----'), {
+      message: 'Must contain a valid PEM certificate',
+    }),
 });

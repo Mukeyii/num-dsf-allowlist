@@ -26,20 +26,50 @@ describe('approval-silent-consent.service – runSilentConsentSweep', () => {
   const recentSignedAt = new Date(Date.now() - 1 * day);
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'silent', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'silent',
+      created_at: new Date(),
+    });
     await db('approval_requests').insert([
-      { id: eligibleId, instance_id: instanceId, status: 'PENDING', created_at: new Date(), submitted_at: new Date() },
-      { id: recentId, instance_id: instanceId, status: 'PENDING', created_at: new Date(), submitted_at: new Date() },
+      {
+        id: eligibleId,
+        instance_id: instanceId,
+        status: 'PENDING',
+        created_at: new Date(),
+        submitted_at: new Date(),
+      },
+      {
+        id: recentId,
+        instance_id: instanceId,
+        status: 'PENDING',
+        created_at: new Date(),
+        submitted_at: new Date(),
+      },
     ]);
     await db('approval_signatures').insert([
       {
-        id: uuidv4(), approval_request_id: eligibleId, admin_email: 'a@site-one.de',
-        admin_site: 'site-one.de', decision: 'APPROVE', signed_at: oldSignedAt,
+        id: uuidv4(),
+        approval_request_id: eligibleId,
+        admin_email: 'a@site-one.de',
+        admin_site: 'site-one.de',
+        decision: 'APPROVE',
+        signed_at: oldSignedAt,
       },
       {
-        id: uuidv4(), approval_request_id: recentId, admin_email: 'b@site-two.de',
-        admin_site: 'site-two.de', decision: 'APPROVE', signed_at: recentSignedAt,
+        id: uuidv4(),
+        approval_request_id: recentId,
+        admin_email: 'b@site-two.de',
+        admin_site: 'site-two.de',
+        decision: 'APPROVE',
+        signed_at: recentSignedAt,
       },
     ]);
   });

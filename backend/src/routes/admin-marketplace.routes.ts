@@ -22,7 +22,9 @@ adminMarketplaceRouter.use(requireAuth, requireImiAdmin);
 async function checkTotp(req: Request, res: Response): Promise<boolean> {
   const code = req.body?.totpCode;
   if (!code || typeof code !== 'string' || code.length !== 6) {
-    res.status(400).json({ error: { code: 'TOTP_REQUIRED', message: '6-digit TOTP code required' } });
+    res
+      .status(400)
+      .json({ error: { code: 'TOTP_REQUIRED', message: '6-digit TOTP code required' } });
     return false;
   }
   const ok = await verifyTotpCode(req.user!.id, code);

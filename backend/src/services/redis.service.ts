@@ -34,7 +34,11 @@ export async function deleteOtp(email: string): Promise<void> {
 }
 
 // Refresh Token helpers
-export async function setRefreshToken(tokenHash: string, userId: string, ttlSeconds: number): Promise<void> {
+export async function setRefreshToken(
+  tokenHash: string,
+  userId: string,
+  ttlSeconds: number,
+): Promise<void> {
   await redis.setex(`refresh:${tokenHash}`, ttlSeconds, userId);
 }
 

@@ -15,12 +15,15 @@ async function main() {
   }
 
   const normalized = email.toLowerCase().trim();
-  await db('email_whitelist').insert({
-    id: uuidv4(),
-    email: normalized,
-    created_by: 'seed',
-    created_at: new Date(),
-  }).onConflict('email').ignore();
+  await db('email_whitelist')
+    .insert({
+      id: uuidv4(),
+      email: normalized,
+      created_by: 'seed',
+      created_at: new Date(),
+    })
+    .onConflict('email')
+    .ignore();
 
   console.log(`✓ Whitelisted: ${normalized}`);
   await db.destroy();

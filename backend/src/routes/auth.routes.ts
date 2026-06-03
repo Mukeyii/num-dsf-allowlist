@@ -75,7 +75,9 @@ authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Respons
 authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response) => {
   const { email, code } = req.body;
   if (!email || !code) {
-    return res.status(400).json({ error: { code: 'VALIDATION', message: 'Email and code required' } });
+    return res
+      .status(400)
+      .json({ error: { code: 'VALIDATION', message: 'Email and code required' } });
   }
   try {
     const result = await verifyOtpAndGetTempToken(email, code, req.ip || 'unknown');
@@ -103,7 +105,10 @@ authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response
     const user = await db('users').where({ id: payload.sub }).first();
     if (user?.totp_enabled) {
       return res.status(409).json({
-        error: { code: 'TOTP_ALREADY_ENABLED', message: 'TOTP is already configured for this account' },
+        error: {
+          code: 'TOTP_ALREADY_ENABLED',
+          message: 'TOTP is already configured for this account',
+        },
       });
     }
 
@@ -120,11 +125,15 @@ authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response
 authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Response) => {
   const { tempToken, code } = req.body;
   if (!tempToken || !code) {
-    return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
+    return res
+      .status(400)
+      .json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
   }
   try {
     const { accessToken, refreshToken, backupCodes } = await confirmTotpSetupAndCreateSession(
-      tempToken, code, req.ip || 'unknown'
+      tempToken,
+      code,
+      req.ip || 'unknown',
     );
     res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken, backupCodes } }); // Backup codes returned once
@@ -137,11 +146,15 @@ authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Respon
 authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Response) => {
   const { tempToken, code } = req.body;
   if (!tempToken || !code) {
-    return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
+    return res
+      .status(400)
+      .json({ error: { code: 'VALIDATION', message: 'tempToken and code required' } });
   }
   try {
     const { accessToken, refreshToken } = await verifyTotpAndCreateSession(
-      tempToken, code, req.ip || 'unknown'
+      tempToken,
+      code,
+      req.ip || 'unknown',
     );
     res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ data: { accessToken } });
@@ -173,59 +186,83 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
 // were toggled at runtime.
 // Body: { role?: 'admin' | 'member' | 'site' }
 if (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true') {
-authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response) => {
-  const inputRole = req.body?.role;
-  const role: 'admin' | 'member' | 'site' =
-    inputRole === 'member' ? 'member' :
-    inputRole === 'site'   ? 'site'   : 'admin';
-  const envKey =
-    role === 'member' ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL' :
-    role === 'site'   ? 'DEV_AUTO_LOGIN_SITE_EMAIL'   : 'DEV_AUTO_LOGIN_EMAIL';
-  const fallback =
-    role === 'member' ? 'member@imi-test.example.de' :
-    role === 'site'   ? 'site@imi-test.example.de'   : 'admin@imi-test.example.de';
-  const email = (process.env[envKey] || fallback).toLowerCase().trim();
-  if (!email) {
-    return res.status(400).json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
-  }
+  authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response) => {
+    const inputRole = req.body?.role;
+    const role: 'admin' | 'member' | 'site' =
+      inputRole === 'member' ? 'member' : inputRole === 'site' ? 'site' : 'admin';
+    const envKey =
+      role === 'member'
+        ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL'
+        : role === 'site'
+          ? 'DEV_AUTO_LOGIN_SITE_EMAIL'
+          : 'DEV_AUTO_LOGIN_EMAIL';
+    const fallback =
+      role === 'member'
+        ? 'member@imi-test.example.de'
+        : role === 'site'
+          ? 'site@imi-test.example.de'
+          : 'admin@imi-test.example.de';
+    const email = (process.env[envKey] || fallback).toLowerCase().trim();
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
+    }
 
-  // Ensure whitelisted + user row exists. Idempotent so concurrent calls
-  // (e.g. React Strict Mode double-invokes useEffect in dev) don't crash on
-  // duplicate-key. Both tables have UNIQUE(email).
-  await db('email_whitelist')
-    .insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() })
-    .onConflict('email').ignore();
-  await db('users')
-    .insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() })
-    .onConflict('email').ignore();
-  const user = await db('users').where({ email }).first();
-  if (!user) {
-    return res.status(500).json({ error: { code: 'USER_NOT_FOUND', message: 'Failed to create or find dev user' } });
-  }
-  await db('users').where({ id: user.id }).update({ last_login: new Date() });
+    // Ensure whitelisted + user row exists. Idempotent so concurrent calls
+    // (e.g. React Strict Mode double-invokes useEffect in dev) don't crash on
+    // duplicate-key. Both tables have UNIQUE(email).
+    await db('email_whitelist')
+      .insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() })
+      .onConflict('email')
+      .ignore();
+    await db('users')
+      .insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() })
+      .onConflict('email')
+      .ignore();
+    const user = await db('users').where({ email }).first();
+    if (!user) {
+      return res
+        .status(500)
+        .json({ error: { code: 'USER_NOT_FOUND', message: 'Failed to create or find dev user' } });
+    }
+    await db('users').where({ id: user.id }).update({ last_login: new Date() });
 
-  const { accessToken, refreshToken } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
-  res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
-  logger.warn({ role, email, ip: req.ip }, '[DEV_AUTO_LOGIN] issued dev session');
-  res.json({ data: { accessToken, email, role } });
-});
+    const { accessToken, refreshToken } = await createTokenPair({
+      id: user.id,
+      email: user.email,
+      totpEnabled: true,
+    });
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    logger.warn({ role, email, ip: req.ip }, '[DEV_AUTO_LOGIN] issued dev session');
+    res.json({ data: { accessToken, email, role } });
+  });
 }
 
 // POST /auth/client-cert-login → authenticate by client certificate thumbprint
 authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: Response) => {
   const cert = extractClientCert(req);
   if (!cert) {
-    res.status(401).json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
+    res
+      .status(401)
+      .json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
     return;
   }
   const org = await db('organizations').where({ client_cert_thumbprint: cert.thumbprint }).first();
   if (!org) {
-    res.status(401).json({ error: { code: 'CERT_NOT_REGISTERED', message: 'Certificate is not registered for any organization.' } });
+    res.status(401).json({
+      error: {
+        code: 'CERT_NOT_REGISTERED',
+        message: 'Certificate is not registered for any organization.',
+      },
+    });
     return;
   }
   const instance = await db('instances').where({ id: org.instance_id }).first();
   if (!instance) {
-    res.status(401).json({ error: { code: 'NO_INSTANCE', message: 'Organization has no associated instance.' } });
+    res.status(401).json({
+      error: { code: 'NO_INSTANCE', message: 'Organization has no associated instance.' },
+    });
     return;
   }
   const user = await db('users').where({ id: instance.user_id }).first();
@@ -240,7 +277,11 @@ authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: R
     return;
   }
 
-  const { accessToken, refreshToken } = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
+  const { accessToken, refreshToken } = await createTokenPair({
+    id: user.id,
+    email: user.email,
+    totpEnabled: true,
+  });
   res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
 
   writeAuditLog({

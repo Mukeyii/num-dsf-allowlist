@@ -12,8 +12,14 @@ function mockRes(headersSent = false) {
     headersSent,
     statusCode: 200,
     body: undefined as unknown,
-    status(code: number) { this.statusCode = code; return this; },
-    json(payload: unknown) { this.body = payload; return this; },
+    status(code: number) {
+      this.statusCode = code;
+      return this;
+    },
+    json(payload: unknown) {
+      this.body = payload;
+      return this;
+    },
   };
   return res as unknown as Response & { statusCode: number; body: unknown };
 }
@@ -22,7 +28,9 @@ describe('asyncHandler', () => {
   it('does not touch the response when the handler resolves', async () => {
     const res = mockRes();
     const next = jest.fn() as unknown as NextFunction;
-    const handler = asyncHandler(async () => { /* success */ });
+    const handler = asyncHandler(async () => {
+      /* success */
+    });
     await handler({} as any, res as any, next);
     expect(res.statusCode).toBe(200);
     expect(next).not.toHaveBeenCalled();
@@ -31,18 +39,24 @@ describe('asyncHandler', () => {
   it('responds with the configured status and a sanitized error on throw', async () => {
     const res = mockRes();
     const next = jest.fn() as unknown as NextFunction;
-    const handler = asyncHandler(async () => { throw new Error('CONTACT_NOT_FOUND'); }, 404);
+    const handler = asyncHandler(async () => {
+      throw new Error('CONTACT_NOT_FOUND');
+    }, 404);
     await handler({} as any, res as any, next);
     // allow the .catch microtask to run
     await new Promise((r) => setImmediate(r));
     expect(res.statusCode).toBe(404);
-    expect(res.body).toEqual({ error: { code: 'CONTACT_NOT_FOUND', message: 'CONTACT_NOT_FOUND' } });
+    expect(res.body).toEqual({
+      error: { code: 'CONTACT_NOT_FOUND', message: 'CONTACT_NOT_FOUND' },
+    });
   });
 
   it('forwards to next when headers were already sent', async () => {
     const res = mockRes(true);
     const next = jest.fn() as unknown as NextFunction;
-    const handler = asyncHandler(async () => { throw new Error('boom'); });
+    const handler = asyncHandler(async () => {
+      throw new Error('boom');
+    });
     await handler({} as any, res as any, next);
     await new Promise((r) => setImmediate(r));
     expect(next).toHaveBeenCalledTimes(1);

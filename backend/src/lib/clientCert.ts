@@ -17,7 +17,9 @@ export interface ClientCertInfo {
  * null when no usable cert is present.
  */
 export function extractClientCert(req: Request): ClientCertInfo | null {
-  const raw = (req.headers['x-client-cert'] ?? req.headers['x-ssl-client-cert']) as string | undefined;
+  const raw = (req.headers['x-client-cert'] ?? req.headers['x-ssl-client-cert']) as
+    | string
+    | undefined;
   if (!raw) return null;
   let pem: string;
   try {
@@ -27,9 +29,10 @@ export function extractClientCert(req: Request): ClientCertInfo | null {
   }
   if (!pem.includes('BEGIN CERTIFICATE')) return null;
   const der = Buffer.from(
-    pem.replace(/-----BEGIN CERTIFICATE-----/g, '')
-       .replace(/-----END CERTIFICATE-----/g, '')
-       .replace(/\s+/g, ''),
+    pem
+      .replace(/-----BEGIN CERTIFICATE-----/g, '')
+      .replace(/-----END CERTIFICATE-----/g, '')
+      .replace(/\s+/g, ''),
     'base64',
   );
   if (der.length === 0) return null;

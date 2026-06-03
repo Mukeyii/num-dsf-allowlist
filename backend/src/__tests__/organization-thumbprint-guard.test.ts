@@ -69,7 +69,12 @@ describe('PUT /organization — admin cross-user thumbprint guard', () => {
       { id: ownerId, email: ownerEmail, created_at: new Date() },
       { id: adminId, email: adminEmail, created_at: new Date() },
     ]);
-    await db('instances').insert({ id: instanceId, user_id: ownerId, label: 'L', created_at: new Date() });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: ownerId,
+      label: 'L',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
       identifier: orgIdentifier,
       instance_id: instanceId,

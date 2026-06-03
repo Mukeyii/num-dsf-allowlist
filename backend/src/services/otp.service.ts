@@ -34,10 +34,7 @@ export async function verifyOtp(email: string, code: string): Promise<boolean> {
   if (!stored) return false;
 
   const hashed = hashOtp(code.trim());
-  const valid = crypto.timingSafeEqual(
-    Buffer.from(stored, 'hex'),
-    Buffer.from(hashed, 'hex')
-  );
+  const valid = crypto.timingSafeEqual(Buffer.from(stored, 'hex'), Buffer.from(hashed, 'hex'));
 
   // Always delete after verification attempt (single-use)
   await deleteOtp(email.toLowerCase());

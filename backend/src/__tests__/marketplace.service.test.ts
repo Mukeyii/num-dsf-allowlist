@@ -46,19 +46,21 @@ describe('marketplace.service – add / list / delete', () => {
 
   it('listEntries includes the newly added entry', async () => {
     const all = await listEntries();
-    const mine = all.find(e => e.gitUrl === canonical);
+    const mine = all.find((e) => e.gitUrl === canonical);
     expect(mine).toBeDefined();
     expect(mine!.id).toBe(createdId);
   });
 
   it('rejects a duplicate git_url with ALREADY_EXISTS', async () => {
-    await expect(addEntry({ gitUrl, status: 'APPROVED' }, admin, '127.0.0.1')).rejects.toThrow('ALREADY_EXISTS');
+    await expect(addEntry({ gitUrl, status: 'APPROVED' }, admin, '127.0.0.1')).rejects.toThrow(
+      'ALREADY_EXISTS',
+    );
   });
 
   it('removeEntry deletes the entry so it no longer appears', async () => {
     await removeEntry(createdId, admin, '127.0.0.1');
     const all = await listEntries();
-    expect(all.find(e => e.id === createdId)).toBeUndefined();
+    expect(all.find((e) => e.id === createdId)).toBeUndefined();
     createdId = ''; // already gone; skip afterAll delete by id
   });
 });

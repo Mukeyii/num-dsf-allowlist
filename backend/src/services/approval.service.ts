@@ -20,21 +20,36 @@ const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS ||
 async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = db) {
   const org = await trx('organizations').where({ instance_id: instanceId }).first();
   if (!org) return null;
-  const contacts = await trx('contacts').where({ organization_id: org.identifier }).select('id', 'types', 'name', 'email_validated', 'phone', 'city', 'country_code');
+  const contacts = await trx('contacts')
+    .where({ organization_id: org.identifier })
+    .select('id', 'types', 'name', 'email_validated', 'phone', 'city', 'country_code');
   const endpoints = await trx('endpoints').where({ organization_id: org.identifier });
-  const ips = await trx('endpoint_ips').whereIn('endpoint_id', endpoints.map((e: any) => e.identifier));
-  const certificates = await trx('certificates').where({ organization_id: org.identifier }).select('id', 'subject', 'thumbprint', 'valid_until');
-  const memberships = await trx('memberships').where({ organization_id: org.identifier }).whereNull('deleted_at');
+  const ips = await trx('endpoint_ips').whereIn(
+    'endpoint_id',
+    endpoints.map((e: any) => e.identifier),
+  );
+  const certificates = await trx('certificates')
+    .where({ organization_id: org.identifier })
+    .select('id', 'subject', 'thumbprint', 'valid_until');
+  const memberships = await trx('memberships')
+    .where({ organization_id: org.identifier })
+    .whereNull('deleted_at');
   const { email: _email, ...orgSafe } = org;
   return {
-    organization: orgSafe, contacts,
-    endpoints: endpoints.map((ep: any) => ({ ...ep, ipAddresses: ips.filter((ip: any) => ip.endpoint_id === ep.identifier) })),
-    certificates, memberships, snapshotAt: new Date().toISOString(),
+    organization: orgSafe,
+    contacts,
+    endpoints: endpoints.map((ep: any) => ({
+      ...ep,
+      ipAddresses: ips.filter((ip: any) => ip.endpoint_id === ep.identifier),
+    })),
+    certificates,
+    memberships,
+    snapshotAt: new Date().toISOString(),
   };
 }
 
 export async function submitApproval(instanceId: string, userEmail: string, ipAddress: string) {
-  return db.transaction(async trx => {
+  return db.transaction(async (trx) => {
     const pending = await trx('approval_requests')
       .where({ instance_id: instanceId, status: 'PENDING' })
       .forUpdate()
@@ -44,21 +59,50 @@ export async function submitApproval(instanceId: string, userEmail: string, ipAd
     if (!snapshot) throw new Error('ORGANIZATION_NOT_FOUND');
     const id = uuidv4();
     const now = new Date();
-    await trx('approval_requests').insert({ id, instance_id: instanceId, status: 'PENDING', created_at: now, submitted_at: now, snapshot_json: JSON.stringify(snapshot) });
-    await writeAuditLog({ userEmail, instanceId, resourceType: 'APPROVAL', resourceId: id, operation: 'CREATE', ipAddress });
+    await trx('approval_requests').insert({
+      id,
+      instance_id: instanceId,
+      status: 'PENDING',
+      created_at: now,
+      submitted_at: now,
+      snapshot_json: JSON.stringify(snapshot),
+    });
+    await writeAuditLog({
+      userEmail,
+      instanceId,
+      resourceType: 'APPROVAL',
+      resourceId: id,
+      operation: 'CREATE',
+      ipAddress,
+    });
     // Notify IMI (non-blocking, outside transaction scope)
     const org = snapshot.organization;
-    notifyImiOnSubmit(id, instanceId, (org as any).identifier || instanceId, (org as any).name || 'Unknown', userEmail).catch(err => logger.error({ err }, '[ApprovalNotify] notifyImiOnSubmit failed'));
+    notifyImiOnSubmit(
+      id,
+      instanceId,
+      (org as any).identifier || instanceId,
+      (org as any).name || 'Unknown',
+      userEmail,
+    ).catch((err) => logger.error({ err }, '[ApprovalNotify] notifyImiOnSubmit failed'));
     return trx('approval_requests').where({ id }).first();
   });
 }
 
 export async function getApprovalStatus(instanceId: string) {
-  return await db('approval_requests').where({ instance_id: instanceId }).orderBy('created_at', 'desc').first() ?? null;
+  return (
+    (await db('approval_requests')
+      .where({ instance_id: instanceId })
+      .orderBy('created_at', 'desc')
+      .first()) ?? null
+  );
 }
 
 export async function getApprovalHistory(instanceId: string) {
-  return db('approval_requests').where({ instance_id: instanceId }).select('id', 'status', 'created_at', 'submitted_at', 'resolved_at', 'resolved_by', 'comment').orderBy('created_at', 'desc').limit(20);
+  return db('approval_requests')
+    .where({ instance_id: instanceId })
+    .select('id', 'status', 'created_at', 'submitted_at', 'resolved_at', 'resolved_by', 'comment')
+    .orderBy('created_at', 'desc')
+    .limit(20);
 }
 
 export async function getPendingApprovals() {
@@ -79,13 +123,15 @@ export async function approveRequest(
   const adminSite = siteOfEmail(resolvedBy);
   if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
 
-  const result = await db.transaction(async trx => {
+  const result = await db.transaction(async (trx) => {
     // Lock the parent row so concurrent approves serialize.
     const request = await trx('approval_requests').where({ id: requestId }).forUpdate().first();
     if (!request) throw new Error('REQUEST_NOT_FOUND');
     if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
 
-    const sigs = (await trx('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
+    const sigs = (await trx('approval_signatures').where({
+      approval_request_id: requestId,
+    })) as ApprovalSig[];
 
     const validation = validateApproval(sigs, resolvedBy, adminSite);
     if (validation) throw new Error(validation);
@@ -105,7 +151,9 @@ export async function approveRequest(
       throw err;
     }
 
-    const refreshed = (await trx('approval_signatures').where({ approval_request_id: requestId })) as ApprovalSig[];
+    const refreshed = (await trx('approval_signatures').where({
+      approval_request_id: requestId,
+    })) as ApprovalSig[];
     const newStatus = deriveStatus(refreshed, new Date(), SILENT_CONSENT_DAYS);
 
     if (newStatus === 'APPROVED') {
@@ -114,15 +162,29 @@ export async function approveRequest(
         resolved_at: new Date(),
         resolved_by: resolvedBy,
       });
-      await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
-        resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress });
-      notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(() => {});
+      await writeAuditLog({
+        userEmail: resolvedBy,
+        instanceId: request.instance_id,
+        resourceType: 'APPROVAL',
+        resourceId: requestId,
+        operation: 'APPROVE',
+        ipAddress,
+      });
+      notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(
+        () => {},
+      );
       return { status: 'APPROVED' as const };
     }
 
-    await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
-      resourceType: 'APPROVAL', resourceId: requestId, operation: 'APPROVE', ipAddress,
-      diffJson: { firstApproval: true } });
+    await writeAuditLog({
+      userEmail: resolvedBy,
+      instanceId: request.instance_id,
+      resourceType: 'APPROVAL',
+      resourceId: requestId,
+      operation: 'APPROVE',
+      ipAddress,
+      diffJson: { firstApproval: true },
+    });
     notifyImiOnFirstApproval(request.instance_id, resolvedBy, requestId).catch(() => {});
     return { status: 'PENDING' as const, reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
   });
@@ -182,8 +244,16 @@ export async function rejectRequest(
     comment,
   });
 
-  await writeAuditLog({ userEmail: resolvedBy, instanceId: request.instance_id,
-    resourceType: 'APPROVAL', resourceId: requestId, operation: 'REJECT', ipAddress,
-    diffJson: { comment } });
-  notifySiteOnApproval(requestId, request.instance_id, 'REJECTED', comment, resolvedBy).catch(() => {});
+  await writeAuditLog({
+    userEmail: resolvedBy,
+    instanceId: request.instance_id,
+    resourceType: 'APPROVAL',
+    resourceId: requestId,
+    operation: 'REJECT',
+    ipAddress,
+    diffJson: { comment },
+  });
+  notifySiteOnApproval(requestId, request.instance_id, 'REJECTED', comment, resolvedBy).catch(
+    () => {},
+  );
 }

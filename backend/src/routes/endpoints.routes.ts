@@ -17,17 +17,44 @@ endpointsRouter.get('/', async (req, res) => {
   res.json({ data: await svc.getEndpoints(req.instance!.id) });
 });
 
-endpointsRouter.post('/', validate(createEndpointSchema), asyncHandler(async (req, res) => {
-  const ep = await svc.createEndpoint(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
-  res.status(201).json({ data: ep });
-}));
+endpointsRouter.post(
+  '/',
+  validate(createEndpointSchema),
+  asyncHandler(async (req, res) => {
+    const ep = await svc.createEndpoint(
+      req.instance!.id,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.status(201).json({ data: ep });
+  }),
+);
 
-endpointsRouter.put('/:eid', validate(updateEndpointSchema), asyncHandler(async (req, res) => {
-  const ep = await svc.updateEndpoint(req.instance!.id, req.params.eid, req.body, req.user!.email, req.ip || 'unknown');
-  res.json({ data: ep });
-}));
+endpointsRouter.put(
+  '/:eid',
+  validate(updateEndpointSchema),
+  asyncHandler(async (req, res) => {
+    const ep = await svc.updateEndpoint(
+      req.instance!.id,
+      req.params.eid,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: ep });
+  }),
+);
 
-endpointsRouter.delete('/:eid', asyncHandler(async (req, res) => {
-  await svc.deleteEndpoint(req.instance!.id, req.params.eid, req.user!.email, req.ip || 'unknown');
-  res.json({ data: { deleted: true } });
-}));
+endpointsRouter.delete(
+  '/:eid',
+  asyncHandler(async (req, res) => {
+    await svc.deleteEndpoint(
+      req.instance!.id,
+      req.params.eid,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: { deleted: true } });
+  }),
+);

@@ -19,7 +19,12 @@ describe('instances.service', () => {
   let createdId = '';
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: userEmail, totp_enabled: false, created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: userEmail,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
   });
 
   afterAll(async () => {
@@ -41,7 +46,7 @@ describe('instances.service', () => {
     expect(fetched!.owner_email).toBe(userEmail);
 
     const list = await listForUser(userId, userEmail);
-    expect(list.some(i => i.id === createdId)).toBe(true);
+    expect(list.some((i) => i.id === createdId)).toBe(true);
 
     const renamed = await renameInstance(createdId, userId, 'new-label');
     expect(renamed!.label).toBe('new-label');

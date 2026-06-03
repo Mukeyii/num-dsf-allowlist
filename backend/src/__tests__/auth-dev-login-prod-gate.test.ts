@@ -10,10 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const ROUTES_SRC = fs.readFileSync(
-  path.join(__dirname, '..', 'routes', 'auth.routes.ts'),
-  'utf8',
-);
+const ROUTES_SRC = fs.readFileSync(path.join(__dirname, '..', 'routes', 'auth.routes.ts'), 'utf8');
 
 describe('/auth/dev-login route gating', () => {
   it('is registered under a NODE_ENV !== "production" guard in source', () => {

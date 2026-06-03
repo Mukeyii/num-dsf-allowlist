@@ -27,30 +27,45 @@ describe('deriveStatus', () => {
     expect(deriveStatus([sig({})], NOW, 7)).toBe('PENDING');
   });
   it('APPROVED with 2 APPROVE from different sites', () => {
-    expect(deriveStatus(
-      [sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' }),
-       sig({ admin_email: 'b@charite.de', admin_site: 'charite.de' })],
-      NOW, 7,
-    )).toBe('APPROVED');
+    expect(
+      deriveStatus(
+        [
+          sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' }),
+          sig({ admin_email: 'b@charite.de', admin_site: 'charite.de' }),
+        ],
+        NOW,
+        7,
+      ),
+    ).toBe('APPROVED');
   });
   it('PENDING with 2 APPROVE from same site', () => {
-    expect(deriveStatus(
-      [sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' }),
-       sig({ admin_email: 'b@imi.de', admin_site: 'imi.de' })],
-      NOW, 7,
-    )).toBe('PENDING');
+    expect(
+      deriveStatus(
+        [
+          sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' }),
+          sig({ admin_email: 'b@imi.de', admin_site: 'imi.de' }),
+        ],
+        NOW,
+        7,
+      ),
+    ).toBe('PENDING');
   });
   it('APPROVED via silent consent after 7 days', () => {
     const old = new Date('2026-04-19T11:00:00Z');
     expect(deriveStatus([sig({ signed_at: old.toISOString() })], NOW, 7)).toBe('APPROVED');
   });
   it('REJECTED short-circuits everything', () => {
-    expect(deriveStatus(
-      [sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' }),
-       sig({ admin_email: 'b@charite.de', admin_site: 'charite.de' }),
-       sig({ admin_email: 'c@example.de', admin_site: 'example.de', decision: 'REJECT' })],
-      NOW, 7,
-    )).toBe('REJECTED');
+    expect(
+      deriveStatus(
+        [
+          sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' }),
+          sig({ admin_email: 'b@charite.de', admin_site: 'charite.de' }),
+          sig({ admin_email: 'c@example.de', admin_site: 'example.de', decision: 'REJECT' }),
+        ],
+        NOW,
+        7,
+      ),
+    ).toBe('REJECTED');
   });
 });
 
@@ -59,15 +74,26 @@ describe('validateApproval', () => {
     expect(validateApproval([], 'a@imi.de', 'imi.de')).toBeNull();
   });
   it('rejects same-admin re-approval', () => {
-    expect(validateApproval([sig({ admin_email: 'a@imi.de' })], 'a@imi.de', 'imi.de'))
-      .toBe('ALREADY_DECIDED');
+    expect(validateApproval([sig({ admin_email: 'a@imi.de' })], 'a@imi.de', 'imi.de')).toBe(
+      'ALREADY_DECIDED',
+    );
   });
   it('rejects same-site approval', () => {
-    expect(validateApproval([sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' })], 'b@imi.de', 'imi.de'))
-      .toBe('ALREADY_APPROVED_SAME_SITE');
+    expect(
+      validateApproval(
+        [sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' })],
+        'b@imi.de',
+        'imi.de',
+      ),
+    ).toBe('ALREADY_APPROVED_SAME_SITE');
   });
   it('accepts different-site second approval', () => {
-    expect(validateApproval([sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' })], 'b@charite.de', 'charite.de'))
-      .toBeNull();
+    expect(
+      validateApproval(
+        [sig({ admin_email: 'a@imi.de', admin_site: 'imi.de' })],
+        'b@charite.de',
+        'charite.de',
+      ),
+    ).toBeNull();
   });
 });

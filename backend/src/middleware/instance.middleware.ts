@@ -23,7 +23,7 @@ declare global {
 export async function requireInstanceOwnership(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   const instanceId = req.params.instanceId || req.params.id;
   if (!instanceId) {
@@ -39,7 +39,9 @@ export async function requireInstanceOwnership(
   const instance = await query.first();
 
   if (!instance) {
-    res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Instance not found or access denied' } });
+    res
+      .status(403)
+      .json({ error: { code: 'FORBIDDEN', message: 'Instance not found or access denied' } });
     return;
   }
 

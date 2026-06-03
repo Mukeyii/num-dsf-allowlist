@@ -25,7 +25,12 @@ describe('auditQuery.service – listInstanceAudit', () => {
 
   beforeAll(async () => {
     await db('users').insert({ id: userId, email, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'audit-svc', created_at: new Date() });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'audit-svc',
+      created_at: new Date(),
+    });
     for (const r of seedRows) {
       await db('audit_logs').insert({
         id: uuidv4(),
@@ -62,12 +67,15 @@ describe('auditQuery.service – listInstanceAudit', () => {
     const page = await listInstanceAudit(instanceId, { page: 1, limit: 100, resource: 'CONTACT' });
     expect(page.total).toBe(3);
     expect(page.rows.length).toBe(3);
-    expect(page.rows.every(r => r.resource_type === 'CONTACT')).toBe(true);
+    expect(page.rows.every((r) => r.resource_type === 'CONTACT')).toBe(true);
   });
 
   it('filters by resource_type AND operation together', async () => {
     const page = await listInstanceAudit(instanceId, {
-      page: 1, limit: 100, resource: 'CONTACT', operation: 'UPDATE',
+      page: 1,
+      limit: 100,
+      resource: 'CONTACT',
+      operation: 'UPDATE',
     });
     expect(page.total).toBe(1);
     expect(page.rows.length).toBe(1);
@@ -83,7 +91,7 @@ describe('auditQuery.service – listInstanceAudit', () => {
     expect(p1.rows.length).toBe(2);
     expect(p2.rows.length).toBe(2);
     expect(p3.rows.length).toBe(1);
-    const ids = [...p1.rows, ...p2.rows, ...p3.rows].map(r => r.id);
+    const ids = [...p1.rows, ...p2.rows, ...p3.rows].map((r) => r.id);
     expect(new Set(ids).size).toBe(seedRows.length); // no overlap across pages
   });
 });

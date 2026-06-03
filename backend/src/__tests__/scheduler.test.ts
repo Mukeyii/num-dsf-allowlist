@@ -15,7 +15,8 @@ process.env.JWT_PRIVATE_KEY_BASE64 ||= Buffer.from('dummy-key').toString('base64
 process.env.JWT_PUBLIC_KEY_BASE64 ||= Buffer.from('dummy-key').toString('base64');
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { startScheduler } = require('../services/scheduler.service') as typeof import('../services/scheduler.service');
+const { startScheduler } =
+  require('../services/scheduler.service') as typeof import('../services/scheduler.service');
 
 describe('startScheduler', () => {
   beforeEach(() => scheduleMock.mockClear());
@@ -30,11 +31,11 @@ describe('startScheduler', () => {
     const expressions = scheduleMock.mock.calls.map((c) => c[0]);
     expect(expressions).toEqual([
       '*/5 * * * *', // flush pending notifications
-      '0 6 * * *',   // approval reminders
-      '0 7 * * *',   // silent consent sweep
-      '0 8 * * *',   // cert expiry check
-      '0 9 * * *',   // membership cleanup
-      '0 10 * * *',  // marketplace sync
+      '0 6 * * *', // approval reminders
+      '0 7 * * *', // silent consent sweep
+      '0 8 * * *', // cert expiry check
+      '0 9 * * *', // membership cleanup
+      '0 10 * * *', // marketplace sync
     ]);
   });
 
