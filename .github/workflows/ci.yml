@@ -19,12 +19,13 @@ jobs:
         working-directory: backend
         run: |
           npm install
-          npm audit --audit-level=high || true
+          npm audit --audit-level=high
       - name: Frontend audit
         working-directory: frontend
         run: |
           npm install
-          npm audit --audit-level=high || true
+          # GHSA-5xrq-8626-4rwp affects only the vitest --ui server, which CI never starts (vitest run only).
+          npx better-npm-audit audit --level high -x GHSA-5xrq-8626-4rwp
 
   backend-lint:
     name: Backend Lint
