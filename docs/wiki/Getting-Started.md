@@ -60,10 +60,16 @@ Creates 30 fictional organizations with contacts, endpoints, certificates, and m
 
 ### Admin Access
 
-To review and approve requests, add your email to `.env`:
+To seed the **first** admin on a fresh database, add your email to `.env` before
+the initial backend start:
 
 ```
 IMI_ADMIN_EMAILS=your@email.com
 ```
 
-Then restart the backend: `docker compose restart backend`
+Then start (or restart) the backend: `docker compose restart backend`
+
+`IMI_ADMIN_EMAILS` is consumed only while `admin_grants` is empty; once the first
+admins exist the env var is ignored. Additional admins are then added via the
+4-eyes promotion flow at `/app/admin/promotions` (a second admin approves). See
+the [Admin Guide](Admin-Guide).
