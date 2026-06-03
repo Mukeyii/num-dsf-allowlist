@@ -26,7 +26,15 @@ vi.mock('../../hooks/useMemberships', () => ({
 vi.mock('../../hooks/useApproval', () => ({
   useApprovalStatus: () => ({ data: { status: 'APPROVED' } }),
   useApprovalHistory: () => ({
-    data: [{ id: 'r1', status: 'APPROVED', submitted_at: '2026-05-01T00:00:00Z', created_at: '2026-05-01T00:00:00Z', resolved_at: '2026-05-02T00:00:00Z' }],
+    data: [
+      {
+        id: 'r1',
+        status: 'APPROVED',
+        submitted_at: '2026-05-01T00:00:00Z',
+        created_at: '2026-05-01T00:00:00Z',
+        resolved_at: '2026-05-02T00:00:00Z',
+      },
+    ],
   }),
 }));
 

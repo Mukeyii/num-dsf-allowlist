@@ -24,10 +24,7 @@ export function AppFooter() {
     >
       <span>{t('footerAffiliation')}</span>
       <span style={{ color: 'var(--border)' }}>·</span>
-      <Link
-        to="/app/legal"
-        style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}
-      >
+      <Link to="/app/legal" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
         {t('bundleDisclaimerLinkLabel')}
       </Link>
     </footer>

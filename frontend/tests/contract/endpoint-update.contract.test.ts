@@ -13,7 +13,9 @@ describe('contract: PUT /endpoints/:id mutates ipAddresses', () => {
     instanceId = await createTestInstance(api);
     await api.put(`/api/v1/instances/${instanceId}/organization`, {
       identifier: `eu-host-${Date.now()}.example.de`,
-      name: 'Host', email: 'h@x.de', active: true,
+      name: 'Host',
+      email: 'h@x.de',
+      active: true,
     });
     const epId = `eu-${Date.now()}.example.de`;
     await api.post(`/api/v1/instances/${instanceId}/endpoints`, {
@@ -28,8 +30,8 @@ describe('contract: PUT /endpoints/:id mutates ipAddresses', () => {
     await api.put(`/api/v1/instances/${instanceId}/endpoints/${endpointId}`, {
       address: 'https://x.example.de/dsf',
       ipAddresses: [
-        { ip: '10.0.0.5', isFhir: true,  isBpe: false },
-        { ip: '10.0.0.6', isFhir: false, isBpe: true  },
+        { ip: '10.0.0.5', isFhir: true, isBpe: false },
+        { ip: '10.0.0.6', isFhir: false, isBpe: true },
       ],
     });
     const list = await api.get(`/api/v1/instances/${instanceId}/endpoints`);

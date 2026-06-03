@@ -24,7 +24,10 @@ test('admin can add a marketplace entry through the UI', async ({ page }) => {
 
   // The modal footer's primary button reuses the marketplaceAdd label. Scope
   // the click to the dialog so we don't re-click the page-level "Add process".
-  await page.getByRole('dialog').getByRole('button', { name: /add process|prozess hinzufügen/i }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: /add process|prozess hinzufügen/i })
+    .click();
 
   // Marketplace renders entries as anchors with href = gitUrl. Match by href.
   await expect(page.locator(`a[href="${url}"]`)).toBeVisible({ timeout: 8_000 });

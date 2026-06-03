@@ -16,7 +16,9 @@ describe('endpointSchema', () => {
   });
 
   it('rejects a non-https address', () => {
-    expect(endpointSchema.safeParse({ ...base, address: 'http://insecure.example.de/fhir' }).success).toBe(false);
+    expect(
+      endpointSchema.safeParse({ ...base, address: 'http://insecure.example.de/fhir' }).success,
+    ).toBe(false);
   });
 
   it('rejects an identifier shorter than 3 chars', () => {
@@ -24,7 +26,11 @@ describe('endpointSchema', () => {
   });
 
   it('accepts valid IPv4 and rejects invalid', () => {
-    expect(endpointSchema.safeParse({ ...base, ipAddresses: [{ ip: '192.0.2.10' }] }).success).toBe(true);
-    expect(endpointSchema.safeParse({ ...base, ipAddresses: [{ ip: '999.1.1.1' }] }).success).toBe(false);
+    expect(endpointSchema.safeParse({ ...base, ipAddresses: [{ ip: '192.0.2.10' }] }).success).toBe(
+      true,
+    );
+    expect(endpointSchema.safeParse({ ...base, ipAddresses: [{ ip: '999.1.1.1' }] }).success).toBe(
+      false,
+    );
   });
 });

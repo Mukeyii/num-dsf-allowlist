@@ -26,7 +26,13 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
   const { mutateAsync, isPending } = useUpdateOrganization(instanceId);
   const guard = useCrossUserGuard();
   const [totpCode, setTotpCode] = useState('');
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<OrganizationFormData>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
     defaultValues: { active: true, ...defaultValues },
   });
@@ -42,7 +48,12 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
     try {
       await new Promise<void>((resolve, reject) => {
         guard(async () => {
-          try { await mutateAsync({ ...data, totpCode }); resolve(); } catch (e) { reject(e); }
+          try {
+            await mutateAsync({ ...data, totpCode });
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
         });
       });
       toast.success(t('orgModalSaveSuccess'));
@@ -54,13 +65,20 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('orgModalTitle')} subtitle={t('orgModalSubtitle')}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('orgModalTitle')}
+      subtitle={t('orgModalSubtitle')}
+    >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           label={t('orgModalFieldIdentifier')}
           required
           error={errors.identifier?.message}
-          hint={defaultValues?.identifier ? t('identifierLockedHelp') : t('orgModalFieldIdentifierHint')}
+          hint={
+            defaultValues?.identifier ? t('identifierLockedHelp') : t('orgModalFieldIdentifierHint')
+          }
         >
           <input
             {...register('identifier')}
@@ -72,17 +90,31 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
             data-testid="org-identifier-input"
           />
           {defaultValues?.identifier && (
-            <p className="text-[10px] mt-1 flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>lock</span>
+            <p
+              className="text-[10px] mt-1 flex items-center gap-1"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>
+                lock
+              </span>
               <span>{t('identifierLocked')}</span>
             </p>
           )}
         </FormField>
         <FormField label={t('orgModalFieldName')} required error={errors.name?.message}>
-          <input {...register('name')} className={inputClass} placeholder={t('orgModalFieldNamePlaceholder')} />
+          <input
+            {...register('name')}
+            className={inputClass}
+            placeholder={t('orgModalFieldNamePlaceholder')}
+          />
         </FormField>
         <FormField label={t('orgModalFieldEmail')} required error={errors.email?.message}>
-          <input {...register('email')} type="email" className={inputClass} placeholder={t('orgModalFieldEmailPlaceholder')} />
+          <input
+            {...register('email')}
+            type="email"
+            className={inputClass}
+            placeholder={t('orgModalFieldEmailPlaceholder')}
+          />
         </FormField>
         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
           <div>
@@ -96,18 +128,39 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
         </div>
         <div className="grid grid-cols-2 gap-4">
           <FormField label={t('orgModalFieldAddress')} error={errors.addressLine?.message}>
-            <input {...register('addressLine')} className={inputClass} placeholder={t('orgModalFieldAddressPlaceholder')} />
+            <input
+              {...register('addressLine')}
+              className={inputClass}
+              placeholder={t('orgModalFieldAddressPlaceholder')}
+            />
           </FormField>
           <FormField label={t('orgModalFieldPostal')} error={errors.postalCode?.message}>
-            <input {...register('postalCode')} className={inputClass} placeholder={t('orgModalFieldPostalPlaceholder')} />
+            <input
+              {...register('postalCode')}
+              className={inputClass}
+              placeholder={t('orgModalFieldPostalPlaceholder')}
+            />
           </FormField>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <FormField label={t('orgModalFieldCity')} error={errors.city?.message}>
-            <input {...register('city')} className={inputClass} placeholder={t('orgModalFieldCityPlaceholder')} />
+            <input
+              {...register('city')}
+              className={inputClass}
+              placeholder={t('orgModalFieldCityPlaceholder')}
+            />
           </FormField>
-          <FormField label={t('orgModalFieldCountry')} error={errors.countryCode?.message} hint={t('orgModalFieldCountryHint')}>
-            <input {...register('countryCode')} className={inputClass} placeholder="DE" maxLength={2} />
+          <FormField
+            label={t('orgModalFieldCountry')}
+            error={errors.countryCode?.message}
+            hint={t('orgModalFieldCountryHint')}
+          >
+            <input
+              {...register('countryCode')}
+              className={inputClass}
+              placeholder="DE"
+              maxLength={2}
+            />
           </FormField>
         </div>
         <FormField
@@ -123,11 +176,14 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
           />
         </FormField>
         {watch('clientCertThumbprint') !== (defaultValues?.clientCertThumbprint ?? '') && (
-          <FormField label={t('orgModalThumbprintTotpLabel')} hint={t('orgModalThumbprintTotpHint')}>
+          <FormField
+            label={t('orgModalThumbprintTotpLabel')}
+            hint={t('orgModalThumbprintTotpHint')}
+          >
             <input
               type="text"
               value={totpCode}
-              onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               maxLength={6}
               placeholder="000000"
               style={{ fontFamily: 'monospace', letterSpacing: '4px', textAlign: 'center' }}

@@ -12,9 +12,13 @@ export function MapHeader() {
   return (
     <header style={{ padding: '16px 28px 10px', background: 'var(--bg-card)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b01e66' }}>hub</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b01e66' }}>
+          hub
+        </span>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          <h1
+            style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}
+          >
             {t('networkMap')}
           </h1>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '2px 0 0' }}>

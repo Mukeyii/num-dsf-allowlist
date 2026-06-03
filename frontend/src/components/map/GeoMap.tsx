@@ -17,9 +17,9 @@ import { getPinCoord, cityBucketKey } from '../../lib/germanCities';
 import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
-  organizations: MapOrganization[];           // already filtered (search/status/active)
-  allOrganizations: MapOrganization[];        // unfiltered, used for cluster total counts
-  selectedId: string | null;                  // pin identifier OR cluster key
+  organizations: MapOrganization[]; // already filtered (search/status/active)
+  allOrganizations: MapOrganization[]; // unfiltered, used for cluster total counts
+  selectedId: string | null; // pin identifier OR cluster key
   onSelect: (id: string | null) => void;
   edges: PeerEdge[];
   activeVerbunds: Set<string>;
@@ -35,15 +35,18 @@ interface PlacedPin {
 }
 interface PlacedCluster {
   kind: 'cluster';
-  group: MapClusterGroup;       // visible-only members
-  totalMembers: number;         // unfiltered count
+  group: MapClusterGroup; // visible-only members
+  totalMembers: number; // unfiltered count
   x: number;
   y: number;
 }
 type Placed = PlacedPin | PlacedCluster;
 
 const STATUS_PRIORITY: Record<MapOrganization['cert_status'], number> = {
-  EXPIRED: 4, EXPIRING: 3, NONE: 2, VALID: 1,
+  EXPIRED: 4,
+  EXPIRING: 3,
+  NONE: 2,
+  VALID: 1,
 };
 
 function worstStatus(orgs: MapOrganization[]): MapOrganization['cert_status'] {
@@ -66,18 +69,23 @@ function bucketByCity(orgs: MapOrganization[]): Map<string, MapOrganization[]> {
 }
 
 export function GeoMap({
-  organizations, allOrganizations, selectedId, onSelect,
-  edges, activeVerbunds, showAllEdges,
+  organizations,
+  allOrganizations,
+  selectedId,
+  onSelect,
+  edges,
+  activeVerbunds,
+  showAllEdges,
 }: Props) {
   const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const onMapVisible = useMemo(
-    () => organizations.filter(o => (o.country_code ?? 'DE') === 'DE'),
+    () => organizations.filter((o) => (o.country_code ?? 'DE') === 'DE'),
     [organizations],
   );
   const onMapAll = useMemo(
-    () => allOrganizations.filter(o => (o.country_code ?? 'DE') === 'DE'),
+    () => allOrganizations.filter((o) => (o.country_code ?? 'DE') === 'DE'),
     [allOrganizations],
   );
 
@@ -117,19 +125,26 @@ export function GeoMap({
 
   const clusterKeyForOrg = useMemo(() => {
     const m = new Map<string, string>();
-    for (const p of placed) if (p.kind === 'cluster') {
-      const k = clusterKeyOf(p.group);
-      for (const member of p.group.members) m.set(member.identifier, k);
-    }
+    for (const p of placed)
+      if (p.kind === 'cluster') {
+        const k = clusterKeyOf(p.group);
+        for (const member of p.group.members) m.set(member.identifier, k);
+      }
     return (orgId: string) => m.get(orgId) ?? null;
   }, [placed]);
 
   if (organizations.length === 0) {
     return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', color: 'var(--text-muted)', fontSize: '14px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          color: 'var(--text-muted)',
+          fontSize: '14px',
+        }}
+      >
         {t('mapEmptyState')}
       </div>
     );
@@ -154,8 +169,19 @@ export function GeoMap({
       <rect width="700" height="800" fill="#f8fafc" />
       <GermanyOutline />
 
-      <rect x="618" y="130" width="44" height="600" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 3" />
-      <text x="640" y="125" textAnchor="middle" fontSize="9" fill="#94a3b8">{t('mapSonstigeLabel')}</text>
+      <rect
+        x="618"
+        y="130"
+        width="44"
+        height="600"
+        fill="#f1f5f9"
+        stroke="#e2e8f0"
+        strokeWidth="1"
+        strokeDasharray="2 3"
+      />
+      <text x="640" y="125" textAnchor="middle" fontSize="9" fill="#94a3b8">
+        {t('mapSonstigeLabel')}
+      </text>
 
       <GeoMapEdges
         edges={edges}
@@ -167,57 +193,91 @@ export function GeoMap({
         clusterKeyForOrg={clusterKeyForOrg}
       />
 
-      {placed.map(p => p.kind === 'pin' ? (
-        <GeoMapPin
-          key={p.org.identifier}
-          org={p.org} x={p.x} y={p.y}
-          isHovered={hoveredId === p.org.identifier}
-          isSelected={selectedId === p.org.identifier}
-          isUnknown={!p.known}
-          onSelect={onSelect}
-          onHover={setHoveredId}
-        />
-      ) : (
-        <GeoMapCluster
-          key={clusterKeyOf(p.group)}
-          group={p.group}
-          x={p.x} y={p.y}
-          isHovered={hoveredId === clusterKeyOf(p.group)}
-          isSelected={selectedId === clusterKeyOf(p.group)}
-          matchedCount={p.group.members.length}
-          onSelect={onSelect}
-          onHover={setHoveredId}
-        />
-      ))}
+      {placed.map((p) =>
+        p.kind === 'pin' ? (
+          <GeoMapPin
+            key={p.org.identifier}
+            org={p.org}
+            x={p.x}
+            y={p.y}
+            isHovered={hoveredId === p.org.identifier}
+            isSelected={selectedId === p.org.identifier}
+            isUnknown={!p.known}
+            onSelect={onSelect}
+            onHover={setHoveredId}
+          />
+        ) : (
+          <GeoMapCluster
+            key={clusterKeyOf(p.group)}
+            group={p.group}
+            x={p.x}
+            y={p.y}
+            isHovered={hoveredId === clusterKeyOf(p.group)}
+            isSelected={selectedId === clusterKeyOf(p.group)}
+            matchedCount={p.group.members.length}
+            onSelect={onSelect}
+            onHover={setHoveredId}
+          />
+        ),
+      )}
 
       {tooltipTarget && (
         <g style={{ pointerEvents: 'none' }}>
           <rect
             x={tooltipTarget.x - 90}
             y={tooltipTarget.y - 50}
-            width={180} height={36} rx={8}
-            fill="#0f172a" opacity={0.92}
+            width={180}
+            height={36}
+            rx={8}
+            fill="#0f172a"
+            opacity={0.92}
           />
           {tooltipTarget.kind === 'pin' ? (
             <>
-              <text x={tooltipTarget.x} y={tooltipTarget.y - 35}
-                    textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff">
+              <text
+                x={tooltipTarget.x}
+                y={tooltipTarget.y - 35}
+                textAnchor="middle"
+                fontSize={11}
+                fontWeight={600}
+                fill="#fff"
+              >
                 {tooltipTarget.org.name}
               </text>
-              <text x={tooltipTarget.x} y={tooltipTarget.y - 22}
-                    textAnchor="middle" fontSize={9} fill="#cbd5e1">
-                {tooltipTarget.org.city ?? '—'} {tooltipTarget.org.country_code ? `· ${tooltipTarget.org.country_code}` : ''}
+              <text
+                x={tooltipTarget.x}
+                y={tooltipTarget.y - 22}
+                textAnchor="middle"
+                fontSize={9}
+                fill="#cbd5e1"
+              >
+                {tooltipTarget.org.city ?? '—'}{' '}
+                {tooltipTarget.org.country_code ? `· ${tooltipTarget.org.country_code}` : ''}
               </text>
             </>
           ) : (
             <>
-              <text x={tooltipTarget.x} y={tooltipTarget.y - 35}
-                    textAnchor="middle" fontSize={11} fontWeight={600} fill="#fff">
+              <text
+                x={tooltipTarget.x}
+                y={tooltipTarget.y - 35}
+                textAnchor="middle"
+                fontSize={11}
+                fontWeight={600}
+                fill="#fff"
+              >
                 {tooltipTarget.group.city ?? '?'}
               </text>
-              <text x={tooltipTarget.x} y={tooltipTarget.y - 22}
-                    textAnchor="middle" fontSize={9} fill="#cbd5e1">
-                {t('mapClusterCity', { n: tooltipTarget.totalMembers, city: tooltipTarget.group.city ?? '?' })}
+              <text
+                x={tooltipTarget.x}
+                y={tooltipTarget.y - 22}
+                textAnchor="middle"
+                fontSize={9}
+                fill="#cbd5e1"
+              >
+                {t('mapClusterCity', {
+                  n: tooltipTarget.totalMembers,
+                  city: tooltipTarget.group.city ?? '?',
+                })}
               </text>
             </>
           )}

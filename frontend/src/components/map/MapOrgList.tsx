@@ -35,7 +35,7 @@ function groupByParent(orgs: MapOrganization[]): Group[] {
   const buckets = new Map<string, MapOrganization[]>();
   const NONE_KEY = '__none__';
   for (const o of orgs) {
-    const parents = (o.memberships ?? []).map(m => m.parent_organization);
+    const parents = (o.memberships ?? []).map((m) => m.parent_organization);
     if (parents.length === 0) {
       const list = buckets.get(NONE_KEY) ?? [];
       list.push(o);
@@ -44,7 +44,7 @@ function groupByParent(orgs: MapOrganization[]): Group[] {
     }
     for (const p of parents) {
       const list = buckets.get(p) ?? [];
-      if (!list.find(m => m.identifier === o.identifier)) list.push(o);
+      if (!list.find((m) => m.identifier === o.identifier)) list.push(o);
       buckets.set(p, list);
     }
   }
@@ -65,9 +65,10 @@ export function MapOrgList({ organizations, selectedId, onSelect }: Props) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   function toggle(parent: string) {
-    setCollapsed(prev => {
+    setCollapsed((prev) => {
       const next = new Set(prev);
-      if (next.has(parent)) next.delete(parent); else next.add(parent);
+      if (next.has(parent)) next.delete(parent);
+      else next.add(parent);
       return next;
     });
   }
@@ -84,14 +85,23 @@ export function MapOrgList({ organizations, selectedId, onSelect }: Props) {
       }}
     >
       <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
-        <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: '11px',
+            fontWeight: 700,
+            color: 'var(--text-secondary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+          }}
+        >
           Organizations
         </p>
         <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
           {organizations.length} total · {groups.length} verbund{groups.length === 1 ? '' : 'e'}
         </p>
       </div>
-      {groups.map(g => {
+      {groups.map((g) => {
         const isCollapsed = collapsed.has(g.parent);
         const labelText = g.parent === '__none__' ? '— No verbund —' : g.parent;
         return (
@@ -113,59 +123,99 @@ export function MapOrgList({ organizations, selectedId, onSelect }: Props) {
             >
               <span
                 style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: verbundColor(g.parent), flexShrink: 0,
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: verbundColor(g.parent),
+                  flexShrink: 0,
                 }}
               />
-              <span style={{ flex: 1, fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              <span
+                style={{ flex: 1, fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}
+              >
                 {labelText}
               </span>
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{g.members.length}</span>
-              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                {g.members.length}
+              </span>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '14px', color: 'var(--text-muted)' }}
+              >
                 {isCollapsed ? 'expand_more' : 'expand_less'}
               </span>
             </button>
-            {!isCollapsed && g.members.map(m => {
-              const isSel = selectedId === m.identifier;
-              return (
-                <button
-                  key={m.identifier}
-                  onClick={() => onSelect(m.identifier)}
-                  title={m.identifier}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 16px 6px 28px',
-                    border: 'none',
-                    background: isSel ? '#fde3ef' : 'var(--bg-card)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'inherit',
-                    borderLeft: isSel ? '3px solid #b01e66' : '3px solid transparent',
-                  }}
-                >
-                  <span
+            {!isCollapsed &&
+              g.members.map((m) => {
+                const isSel = selectedId === m.identifier;
+                return (
+                  <button
+                    key={m.identifier}
+                    onClick={() => onSelect(m.identifier)}
+                    title={m.identifier}
                     style={{
-                      width: '6px', height: '6px', borderRadius: '50%',
-                      background: STATUS_DOT[m.cert_status], flexShrink: 0,
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '6px 16px 6px 28px',
+                      border: 'none',
+                      background: isSel ? '#fde3ef' : 'var(--bg-card)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontFamily: 'inherit',
+                      borderLeft: isSel ? '3px solid #b01e66' : '3px solid transparent',
                     }}
-                  />
-                  <span style={{ flex: 1, minWidth: 0, fontSize: '11px', color: isSel ? '#b01e66' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {m.name}
-                  </span>
-                  {!m.active && (
-                    <span style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>off</span>
-                  )}
-                </button>
-              );
-            })}
+                  >
+                    <span
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: STATUS_DOT[m.cert_status],
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        fontSize: '11px',
+                        color: isSel ? '#b01e66' : 'var(--text-primary)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {m.name}
+                    </span>
+                    {!m.active && (
+                      <span
+                        style={{
+                          fontSize: '9px',
+                          color: 'var(--text-muted)',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        off
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
           </div>
         );
       })}
       {groups.length === 0 && (
-        <p style={{ padding: '16px', fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', margin: 0 }}>
+        <p
+          style={{
+            padding: '16px',
+            fontSize: '11px',
+            color: 'var(--text-muted)',
+            textAlign: 'center',
+            margin: 0,
+          }}
+        >
           No organizations match the current filter.
         </p>
       )}

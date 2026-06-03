@@ -15,6 +15,8 @@ test('site user sees the Send-for-Approval action on /app', async ({ page }) => 
   await loginAs(page, 'site');
   // TopBar renders the "Send for Approval" button when the active instance is
   // a submittable draft. The site user fixture has exactly that.
-  const submitBtn = page.getByRole('button', { name: /send for approval|zur prüfung|zur freigabe/i });
+  const submitBtn = page.getByRole('button', {
+    name: /send for approval|zur prüfung|zur freigabe/i,
+  });
   await expect(submitBtn).toBeVisible({ timeout: 15_000 });
 });

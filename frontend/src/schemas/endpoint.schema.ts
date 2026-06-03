@@ -13,9 +13,18 @@ const ipAddressSchema = z.object({
 });
 
 export const endpointSchema = z.object({
-  identifier: z.string().min(3).regex(/^(?=.{1,253}\.?$)([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+\.?$/, 'Must be a valid FQDN'),
+  identifier: z
+    .string()
+    .min(3)
+    .regex(
+      /^(?=.{1,253}\.?$)([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+\.?$/,
+      'Must be a valid FQDN',
+    ),
   name: z.string().optional(),
-  address: z.string().url('Must be a valid URL').startsWith('https://', 'URL must start with https://'),
+  address: z
+    .string()
+    .url('Must be a valid URL')
+    .startsWith('https://', 'URL must start with https://'),
   ipAddresses: z.array(ipAddressSchema).default([]),
 });
 

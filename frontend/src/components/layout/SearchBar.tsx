@@ -72,74 +72,150 @@ export function SearchBar() {
 
   if (q.length >= 2) {
     if (org && (org.name?.toLowerCase().includes(q) || org.identifier?.toLowerCase().includes(q))) {
-      results.push({ type: 'organization', label: org.name, detail: org.identifier, cardId: 'organization' });
+      results.push({
+        type: 'organization',
+        label: org.name,
+        detail: org.identifier,
+        cardId: 'organization',
+      });
     }
     (contacts as { name?: string; email?: string }[]).forEach((c) => {
       if (c.name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q)) {
-        results.push({ type: 'contact', label: c.name || c.email || '', detail: c.email || '', cardId: 'contacts' });
+        results.push({
+          type: 'contact',
+          label: c.name || c.email || '',
+          detail: c.email || '',
+          cardId: 'contacts',
+        });
       }
     });
     (endpoints as { identifier?: string; name?: string; address?: string }[]).forEach((ep) => {
-      if (ep.identifier?.toLowerCase().includes(q) || ep.name?.toLowerCase().includes(q) || ep.address?.toLowerCase().includes(q)) {
-        results.push({ type: 'endpoint', label: ep.name || ep.identifier || '', detail: ep.address || '', cardId: 'endpoints' });
+      if (
+        ep.identifier?.toLowerCase().includes(q) ||
+        ep.name?.toLowerCase().includes(q) ||
+        ep.address?.toLowerCase().includes(q)
+      ) {
+        results.push({
+          type: 'endpoint',
+          label: ep.name || ep.identifier || '',
+          detail: ep.address || '',
+          cardId: 'endpoints',
+        });
       }
     });
     (certs as { subject?: string; thumbprint?: string; valid_until?: string }[]).forEach((cert) => {
       if (cert.subject?.toLowerCase().includes(q) || cert.thumbprint?.toLowerCase().includes(q)) {
-        results.push({ type: 'certificate', label: cert.subject || '', detail: t('searchCertValidUntil', { date: cert.valid_until ?? '' }), cardId: 'certificates' });
+        results.push({
+          type: 'certificate',
+          label: cert.subject || '',
+          detail: t('searchCertValidUntil', { date: cert.valid_until ?? '' }),
+          cardId: 'certificates',
+        });
       }
     });
     (memberships as { parent_organization?: string }[]).forEach((ms) => {
       if (ms.parent_organization?.toLowerCase().includes(q)) {
-        results.push({ type: 'membership', label: ms.parent_organization || '', detail: '', cardId: 'memberships' });
+        results.push({
+          type: 'membership',
+          label: ms.parent_organization || '',
+          detail: '',
+          cardId: 'memberships',
+        });
       }
     });
   }
 
   function handleSelect(r: SearchResult) {
     highlightEntity(r.cardId as Parameters<typeof highlightEntity>[0]);
-    document.getElementById(`card-${r.cardId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document
+      .getElementById(`card-${r.cardId}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setOpen(false);
     setQuery('');
   }
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        padding: '6px 12px', borderRadius: '10px',
-        border: '1px solid var(--border)', background: 'var(--bg-hover)', width: '240px',
-      }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--text-muted)' }}>search</span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          border: '1px solid var(--border)',
+          background: 'var(--bg-hover)',
+          width: '240px',
+        }}
+      >
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '16px', color: 'var(--text-muted)' }}
+        >
+          search
+        </span>
         <input
           type="text"
           value={query}
-          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
           onFocus={() => setOpen(true)}
           placeholder={`${t('searchEntities')} (Ctrl+K)`}
           style={{
-            border: 'none', outline: 'none', background: 'transparent',
-            fontSize: '12px', color: 'var(--text-primary)', width: '100%',
+            border: 'none',
+            outline: 'none',
+            background: 'transparent',
+            fontSize: '12px',
+            color: 'var(--text-primary)',
+            width: '100%',
           }}
         />
         {query && (
           <button
-            onClick={() => { setQuery(''); setOpen(false); }}
+            onClick={() => {
+              setQuery('');
+              setOpen(false);
+            }}
             aria-label={t('searchClearAria')}
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, lineHeight: 1 }}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              padding: 0,
+              lineHeight: 1,
+            }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--text-muted)' }}>close</span>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '14px', color: 'var(--text-muted)' }}
+            >
+              close
+            </span>
           </button>
         )}
       </div>
 
       {open && results.length > 0 && (
-        <div role="listbox" aria-label={t('searchResultsAria')} style={{
-          position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px',
-          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100,
-          maxHeight: '300px', overflowY: 'auto',
-        }}>
+        <div
+          role="listbox"
+          aria-label={t('searchResultsAria')}
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '4px',
+            background: 'var(--bg-card)',
+            borderRadius: '12px',
+            border: '1px solid var(--border)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+            zIndex: 100,
+            maxHeight: '300px',
+            overflowY: 'auto',
+          }}
+        >
           {results.slice(0, 10).map((r, i) => {
             const { icon, color } = TYPE_ICONS[r.type];
             return (
@@ -149,31 +225,66 @@ export function SearchBar() {
                 aria-label={`${r.type}: ${r.label}`}
                 onClick={() => handleSelect(r)}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
-                  padding: '10px 14px', border: 'none', background: 'transparent',
-                  cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '10px 14px',
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'background 0.1s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px', color }}>{icon}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color }}>
+                  {icon}
+                </span>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{
-                    fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0,
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>{r.label}</p>
+                  <p
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)',
+                      margin: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {r.label}
+                  </p>
                   {r.detail && (
-                    <p style={{
-                      fontSize: '10px', color: 'var(--text-muted)', margin: 0,
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>{r.detail}</p>
+                    <p
+                      style={{
+                        fontSize: '10px',
+                        color: 'var(--text-muted)',
+                        margin: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {r.detail}
+                    </p>
                   )}
                 </div>
-                <span style={{
-                  marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)',
-                  background: 'var(--bg-page)', borderRadius: '4px', padding: '2px 6px',
-                  whiteSpace: 'nowrap', flexShrink: 0,
-                }}>{r.type}</span>
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    fontSize: '10px',
+                    color: 'var(--text-muted)',
+                    background: 'var(--bg-page)',
+                    borderRadius: '4px',
+                    padding: '2px 6px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}
+                >
+                  {r.type}
+                </span>
               </button>
             );
           })}
@@ -181,13 +292,25 @@ export function SearchBar() {
       )}
 
       {open && q.length >= 2 && results.length === 0 && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px',
-          background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100,
-          padding: '16px 14px', textAlign: 'center',
-        }}>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>{t('searchNoResults', { query })}</p>
+        <div
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '4px',
+            background: 'var(--bg-card)',
+            borderRadius: '12px',
+            border: '1px solid var(--border)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+            zIndex: 100,
+            padding: '16px 14px',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
+            {t('searchNoResults', { query })}
+          </p>
         </div>
       )}
     </div>

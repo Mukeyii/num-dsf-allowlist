@@ -3,12 +3,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useOrganization, useUpdateOrganization } from '../../hooks/useOrganization';
-import { useContacts }       from '../../hooks/useContacts';
+import { useContacts } from '../../hooks/useContacts';
 import { useApprovalStatus } from '../../hooks/useApproval';
-import { EntityCard }        from './EntityCard';
-import { useModals }         from '../../hooks/useModals';
-import { toast }             from 'sonner';
-import { useI18n }           from '../../stores/i18n.store';
+import { EntityCard } from './EntityCard';
+import { useModals } from '../../hooks/useModals';
+import { toast } from 'sonner';
+import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
   instanceId: string;
@@ -16,12 +16,12 @@ interface Props {
 
 export function OrganizationCard({ instanceId }: Props) {
   const { t } = useI18n();
-  const { data: org, isLoading }   = useOrganization(instanceId);
-  const { data: contacts = [] }    = useContacts(instanceId);
-  const { data: approval }         = useApprovalStatus(instanceId);
+  const { data: org, isLoading } = useOrganization(instanceId);
+  const { data: contacts = [] } = useContacts(instanceId);
+  const { data: approval } = useApprovalStatus(instanceId);
 
   const updateMut = useUpdateOrganization(instanceId);
-  const [editing, setEditing]     = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -30,11 +30,14 @@ export function OrganizationCard({ instanceId }: Props) {
   }, [editing]);
 
   async function saveInline(field: string) {
-    if (!org || !editValue.trim()) { setEditing(null); return; }
+    if (!org || !editValue.trim()) {
+      setEditing(null);
+      return;
+    }
     try {
       await updateMut.mutateAsync({
         identifier: org.identifier,
-        name:  field === 'name'  ? editValue.trim() : org.name,
+        name: field === 'name' ? editValue.trim() : org.name,
         email: field === 'email' ? editValue.trim() : org.email,
         active: org.active,
         addressLine: org.address_line || '',
@@ -50,34 +53,68 @@ export function OrganizationCard({ instanceId }: Props) {
     setEditing(null);
   }
 
-  const approvalStatus = (approval?.status ?? 'none') as 'APPROVED' | 'PENDING' | 'REJECTED' | 'none';
+  const approvalStatus = (approval?.status ?? 'none') as
+    | 'APPROVED'
+    | 'PENDING'
+    | 'REJECTED'
+    | 'none';
   const statusMap = {
     APPROVED: { bg: '#e8f5ee', color: '#2d7a57', label: t('approved') },
-    PENDING:  { bg: '#fff8e8', color: '#854f0b', label: t('pending')  },
+    PENDING: { bg: '#fff8e8', color: '#854f0b', label: t('pending') },
     REJECTED: { bg: '#fff0f0', color: '#9b2335', label: t('rejected') },
-    none:     { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: t('orgCardApprovalNone') },
+    none: { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: t('orgCardApprovalNone') },
   };
-  const statusPill = statusMap[approvalStatus] ?? { bg: 'var(--bg-page)', color: 'var(--text-muted)', label: t('orgCardApprovalDraft') };
+  const statusPill = statusMap[approvalStatus] ?? {
+    bg: 'var(--bg-page)',
+    color: 'var(--text-muted)',
+    label: t('orgCardApprovalDraft'),
+  };
 
-  if (isLoading) return (
-    <EntityCard id="organization" title={t('organization')} borderColor="#4d41df" icon="corporate_fare">
-      <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>
-    </EntityCard>
-  );
+  if (isLoading)
+    return (
+      <EntityCard
+        id="organization"
+        title={t('organization')}
+        borderColor="#4d41df"
+        icon="corporate_fare"
+      >
+        <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>
+      </EntityCard>
+    );
 
-  if (!org) return (
-    <EntityCard id="organization" title={t('organization')} borderColor="#4d41df" icon="corporate_fare"
-      onAdd={() => useModals.getState().openModal('org-edit')} addLabel="Set up">
-      <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '20px 0' }}>
-        {t('noData')}<br />{t('orgCardSetupHint')}
-      </div>
-    </EntityCard>
-  );
+  if (!org)
+    return (
+      <EntityCard
+        id="organization"
+        title={t('organization')}
+        borderColor="#4d41df"
+        icon="corporate_fare"
+        onAdd={() => useModals.getState().openModal('org-edit')}
+        addLabel="Set up"
+      >
+        <div
+          style={{
+            color: 'var(--text-muted)',
+            fontSize: '12px',
+            textAlign: 'center',
+            padding: '20px 0',
+          }}
+        >
+          {t('noData')}
+          <br />
+          {t('orgCardSetupHint')}
+        </div>
+      </EntityCard>
+    );
 
   // Shared row style
   const rowStyle: React.CSSProperties = {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '4px 0', borderBottom: '1px solid var(--bg-page)', fontSize: '12px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '4px 0',
+    borderBottom: '1px solid var(--bg-page)',
+    fontSize: '12px',
   };
 
   return (
@@ -91,17 +128,35 @@ export function OrganizationCard({ instanceId }: Props) {
     >
       {contacts.length > 0 && (
         <div style={{ marginBottom: '10px' }}>
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+          <div
+            style={{
+              fontSize: '10px',
+              color: 'var(--text-muted)',
+              marginBottom: '5px',
+              textTransform: 'uppercase',
+              letterSpacing: '.05em',
+            }}
+          >
             {t('orgCardSharedWith')}
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
             {contacts.slice(0, 5).map((c: any) => (
-              <div key={c.id} style={{
-                width: '28px', height: '28px', borderRadius: '50%',
-                background: '#ede9ff', color: '#6c63ff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '10px', fontWeight: 600,
-              }} title={c.name || c.email}>
+              <div
+                key={c.id}
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: '#ede9ff',
+                  color: '#6c63ff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                }}
+                title={c.name || c.email}
+              >
                 {(c.name || c.email)?.[0]?.toUpperCase()}
               </div>
             ))}
@@ -112,16 +167,18 @@ export function OrganizationCard({ instanceId }: Props) {
       {/* Static fields: Identifier, City, Address */}
       {[
         { label: t('orgCardIdentifier'), value: org.identifier, mono: true },
-        { label: t('orgCardCity'),       value: `${org.city || '—'} · ${org.country_code || '—'}` },
-        { label: t('orgCardAddress'),    value: org.address_line || '—' },
+        { label: t('orgCardCity'), value: `${org.city || '—'} · ${org.country_code || '—'}` },
+        { label: t('orgCardAddress'), value: org.address_line || '—' },
       ].map(({ label, value, mono }) => (
         <div key={label} style={rowStyle}>
           <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-          <span style={{
-            color: mono ? '#6c63ff' : 'var(--text-primary)',
-            fontFamily: mono ? "'JetBrains Mono', monospace" : 'inherit',
-            fontSize: mono ? '11px' : '12px',
-          }}>
+          <span
+            style={{
+              color: mono ? '#6c63ff' : 'var(--text-primary)',
+              fontFamily: mono ? "'JetBrains Mono', monospace" : 'inherit',
+              fontSize: mono ? '11px' : '12px',
+            }}
+          >
             {value}
           </span>
         </div>
@@ -130,35 +187,54 @@ export function OrganizationCard({ instanceId }: Props) {
       {/* Inline-editable: Name */}
       <div style={rowStyle}>
         <span style={{ color: 'var(--text-muted)' }}>{t('orgCardName')}</span>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            flex: 1,
+            marginLeft: '8px',
+          }}
+        >
           {editing === 'name' ? (
             <input
               ref={inputRef}
               value={editValue}
-              onChange={e => setEditValue(e.target.value)}
+              onChange={(e) => setEditValue(e.target.value)}
               onBlur={() => saveInline('name')}
-              onKeyDown={e => {
-                if (e.key === 'Enter')  saveInline('name');
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveInline('name');
                 if (e.key === 'Escape') setEditing(null);
               }}
               style={{
-                fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)',
-                border: 'none', borderBottom: '2px solid #6c63ff',
-                outline: 'none', background: 'transparent',
-                width: '100%', padding: '2px 0', textAlign: 'right',
+                fontSize: '12px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                border: 'none',
+                borderBottom: '2px solid #6c63ff',
+                outline: 'none',
+                background: 'transparent',
+                width: '100%',
+                padding: '2px 0',
+                textAlign: 'right',
               }}
             />
           ) : (
             <span
               style={{ color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 600 }}
-              onDoubleClick={() => { setEditing('name'); setEditValue(org.name || ''); }}
+              onDoubleClick={() => {
+                setEditing('name');
+                setEditValue(org.name || '');
+              }}
               title={t('orgCardDoubleClickHint')}
             >
               {org.name}
             </span>
           )}
           {editing !== 'name' && (
-            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>{t('orgCardDoubleClickHint')}</span>
+            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>
+              {t('orgCardDoubleClickHint')}
+            </span>
           )}
         </div>
       </div>
@@ -166,35 +242,54 @@ export function OrganizationCard({ instanceId }: Props) {
       {/* Inline-editable: Email */}
       <div style={rowStyle}>
         <span style={{ color: 'var(--text-muted)' }}>{t('orgCardEmail')}</span>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: 1, marginLeft: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            flex: 1,
+            marginLeft: '8px',
+          }}
+        >
           {editing === 'email' ? (
             <input
               ref={inputRef}
               value={editValue}
-              onChange={e => setEditValue(e.target.value)}
+              onChange={(e) => setEditValue(e.target.value)}
               onBlur={() => saveInline('email')}
-              onKeyDown={e => {
-                if (e.key === 'Enter')  saveInline('email');
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveInline('email');
                 if (e.key === 'Escape') setEditing(null);
               }}
               style={{
-                fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)',
-                border: 'none', borderBottom: '2px solid #6c63ff',
-                outline: 'none', background: 'transparent',
-                width: '100%', padding: '2px 0', textAlign: 'right',
+                fontSize: '12px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                border: 'none',
+                borderBottom: '2px solid #6c63ff',
+                outline: 'none',
+                background: 'transparent',
+                width: '100%',
+                padding: '2px 0',
+                textAlign: 'right',
               }}
             />
           ) : (
             <span
               style={{ color: 'var(--text-primary)', cursor: 'pointer' }}
-              onDoubleClick={() => { setEditing('email'); setEditValue(org.email || ''); }}
+              onDoubleClick={() => {
+                setEditing('email');
+                setEditValue(org.email || '');
+              }}
               title={t('orgCardDoubleClickHint')}
             >
               {org.email}
             </span>
           )}
           {editing !== 'email' && (
-            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>{t('orgCardDoubleClickHint')}</span>
+            <span style={{ fontSize: '9px', color: '#d4d8e8', marginTop: '2px' }}>
+              {t('orgCardDoubleClickHint')}
+            </span>
           )}
         </div>
       </div>
@@ -202,26 +297,41 @@ export function OrganizationCard({ instanceId }: Props) {
       {/* Active status pill */}
       <div style={rowStyle}>
         <span style={{ color: 'var(--text-muted)' }}>{t('orgCardStatus')}</span>
-        <span style={{
-          background: org.active ? '#e8f5ee' : '#fff0f0',
-          color:      org.active ? '#2d7a57' : '#9b2335',
-          padding: '1px 8px', borderRadius: '99px', fontSize: '11px',
-        }}>
+        <span
+          style={{
+            background: org.active ? '#e8f5ee' : '#fff0f0',
+            color: org.active ? '#2d7a57' : '#9b2335',
+            padding: '1px 8px',
+            borderRadius: '99px',
+            fontSize: '11px',
+          }}
+        >
           {org.active ? t('orgCardActive') : t('orgCardInactive')}
         </span>
       </div>
 
       {/* Approval status pill */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginTop: '10px', paddingTop: '8px',
-        borderTop: '1px solid var(--bg-page)', fontSize: '12px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '10px',
+          paddingTop: '8px',
+          borderTop: '1px solid var(--bg-page)',
+          fontSize: '12px',
+        }}
+      >
         <span style={{ color: 'var(--text-muted)' }}>{t('orgCardApproval')}</span>
-        <span style={{
-          background: statusPill.bg, color: statusPill.color,
-          padding: '2px 8px', borderRadius: '99px', fontSize: '11px',
-        }}>
+        <span
+          style={{
+            background: statusPill.bg,
+            color: statusPill.color,
+            padding: '2px 8px',
+            borderRadius: '99px',
+            fontSize: '11px',
+          }}
+        >
           {statusPill.label}
         </span>
       </div>

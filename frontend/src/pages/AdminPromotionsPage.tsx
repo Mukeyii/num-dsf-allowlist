@@ -100,11 +100,22 @@ export function AdminPromotionsPage() {
   }
 
   return (
-    <div style={{ flex: 1, padding: '32px', overflowY: 'auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div
+      style={{
+        flex: 1,
+        padding: '32px',
+        overflowY: 'auto',
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>verified_user</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+          verified_user
+        </span>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          <h1
+            style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}
+          >
             {t('adminPromotionsTitle')}
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
@@ -115,13 +126,15 @@ export function AdminPromotionsPage() {
 
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
 
-      <div style={{
-        background: '#fff7ed',
-        border: '1px solid #fed7aa',
-        borderRadius: '12px',
-        padding: '14px 18px',
-        marginBottom: '20px',
-      }}>
+      <div
+        style={{
+          background: '#fff7ed',
+          border: '1px solid #fed7aa',
+          borderRadius: '12px',
+          padding: '14px 18px',
+          marginBottom: '20px',
+        }}
+      >
         <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: 700, color: '#7c2d12' }}>
           {t('adminPromotionsRule')}
         </p>
@@ -137,11 +150,11 @@ export function AdminPromotionsPage() {
 
       {requests && requests.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {requests.map(req => {
-            const isMyRequest = me?.email != null &&
-              req.requested_by.toLowerCase() === me.email.toLowerCase();
-            const sameSiteAsRequester = me?.email != null &&
-              siteOf(me.email) === siteOf(req.requested_by);
+          {requests.map((req) => {
+            const isMyRequest =
+              me?.email != null && req.requested_by.toLowerCase() === me.email.toLowerCase();
+            const sameSiteAsRequester =
+              me?.email != null && siteOf(me.email) === siteOf(req.requested_by);
             const canApprove = !isMyRequest && !sameSiteAsRequester;
 
             return (
@@ -154,9 +167,18 @@ export function AdminPromotionsPage() {
                   padding: '16px 20px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                  }}
+                >
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    <div
+                      style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}
+                    >
                       {req.target_email}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
@@ -217,7 +239,7 @@ export function AdminPromotionsPage() {
           }}
         >
           <div
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
             style={{
               background: 'var(--bg-card)',
               borderRadius: '16px',
@@ -226,18 +248,32 @@ export function AdminPromotionsPage() {
               width: '90%',
             }}
           >
-            <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            <h2
+              style={{
+                margin: '0 0 4px',
+                fontSize: '16px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+              }}
+            >
               {pending.kind === 'approve' && t('adminPromotionsConfirmApprove')}
               {pending.kind === 'reject' && t('adminPromotionsConfirmReject')}
               {pending.kind === 'cancel' && t('adminPromotionsConfirmCancel')}
             </h2>
-            <p style={{ margin: '0 0 16px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
+            <p
+              style={{
+                margin: '0 0 16px',
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+              }}
+            >
               {pending.req.target_email}
             </p>
             {pending.kind === 'reject' && (
               <textarea
                 value={reason}
-                onChange={e => setReason(e.target.value)}
+                onChange={(e) => setReason(e.target.value)}
                 placeholder={t('adminPromotionsRejectReasonPlaceholder')}
                 rows={3}
                 style={{
@@ -254,7 +290,7 @@ export function AdminPromotionsPage() {
             )}
             <input
               value={totpCode}
-              onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
               maxLength={6}
               style={{
@@ -270,9 +306,15 @@ export function AdminPromotionsPage() {
                 color: 'var(--text-primary)',
               }}
             />
-            <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button onClick={reset} style={modalCancelBtn}>{t('cancel')}</button>
-              <button onClick={execute} style={modalConfirmBtn}>{t('confirm')}</button>
+            <div
+              style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}
+            >
+              <button onClick={reset} style={modalCancelBtn}>
+                {t('cancel')}
+              </button>
+              <button onClick={execute} style={modalConfirmBtn}>
+                {t('confirm')}
+              </button>
             </div>
           </div>
         </div>

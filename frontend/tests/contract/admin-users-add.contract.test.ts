@@ -4,7 +4,9 @@ import { adminClient } from './helpers/api-client';
 
 describe('contract: admin POST /users adds whitelist entry', () => {
   let api: ContractClient;
-  beforeAll(async () => { api = await adminClient(); });
+  beforeAll(async () => {
+    api = await adminClient();
+  });
 
   it('persists email + locked state default (TOTP bypassed)', async () => {
     const email = `contract-${Date.now()}@example.de`;

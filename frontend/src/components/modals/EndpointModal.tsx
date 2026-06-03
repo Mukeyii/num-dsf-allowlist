@@ -28,7 +28,13 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
   const updateMut = useUpdateEndpoint(instanceId);
   const isPending = createMut.isPending || updateMut.isPending;
   const guard = useCrossUserGuard();
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EndpointFormData>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<EndpointFormData>({
     resolver: zodResolver(endpointSchema),
     defaultValues: { ipAddresses: [{ ip: '', isFhir: false, isBpe: false }], ...defaultValues },
   });
@@ -45,14 +51,21 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
           name: ep.name || '',
           address: ep.address,
           ipAddresses: (ep.ipAddresses || []).map((ip: any) => ({
-            ip: ip.ip, isFhir: !!ip.isFhir, isBpe: !!ip.isBpe,
+            ip: ip.ip,
+            isFhir: !!ip.isFhir,
+            isBpe: !!ip.isBpe,
           })),
         });
       }
     } else if (open && !endpointId) {
-      reset({ identifier: '', name: '', address: '', ipAddresses: [{ ip: '', isFhir: false, isBpe: false }] });
+      reset({
+        identifier: '',
+        name: '',
+        address: '',
+        ipAddresses: [{ ip: '', isFhir: false, isBpe: false }],
+      });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, endpointId, reset]);
 
   async function onSubmit(data: EndpointFormData) {
@@ -60,14 +73,24 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
       if (endpointId) {
         await new Promise<void>((resolve, reject) => {
           guard(async () => {
-            try { await updateMut.mutateAsync({ id: endpointId, data }); resolve(); } catch (e) { reject(e); }
+            try {
+              await updateMut.mutateAsync({ id: endpointId, data });
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
           });
         });
         toast.success(t('endpointModalUpdateSuccess'));
       } else {
         await new Promise<void>((resolve, reject) => {
           guard(async () => {
-            try { await createMut.mutateAsync(data); resolve(); } catch (e) { reject(e); }
+            try {
+              await createMut.mutateAsync(data);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
           });
         });
         toast.success(t('endpointModalAddSuccess'));
@@ -79,10 +102,22 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={endpointId ? t('endpointModalTitleEdit') : t('endpointModalTitleAdd')}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={endpointId ? t('endpointModalTitleEdit') : t('endpointModalTitleAdd')}
+    >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField label={t('endpointModalFieldName')} error={errors.name?.message} hint={t('endpointModalFieldNameHint')}>
-          <input {...register('name')} className={inputClass} placeholder={t('endpointModalFieldNamePlaceholder')} />
+        <FormField
+          label={t('endpointModalFieldName')}
+          error={errors.name?.message}
+          hint={t('endpointModalFieldNameHint')}
+        >
+          <input
+            {...register('name')}
+            className={inputClass}
+            placeholder={t('endpointModalFieldNamePlaceholder')}
+          />
         </FormField>
         <FormField
           label={t('endpointModalFieldIdentifier')}
@@ -100,38 +135,79 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
             data-testid="endpoint-identifier-input"
           />
           {endpointId && (
-            <p className="text-[10px] mt-1 flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>lock</span>
+            <p
+              className="text-[10px] mt-1 flex items-center gap-1"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>
+                lock
+              </span>
               <span>{t('identifierLocked')}</span>
             </p>
           )}
         </FormField>
-        <FormField label={t('endpointModalFieldAddress')} required error={errors.address?.message} hint={t('endpointModalFieldAddressHint')}>
-          <input {...register('address')} className={inputClass} placeholder={t('endpointModalFieldAddressPlaceholder')} />
+        <FormField
+          label={t('endpointModalFieldAddress')}
+          required
+          error={errors.address?.message}
+          hint={t('endpointModalFieldAddressHint')}
+        >
+          <input
+            {...register('address')}
+            className={inputClass}
+            placeholder={t('endpointModalFieldAddressPlaceholder')}
+          />
         </FormField>
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold text-slate-600">{t('endpointModalIpLabel')}</label>
-            <button type="button" onClick={() => append({ ip: '', isFhir: false, isBpe: false })} className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors">{t('endpointModalAddIp')}</button>
+            <label className="text-xs font-semibold text-slate-600">
+              {t('endpointModalIpLabel')}
+            </label>
+            <button
+              type="button"
+              onClick={() => append({ ip: '', isFhir: false, isBpe: false })}
+              className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              {t('endpointModalAddIp')}
+            </button>
           </div>
           <p className="text-[10px] text-slate-400 mb-3">{t('endpointModalIpHint')}</p>
           <div className="space-y-3">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+              <div
+                key={field.id}
+                className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2"
+              >
                 <div className="flex items-center gap-2">
-                  <input {...register(`ipAddresses.${index}.ip`)} className={`${inputClass} flex-1`} placeholder={t('endpointModalIpPlaceholder')} />
-                  <button type="button" onClick={() => remove(index)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                  <input
+                    {...register(`ipAddresses.${index}.ip`)}
+                    className={`${inputClass} flex-1`}
+                    placeholder={t('endpointModalIpPlaceholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                  >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
                 </div>
                 <div className="flex gap-6">
                   <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
-                    <input type="checkbox" {...register(`ipAddresses.${index}.isFhir`)} className="accent-primary" />
+                    <input
+                      type="checkbox"
+                      {...register(`ipAddresses.${index}.isFhir`)}
+                      className="accent-primary"
+                    />
                     <span className="font-medium">{t('endpointModalFhirLabel')}</span>
                     <span className="text-slate-400">{t('endpointModalFhirDesc')}</span>
                   </label>
                   <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
-                    <input type="checkbox" {...register(`ipAddresses.${index}.isBpe`)} className="accent-primary" />
+                    <input
+                      type="checkbox"
+                      {...register(`ipAddresses.${index}.isBpe`)}
+                      className="accent-primary"
+                    />
                     <span className="font-medium">{t('endpointModalBpeLabel')}</span>
                     <span className="text-slate-400">{t('endpointModalBpeDesc')}</span>
                   </label>
@@ -140,7 +216,11 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
             ))}
           </div>
         </div>
-        <ModalFooter onCancel={onClose} loading={isPending} submitLabel={endpointId ? t('endpointModalUpdateBtn') : t('endpointModalAddBtn')} />
+        <ModalFooter
+          onCancel={onClose}
+          loading={isPending}
+          submitLabel={endpointId ? t('endpointModalUpdateBtn') : t('endpointModalAddBtn')}
+        />
       </form>
     </Modal>
   );

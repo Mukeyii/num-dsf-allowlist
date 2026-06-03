@@ -1,9 +1,9 @@
 {
   "files": [
-    { "path": "./dist/assets/js/index-*.js",        "maxSize": "560 kB" },
+    { "path": "./dist/assets/js/index-*.js", "maxSize": "560 kB" },
     { "path": "./dist/assets/js/react-vendor-*.js", "maxSize": "240 kB" },
-    { "path": "./dist/assets/js/form-vendor-*.js",  "maxSize": "100 kB" },
+    { "path": "./dist/assets/js/form-vendor-*.js", "maxSize": "100 kB" },
     { "path": "./dist/assets/js/query-vendor-*.js", "maxSize": "50 kB" },
-    { "path": "./dist/assets/js/ui-vendor-*.js",    "maxSize": "40 kB" }
+    { "path": "./dist/assets/js/ui-vendor-*.js", "maxSize": "40 kB" }
   ]
 }

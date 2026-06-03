@@ -6,21 +6,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
-import { authApi }    from '../api/auth.api';
+import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
-import { jwtDecode }   from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useI18n } from '../stores/i18n.store';
 import { getErrorMessage } from '../lib/getErrorMessage';
 
 export function LoginPage() {
   const { t } = useI18n();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
-  const [email, setEmail]     = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
   const [certLoading, setCertLoading] = useState(false);
-  const [certError, setCertError]     = useState('');
+  const [certError, setCertError] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,10 +39,7 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout
-      title={t('signIn')}
-      subtitle={t('loginSubtitle')}
-    >
+    <AuthLayout title={t('signIn')} subtitle={t('loginSubtitle')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label
@@ -74,7 +71,9 @@ export function LoginPage() {
         </div>
 
         {error && (
-          <p className="text-xs" style={{ color: '#e05c5c' }}>{error}</p>
+          <p className="text-xs" style={{ color: '#e05c5c' }}>
+            {error}
+          </p>
         )}
 
         <button
@@ -94,11 +93,11 @@ export function LoginPage() {
       </form>
 
       <div className="mt-4 pt-4 border-t border-slate-200">
-        <p className="text-[11px] text-slate-500 mb-2 text-center">
-          {t('loginCertHint')}
-        </p>
+        <p className="text-[11px] text-slate-500 mb-2 text-center">{t('loginCertHint')}</p>
         {certError && (
-          <p className="text-xs mb-2 text-center" style={{ color: '#e05c5c' }}>{certError}</p>
+          <p className="text-xs mb-2 text-center" style={{ color: '#e05c5c' }}>
+            {certError}
+          </p>
         )}
         <button
           type="button"
@@ -119,7 +118,10 @@ export function LoginPage() {
             }
           }}
           className="w-full py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
-          style={{ cursor: certLoading ? 'not-allowed' : 'pointer', opacity: certLoading ? 0.6 : 1 }}
+          style={{
+            cursor: certLoading ? 'not-allowed' : 'pointer',
+            opacity: certLoading ? 0.6 : 1,
+          }}
         >
           {certLoading ? t('loginCertSigningIn') : t('loginCertBtn')}
         </button>

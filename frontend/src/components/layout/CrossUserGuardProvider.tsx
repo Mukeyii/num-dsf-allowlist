@@ -17,18 +17,20 @@ export function CrossUserGuardProvider({ children }: { children: ReactNode }) {
   const { data: instance } = useInstance(activeInstanceId);
   const ownerEmail = (instance as { owner_email?: string | null } | undefined)?.owner_email ?? null;
 
-  const isCrossUser =
-    !!me?.isAdmin && !!ownerEmail && !!me.email && ownerEmail !== me.email;
+  const isCrossUser = !!me?.isAdmin && !!ownerEmail && !!me.email && ownerEmail !== me.email;
 
   const [pending, setPending] = useState<null | (() => void | Promise<void>)>(null);
 
-  const guard: GuardFn = useCallback((action) => {
-    if (!isCrossUser) {
-      void action();
-      return;
-    }
-    setPending(() => action);
-  }, [isCrossUser]);
+  const guard: GuardFn = useCallback(
+    (action) => {
+      if (!isCrossUser) {
+        void action();
+        return;
+      }
+      setPending(() => action);
+    },
+    [isCrossUser],
+  );
 
   function confirm() {
     const action = pending;

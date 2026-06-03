@@ -8,7 +8,10 @@ import { api } from '../api/entities.api';
 export function useOrganization(instanceId: string | null) {
   return useQuery({
     queryKey: ['organization', instanceId],
-    queryFn: () => api(instanceId!).getOrganization().then(r => r.data.data),
+    queryFn: () =>
+      api(instanceId!)
+        .getOrganization()
+        .then((r) => r.data.data),
     enabled: !!instanceId,
     staleTime: 30_000,
   });

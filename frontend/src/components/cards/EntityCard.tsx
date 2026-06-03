@@ -18,8 +18,16 @@ interface EntityCardProps {
 }
 
 export function EntityCard({
-  id, title, borderColor, icon, iconColor, badge,
-  headerRight, onAdd, addLabel = '+ Add', children,
+  id,
+  title,
+  borderColor,
+  icon,
+  iconColor,
+  badge,
+  headerRight,
+  onAdd,
+  addLabel = '+ Add',
+  children,
 }: EntityCardProps) {
   const highlightedEntity = useCanvasStore((s) => s.highlightedEntity);
   const isHighlighted = highlightedEntity === id;
@@ -45,7 +53,9 @@ export function EntityCard({
             >
               {icon}
             </span>
-            <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+            <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>
+              {title}
+            </h3>
             {badge}
           </div>
         </div>

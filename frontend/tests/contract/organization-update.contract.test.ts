@@ -15,10 +15,18 @@ describe('contract: PUT /organization mutates an existing record', () => {
   it('a second PUT updates the city field', async () => {
     const id = `update-${Date.now()}.example.de`;
     await api.put(`/api/v1/instances/${instanceId}/organization`, {
-      identifier: id, name: 'Update Org', email: 'u@x.de', active: true, city: 'Münster',
+      identifier: id,
+      name: 'Update Org',
+      email: 'u@x.de',
+      active: true,
+      city: 'Münster',
     });
     await api.put(`/api/v1/instances/${instanceId}/organization`, {
-      identifier: id, name: 'Update Org', email: 'u@x.de', active: true, city: 'Heilbronn',
+      identifier: id,
+      name: 'Update Org',
+      email: 'u@x.de',
+      active: true,
+      city: 'Heilbronn',
     });
     const get = await api.get(`/api/v1/instances/${instanceId}/organization`);
     expect(get.data.data.city).toBe('Heilbronn');

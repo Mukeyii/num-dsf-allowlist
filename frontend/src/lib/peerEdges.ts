@@ -6,9 +6,9 @@
 import type { MapOrganization } from '../api/network.api';
 
 export interface PeerEdge {
-  from: string;     // org.identifier
-  to: string;       // org.identifier
-  verbund: string;  // parent_organization
+  from: string; // org.identifier
+  to: string; // org.identifier
+  verbund: string; // parent_organization
 }
 
 export function derivePeerEdges(orgs: MapOrganization[]): PeerEdge[] {
@@ -53,7 +53,9 @@ export function verbundColor(parentOrg: string): string {
   return KNOWN_VERBUND_COLORS[parentOrg] ?? '#64748b';
 }
 
-export function verbundCounts(orgs: import('../api/network.api').MapOrganization[]): Map<string, number> {
+export function verbundCounts(
+  orgs: import('../api/network.api').MapOrganization[],
+): Map<string, number> {
   const out = new Map<string, number>();
   for (const o of orgs) {
     const seen = new Set<string>();

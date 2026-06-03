@@ -50,7 +50,11 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
   return (
     <Modal open={open} onClose={onClose} title={t('marketplaceAdd')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField label={t('marketplaceFieldGitUrl')} required error={errors.gitUrl && t('marketplaceInvalidUrl')}>
+        <FormField
+          label={t('marketplaceFieldGitUrl')}
+          required
+          error={errors.gitUrl && t('marketplaceInvalidUrl')}
+        >
           <input
             {...register('gitUrl')}
             className={inputClass}
@@ -77,7 +81,11 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
           />
         </FormField>
 
-        <ModalFooter onCancel={onClose} loading={addMut.isPending} submitLabel={t('marketplaceAdd')} />
+        <ModalFooter
+          onCancel={onClose}
+          loading={addMut.isPending}
+          submitLabel={t('marketplaceAdd')}
+        />
       </form>
     </Modal>
   );

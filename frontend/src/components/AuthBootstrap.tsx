@@ -24,7 +24,11 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
     // Dev-only URL shortcut: ?devRole=admin|member forces a fresh dev-login.
     // Overrides any existing session so you can switch roles by URL.
     const devRole = import.meta.env.DEV
-      ? (new URLSearchParams(window.location.search).get('devRole') as 'admin' | 'member' | 'site' | null)
+      ? (new URLSearchParams(window.location.search).get('devRole') as
+          | 'admin'
+          | 'member'
+          | 'site'
+          | null)
       : null;
 
     async function devLoginAs(role: 'admin' | 'member' | 'site' | undefined) {
@@ -44,7 +48,9 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       useAuthStore.getState().clearAuth();
       queryClient.clear();
       devLoginAs(devRole)
-        .catch(() => { /* dev-login disabled — fall through to login page */ })
+        .catch(() => {
+          /* dev-login disabled — fall through to login page */
+        })
         .finally(() => setReady(true));
       return;
     }
@@ -58,7 +64,8 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
     // On failure in a Vite dev build, try DEV_AUTO_LOGIN as a last-resort
     // shortcut. The backend refuses unless NODE_ENV !== 'production' AND
     // DEV_AUTO_LOGIN === 'true', so this is a no-op in production.
-    authApi.refresh()
+    authApi
+      .refresh()
       .then((res) => {
         const accessToken = res.data.data.accessToken;
         const decoded: any = jwtDecode(accessToken);
@@ -70,8 +77,11 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       })
       .catch(async () => {
         if (!import.meta.env.DEV) return;
-        try { await devLoginAs(undefined); }
-        catch { /* dev-login disabled — fall through to login page */ }
+        try {
+          await devLoginAs(undefined);
+        } catch {
+          /* dev-login disabled — fall through to login page */
+        }
       })
       .finally(() => {
         setReady(true);
@@ -108,13 +118,13 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
     }
 
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'] as const;
-    events.forEach(event => document.addEventListener(event, resetTimers));
+    events.forEach((event) => document.addEventListener(event, resetTimers));
     resetTimers();
 
     return () => {
       clearTimeout(idleTimer);
       clearTimeout(warnTimer);
-      events.forEach(event => document.removeEventListener(event, resetTimers));
+      events.forEach((event) => document.removeEventListener(event, resetTimers));
     };
   }, [isAuthenticated]);
 

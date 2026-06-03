@@ -13,8 +13,22 @@ import { useI18n } from '../../stores/i18n.store';
 import { getErrorMessage } from '../../lib/getErrorMessage';
 
 interface SnapshotData {
-  organization?: { name?: string; identifier?: string; email?: string; city?: string; country_code?: string; active?: boolean; address_line?: string; postal_code?: string };
-  endpoints?: Array<{ identifier?: string; address?: string; name?: string; ips?: Array<{ ip: string; is_fhir?: boolean; is_bpe?: boolean }> }>;
+  organization?: {
+    name?: string;
+    identifier?: string;
+    email?: string;
+    city?: string;
+    country_code?: string;
+    active?: boolean;
+    address_line?: string;
+    postal_code?: string;
+  };
+  endpoints?: Array<{
+    identifier?: string;
+    address?: string;
+    name?: string;
+    ips?: Array<{ ip: string; is_fhir?: boolean; is_bpe?: boolean }>;
+  }>;
   certificates?: Array<{ subject?: string; thumbprint?: string; valid_until?: string }>;
   memberships?: Array<{ parent_organization?: string; roles?: string[]; endpoint_id?: string }>;
   contacts?: Array<{ name?: string; email?: string; types?: string[] }>;
@@ -69,11 +83,17 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
   const timeStr = request.submitted_at ?? request.created_at ?? '';
 
   const sigs = request.signatures ?? [];
-  const approvals = sigs.filter(s => s.decision === 'APPROVE');
-  const meSite = meEmail ? meEmail.split('@')[1]?.toLowerCase() ?? '' : '';
-  const alreadyDecidedByMe = !!meEmail && sigs.some(s => s.admin_email.toLowerCase() === meEmail.toLowerCase());
-  const sameSiteApprovalExists = !!meSite && approvals.some(s => s.admin_site === meSite);
-  const approveDisabled = approvals.length >= 2 || alreadyDecidedByMe || sameSiteApprovalExists || approveMut.isPending || rejectMut.isPending;
+  const approvals = sigs.filter((s) => s.decision === 'APPROVE');
+  const meSite = meEmail ? (meEmail.split('@')[1]?.toLowerCase() ?? '') : '';
+  const alreadyDecidedByMe =
+    !!meEmail && sigs.some((s) => s.admin_email.toLowerCase() === meEmail.toLowerCase());
+  const sameSiteApprovalExists = !!meSite && approvals.some((s) => s.admin_site === meSite);
+  const approveDisabled =
+    approvals.length >= 2 ||
+    alreadyDecidedByMe ||
+    sameSiteApprovalExists ||
+    approveMut.isPending ||
+    rejectMut.isPending;
   const silentConsentDate = approvals[0]
     ? new Date(new Date(approvals[0].signed_at).getTime() + 7 * 86400_000)
     : null;
@@ -122,58 +142,96 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
   const contacts = snapshot.contacts ?? [];
 
   return (
-    <div style={{
-      background: 'var(--bg-hover)',
-      border: '1px solid var(--border)',
-      borderRadius: '16px',
-      padding: '20px 24px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-    }}>
+    <div
+      style={{
+        background: 'var(--bg-hover)',
+        border: '1px solid var(--border)',
+        borderRadius: '16px',
+        padding: '20px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+      }}
+    >
       {/* Card header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '12px',
+        }}
+      >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <span style={{
-              fontFamily: 'Inter, system-ui, sans-serif',
-              fontSize: '15px',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-            }}>{orgName}</span>
-            <span style={{
-              fontFamily: 'monospace',
-              fontSize: '12px',
-              color: '#6c63ff',
-              background: '#ede9ff',
-              padding: '2px 8px',
-              borderRadius: '6px',
-            }}>{orgId}</span>
+            <span
+              style={{
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: '15px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+              }}
+            >
+              {orgName}
+            </span>
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                color: '#6c63ff',
+                background: '#ede9ff',
+                padding: '2px 8px',
+                borderRadius: '6px',
+              }}
+            >
+              {orgId}
+            </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
-            <span style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: '#b45309',
-              background: '#fef3c7',
-              padding: '2px 8px',
-              borderRadius: '20px',
-              letterSpacing: '0.02em',
-              textTransform: 'uppercase',
-            }}>{t('pending')}</span>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#b45309',
+                background: '#fef3c7',
+                padding: '2px 8px',
+                borderRadius: '20px',
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('pending')}
+            </span>
             {timeStr && (
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{relTime(timeStr)}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                {relTime(timeStr)}
+              </span>
             )}
           </div>
-          <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+          <div
+            style={{
+              marginTop: '8px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px',
+              alignItems: 'center',
+            }}
+          >
             <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
               {t('adminApprovals', { n: approvals.length })}
             </span>
-            {approvals.map(s => (
-              <span key={s.id} style={{
-                fontSize: '10px', padding: '2px 8px', borderRadius: '6px',
-                background: '#dcfce7', color: '#166534', fontFamily: 'monospace',
-              }}>
+            {approvals.map((s) => (
+              <span
+                key={s.id}
+                style={{
+                  fontSize: '10px',
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  background: '#dcfce7',
+                  color: '#166534',
+                  fontFamily: 'monospace',
+                }}
+              >
                 ✓ {s.admin_email} <span style={{ opacity: 0.6 }}>· {s.admin_site}</span>
               </span>
             ))}
@@ -191,10 +249,13 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
             onClick={handleApprove}
             disabled={approveDisabled}
             title={
-              approvals.length >= 2 ? t('adminAlreadyApproved2')
-              : alreadyDecidedByMe ? t('adminAlreadyDecided')
-              : sameSiteApprovalExists ? t('adminSameSiteApproval')
-              : undefined
+              approvals.length >= 2
+                ? t('adminAlreadyApproved2')
+                : alreadyDecidedByMe
+                  ? t('adminAlreadyDecided')
+                  : sameSiteApprovalExists
+                    ? t('adminSameSiteApproval')
+                    : undefined
             }
             style={{
               padding: '8px 16px',
@@ -236,21 +297,30 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
 
       {/* Reject comment panel */}
       {rejecting && (
-        <div style={{
-          background: '#fff5f5',
-          border: '1px solid #fecaca',
-          borderRadius: '10px',
-          padding: '14px 16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-        }}>
-          <label style={{ fontSize: '12px', fontWeight: 600, color: '#b91c1c', fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div
+          style={{
+            background: '#fff5f5',
+            border: '1px solid #fecaca',
+            borderRadius: '10px',
+            padding: '14px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <label
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#b91c1c',
+              fontFamily: 'Inter, system-ui, sans-serif',
+            }}
+          >
             {t('adminRejectionReasonLabel')}
           </label>
           <textarea
             value={comment}
-            onChange={e => setComment(e.target.value)}
+            onChange={(e) => setComment(e.target.value)}
             placeholder={t('adminRejectionReasonPlaceholder')}
             rows={3}
             style={{
@@ -285,7 +355,10 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
               {rejectMut.isPending ? t('adminRejectingBtn') : t('adminConfirmRejectBtn')}
             </button>
             <button
-              onClick={() => { setRejecting(false); setComment(''); }}
+              onClick={() => {
+                setRejecting(false);
+                setComment('');
+              }}
               disabled={rejectMut.isPending}
               style={{
                 padding: '7px 14px',
@@ -307,25 +380,35 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
 
       {/* TOTP confirmation input */}
       <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#6c63ff' }}>lock</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#6c63ff' }}>
+          lock
+        </span>
         <input
           type="text"
           value={totpCode}
-          onChange={e => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
           placeholder={t('adminTotpPlaceholder')}
           maxLength={6}
           style={{
-            width: '180px', padding: '8px 12px', borderRadius: '10px',
-            border: '1px solid #e2e8f0', fontSize: '14px', fontFamily: 'monospace',
-            letterSpacing: '4px', textAlign: 'center', outline: 'none',
+            width: '180px',
+            padding: '8px 12px',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0',
+            fontSize: '14px',
+            fontFamily: 'monospace',
+            letterSpacing: '4px',
+            textAlign: 'center',
+            outline: 'none',
           }}
         />
-        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{t('adminTotpRequired')}</span>
+        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+          {t('adminTotpRequired')}
+        </span>
       </div>
 
       {/* Expand toggle */}
       <button
-        onClick={() => setExpanded(v => !v)}
+        onClick={() => setExpanded((v) => !v)}
         style={{
           alignSelf: 'flex-start',
           display: 'flex',
@@ -352,16 +435,52 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
       {expanded && snapshot.organization && (
         <div style={{ marginTop: '8px', marginBottom: '4px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#ede9ff', color: '#6c63ff', fontWeight: 600 }}>
+            <span
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                background: '#ede9ff',
+                color: '#6c63ff',
+                fontWeight: 600,
+              }}
+            >
               {t('requestCardCountEndpoints', { n: (snapshot.endpoints || []).length })}
             </span>
-            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#fef9e7', color: '#b45309', fontWeight: 600 }}>
+            <span
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                background: '#fef9e7',
+                color: '#b45309',
+                fontWeight: 600,
+              }}
+            >
               {t('requestCardCountCertificates', { n: (snapshot.certificates || []).length })}
             </span>
-            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#e8f4fd', color: '#1d4ed8', fontWeight: 600 }}>
+            <span
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                background: '#e8f4fd',
+                color: '#1d4ed8',
+                fontWeight: 600,
+              }}
+            >
               {t('requestCardCountMemberships', { n: (snapshot.memberships || []).length })}
             </span>
-            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '6px', background: '#f0fff8', color: '#059669', fontWeight: 600 }}>
+            <span
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                background: '#f0fff8',
+                color: '#059669',
+                fontWeight: 600,
+              }}
+            >
               {t('requestCardCountContacts', { n: (snapshot.contacts || []).length })}
             </span>
           </div>
@@ -370,20 +489,41 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
 
       {/* Snapshot viewer */}
       {expanded && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '12px',
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '12px',
+          }}
+        >
           {/* Organization */}
           <SnapshotSection title={t('organization')} color="#6c63ff" icon="corporate_fare">
             {snapshot.organization ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <SnapshotField label={t('orgCardName')} value={snapshot.organization.name} />
-                <SnapshotField label={t('requestCardFieldId')} value={snapshot.organization.identifier} mono />
-                {snapshot.organization.email && <SnapshotField label={t('orgCardEmail')} value={String(snapshot.organization.email)} />}
-                {snapshot.organization.city && <SnapshotField label={t('orgCardCity')} value={String(snapshot.organization.city)} />}
-                {snapshot.organization.country_code && <SnapshotField label={t('mapDetailsCountry')} value={String(snapshot.organization.country_code)} />}
+                <SnapshotField
+                  label={t('requestCardFieldId')}
+                  value={snapshot.organization.identifier}
+                  mono
+                />
+                {snapshot.organization.email && (
+                  <SnapshotField
+                    label={t('orgCardEmail')}
+                    value={String(snapshot.organization.email)}
+                  />
+                )}
+                {snapshot.organization.city && (
+                  <SnapshotField
+                    label={t('orgCardCity')}
+                    value={String(snapshot.organization.city)}
+                  />
+                )}
+                {snapshot.organization.country_code && (
+                  <SnapshotField
+                    label={t('mapDetailsCountry')}
+                    value={String(snapshot.organization.country_code)}
+                  />
+                )}
               </div>
             ) : (
               <EmptyNote>{t('adminSnapshotNoOrg')}</EmptyNote>
@@ -391,25 +531,49 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           </SnapshotSection>
 
           {/* Endpoints */}
-          <SnapshotSection title={t('requestCardSectionEndpoints', { n: endpoints.length })} color="#3ecfb2" icon="dns">
+          <SnapshotSection
+            title={t('requestCardSectionEndpoints', { n: endpoints.length })}
+            color="#3ecfb2"
+            icon="dns"
+          >
             {endpoints.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {endpoints.map((ep, i) => (
                   <div key={i} style={{ borderLeft: '3px solid #3ecfb2', paddingLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{ep.name ?? ep.identifier ?? '—'}</div>
-                    <div style={{ fontSize: '11px', color: '#6b7280', fontFamily: 'monospace', wordBreak: 'break-all' }}>{ep.address}</div>
+                    <div
+                      style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}
+                    >
+                      {ep.name ?? ep.identifier ?? '—'}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        color: '#6b7280',
+                        fontFamily: 'monospace',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {ep.address}
+                    </div>
                     {ep.ips && ep.ips.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                      <div
+                        style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}
+                      >
                         {ep.ips.map((ip, j) => (
-                          <span key={j} style={{
-                            fontSize: '10px',
-                            fontFamily: 'monospace',
-                            background: '#e6faf7',
-                            color: '#0d9488',
-                            padding: '1px 6px',
-                            borderRadius: '4px',
-                          }}>
-                            {ip.ip}{ip.is_fhir ? ' [FHIR]' : ''}{ip.is_bpe ? ' [BPE]' : ''}
+                          <span
+                            key={j}
+                            style={{
+                              fontSize: '10px',
+                              fontFamily: 'monospace',
+                              background: '#e6faf7',
+                              color: '#0d9488',
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {ip.ip}
+                            {ip.is_fhir ? ' [FHIR]' : ''}
+                            {ip.is_bpe ? ' [BPE]' : ''}
                           </span>
                         ))}
                       </div>
@@ -423,17 +587,41 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           </SnapshotSection>
 
           {/* Certificates */}
-          <SnapshotSection title={t('requestCardSectionCertificates', { n: certificates.length })} color="#f5a623" icon="verified_user">
+          <SnapshotSection
+            title={t('requestCardSectionCertificates', { n: certificates.length })}
+            color="#f5a623"
+            icon="verified_user"
+          >
             {certificates.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {certificates.map((cert, i) => (
                   <div key={i} style={{ borderLeft: '3px solid #f5a623', paddingLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>{cert.subject ?? '—'}</div>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {cert.subject ?? '—'}
+                    </div>
                     {cert.thumbprint && (
-                      <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{cert.thumbprint}</div>
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          fontFamily: 'monospace',
+                          color: 'var(--text-muted)',
+                          wordBreak: 'break-all',
+                        }}
+                      >
+                        {cert.thumbprint}
+                      </div>
                     )}
                     {cert.valid_until && (
-                      <div style={{ fontSize: '11px', color: '#6b7280' }}>{t('adminSnapshotExpires', { date: cert.valid_until })}</div>
+                      <div style={{ fontSize: '11px', color: '#6b7280' }}>
+                        {t('adminSnapshotExpires', { date: cert.valid_until })}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -444,28 +632,52 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           </SnapshotSection>
 
           {/* Memberships */}
-          <SnapshotSection title={t('requestCardSectionMemberships', { n: memberships.length })} color="#4a90d9" icon="group_work">
+          <SnapshotSection
+            title={t('requestCardSectionMemberships', { n: memberships.length })}
+            color="#4a90d9"
+            icon="group_work"
+          >
             {memberships.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {memberships.map((m, i) => (
                   <div key={i} style={{ borderLeft: '3px solid #4a90d9', paddingLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{m.parent_organization ?? '—'}</div>
+                    <div
+                      style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}
+                    >
+                      {m.parent_organization ?? '—'}
+                    </div>
                     {m.roles && m.roles.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
+                      <div
+                        style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}
+                      >
                         {m.roles.map((role, j) => (
-                          <span key={j} style={{
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            background: '#e8f0fb',
-                            color: '#4a90d9',
-                            padding: '1px 6px',
-                            borderRadius: '4px',
-                          }}>{role}</span>
+                          <span
+                            key={j}
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              background: '#e8f0fb',
+                              color: '#4a90d9',
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {role}
+                          </span>
                         ))}
                       </div>
                     )}
                     {m.endpoint_id && (
-                      <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'var(--text-muted)', marginTop: '2px' }}>{m.endpoint_id}</div>
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          fontFamily: 'monospace',
+                          color: 'var(--text-muted)',
+                          marginTop: '2px',
+                        }}
+                      >
+                        {m.endpoint_id}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -478,20 +690,33 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
           {/* Contacts — spans full width if present */}
           {contacts.length > 0 && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <SnapshotSection title={t('requestCardSectionContacts', { n: contacts.length })} color="#8b5cf6" icon="contacts">
+              <SnapshotSection
+                title={t('requestCardSectionContacts', { n: contacts.length })}
+                color="#8b5cf6"
+                icon="contacts"
+              >
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {contacts.map((c, i) => (
-                    <div key={i} style={{
-                      background: '#f5f3ff',
-                      border: '1px solid #ddd6fe',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      minWidth: '160px',
-                    }}>
-                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>{c.name ?? '—'}</div>
+                    <div
+                      key={i}
+                      style={{
+                        background: '#f5f3ff',
+                        border: '1px solid #ddd6fe',
+                        borderRadius: '8px',
+                        padding: '6px 10px',
+                        minWidth: '160px',
+                      }}
+                    >
+                      <div
+                        style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}
+                      >
+                        {c.name ?? '—'}
+                      </div>
                       <div style={{ fontSize: '11px', color: '#6b7280' }}>{c.email}</div>
                       {c.types && c.types.length > 0 && (
-                        <div style={{ fontSize: '10px', color: '#8b5cf6', marginTop: '2px' }}>{c.types.join(', ')}</div>
+                        <div style={{ fontSize: '10px', color: '#8b5cf6', marginTop: '2px' }}>
+                          {c.types.join(', ')}
+                        </div>
                       )}
                     </div>
                   ))}
@@ -506,7 +731,10 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
 }
 
 function SnapshotSection({
-  title, color, icon, children,
+  title,
+  color,
+  icon,
+  children,
 }: {
   title: string;
   color: string;
@@ -514,15 +742,28 @@ function SnapshotSection({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{
-      background: 'var(--bg-card)',
-      border: '1px solid var(--border)',
-      borderRadius: '12px',
-      padding: '14px 16px',
-    }}>
+    <div
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
+        padding: '14px 16px',
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '16px', color }}>{icon}</span>
-        <span style={{ fontSize: '12px', fontWeight: 700, color, fontFamily: 'Inter, system-ui, sans-serif', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '16px', color }}>
+          {icon}
+        </span>
+        <span
+          style={{
+            fontSize: '12px',
+            fontWeight: 700,
+            color,
+            fontFamily: 'Inter, system-ui, sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+          }}
+        >
           {title}
         </span>
       </div>
@@ -531,23 +772,51 @@ function SnapshotSection({
   );
 }
 
-function SnapshotField({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
+function SnapshotField({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value?: string | null;
+  mono?: boolean;
+}) {
   return (
     <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline' }}>
-      <span style={{ fontSize: '11px', color: 'var(--text-muted)', minWidth: '50px', fontFamily: 'Inter, system-ui, sans-serif' }}>{label}</span>
-      <span style={{
-        fontSize: '12px',
-        color: 'var(--text-primary)',
-        fontFamily: mono ? 'monospace' : 'Inter, system-ui, sans-serif',
-        wordBreak: 'break-all',
-      }}>{value ?? '—'}</span>
+      <span
+        style={{
+          fontSize: '11px',
+          color: 'var(--text-muted)',
+          minWidth: '50px',
+          fontFamily: 'Inter, system-ui, sans-serif',
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: '12px',
+          color: 'var(--text-primary)',
+          fontFamily: mono ? 'monospace' : 'Inter, system-ui, sans-serif',
+          wordBreak: 'break-all',
+        }}
+      >
+        {value ?? '—'}
+      </span>
     </div>
   );
 }
 
 function EmptyNote({ children }: { children: React.ReactNode }) {
   return (
-    <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <span
+      style={{
+        fontSize: '12px',
+        color: 'var(--text-muted)',
+        fontStyle: 'italic',
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       {children}
     </span>
   );

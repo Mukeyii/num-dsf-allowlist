@@ -19,12 +19,17 @@ const server = setupServer(
   http.get('*/admin/approval/pending', () => {
     return HttpResponse.json({
       data: [
-        { id: 'req-1', status: 'PENDING', instance_id: 'inst-1', submitted_at: '2026-03-28T00:00:00Z' },
+        {
+          id: 'req-1',
+          status: 'PENDING',
+          instance_id: 'inst-1',
+          submitted_at: '2026-03-28T00:00:00Z',
+        },
       ],
     });
   }),
   http.post('*/admin/approval/:rid/approve', async ({ request }) => {
-    const body = await request.json() as Record<string, unknown>;
+    const body = (await request.json()) as Record<string, unknown>;
     if (!body.totpCode) {
       return HttpResponse.json(
         { error: { code: 'TOTP_REQUIRED', message: 'Authenticator code is required.' } },
@@ -34,7 +39,7 @@ const server = setupServer(
     return HttpResponse.json({ data: { id: 'req-1', status: 'APPROVED' } });
   }),
   http.post('*/admin/approval/:rid/reject', async ({ request }) => {
-    const body = await request.json() as Record<string, unknown>;
+    const body = (await request.json()) as Record<string, unknown>;
     if (!body.totpCode) {
       return HttpResponse.json(
         { error: { code: 'TOTP_REQUIRED', message: 'Authenticator code is required.' } },

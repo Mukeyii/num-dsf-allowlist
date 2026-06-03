@@ -12,10 +12,10 @@ export interface MeInfo {
 }
 
 export function useMe() {
-  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useQuery<MeInfo>({
     queryKey: ['me'],
-    queryFn: () => authApi.getMe().then(r => r.data.data),
+    queryFn: () => authApi.getMe().then((r) => r.data.data),
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000,
   });

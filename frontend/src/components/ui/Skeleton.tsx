@@ -1,10 +1,16 @@
-interface SkeletonProps { className?: string; lines?: number; }
+interface SkeletonProps {
+  className?: string;
+  lines?: number;
+}
 
 export function Skeleton({ className = '', lines = 3 }: SkeletonProps) {
   return (
     <div className="animate-pulse space-y-3">
       {Array.from({ length: lines }).map((_, i) => (
-        <div key={i} className={`h-3 bg-slate-100 rounded-full ${i === 0 ? 'w-3/4' : i % 2 === 0 ? 'w-1/2' : 'w-full'} ${className}`} />
+        <div
+          key={i}
+          className={`h-3 bg-slate-100 rounded-full ${i === 0 ? 'w-3/4' : i % 2 === 0 ? 'w-1/2' : 'w-full'} ${className}`}
+        />
       ))}
     </div>
   );

@@ -71,7 +71,11 @@ export function MarketplaceEditStatusModal({ open, onClose, entryId, currentStat
           />
         </FormField>
 
-        <ModalFooter onCancel={onClose} loading={updateMut.isPending} submitLabel={t('marketplaceEdit')} />
+        <ModalFooter
+          onCancel={onClose}
+          loading={updateMut.isPending}
+          submitLabel={t('marketplaceEdit')}
+        />
       </form>
     </Modal>
   );

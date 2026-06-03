@@ -2,10 +2,10 @@
  * RightPanel.tsx – Right panel 280px
  */
 import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
-import { useMemberships }   from '../../hooks/useMemberships';
-import { useCertificates }  from '../../hooks/useCertificates';
-import { ExpiryTimeline }   from './ExpiryTimeline';
-import { useI18n }          from '../../stores/i18n.store';
+import { useMemberships } from '../../hooks/useMemberships';
+import { useCertificates } from '../../hooks/useCertificates';
+import { ExpiryTimeline } from './ExpiryTimeline';
+import { useI18n } from '../../stores/i18n.store';
 
 export function RightPanel({ instanceId }: { instanceId: string | null }) {
   const { t } = useI18n();
@@ -16,16 +16,23 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
     if (diff === 1) return t('relAgoDays').replace('{n}', '1');
     return t('relAgoDays').replace('{n}', String(diff));
   }
-  const { data: approval }          = useApprovalStatus(instanceId);
-  const { data: history = [] }      = useApprovalHistory(instanceId);
-  const { data: memberships = [] }  = useMemberships(instanceId);
+  const { data: approval } = useApprovalStatus(instanceId);
+  const { data: history = [] } = useApprovalHistory(instanceId);
+  const { data: memberships = [] } = useMemberships(instanceId);
   const { data: certificates = [] } = useCertificates(instanceId);
 
   return (
-    <aside className="w-[280px] h-screen fixed right-0 top-0 flex flex-col p-6 gap-6 z-50" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
+    <aside
+      className="w-[280px] h-screen fixed right-0 top-0 flex flex-col p-6 gap-6 z-50"
+      style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}
+    >
       <div>
-        <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>{t('approvalStatus')}</h2>
-        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('overview')}</p>
+        <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          {t('approvalStatus')}
+        </h2>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          {t('overview')}
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -51,62 +58,87 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
             )}
           </div>
           {approval?.status === 'PENDING' && (
-            <p className="text-xs text-amber-700">
-              {t('awaitingVerification')}
-            </p>
+            <p className="text-xs text-amber-700">{t('awaitingVerification')}</p>
           )}
         </div>
       </div>
 
       <div className="space-y-2">
-        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{t('overview')}</p>
+        <p
+          className="text-[10px] font-bold uppercase tracking-widest"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {t('overview')}
+        </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl text-center" style={{ background: 'var(--bg-hover)' }}>
             <p className="text-lg font-bold text-primary">{certificates.length}</p>
-            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{t('certificates')}</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {t('certificates')}
+            </p>
           </div>
           <div className="p-3 rounded-xl text-center" style={{ background: 'var(--bg-hover)' }}>
             <p className="text-lg font-bold text-secondary">{memberships.length}</p>
-            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{t('memberships')}</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {t('memberships')}
+            </p>
           </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+        <p
+          className="text-[10px] font-bold uppercase tracking-widest mb-3"
+          style={{ color: 'var(--text-muted)' }}
+        >
           {t('recentActivity')}
         </p>
         <div className="space-y-3">
           {history.slice(0, 5).map((req: any) => (
             <div key={req.id} className="flex items-center gap-3">
-              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                req.status === 'APPROVED' ? 'bg-emerald-500' :
-                req.status === 'PENDING'  ? 'bg-amber-500'   :
-                req.status === 'REJECTED' ? 'bg-red-500'     : 'bg-slate-300'
-              }`} />
+              <div
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  req.status === 'APPROVED'
+                    ? 'bg-emerald-500'
+                    : req.status === 'PENDING'
+                      ? 'bg-amber-500'
+                      : req.status === 'REJECTED'
+                        ? 'bg-red-500'
+                        : 'bg-slate-300'
+                }`}
+              />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold">{t('approvalCardRequestNum', { n: req.id.slice(-4) })}</p>
+                <p className="text-xs font-bold">
+                  {t('approvalCardRequestNum', { n: req.id.slice(-4) })}
+                </p>
                 <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                   {relativeTime(req.submitted_at || req.created_at)}
                 </p>
               </div>
-              <span className={`text-[10px] font-bold ${
-                req.status === 'APPROVED' ? 'text-emerald-600' :
-                req.status === 'PENDING'  ? 'text-amber-600'   :
-                req.status === 'REJECTED' ? 'text-red-600'     : 'text-slate-400'
-              }`}>
+              <span
+                className={`text-[10px] font-bold ${
+                  req.status === 'APPROVED'
+                    ? 'text-emerald-600'
+                    : req.status === 'PENDING'
+                      ? 'text-amber-600'
+                      : req.status === 'REJECTED'
+                        ? 'text-red-600'
+                        : 'text-slate-400'
+                }`}
+              >
                 {req.status}
               </span>
             </div>
           ))}
           {history.length === 0 && (
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('noData')}</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              {t('noData')}
+            </p>
           )}
         </div>
       </div>
 
       <ExpiryTimeline instanceId={instanceId} />
-
     </aside>
   );
 }

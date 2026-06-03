@@ -7,10 +7,11 @@ import { networkApi, MapResponse } from '../api/network.api';
 export function useNetworkMap() {
   return useQuery<MapResponse>({
     queryKey: ['network', 'map'],
-    queryFn: () => networkApi.getMap().then(r => ({
-      organizations: r.data.data.organizations,
-      isAdmin: r.data.meta.isAdmin,
-    })),
+    queryFn: () =>
+      networkApi.getMap().then((r) => ({
+        organizations: r.data.data.organizations,
+        isAdmin: r.data.meta.isAdmin,
+      })),
     staleTime: 60_000,
   });
 }

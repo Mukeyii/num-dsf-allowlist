@@ -18,7 +18,9 @@ describe('organizationSchema', () => {
   });
 
   it('accepts a mixed-case FQDN (frontend is case-insensitive)', () => {
-    expect(organizationSchema.safeParse({ ...base, identifier: 'UKM.Example.de' }).success).toBe(true);
+    expect(organizationSchema.safeParse({ ...base, identifier: 'UKM.Example.de' }).success).toBe(
+      true,
+    );
   });
 
   it('rejects an identifier shorter than 3 chars', () => {

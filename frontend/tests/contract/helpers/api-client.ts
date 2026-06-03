@@ -47,7 +47,11 @@ async function request<T = any>(
   const text = await res.text();
   let data: any = null;
   if (text) {
-    try { data = JSON.parse(text); } catch { data = text; }
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
   }
   if (res.status >= 400) {
     const err: any = new Error(`HTTP ${res.status} ${method} ${url}: ${text.slice(0, 300)}`);
@@ -61,7 +65,10 @@ async function request<T = any>(
 export async function adminClient(): Promise<ContractClient> {
   if (!globalThis.__dsfContractAdminToken) {
     const login = await request<{ data: { accessToken: string } }>(
-      'POST', `${BASE}/auth/dev-login`, null, { role: 'admin' },
+      'POST',
+      `${BASE}/auth/dev-login`,
+      null,
+      { role: 'admin' },
     );
     globalThis.__dsfContractAdminToken = login.data.data.accessToken;
   }

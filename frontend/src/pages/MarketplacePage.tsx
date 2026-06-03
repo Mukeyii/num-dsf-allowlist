@@ -17,9 +17,9 @@ type Filter = 'ALL' | 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
 type Status = 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
 
 const STATUS_PILL: Record<Status, { bg: string; fg: string }> = {
-  APPROVED:     { bg: '#dfffe7', fg: '#106a3b' },
+  APPROVED: { bg: '#dfffe7', fg: '#106a3b' },
   EXPERIMENTAL: { bg: '#fff4d6', fg: '#8a5b00' },
-  DEPRECATED:   { bg: '#e9ecef', fg: '#495057' },
+  DEPRECATED: { bg: '#e9ecef', fg: '#495057' },
 };
 
 export function MarketplacePage() {
@@ -38,13 +38,13 @@ export function MarketplacePage() {
 
   const isAdmin = !!me?.isAdmin;
 
-  const filtered = filter === 'ALL' ? entries : entries.filter(e => e.status === filter);
+  const filtered = filter === 'ALL' ? entries : entries.filter((e) => e.status === filter);
 
   const FILTERS: { key: Filter; label: string }[] = [
-    { key: 'ALL',          label: t('marketplaceFilterAll') },
-    { key: 'APPROVED',     label: t('marketplaceStatusApproved') },
+    { key: 'ALL', label: t('marketplaceFilterAll') },
+    { key: 'APPROVED', label: t('marketplaceStatusApproved') },
     { key: 'EXPERIMENTAL', label: t('marketplaceStatusExperimental') },
-    { key: 'DEPRECATED',   label: t('marketplaceStatusDeprecated') },
+    { key: 'DEPRECATED', label: t('marketplaceStatusDeprecated') },
   ];
 
   async function handleDelete() {
@@ -64,12 +64,23 @@ export function MarketplacePage() {
   }
 
   return (
-    <div style={{ flex: 1, padding: '32px', overflowY: 'auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div
+      style={{
+        flex: 1,
+        padding: '32px',
+        overflowY: 'auto',
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>hub</span>
+        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+          hub
+        </span>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          <h1
+            style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}
+          >
             {t('marketplaceTitle')}
           </h1>
         </div>
@@ -78,8 +89,16 @@ export function MarketplacePage() {
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 20px' }} />
 
       {/* Filter chips + admin toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {FILTERS.map(f => (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '20px',
+          flexWrap: 'wrap',
+        }}
+      >
+        {FILTERS.map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
@@ -118,25 +137,30 @@ export function MarketplacePage() {
               gap: '6px',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+              add
+            </span>
             {t('marketplaceAdd')}
           </button>
         )}
       </div>
 
       {/* List */}
-      {isLoading && (
-        <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{t('loading')}</p>
-      )}
+      {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{t('loading')}</p>}
 
       {!isLoading && filtered.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '64px 32px',
-          color: 'var(--text-muted)',
-          fontSize: '14px',
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '40px', display: 'block', marginBottom: '12px', opacity: 0.4 }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '64px 32px',
+            color: 'var(--text-muted)',
+            fontSize: '14px',
+          }}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '40px', display: 'block', marginBottom: '12px', opacity: 0.4 }}
+          >
             deployed_code
           </span>
           {t('marketplaceEmpty')}
@@ -144,12 +168,14 @@ export function MarketplacePage() {
       )}
 
       {!isLoading && filtered.length > 0 && (
-        <div style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}>
+        <div
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          }}
+        >
           {filtered.map((entry, idx) => (
             <EntryRow
               key={entry.id}
@@ -157,7 +183,10 @@ export function MarketplacePage() {
               isLast={idx === filtered.length - 1}
               isAdmin={isAdmin}
               onEditStatus={() => setEditEntry({ id: entry.id, status: entry.status })}
-              onDelete={() => { setDeleteTarget(entry); setDeleteTotpCode(''); }}
+              onDelete={() => {
+                setDeleteTarget(entry);
+                setDeleteTotpCode('');
+              }}
             />
           ))}
         </div>
@@ -180,7 +209,10 @@ export function MarketplacePage() {
         <div
           role="dialog"
           aria-modal="true"
-          onClick={() => { setDeleteTarget(null); setDeleteTotpCode(''); }}
+          onClick={() => {
+            setDeleteTarget(null);
+            setDeleteTotpCode('');
+          }}
           style={{
             position: 'fixed',
             inset: 0,
@@ -192,7 +224,7 @@ export function MarketplacePage() {
           }}
         >
           <div
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
             style={{
               background: 'var(--bg-card)',
               borderRadius: '16px',
@@ -201,15 +233,29 @@ export function MarketplacePage() {
               width: '90%',
             }}
           >
-            <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            <h2
+              style={{
+                margin: '0 0 4px',
+                fontSize: '16px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+              }}
+            >
               {t('marketplaceConfirmDelete')}
             </h2>
-            <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+            <p
+              style={{
+                margin: '0 0 16px',
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                fontFamily: 'monospace',
+              }}
+            >
               {deleteTarget.name || deleteTarget.gitUrl}
             </p>
             <input
               value={deleteTotpCode}
-              onChange={e => setDeleteTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setDeleteTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
               maxLength={6}
               style={{
@@ -229,7 +275,10 @@ export function MarketplacePage() {
             />
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <button
-                onClick={() => { setDeleteTarget(null); setDeleteTotpCode(''); }}
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeleteTotpCode('');
+                }}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '10px',
@@ -292,13 +341,15 @@ function EntryRow({
   }
 
   return (
-    <div style={{
-      borderBottom: isLast ? 'none' : '1px solid var(--border)',
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '12px',
-      padding: '14px 18px',
-    }}>
+    <div
+      style={{
+        borderBottom: isLast ? 'none' : '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '12px',
+        padding: '14px 18px',
+      }}
+    >
       {/* Main link area */}
       <a
         href={entry.gitUrl}
@@ -318,46 +369,63 @@ function EntryRow({
           <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
             {entry.name || entry.gitUrl}
           </span>
-          <span style={{
-            fontSize: '10px',
-            fontWeight: 700,
-            padding: '2px 8px',
-            borderRadius: '20px',
-            background: pill.bg,
-            color: pill.fg,
-          }}>
+          <span
+            style={{
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: '20px',
+              background: pill.bg,
+              color: pill.fg,
+            }}
+          >
             {entry.status}
           </span>
           {entry.archived && (
-            <span style={{ fontSize: '10px', background: '#fde7e7', color: '#a01919', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 600 }}>
+            <span
+              style={{
+                fontSize: '10px',
+                background: '#fde7e7',
+                color: '#a01919',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginLeft: '6px',
+                fontWeight: 600,
+              }}
+            >
               Archived
             </span>
           )}
         </div>
 
         {entry.description && (
-          <p style={{
-            fontSize: '12px',
-            color: 'var(--text-secondary)',
-            margin: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
+          <p
+            style={{
+              fontSize: '12px',
+              color: 'var(--text-secondary)',
+              margin: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {entry.description}
           </p>
         )}
 
         {entry.topics.length > 0 && (
           <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {entry.topics.slice(0, 6).map(topic => (
-              <span key={topic} style={{
-                fontSize: '10px',
-                background: '#eef0f4',
-                color: '#5d6470',
-                padding: '2px 6px',
-                borderRadius: '10px',
-              }}>
+            {entry.topics.slice(0, 6).map((topic) => (
+              <span
+                key={topic}
+                style={{
+                  fontSize: '10px',
+                  background: '#eef0f4',
+                  color: '#5d6470',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                }}
+              >
                 {topic}
               </span>
             ))}
@@ -369,7 +437,16 @@ function EntryRow({
           </div>
         )}
 
-        <div style={{ fontSize: '10px', color: '#6c757d', marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div
+          style={{
+            fontSize: '10px',
+            color: '#6c757d',
+            marginTop: '6px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px',
+          }}
+        >
           {entry.language && <span>{entry.language}</span>}
           {entry.latestReleaseTag && <span>· {entry.latestReleaseTag}</span>}
           <span>· ★ {entry.stars}</span>
@@ -380,7 +457,9 @@ function EntryRow({
             <span>· {t('marketplaceSyncedAgo').replace('{ago}', relTime(entry.syncAt))}</span>
           )}
           {entry.lastCommitAt && (
-            <span>· {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt))}</span>
+            <span>
+              · {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt))}
+            </span>
           )}
           {entry.syncError && (
             <span style={{ color: '#ef4444' }}>{t('marketplaceSyncFailed')}</span>
@@ -395,8 +474,13 @@ function EntryRow({
             href={entry.homepage}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            style={{ fontSize: '10px', color: '#6c63ff', marginLeft: '8px', textDecoration: 'none' }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              fontSize: '10px',
+              color: '#6c63ff',
+              marginLeft: '8px',
+              textDecoration: 'none',
+            }}
             title={entry.homepage}
           >
             ↗ docs
@@ -404,34 +488,40 @@ function EntryRow({
         )}
         {isAdmin && (
           <>
-          <button
-            onClick={e => { e.stopPropagation(); onEditStatus(); }}
-            style={{
-              padding: '4px 10px',
-              border: '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              borderRadius: '6px',
-              fontSize: '11px',
-              cursor: 'pointer',
-              color: 'var(--text-primary)',
-            }}
-          >
-            {t('marketplaceEdit')}
-          </button>
-          <button
-            onClick={e => { e.stopPropagation(); onDelete(); }}
-            style={{
-              padding: '4px 10px',
-              border: '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              borderRadius: '6px',
-              fontSize: '11px',
-              cursor: 'pointer',
-              color: '#b91c1c',
-            }}
-          >
-            {t('marketplaceDelete')}
-          </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditStatus();
+              }}
+              style={{
+                padding: '4px 10px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card)',
+                borderRadius: '6px',
+                fontSize: '11px',
+                cursor: 'pointer',
+                color: 'var(--text-primary)',
+              }}
+            >
+              {t('marketplaceEdit')}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              style={{
+                padding: '4px 10px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card)',
+                borderRadius: '6px',
+                fontSize: '11px',
+                cursor: 'pointer',
+                color: '#b91c1c',
+              }}
+            >
+              {t('marketplaceDelete')}
+            </button>
           </>
         )}
       </div>

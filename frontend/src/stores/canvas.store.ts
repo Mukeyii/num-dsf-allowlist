@@ -3,7 +3,13 @@
  */
 import { create } from 'zustand';
 
-type EntityId = 'organization' | 'contacts' | 'endpoints' | 'certificates' | 'memberships' | 'approval';
+type EntityId =
+  | 'organization'
+  | 'contacts'
+  | 'endpoints'
+  | 'certificates'
+  | 'memberships'
+  | 'approval';
 
 interface CanvasState {
   activeInstanceId: string | null;

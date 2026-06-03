@@ -35,8 +35,6 @@ describe('ApprovalModal', () => {
     renderWithProviders(<ApprovalModal open onClose={() => {}} instanceId="i1" />);
     expect(screen.getByRole('heading', { name: /submit for approval/i })).toBeInTheDocument();
     // Submit button is disabled while the checklist has unmet items.
-    expect(
-      screen.getByRole('button', { name: /send request for approval/i }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: /send request for approval/i })).toBeDisabled();
   });
 });

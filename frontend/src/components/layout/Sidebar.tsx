@@ -4,20 +4,20 @@
  */
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuthStore }   from '../../stores/auth.store';
+import { useAuthStore } from '../../stores/auth.store';
 import { useCanvasStore } from '../../stores/canvas.store';
-import { useI18n }        from '../../stores/i18n.store';
-import { useInstances }   from '../../hooks/useInstance';
-import { useMe }          from '../../hooks/useMe';
-import { authApi }        from '../../api/auth.api';
+import { useI18n } from '../../stores/i18n.store';
+import { useInstances } from '../../hooks/useInstance';
+import { useMe } from '../../hooks/useMe';
+import { authApi } from '../../api/auth.api';
 import { InstanceCreateModal } from '../modals/InstanceCreateModal';
 
 export function Sidebar() {
-  const navigate          = useNavigate();
-  const user              = useAuthStore((s) => s.user);
-  const clearAuth         = useAuthStore((s) => s.clearAuth);
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const { data: instances = [] } = useInstances();
-  const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
+  const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
   const { t } = useI18n();
   const { data: me } = useMe();
@@ -29,20 +29,24 @@ export function Sidebar() {
   // children, so the user can see where they are without auto-opening.
   const isAdminRoute = pathname.startsWith('/app/admin') || pathname === '/app/audit';
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('dsf-pinned-instances') || '[]'); }
-    catch { return []; }
+    try {
+      return JSON.parse(localStorage.getItem('dsf-pinned-instances') || '[]');
+    } catch {
+      return [];
+    }
   });
 
   function togglePin(id: string) {
-    setPinnedIds(prev => {
-      const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+    setPinnedIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id];
       localStorage.setItem('dsf-pinned-instances', JSON.stringify(next));
       return next;
     });
   }
 
   const initials = (user?.email || '??').slice(0, 2).toUpperCase();
-  const activeLabel = instances.find((i: any) => i.id === activeInstanceId)?.label || t('noInstanceSelected');
+  const activeLabel =
+    instances.find((i: any) => i.id === activeInstanceId)?.label || t('noInstanceSelected');
 
   async function handleLogout() {
     try {
@@ -58,8 +62,10 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-[220px] h-screen fixed left-0 top-0 flex flex-col py-6 z-50" style={{ background: 'var(--bg-card)', borderRight: '1px solid var(--border)' }}>
-
+    <aside
+      className="w-[220px] h-screen fixed left-0 top-0 flex flex-col py-6 z-50"
+      style={{ background: 'var(--bg-card)', borderRight: '1px solid var(--border)' }}
+    >
       {/* Logo / Title */}
       <div className="px-6 mb-8">
         <div className="flex items-center gap-2">
@@ -77,63 +83,132 @@ export function Sidebar() {
 
         {/* Instance List with pin support */}
         <div style={{ padding: '0 4px', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', padding: '0 4px' }}>
-            <label style={{ fontSize: '9px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '6px',
+              padding: '0 4px',
+            }}
+          >
+            <label
+              style={{
+                fontSize: '9px',
+                fontWeight: 700,
+                color: '#94a3b8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}
+            >
               {t('instances')}
             </label>
             <button
               onClick={() => setShowCreate(true)}
-              style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '11px', fontWeight: 600, color: '#6c63ff', padding: '0' }}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: '11px',
+                fontWeight: 600,
+                color: '#6c63ff',
+                padding: '0',
+              }}
             >
               {t('newInstance')}
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', maxHeight: '200px', overflowY: 'auto' }}>
-            {[...instances].sort((a: any, b: any) => {
-              const aPinned = pinnedIds.includes(a.id);
-              const bPinned = pinnedIds.includes(b.id);
-              if (aPinned && !bPinned) return -1;
-              if (!aPinned && bPinned) return 1;
-              return 0;
-            }).map((inst: any) => {
-              const isPinned = pinnedIds.includes(inst.id);
-              const isActive = inst.id === activeInstanceId;
-              return (
-                <div
-                  key={inst.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 8px', borderRadius: '8px', cursor: 'pointer',
-                    background: isActive ? '#ede9ff' : 'transparent',
-                    transition: 'background 0.1s',
-                  }}
-                  onClick={() => { setActiveInstance(inst.id); navigate('/app'); }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)'; }}
-                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-                >
-                  {isPinned && (
-                    <span className="material-symbols-outlined" style={{ fontSize: '12px', color: '#f5a623', flexShrink: 0 }}>push_pin</span>
-                  )}
-                  <span style={{
-                    flex: 1, fontSize: '11px', fontWeight: isActive ? 700 : 500,
-                    color: isActive ? '#6c63ff' : 'var(--text-primary)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {inst.label}
-                  </span>
-                  <button
-                    onClick={e => { e.stopPropagation(); togglePin(inst.id); }}
-                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', display: 'flex', flexShrink: 0 }}
-                    title={isPinned ? 'Unpin' : 'Pin to top'}
-                    aria-label={isPinned ? 'Unpin instance' : 'Pin instance'}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2px',
+              maxHeight: '200px',
+              overflowY: 'auto',
+            }}
+          >
+            {[...instances]
+              .sort((a: any, b: any) => {
+                const aPinned = pinnedIds.includes(a.id);
+                const bPinned = pinnedIds.includes(b.id);
+                if (aPinned && !bPinned) return -1;
+                if (!aPinned && bPinned) return 1;
+                return 0;
+              })
+              .map((inst: any) => {
+                const isPinned = pinnedIds.includes(inst.id);
+                const isActive = inst.id === activeInstanceId;
+                return (
+                  <div
+                    key={inst.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 8px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      background: isActive ? '#ede9ff' : 'transparent',
+                      transition: 'background 0.1s',
+                    }}
+                    onClick={() => {
+                      setActiveInstance(inst.id);
+                      navigate('/app');
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.background = 'transparent';
+                    }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: isPinned ? '#f5a623' : '#d4d8e8' }}>
-                      push_pin
+                    {isPinned && (
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: '12px', color: '#f5a623', flexShrink: 0 }}
+                      >
+                        push_pin
+                      </span>
+                    )}
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: '11px',
+                        fontWeight: isActive ? 700 : 500,
+                        color: isActive ? '#6c63ff' : 'var(--text-primary)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {inst.label}
                     </span>
-                  </button>
-                </div>
-              );
-            })}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        togglePin(inst.id);
+                      }}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex',
+                        flexShrink: 0,
+                      }}
+                      title={isPinned ? 'Unpin' : 'Pin to top'}
+                      aria-label={isPinned ? 'Unpin instance' : 'Pin instance'}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: '14px', color: isPinned ? '#f5a623' : '#d4d8e8' }}
+                      >
+                        push_pin
+                      </span>
+                    </button>
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>
@@ -142,198 +217,277 @@ export function Sidebar() {
           and the IMI footer so the link list never overlaps the logo, no
           matter how many admin-only entries are visible. */}
       <nav style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-
-      {/* Dashboard link (all users) */}
-      <div style={{ padding: '0 16px', marginTop: '8px' }}>
-        <Link
-          to="/app"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 10px', borderRadius: '8px',
-            fontSize: '12px', fontWeight: 600,
-            textDecoration: 'none',
-            color: 'var(--text-secondary)',
-            background: 'transparent',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#b01e66'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>grid_view</span>
-          {t('dashboard')}
-        </Link>
-      </div>
-
-      {/* Administration — collapsible group, admins only. Defaults to closed
-          per design; when the active route is one of its children we highlight
-          the header so the user can see where they are without auto-opening. */}
-      {me?.isAdmin && (
+        {/* Dashboard link (all users) */}
         <div style={{ padding: '0 16px', marginTop: '8px' }}>
-          <button
-            type="button"
-            onClick={() => setAdminOpen(o => !o)}
-            aria-expanded={adminOpen}
+          <Link
+            to="/app"
             style={{
-              width: '100%',
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 10px', borderRadius: '8px',
-              border: 'none',
-              fontSize: '12px', fontWeight: 600,
-              textAlign: 'left', fontFamily: 'inherit',
-              cursor: 'pointer',
-              background: isAdminRoute && !adminOpen ? '#ede9ff' : 'transparent',
-              color: isAdminRoute && !adminOpen ? '#6c63ff' : 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 10px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
               transition: 'all 0.15s',
             }}
-            onMouseEnter={e => {
-              if (!(isAdminRoute && !adminOpen)) {
-                e.currentTarget.style.background = 'var(--bg-hover)';
-                e.currentTarget.style.color = '#6c63ff';
-              }
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-hover)';
+              e.currentTarget.style.color = '#b01e66';
             }}
-            onMouseLeave={e => {
-              if (!(isAdminRoute && !adminOpen)) {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = 'var(--text-secondary)';
-              }
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>admin_panel_settings</span>
-            <span style={{ flex: 1 }}>{t('sidebarAdminGroup')}</span>
-            <span
-              className="material-symbols-outlined"
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              grid_view
+            </span>
+            {t('dashboard')}
+          </Link>
+        </div>
+
+        {/* Administration — collapsible group, admins only. Defaults to closed
+          per design; when the active route is one of its children we highlight
+          the header so the user can see where they are without auto-opening. */}
+        {me?.isAdmin && (
+          <div style={{ padding: '0 16px', marginTop: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setAdminOpen((o) => !o)}
+              aria-expanded={adminOpen}
               style={{
-                fontSize: '18px',
-                transition: 'transform 0.2s ease',
-                transform: adminOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '12px',
+                fontWeight: 600,
+                textAlign: 'left',
+                fontFamily: 'inherit',
+                cursor: 'pointer',
+                background: isAdminRoute && !adminOpen ? '#ede9ff' : 'transparent',
+                color: isAdminRoute && !adminOpen ? '#6c63ff' : 'var(--text-secondary)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                if (!(isAdminRoute && !adminOpen)) {
+                  e.currentTarget.style.background = 'var(--bg-hover)';
+                  e.currentTarget.style.color = '#6c63ff';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!(isAdminRoute && !adminOpen)) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }
               }}
             >
-              chevron_right
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                admin_panel_settings
+              </span>
+              <span style={{ flex: 1 }}>{t('sidebarAdminGroup')}</span>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: '18px',
+                  transition: 'transform 0.2s ease',
+                  transform: adminOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                }}
+              >
+                chevron_right
+              </span>
+            </button>
+
+            {adminOpen && (
+              <div
+                style={{
+                  marginTop: '4px',
+                  marginLeft: '14px',
+                  paddingLeft: '10px',
+                  borderLeft: '1px solid var(--border)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                }}
+              >
+                {[
+                  { to: '/app/admin', icon: 'task_alt', label: t('approvalReview') },
+                  { to: '/app/admin/users', icon: 'group', label: t('sidebarUserManagement') },
+                  {
+                    to: '/app/admin/promotions',
+                    icon: 'verified_user',
+                    label: t('sidebarPromotions'),
+                  },
+                  { to: '/app/admin/ca-blacklist', icon: 'block', label: t('caBlacklistNavLabel') },
+                  {
+                    to: '/app/admin/bundle-versions',
+                    icon: 'history',
+                    label: t('bundleVersionsNavLabel'),
+                  },
+                  { to: '/app/audit', icon: 'fact_check', label: t('auditLog') },
+                ].map((item) => {
+                  const isActive = pathname === item.to;
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '7px 10px',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        fontWeight: isActive ? 700 : 500,
+                        textDecoration: 'none',
+                        color: isActive ? '#6c63ff' : 'var(--text-secondary)',
+                        background: isActive ? '#ede9ff' : 'transparent',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'var(--bg-hover)';
+                          e.currentTarget.style.color = '#6c63ff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--text-secondary)';
+                        }
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                        {item.icon}
+                      </span>
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Map link (all users) */}
+        <div style={{ padding: '0 16px', marginTop: '4px' }}>
+          <Link
+            to="/app/map"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 10px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-hover)';
+              e.currentTarget.style.color = '#b01e66';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              hub
             </span>
-          </button>
-
-          {adminOpen && (
-            <div style={{
-              marginTop: '4px',
-              marginLeft: '14px',
-              paddingLeft: '10px',
-              borderLeft: '1px solid var(--border)',
-              display: 'flex', flexDirection: 'column', gap: '2px',
-            }}>
-              {[
-                { to: '/app/admin',                 icon: 'task_alt',      label: t('approvalReview') },
-                { to: '/app/admin/users',           icon: 'group',         label: t('sidebarUserManagement') },
-                { to: '/app/admin/promotions',      icon: 'verified_user', label: t('sidebarPromotions') },
-                { to: '/app/admin/ca-blacklist',    icon: 'block',         label: t('caBlacklistNavLabel') },
-                { to: '/app/admin/bundle-versions', icon: 'history',       label: t('bundleVersionsNavLabel') },
-                { to: '/app/audit',                 icon: 'fact_check',    label: t('auditLog') },
-              ].map(item => {
-                const isActive = pathname === item.to;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '7px 10px', borderRadius: '8px',
-                      fontSize: '12px', fontWeight: isActive ? 700 : 500,
-                      textDecoration: 'none',
-                      color: isActive ? '#6c63ff' : 'var(--text-secondary)',
-                      background: isActive ? '#ede9ff' : 'transparent',
-                      transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={e => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'var(--bg-hover)';
-                        e.currentTarget.style.color = '#6c63ff';
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = 'var(--text-secondary)';
-                      }
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{item.icon}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+            {t('networkMap')}
+          </Link>
         </div>
-      )}
 
-      {/* Map link (all users) */}
-      <div style={{ padding: '0 16px', marginTop: '4px' }}>
-        <Link
-          to="/app/map"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 10px', borderRadius: '8px',
-            fontSize: '12px', fontWeight: 600,
-            textDecoration: 'none',
-            color: 'var(--text-secondary)',
-            background: 'transparent',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#b01e66'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>hub</span>
-          {t('networkMap')}
-        </Link>
-      </div>
+        {/* Marketplace link (all authenticated users) */}
+        <div style={{ padding: '0 16px', marginTop: '4px' }}>
+          <Link
+            to="/app/marketplace"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 10px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-hover)';
+              e.currentTarget.style.color = '#6c63ff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              extension
+            </span>
+            {t('sidebarMarketplace')}
+          </Link>
+        </div>
 
-      {/* Marketplace link (all authenticated users) */}
-      <div style={{ padding: '0 16px', marginTop: '4px' }}>
-        <Link
-          to="/app/marketplace"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 10px', borderRadius: '8px',
-            fontSize: '12px', fontWeight: 600,
-            textDecoration: 'none',
-            color: 'var(--text-secondary)',
-            background: 'transparent',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>extension</span>
-          {t('sidebarMarketplace')}
-        </Link>
-      </div>
-
-      {/* Status link */}
-      <div style={{ padding: '0 16px', marginTop: '4px' }}>
-        <Link
-          to="/app/status"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 10px', borderRadius: '8px',
-            fontSize: '12px', fontWeight: 600,
-            textDecoration: 'none',
-            color: 'var(--text-secondary)',
-            background: 'transparent',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = '#6c63ff'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>dashboard</span>
-          {t('status')}
-        </Link>
-      </div>
-
+        {/* Status link */}
+        <div style={{ padding: '0 16px', marginTop: '4px' }}>
+          <Link
+            to="/app/status"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 10px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-hover)';
+              e.currentTarget.style.color = '#6c63ff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              dashboard
+            </span>
+            {t('status')}
+          </Link>
+        </div>
       </nav>
 
       {/* IMI Logo */}
       <div style={{ padding: '0 16px 12px' }}>
-        <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
-          <img src="/logos/IMI-Logo-grad-eng.png" alt="IMI" style={{ width: '100%', opacity: 0.7 }} />
+        <a
+          href="https://www.medizin.uni-muenster.de/imi/das-institut.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src="/logos/IMI-Logo-grad-eng.png"
+            alt="IMI"
+            style={{ width: '100%', opacity: 0.7 }}
+          />
         </a>
       </div>
 
