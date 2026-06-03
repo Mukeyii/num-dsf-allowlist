@@ -106,7 +106,7 @@ jobs:
           openssl rsa -in /tmp/jwt_private.pem -pubout > /tmp/jwt_public.pem
           echo "JWT_PRIVATE_KEY_BASE64=$(base64 -w0 /tmp/jwt_private.pem)" >> $GITHUB_ENV
           echo "JWT_PUBLIC_KEY_BASE64=$(base64 -w0 /tmp/jwt_public.pem)" >> $GITHUB_ENV
-      - run: npm test
+      - run: npm run test:coverage
 
   frontend-lint:
     name: Frontend Lint

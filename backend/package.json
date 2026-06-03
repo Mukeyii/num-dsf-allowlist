@@ -11,6 +11,7 @@
     "migrate": "node -r ts-node/register src/db/migrate.ts",
     "sync:cas": "node -r ts-node/register/transpile-only src/scripts/sync-mozilla-cas.ts",
     "test": "NODE_ENV=test jest --forceExit --detectOpenHandles",
+    "test:coverage": "NODE_ENV=test jest --coverage --forceExit --detectOpenHandles",
     "test:watch": "jest --watch --forceExit --detectOpenHandles"
   },
   "dependencies": {
