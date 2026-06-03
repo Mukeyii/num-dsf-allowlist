@@ -22,6 +22,8 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-require-imports': 'off',
+      // Express Request augmentation requires `declare global { namespace Express }`.
+      '@typescript-eslint/no-namespace': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
       'no-empty': ['warn', { allowEmptyCatch: true }],
       'no-useless-escape': 'warn',
