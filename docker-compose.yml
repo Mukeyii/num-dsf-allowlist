@@ -4,8 +4,8 @@ services:
   nginx:
     build: ./nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -47,7 +47,7 @@ services:
     # gives ts-node-dev a generous window to spin up before the probe
     # starts counting failures.
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health/live || exit 1"]
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/health/live || exit 1']
       interval: 5s
       timeout: 3s
       retries: 12
@@ -73,7 +73,17 @@ services:
       - mysql-data:/var/lib/mysql
       - ./db/migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}"]
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u',
+          'root',
+          '-p${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}',
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -84,7 +94,7 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -93,7 +103,7 @@ services:
   mail:
     image: mailhog/mailhog:v1.0.1
     ports:
-      - "127.0.0.1:8025:8025"
+      - '127.0.0.1:8025:8025'
     restart: unless-stopped
 
 volumes:
