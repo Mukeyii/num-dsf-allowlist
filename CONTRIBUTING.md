@@ -51,6 +51,24 @@ container, which already reaches MySQL and Redis on the compose network:
 docker compose exec backend npx jest --forceExit <pattern>
 ```
 
+## Developer tooling
+
+- **Lint:** `npm run lint` (and `npm run lint:fix`) in `backend/` and `frontend/`
+  runs ESLint. CI runs it too; warnings are allowed, errors fail the build.
+- **Format:** Prettier owns formatting. `npm run format` (repo root) writes,
+  `npm run format:check` verifies, and CI fails on unformatted files. The one-time
+  reformat is listed in `.git-blame-ignore-revs` — wire it up locally with
+  `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
+- **Git hooks:** husky installs a pre-commit hook (lint-staged runs Prettier on
+  staged files) and a commit-msg hook (commitlint enforces Conventional Commits).
+  They install on `npm install` at the repo root.
+- **Dependencies:** Dependabot opens grouped weekly PRs for backend, frontend, and
+  GitHub Actions. `npm audit --audit-level=high` gates CI; the frontend uses
+  better-npm-audit to exclude a single vitest-UI advisory that CI never exercises.
+- **Coverage:** `npm run test:coverage` in each workspace enforces minimum coverage
+  thresholds (also enforced in CI). Thresholds are set at the current floor and
+  ratchet upward over time.
+
 ## Conventions
 
 - **Branches:** never commit feature work directly to `main` in a fork; open a
@@ -67,9 +85,11 @@ docker compose exec backend npx jest --forceExit <pattern>
 
 ## Pull requests
 
-CI must be green before merge. The pipeline runs backend + frontend lint and
-tests, the contract suite, Playwright E2E with visual regression, a bundle-size
-check, and a Docker build. See `.github/workflows/ci.yml`.
+CI must be green before merge. The pipeline runs backend + frontend type-check,
+ESLint, and tests (with coverage thresholds), a Prettier format check, a
+high-severity `npm audit` gate, the contract suite, Playwright E2E with visual
+regression, a bundle-size check, and a Docker build. See
+`.github/workflows/ci.yml`.
 
 Architecture decisions are recorded under [`docs/adr/`](docs/adr/); when a change
 alters a recorded decision, add or supersede the relevant ADR.
