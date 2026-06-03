@@ -10,12 +10,14 @@ import { useModals } from '../../../hooks/useModals';
 
 vi.mock('../../../hooks/useEndpoints', () => ({
   useEndpoints: () => ({
-    data: [{
-      identifier: 'fhir.ukm.de',
-      name: 'UKM FHIR',
-      address: 'https://fhir.ukm.de/fhir',
-      ipAddresses: [{ id: 'ip1', ip: '10.0.0.1', isFhir: true, isBpe: false }],
-    }],
+    data: [
+      {
+        identifier: 'fhir.ukm.de',
+        name: 'UKM FHIR',
+        address: 'https://fhir.ukm.de/fhir',
+        ipAddresses: [{ id: 'ip1', ip: '10.0.0.1', isFhir: true, isBpe: false }],
+      },
+    ],
     isLoading: false,
   }),
   useDeleteEndpoint: () => ({ mutate: vi.fn(), mutateAsync: vi.fn() }),

@@ -25,8 +25,8 @@ describe('contract: POST /endpoints round-trips ipAddresses', () => {
       name: 'Test Endpoint',
       address: 'https://fhir.example.de/dsf',
       ipAddresses: [
-        { ip: '192.168.1.10', isFhir: true,  isBpe: false },
-        { ip: '192.168.1.11', isFhir: false, isBpe: true  },
+        { ip: '192.168.1.10', isFhir: true, isBpe: false },
+        { ip: '192.168.1.11', isFhir: false, isBpe: true },
       ],
     };
 

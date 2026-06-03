@@ -23,13 +23,13 @@ if (import.meta.env.VITE_DEMO === 'true') {
     isAuthenticated: true,
   });
   // Register axios interceptor that serves mock responses for failed requests
-  import('./api/mock-adapter').then(m => m.setupMockAdapter());
+  import('./api/mock-adapter').then((m) => m.setupMockAdapter());
 }
 
 // Axios interceptors – token refresh + global error handling
 axios.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+  async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
 
@@ -65,7 +65,7 @@ axios.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 const queryClient = new QueryClient({
@@ -100,5 +100,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <ToastProvider />
       </QueryClientProvider>
     </ErrorBoundary>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

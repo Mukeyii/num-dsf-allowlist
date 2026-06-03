@@ -19,20 +19,24 @@ export function useInstance(instanceId: string | null) {
   return useQuery<InstanceRow>({
     queryKey: ['instances', instanceId],
     queryFn: () =>
-      api(instanceId!).getInstance(instanceId!).then(r => r.data.data as InstanceRow),
+      api(instanceId!)
+        .getInstance(instanceId!)
+        .then((r) => r.data.data as InstanceRow),
     enabled: !!user && !!instanceId,
   });
 }
 
 export function useInstances() {
   const setActiveInstance = useCanvasStore((s) => s.setActiveInstance);
-  const activeInstanceId  = useCanvasStore((s) => s.activeInstanceId);
+  const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
   const user = useAuthStore((s) => s.user);
 
   const query = useQuery({
     queryKey: ['instances'],
     queryFn: () =>
-      api('_').getInstances().then(r => r.data.data as { id: string; label: string }[]),
+      api('_')
+        .getInstances()
+        .then((r) => r.data.data as { id: string; label: string }[]),
     enabled: !!user,
   });
 

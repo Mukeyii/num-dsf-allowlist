@@ -12,7 +12,16 @@ vi.mock('../../api/bundleVersions.api', () => ({
     list: vi.fn().mockResolvedValue({
       data: {
         data: [
-          { id: 'v1', version_number: 7, created_at: '2026-05-01T00:00:00Z', triggered_by: 'APPROVAL', triggered_by_email: 'admin@example.com', content_hash: 'abc', notes: null, approval_request_id: null },
+          {
+            id: 'v1',
+            version_number: 7,
+            created_at: '2026-05-01T00:00:00Z',
+            triggered_by: 'APPROVAL',
+            triggered_by_email: 'admin@example.com',
+            content_hash: 'abc',
+            notes: null,
+            approval_request_id: null,
+          },
         ],
         meta: { page: 1, limit: 50, total: 1, pages: 1 },
       },

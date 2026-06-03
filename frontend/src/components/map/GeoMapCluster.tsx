@@ -8,10 +8,10 @@ import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
 import { cityBucketKey } from '../../lib/germanCities';
 
 const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
-  VALID:    '#22c55e',
+  VALID: '#22c55e',
   EXPIRING: '#f5a623',
-  EXPIRED:  '#ef4444',
-  NONE:     '#94a3b8',
+  EXPIRED: '#ef4444',
+  NONE: '#94a3b8',
 };
 
 const SLATE = '#475569';
@@ -22,7 +22,7 @@ interface Props {
   y: number;
   isHovered: boolean;
   isSelected: boolean;
-  matchedCount: number;       // ≤ group.members.length when filters trim members
+  matchedCount: number; // ≤ group.members.length when filters trim members
   onSelect: (clusterKey: string) => void;
   onHover: (clusterKey: string | null) => void;
 }
@@ -35,7 +35,16 @@ function cityInitials(city: string | null): string {
   return (city ?? '?').slice(0, 2).toUpperCase();
 }
 
-export function GeoMapCluster({ group, x, y, isHovered, isSelected, matchedCount, onSelect, onHover }: Props) {
+export function GeoMapCluster({
+  group,
+  x,
+  y,
+  isHovered,
+  isSelected,
+  matchedCount,
+  onSelect,
+  onHover,
+}: Props) {
   const r = isSelected ? 24 : isHovered ? 22 : 20;
   const initials = cityInitials(group.city);
   const key = clusterKeyOf(group);
@@ -45,16 +54,27 @@ export function GeoMapCluster({ group, x, y, isHovered, isSelected, matchedCount
   return (
     <g
       style={{ cursor: 'pointer' }}
-      onClick={e => { e.stopPropagation(); onSelect(key); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(key);
+      }}
       onMouseEnter={() => onHover(key)}
       onMouseLeave={() => onHover(null)}
     >
       {(isSelected || isHovered) && (
-        <circle cx={x} cy={y} r={r + 6} fill={SLATE} opacity={isSelected ? 0.20 : 0.10} />
+        <circle cx={x} cy={y} r={r + 6} fill={SLATE} opacity={isSelected ? 0.2 : 0.1} />
       )}
-      <circle cx={x} cy={y} r={r} fill="#ffffff" stroke={SLATE} strokeWidth={isSelected ? 2.5 : 2} />
+      <circle
+        cx={x}
+        cy={y}
+        r={r}
+        fill="#ffffff"
+        stroke={SLATE}
+        strokeWidth={isSelected ? 2.5 : 2}
+      />
       <text
-        x={x} y={y}
+        x={x}
+        y={y}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={12}
@@ -79,7 +99,14 @@ export function GeoMapCluster({ group, x, y, isHovered, isSelected, matchedCount
         {visible < total ? `${visible}/${total}` : `${total}`}
       </text>
       {/* Worst-status mini-dot bottom-right */}
-      <circle cx={x + r * 0.7} cy={y + r * 0.7} r={4} fill={worstColor} stroke="#ffffff" strokeWidth={1} />
+      <circle
+        cx={x + r * 0.7}
+        cy={y + r * 0.7}
+        r={4}
+        fill={worstColor}
+        stroke="#ffffff"
+        strokeWidth={1}
+      />
     </g>
   );
 }

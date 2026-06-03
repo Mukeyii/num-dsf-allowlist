@@ -8,7 +8,10 @@ import { api } from '../api/entities.api';
 export function useEndpoints(instanceId: string | null) {
   return useQuery({
     queryKey: ['endpoints', instanceId],
-    queryFn: () => api(instanceId!).getEndpoints().then(r => r.data.data),
+    queryFn: () =>
+      api(instanceId!)
+        .getEndpoints()
+        .then((r) => r.data.data),
     enabled: !!instanceId,
     staleTime: 30_000,
   });
@@ -28,7 +31,8 @@ export function useCreateEndpoint(instanceId: string) {
 export function useUpdateEndpoint(instanceId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: object }) => api(instanceId).updateEndpoint(id, data),
+    mutationFn: ({ id, data }: { id: string; data: object }) =>
+      api(instanceId).updateEndpoint(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });

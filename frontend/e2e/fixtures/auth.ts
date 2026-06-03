@@ -12,7 +12,10 @@ const RATE_LIMIT_BACKOFF_MS = process.env.CI ? 500 : 15_000;
  * Logs in via the dev-login URL shortcut (DEV_AUTO_LOGIN=true on backend).
  * AuthBootstrap.tsx handles ?devRole=… by clearing auth + calling /auth/dev-login.
  */
-export async function loginAs(page: Page, role: 'admin' | 'member' | 'site' = 'admin'): Promise<void> {
+export async function loginAs(
+  page: Page,
+  role: 'admin' | 'member' | 'site' = 'admin',
+): Promise<void> {
   for (let attempt = 0; attempt < 3; attempt++) {
     await page.goto(`/?devRole=${role}`);
     try {

@@ -5,7 +5,9 @@
 import { z } from 'zod';
 
 export const marketplaceAddFormSchema = z.object({
-  gitUrl: z.string().regex(/^https:\/\/github\.com\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+(?:\.git)?\/?$/, 'invalid'),
+  gitUrl: z
+    .string()
+    .regex(/^https:\/\/github\.com\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+(?:\.git)?\/?$/, 'invalid'),
   status: z.enum(['APPROVED', 'EXPERIMENTAL', 'DEPRECATED']).default('APPROVED'),
   totpCode: z.string().length(6),
 });

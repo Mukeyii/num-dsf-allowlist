@@ -22,7 +22,14 @@ describe('EntityCard', () => {
   it('fires onAdd when the add button is clicked', async () => {
     const onAdd = vi.fn();
     renderWithProviders(
-      <EntityCard id="c" title="Contacts" borderColor="#000" icon="x" onAdd={onAdd} addLabel="+ Add">
+      <EntityCard
+        id="c"
+        title="Contacts"
+        borderColor="#000"
+        icon="x"
+        onAdd={onAdd}
+        addLabel="+ Add"
+      >
         <span />
       </EntityCard>,
     );

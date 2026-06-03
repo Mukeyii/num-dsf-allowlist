@@ -6,10 +6,10 @@
 import { useState, useEffect } from 'react';
 import { OnboardingWizard } from './OnboardingWizard';
 import { OrganizationCard } from '../cards/OrganizationCard';
-import { ContactsCard }     from '../cards/ContactsCard';
-import { EndpointsCard }    from '../cards/EndpointsCard';
+import { ContactsCard } from '../cards/ContactsCard';
+import { EndpointsCard } from '../cards/EndpointsCard';
 import { CertificatesCard } from '../cards/CertificatesCard';
-import { MembershipsCard }  from '../cards/MembershipsCard';
+import { MembershipsCard } from '../cards/MembershipsCard';
 
 interface EntityCanvasProps {
   instanceId: string;
@@ -37,11 +37,21 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
       <div style={{ padding: '16px', flex: 1, overflowY: 'auto' }}>
         <OnboardingWizard instanceId={instanceId} />
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-organization"><OrganizationCard instanceId={instanceId} /></div>
-          <div id="card-contacts"><ContactsCard instanceId={instanceId} /></div>
-          <div id="card-endpoints"><EndpointsCard instanceId={instanceId} /></div>
-          <div id="card-memberships"><MembershipsCard instanceId={instanceId} /></div>
-          <div id="card-certificates"><CertificatesCard instanceId={instanceId} /></div>
+          <div id="card-organization">
+            <OrganizationCard instanceId={instanceId} />
+          </div>
+          <div id="card-contacts">
+            <ContactsCard instanceId={instanceId} />
+          </div>
+          <div id="card-endpoints">
+            <EndpointsCard instanceId={instanceId} />
+          </div>
+          <div id="card-memberships">
+            <MembershipsCard instanceId={instanceId} />
+          </div>
+          <div id="card-certificates">
+            <CertificatesCard instanceId={instanceId} />
+          </div>
         </div>
       </div>
     );
@@ -53,13 +63,23 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
         <OnboardingWizard instanceId={instanceId} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap, alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-            <div id="card-organization"><OrganizationCard instanceId={instanceId} /></div>
-            <div id="card-contacts"><ContactsCard instanceId={instanceId} /></div>
+            <div id="card-organization">
+              <OrganizationCard instanceId={instanceId} />
+            </div>
+            <div id="card-contacts">
+              <ContactsCard instanceId={instanceId} />
+            </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-            <div id="card-endpoints"><EndpointsCard instanceId={instanceId} /></div>
-            <div id="card-memberships"><MembershipsCard instanceId={instanceId} /></div>
-            <div id="card-certificates"><CertificatesCard instanceId={instanceId} /></div>
+            <div id="card-endpoints">
+              <EndpointsCard instanceId={instanceId} />
+            </div>
+            <div id="card-memberships">
+              <MembershipsCard instanceId={instanceId} />
+            </div>
+            <div id="card-certificates">
+              <CertificatesCard instanceId={instanceId} />
+            </div>
           </div>
         </div>
       </div>
@@ -70,22 +90,34 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
   return (
     <div style={{ padding: '16px', flex: 1, overflowY: 'auto' }}>
       <OnboardingWizard instanceId={instanceId} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap, alignItems: 'start' }}>
+      <div
+        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap, alignItems: 'start' }}
+      >
         {/* Column 1: Organization */}
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-organization"><OrganizationCard instanceId={instanceId} /></div>
+          <div id="card-organization">
+            <OrganizationCard instanceId={instanceId} />
+          </div>
         </div>
 
         {/* Column 2: Contacts + Endpoints */}
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-contacts"><ContactsCard instanceId={instanceId} /></div>
-          <div id="card-endpoints"><EndpointsCard instanceId={instanceId} /></div>
+          <div id="card-contacts">
+            <ContactsCard instanceId={instanceId} />
+          </div>
+          <div id="card-endpoints">
+            <EndpointsCard instanceId={instanceId} />
+          </div>
         </div>
 
         {/* Column 3: Memberships + Certificates */}
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-memberships"><MembershipsCard instanceId={instanceId} /></div>
-          <div id="card-certificates"><CertificatesCard instanceId={instanceId} /></div>
+          <div id="card-memberships">
+            <MembershipsCard instanceId={instanceId} />
+          </div>
+          <div id="card-certificates">
+            <CertificatesCard instanceId={instanceId} />
+          </div>
         </div>
       </div>
     </div>

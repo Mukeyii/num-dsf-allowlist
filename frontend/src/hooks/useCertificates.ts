@@ -8,7 +8,10 @@ import { api } from '../api/entities.api';
 export function useCertificates(instanceId: string | null) {
   return useQuery({
     queryKey: ['certificates', instanceId],
-    queryFn: () => api(instanceId!).getCertificates().then(r => r.data.data),
+    queryFn: () =>
+      api(instanceId!)
+        .getCertificates()
+        .then((r) => r.data.data),
     enabled: !!instanceId,
     staleTime: 30_000,
   });

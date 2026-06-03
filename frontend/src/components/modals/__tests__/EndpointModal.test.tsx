@@ -16,7 +16,9 @@ let endpointsArr: any[] = initialEndpoints();
 
 // Reset the mutable fixture before each test so order/shuffle cannot leak the
 // refetch test's mutation into the others.
-beforeEach(() => { endpointsArr = initialEndpoints(); });
+beforeEach(() => {
+  endpointsArr = initialEndpoints();
+});
 
 vi.mock('../../../hooks/useEndpoints', () => ({
   useEndpoints: () => ({ data: endpointsArr, isLoading: false }),
@@ -63,7 +65,9 @@ describe('EndpointModal', () => {
       </Wrapper>,
     );
 
-    const addressInput = screen.getByDisplayValue('https://orig.example.de/dsf') as HTMLInputElement;
+    const addressInput = screen.getByDisplayValue(
+      'https://orig.example.de/dsf',
+    ) as HTMLInputElement;
     // Set the value atomically — char-by-char typing races under CI load and
     // can truncate the string; this test only needs the field to hold an edit.
     fireEvent.change(addressInput, { target: { value: 'https://new.example.de/dsf' } });
@@ -77,8 +81,8 @@ describe('EndpointModal', () => {
       </Wrapper>,
     );
 
-    expect(
-      (screen.getByDisplayValue('https://new.example.de/dsf') as HTMLInputElement).value,
-    ).toBe('https://new.example.de/dsf');
+    expect((screen.getByDisplayValue('https://new.example.de/dsf') as HTMLInputElement).value).toBe(
+      'https://new.example.de/dsf',
+    );
   });
 });

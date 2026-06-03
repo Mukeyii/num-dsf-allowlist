@@ -6,7 +6,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { useI18n } from '../i18n.store';
 
 describe('useI18n', () => {
-  beforeEach(() => { useI18n.getState().setLang('en'); });
+  beforeEach(() => {
+    useI18n.getState().setLang('en');
+  });
 
   it('returns the English string by default', () => {
     expect(useI18n.getState().t('signIn')).toBe('Sign in');

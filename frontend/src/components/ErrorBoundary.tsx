@@ -4,8 +4,13 @@
  */
 import { Component, ErrorInfo, ReactNode } from 'react';
 
-interface Props { children: ReactNode; }
-interface State { hasError: boolean; error: Error | null; }
+interface Props {
+  children: ReactNode;
+}
+interface State {
+  hasError: boolean;
+  error: Error | null;
+}
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -30,7 +35,9 @@ export class ErrorBoundary extends Component<Props, State> {
               <span className="material-symbols-outlined text-red-500 text-[28px]">error</span>
             </div>
             <h1 className="text-lg font-bold text-slate-900 mb-2">Something went wrong</h1>
-            <p className="text-sm text-slate-500 mb-2">An unexpected error occurred. Please reload the page.</p>
+            <p className="text-sm text-slate-500 mb-2">
+              An unexpected error occurred. Please reload the page.
+            </p>
             {import.meta.env.DEV && this.state.error && (
               <pre className="text-left text-[10px] font-mono bg-slate-50 rounded-xl p-3 text-red-700 overflow-auto max-h-32 mb-4">
                 {this.state.error.message}

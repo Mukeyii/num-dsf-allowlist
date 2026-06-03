@@ -10,7 +10,11 @@ import { useThemeStore } from '../../stores/theme.store';
 
 const ENV = import.meta.env.VITE_DSF_ENVIRONMENT || 'TEST';
 
-export function TopBar({ onDownload, onApproval, showInstanceActions = false }: {
+export function TopBar({
+  onDownload,
+  onApproval,
+  showInstanceActions = false,
+}: {
   onDownload: () => void;
   onApproval: () => void;
   showInstanceActions?: boolean;
@@ -19,12 +23,21 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
   const { dark, toggleTheme } = useThemeStore();
   const navigate = useNavigate();
   return (
-    <div className="flex items-center justify-between px-6 py-3 flex-shrink-0 z-40" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
+    <div
+      className="flex items-center justify-between px-6 py-3 flex-shrink-0 z-40"
+      style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}
+    >
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           className="transition-colors"
-          style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', color: 'var(--text-muted)' }}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: '4px',
+            color: 'var(--text-muted)',
+          }}
           title={t('ariaGoBack')}
           aria-label={t('ariaGoBack')}
         >
@@ -33,7 +46,13 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
         <button
           onClick={() => navigate(1)}
           className="transition-colors"
-          style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '4px', color: 'var(--text-muted)' }}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: '4px',
+            color: 'var(--text-muted)',
+          }}
           title={t('ariaGoForward')}
           aria-label={t('ariaGoForward')}
         >
@@ -50,14 +69,42 @@ export function TopBar({ onDownload, onApproval, showInstanceActions = false }: 
 
       <div className="flex items-center gap-3">
         {/* Theme toggle */}
-        <button onClick={toggleTheme} aria-label={t('ariaToggleTheme')} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px' }} title={dark ? t('lightMode') : t('darkMode')}>
-          <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--text-secondary)' }}>
+        <button
+          onClick={toggleTheme}
+          aria-label={t('ariaToggleTheme')}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: '6px',
+            borderRadius: '8px',
+          }}
+          title={dark ? t('lightMode') : t('darkMode')}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '20px', color: 'var(--text-secondary)' }}
+          >
             {dark ? 'light_mode' : 'dark_mode'}
           </span>
         </button>
 
         {/* Language toggle */}
-        <button onClick={() => setLang(lang === 'en' ? 'de' : 'en')} aria-label={t('ariaToggleLanguage')} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '6px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }} title={lang === 'en' ? 'Deutsch' : 'English'}>
+        <button
+          onClick={() => setLang(lang === 'en' ? 'de' : 'en')}
+          aria-label={t('ariaToggleLanguage')}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: '6px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            fontWeight: 700,
+            color: 'var(--text-secondary)',
+          }}
+          title={lang === 'en' ? 'Deutsch' : 'English'}
+        >
           {lang.toUpperCase()}
         </button>
 

@@ -26,7 +26,11 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
       {/* IMI Logo — prominent, above card */}
       <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
-        <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://www.medizin.uni-muenster.de/imi/das-institut.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <img
             src="/logos/IMI-Logo-grad-eng.png"
             alt="Institute of Medical Informatics"
@@ -41,10 +45,16 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           dsf.
         </span>
         <div className="flex items-center justify-center gap-2 mt-2">
-          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Allow List Management</span>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            Allow List Management
+          </span>
           <span
             className="text-xs font-medium px-2 py-0.5 rounded-full border"
-            style={{ color: ENV_COLOR, borderColor: ENV_COLOR + '44', background: ENV_COLOR + '11' }}
+            style={{
+              color: ENV_COLOR,
+              borderColor: ENV_COLOR + '44',
+              background: ENV_COLOR + '11',
+            }}
           >
             {ENV}
           </span>
@@ -77,30 +87,42 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       </div>
 
       {/* Partner Logos — single elegant row with divider */}
-      <div style={{ marginTop: '44px', width: '100%', maxWidth: '560px', position: 'relative', zIndex: 1 }}>
+      <div
+        style={{
+          marginTop: '44px',
+          width: '100%',
+          maxWidth: '560px',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         {/* Divider with label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
           <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          <span style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: 'var(--text-muted)',
-          }}>
+          <span
+            style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+            }}
+          >
             In cooperation with
           </span>
           <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
         </div>
 
         {/* Partner row — uniform heights, muted until hover */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          gap: '28px',
-          flexWrap: 'wrap',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            gap: '28px',
+            flexWrap: 'wrap',
+          }}
+        >
           <img
             src="/logos/Logo UKM Münster.PNG"
             alt="UKM Münster"

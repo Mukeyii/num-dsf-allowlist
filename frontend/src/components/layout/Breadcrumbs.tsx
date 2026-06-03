@@ -24,11 +24,17 @@ export function Breadcrumbs() {
   if (segments.length <= 1) return null;
 
   return (
-    <nav style={{
-      display: 'flex', alignItems: 'center', gap: '6px',
-      padding: '8px 30px', fontSize: '12px', color: 'var(--text-muted)',
-      background: 'var(--bg-card)',
-    }}>
+    <nav
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '8px 30px',
+        fontSize: '12px',
+        color: 'var(--text-muted)',
+        background: 'var(--bg-card)',
+      }}
+    >
       {segments.map((seg, i) => {
         const path = '/' + segments.slice(0, i + 1).join('/');
         const label = ROUTE_LABELS[seg] || seg;
@@ -43,8 +49,8 @@ export function Breadcrumbs() {
               <Link
                 to={path}
                 style={{ color: '#6c63ff', textDecoration: 'none', fontWeight: 500 }}
-                onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
               >
                 {label}
               </Link>

@@ -7,8 +7,8 @@
 import { verbundColor, verbundLabel } from '../../lib/peerEdges';
 
 interface Props {
-  counts: Map<string, number>;       // parent_organization -> visible member count
-  active: Set<string>;                // parent_organizations toggled "on"
+  counts: Map<string, number>; // parent_organization -> visible member count
+  active: Set<string>; // parent_organizations toggled "on"
   onToggle: (parentOrg: string) => void;
 }
 
@@ -26,12 +26,17 @@ export function VerbundPills({ counts, active, onToggle }: Props) {
             key={parent}
             onClick={() => onToggle(parent)}
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              padding: '4px 10px', borderRadius: '999px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '999px',
               border: `1px solid ${on ? color : 'var(--border)'}`,
               background: on ? `${color}38` : 'transparent',
               color: on ? color : 'var(--text-secondary)',
-              fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: 600,
+              cursor: 'pointer',
               fontFamily: 'inherit',
             }}
           >

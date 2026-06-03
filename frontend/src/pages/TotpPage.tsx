@@ -4,23 +4,23 @@
  */
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthLayout }  from '../components/AuthLayout';
-import { authApi }     from '../api/auth.api';
+import { AuthLayout } from '../components/AuthLayout';
+import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
-import { jwtDecode }   from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useI18n } from '../stores/i18n.store';
 
 export function TotpPage() {
   const { t } = useI18n();
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const setTokens = useAuthStore((s) => s.setTokens);
 
   const { tempToken } = (location.state as any) || {};
 
-  const [code, setCode]         = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [useBackup, setUseBackup] = useState(false);
 
   useEffect(() => {
@@ -65,9 +65,7 @@ export function TotpPage() {
             autoFocus
             value={code}
             onChange={(e) =>
-              setCode(useBackup
-                ? e.target.value.toUpperCase()
-                : e.target.value.replace(/\D/g, ''))
+              setCode(useBackup ? e.target.value.toUpperCase() : e.target.value.replace(/\D/g, ''))
             }
             placeholder={useBackup ? 'XXXXXXXX' : '000000'}
             className="w-full px-3 py-2.5 text-center text-2xl font-mono tracking-widest outline-none"
@@ -81,7 +79,11 @@ export function TotpPage() {
           />
         </div>
 
-        {error && <p className="text-xs" style={{ color: '#e05c5c' }}>{error}</p>}
+        {error && (
+          <p className="text-xs" style={{ color: '#e05c5c' }}>
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
@@ -101,7 +103,11 @@ export function TotpPage() {
         <div className="text-center space-y-2">
           <button
             type="button"
-            onClick={() => { setUseBackup(!useBackup); setCode(''); setError(''); }}
+            onClick={() => {
+              setUseBackup(!useBackup);
+              setCode('');
+              setError('');
+            }}
             className="text-xs underline block mx-auto"
             style={{ color: '#9b9fad', background: 'none', border: 'none', cursor: 'pointer' }}
           >

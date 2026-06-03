@@ -18,8 +18,8 @@ import type { PeerEdge } from '../../lib/peerEdges';
 
 interface Props {
   edges: PeerEdge[];
-  endpointPos: Map<string, [number, number]>;  // org.identifier -> [x, y]
-  selectedId: string | null;                    // pin id OR cluster key
+  endpointPos: Map<string, [number, number]>; // org.identifier -> [x, y]
+  selectedId: string | null; // pin id OR cluster key
   hoveredId: string | null;
   activeVerbunds: Set<string>;
   showAllEdges: boolean;
@@ -29,16 +29,25 @@ interface Props {
 }
 
 function bezierBetween(x1: number, y1: number, x2: number, y2: number, idx: number): string {
-  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-  const dx = x2 - x1, dy = y2 - y1;
+  const mx = (x1 + x2) / 2,
+    my = (y1 + y2) / 2;
+  const dx = x2 - x1,
+    dy = y2 - y1;
   const len = Math.sqrt(dx * dx + dy * dy) || 1;
-  const nx = -dy / len, ny = dx / len;
+  const nx = -dy / len,
+    ny = dx / len;
   const offset = 0.18 * len * (idx % 2 === 0 ? 1 : -1);
   return `M ${x1} ${y1} Q ${mx + nx * offset} ${my + ny * offset} ${x2} ${y2}`;
 }
 
 export function GeoMapEdges({
-  edges, endpointPos, selectedId, hoveredId, activeVerbunds, showAllEdges, clusterKeyForOrg,
+  edges,
+  endpointPos,
+  selectedId,
+  hoveredId,
+  activeVerbunds,
+  showAllEdges,
+  clusterKeyForOrg,
 }: Props) {
   return (
     <g style={{ pointerEvents: 'none' }}>
@@ -50,14 +59,19 @@ export function GeoMapEdges({
         if (fromPos[0] === toPos[0] && fromPos[1] === toPos[1]) return null;
         const fromKey = clusterKeyForOrg(e.from) ?? e.from;
         const toKey = clusterKeyForOrg(e.to) ?? e.to;
-        const isSelectedEdge = selectedId !== null && (selectedId === fromKey || selectedId === toKey);
-        const isHoveredEdge  = hoveredId !== null && (hoveredId === fromKey || hoveredId === toKey);
-        const isVerbundEdge  = activeVerbunds.has(e.verbund);
-        const opacity = isSelectedEdge ? 0.9
-          : isVerbundEdge ? 0.6
-          : isHoveredEdge ? 0.6
-          : showAllEdges ? 0.4
-          : 0;
+        const isSelectedEdge =
+          selectedId !== null && (selectedId === fromKey || selectedId === toKey);
+        const isHoveredEdge = hoveredId !== null && (hoveredId === fromKey || hoveredId === toKey);
+        const isVerbundEdge = activeVerbunds.has(e.verbund);
+        const opacity = isSelectedEdge
+          ? 0.9
+          : isVerbundEdge
+            ? 0.6
+            : isHoveredEdge
+              ? 0.6
+              : showAllEdges
+                ? 0.4
+                : 0;
         if (opacity === 0) return null;
         return (
           <path

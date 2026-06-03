@@ -24,10 +24,14 @@ let counter = 0;
 export const useNotificationStore = create<NotificationState>((set) => ({
   notifications: [],
   unread: 0,
-  addNotification: (message, type) => set((s) => ({
-    notifications: [{ id: String(++counter), message, type, timestamp: Date.now() }, ...s.notifications].slice(0, 50),
-    unread: s.unread + 1,
-  })),
+  addNotification: (message, type) =>
+    set((s) => ({
+      notifications: [
+        { id: String(++counter), message, type, timestamp: Date.now() },
+        ...s.notifications,
+      ].slice(0, 50),
+      unread: s.unread + 1,
+    })),
   markAllRead: () => set({ unread: 0 }),
   clear: () => set({ notifications: [], unread: 0 }),
 }));

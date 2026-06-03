@@ -22,19 +22,23 @@ export function AdminPage() {
   if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
   return (
-    <div style={{
-      flex: 1,
-      padding: '32px',
-      overflowY: 'auto',
-      fontFamily: 'Inter, system-ui, sans-serif',
-    }}>
+    <div
+      style={{
+        flex: 1,
+        padding: '32px',
+        overflowY: 'auto',
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
         <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#6c63ff' }}>
           admin_panel_settings
         </span>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          <h1
+            style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}
+          >
             {t('adminPageTitle')}
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
@@ -43,20 +47,40 @@ export function AdminPage() {
         </div>
         <Link
           to="/app/admin/help"
-          style={{ marginLeft: 'auto', fontSize: '12px', color: '#b01e66', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+          style={{
+            marginLeft: 'auto',
+            fontSize: '12px',
+            color: '#b01e66',
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>help</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+            help
+          </span>
           {t('adminHelpLink')}
         </Link>
       </div>
 
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 24px' }} />
 
-      <div style={{
-        background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '12px',
-        padding: '16px 20px', marginBottom: '20px', display: 'flex', gap: '12px',
-      }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#c2410c', flexShrink: 0, marginTop: '2px' }}>
+      <div
+        style={{
+          background: '#fff7ed',
+          border: '1px solid #fed7aa',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          marginBottom: '20px',
+          display: 'flex',
+          gap: '12px',
+        }}
+      >
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '24px', color: '#c2410c', flexShrink: 0, marginTop: '2px' }}
+        >
           shield
         </span>
         <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#7c2d12' }}>
@@ -67,17 +91,24 @@ export function AdminPage() {
 
       {/* Error state */}
       {error && (
-        <div style={{
-          background: '#fff5f5',
-          border: '1px solid #fecaca',
-          borderRadius: '12px',
-          padding: '14px 18px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '24px',
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#ef4444' }}>error</span>
+        <div
+          style={{
+            background: '#fff5f5',
+            border: '1px solid #fecaca',
+            borderRadius: '12px',
+            padding: '14px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '24px',
+          }}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '20px', color: '#ef4444' }}
+          >
+            error
+          </span>
           <span style={{ fontSize: '13px', color: '#b91c1c' }}>
             {is403 ? t('adminAccessDenied') : t('adminLoadFailed')}
           </span>
@@ -86,16 +117,21 @@ export function AdminPage() {
 
       {/* Loading state */}
       {isLoading && !error && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          color: 'var(--text-muted)',
-          fontSize: '14px',
-          padding: '40px 0',
-          justifyContent: 'center',
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '20px', animation: 'spin 1s linear infinite' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            color: 'var(--text-muted)',
+            fontSize: '14px',
+            padding: '40px 0',
+            justifyContent: 'center',
+          }}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '20px', animation: 'spin 1s linear infinite' }}
+          >
             progress_activity
           </span>
           {t('adminLoadingRequests')}
@@ -104,20 +140,27 @@ export function AdminPage() {
 
       {/* Empty state */}
       {!isLoading && !error && requests && requests.length === 0 && (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '64px 0',
-          gap: '12px',
-          color: 'var(--text-muted)',
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#22c55e' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '64px 0',
+            gap: '12px',
+            color: 'var(--text-muted)',
+          }}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '48px', color: '#22c55e' }}
+          >
             check_circle
           </span>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('adminNoPendingTitle')}</div>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              {t('adminNoPendingTitle')}
+            </div>
             <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
               {t('adminNoPendingBody')}
             </div>

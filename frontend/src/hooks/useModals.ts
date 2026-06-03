@@ -6,11 +6,14 @@ import { create } from 'zustand';
 
 type ModalType =
   | 'org-edit'
-  | 'contact-add' | 'contact-edit'
-  | 'endpoint-add' | 'endpoint-edit'
+  | 'contact-add'
+  | 'contact-edit'
+  | 'endpoint-add'
+  | 'endpoint-edit'
   | 'certificate-add'
   | 'cert-renew'
-  | 'membership-add' | 'membership-edit'
+  | 'membership-add'
+  | 'membership-edit'
   | 'approval'
   | 'download'
   | null;

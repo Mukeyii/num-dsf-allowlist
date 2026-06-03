@@ -7,14 +7,18 @@ test.describe('auth + admin sidebar gating', () => {
     // Admin entries live inside a collapsed Administration group — open it
     // before asserting visibility. Marketplace stays top-level.
     await page.getByRole('button', { name: /administration/i }).click();
-    await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /user management|benutzerverwaltung/i }),
+    ).toBeVisible();
     await expect(page.getByRole('link', { name: /promotions|beförderungen/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /marketplace|marktplatz/i })).toBeVisible();
   });
 
   test('member does NOT see admin entries but DOES see marketplace', async ({ page }) => {
     await loginAs(page, 'member');
-    await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toHaveCount(0);
+    await expect(
+      page.getByRole('link', { name: /user management|benutzerverwaltung/i }),
+    ).toHaveCount(0);
     await expect(page.getByRole('link', { name: /promotions|beförderungen/i })).toHaveCount(0);
     await expect(page.getByRole('link', { name: /marketplace|marktplatz/i })).toBeVisible();
   });
@@ -23,13 +27,19 @@ test.describe('auth + admin sidebar gating', () => {
   // shared docker stack already has many member-owned instances cached at /me.
   // The cache-invalidation guarantee is exercised by AuthBootstrap.test.tsx
   // (queryClient.clear is called in three places) — tracked separately.
-  test.skip('switching from member back to admin shows admin entries (cache invalidation)', async ({ page }) => {
+  test.skip('switching from member back to admin shows admin entries (cache invalidation)', async ({
+    page,
+  }) => {
     test.setTimeout(120_000);
     await loginAs(page, 'member');
-    await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toHaveCount(0);
+    await expect(
+      page.getByRole('link', { name: /user management|benutzerverwaltung/i }),
+    ).toHaveCount(0);
     await loginAs(page, 'admin');
     // Admin entries live behind the Administration dropdown now.
     await page.getByRole('button', { name: /administration/i }).click();
-    await expect(page.getByRole('link', { name: /user management|benutzerverwaltung/i })).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole('link', { name: /user management|benutzerverwaltung/i }),
+    ).toBeVisible({ timeout: 15_000 });
   });
 });
