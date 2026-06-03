@@ -18,29 +18,42 @@ const labelSchema = z.object({
 export const instancesRouter = Router();
 instancesRouter.use(requireAuth);
 
-instancesRouter.get('/', asyncHandler(async (req, res) => {
-  res.json({ data: await svc.listForUser(req.user!.id, req.user!.email) });
-}));
+instancesRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.listForUser(req.user!.id, req.user!.email) });
+  }),
+);
 
-instancesRouter.post('/', asyncHandler(async (req, res) => {
-  const instance = await svc.createInstance(req.user!.id, req.user!.email, req.ip || 'unknown');
-  res.status(201).json({ data: instance });
-}));
+instancesRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    const instance = await svc.createInstance(req.user!.id, req.user!.email, req.ip || 'unknown');
+    res.status(201).json({ data: instance });
+  }),
+);
 
-instancesRouter.get('/:id', asyncHandler(async (req, res) => {
-  const instance = await svc.getInstance(req.params.id, req.user!.email);
-  if (!instance) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Instance not found' } });
-  res.json({ data: instance });
-}));
+instancesRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const instance = await svc.getInstance(req.params.id, req.user!.email);
+    if (!instance)
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Instance not found' } });
+    res.json({ data: instance });
+  }),
+);
 
-instancesRouter.put('/:id/label', asyncHandler(async (req, res) => {
-  const parsed = labelSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({
-      error: { code: 'VALIDATION', message: parsed.error.errors[0]?.message || 'Invalid label' },
-    });
-  }
-  const updated = await svc.renameInstance(req.params.id, req.user!.id, parsed.data.label);
-  if (!updated) return res.status(403).json({ error: { code: 'FORBIDDEN' } });
-  res.json({ data: updated });
-}));
+instancesRouter.put(
+  '/:id/label',
+  asyncHandler(async (req, res) => {
+    const parsed = labelSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION', message: parsed.error.errors[0]?.message || 'Invalid label' },
+      });
+    }
+    const updated = await svc.renameInstance(req.params.id, req.user!.id, parsed.data.label);
+    if (!updated) return res.status(403).json({ error: { code: 'FORBIDDEN' } });
+    res.json({ data: updated });
+  }),
+);

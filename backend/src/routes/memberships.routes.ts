@@ -21,17 +21,44 @@ membershipsRouter.get('/', async (req, res) => {
   res.json({ data: await svc.getMemberships(req.instance!.id) });
 });
 
-membershipsRouter.post('/', validate(createMembershipSchema), asyncHandler(async (req, res) => {
-  const ms = await svc.createMembership(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
-  res.status(201).json({ data: ms });
-}));
+membershipsRouter.post(
+  '/',
+  validate(createMembershipSchema),
+  asyncHandler(async (req, res) => {
+    const ms = await svc.createMembership(
+      req.instance!.id,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.status(201).json({ data: ms });
+  }),
+);
 
-membershipsRouter.put('/:mid', validate(updateMembershipSchema), asyncHandler(async (req, res) => {
-  const ms = await svc.updateMembership(req.instance!.id, req.params.mid, req.body, req.user!.email, req.ip || 'unknown');
-  res.json({ data: ms });
-}));
+membershipsRouter.put(
+  '/:mid',
+  validate(updateMembershipSchema),
+  asyncHandler(async (req, res) => {
+    const ms = await svc.updateMembership(
+      req.instance!.id,
+      req.params.mid,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: ms });
+  }),
+);
 
-membershipsRouter.delete('/:mid', asyncHandler(async (req, res) => {
-  await svc.deleteMembership(req.instance!.id, req.params.mid, req.user!.email, req.ip || 'unknown');
-  res.json({ data: { deleted: true } });
-}));
+membershipsRouter.delete(
+  '/:mid',
+  asyncHandler(async (req, res) => {
+    await svc.deleteMembership(
+      req.instance!.id,
+      req.params.mid,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: { deleted: true } });
+  }),
+);

@@ -32,7 +32,10 @@ export interface EnrichedInstanceRow extends InstanceRow {
  * (`getInstance`) already respected admin bypass — this brings the list
  * endpoint in line with that contract.
  */
-export async function listForUser(userId: string, callerEmail?: string): Promise<EnrichedInstanceRow[]> {
+export async function listForUser(
+  userId: string,
+  callerEmail?: string,
+): Promise<EnrichedInstanceRow[]> {
   const isAdmin = await isAdminEmail(callerEmail);
   const query = db<InstanceRow>('instances').orderBy('created_at', 'asc');
   if (!isAdmin) query.where({ user_id: userId });
@@ -40,15 +43,16 @@ export async function listForUser(userId: string, callerEmail?: string): Promise
 
   // Single fetch of the orgs that belong to these instances — replaces an
   // N+1 (one org SELECT per instance) with a single whereIn + Map lookup.
-  const ids = instances.map(i => i.id);
-  const orgs = ids.length === 0
-    ? []
-    : await db('organizations').whereIn('instance_id', ids).select('instance_id', 'identifier');
+  const ids = instances.map((i) => i.id);
+  const orgs =
+    ids.length === 0
+      ? []
+      : await db('organizations').whereIn('instance_id', ids).select('instance_id', 'identifier');
   const orgByInstance = new Map<string, string>(
     orgs.map((o: { instance_id: string; identifier: string }) => [o.instance_id, o.identifier]),
   );
 
-  return instances.map(inst => ({
+  return instances.map((inst) => ({
     ...inst,
     label: orgByInstance.get(inst.id) || inst.label || inst.id,
   }));

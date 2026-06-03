@@ -21,7 +21,10 @@ interface Resource {
   organization?: { reference: string };
   participatingOrganization?: { reference: string };
 }
-interface Entry { fullUrl: string; resource: Resource }
+interface Entry {
+  fullUrl: string;
+  resource: Resource;
+}
 
 describe('generateFullBundle', () => {
   const userId = uuidv4();
@@ -33,73 +36,134 @@ describe('generateFullBundle', () => {
   const epId = `dsf-fhir.${approvedOrgId}`;
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: 'fb@example.de', created_at: new Date() }).onConflict('email').ignore();
+    await db('users')
+      .insert({ id: userId, email: 'fb@example.de', created_at: new Date() })
+      .onConflict('email')
+      .ignore();
     await db('instances').insert([
       { id: approvedInstanceId, user_id: userId, label: 'A', created_at: new Date() },
-      { id: draftInstanceId,    user_id: userId, label: 'B', created_at: new Date() },
+      { id: draftInstanceId, user_id: userId, label: 'B', created_at: new Date() },
     ]);
     await db('organizations').insert([
-      { identifier: approvedOrgId, instance_id: approvedInstanceId, name: 'Approved', email: 'a@b.de', active: true, created_at: new Date(), updated_at: new Date() },
-      { identifier: draftOrgId,    instance_id: draftInstanceId,    name: 'Draft',    email: 'a@b.de', active: true, created_at: new Date(), updated_at: new Date() },
+      {
+        identifier: approvedOrgId,
+        instance_id: approvedInstanceId,
+        name: 'Approved',
+        email: 'a@b.de',
+        active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        identifier: draftOrgId,
+        instance_id: draftInstanceId,
+        name: 'Draft',
+        email: 'a@b.de',
+        active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
     ]);
-    await db('endpoints').insert({ identifier: epId, organization_id: approvedOrgId, name: 'EP', address: `https://${epId}/fhir`, created_at: new Date(), updated_at: new Date() });
-    await db('certificates').insert({ id: uuidv4(), organization_id: approvedOrgId, pem: 'PEM', subject: 'CN=test', thumbprint: 'a'.repeat(64), valid_until: '2099-01-01', created_at: new Date() });
-    await db('memberships').insert({ id: uuidv4(), organization_id: approvedOrgId, parent_organization: verbundId, endpoint_id: epId, roles: JSON.stringify(['DIC']), created_at: new Date(), updated_at: new Date() });
-    await db('approval_requests').insert({ id: uuidv4(), instance_id: approvedInstanceId, status: 'APPROVED', created_at: new Date(), submitted_at: new Date(), resolved_at: new Date(), resolved_by: 'admin@imi-test.example.de', snapshot_json: JSON.stringify({}) });
+    await db('endpoints').insert({
+      identifier: epId,
+      organization_id: approvedOrgId,
+      name: 'EP',
+      address: `https://${epId}/fhir`,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    await db('certificates').insert({
+      id: uuidv4(),
+      organization_id: approvedOrgId,
+      pem: 'PEM',
+      subject: 'CN=test',
+      thumbprint: 'a'.repeat(64),
+      valid_until: '2099-01-01',
+      created_at: new Date(),
+    });
+    await db('memberships').insert({
+      id: uuidv4(),
+      organization_id: approvedOrgId,
+      parent_organization: verbundId,
+      endpoint_id: epId,
+      roles: JSON.stringify(['DIC']),
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    await db('approval_requests').insert({
+      id: uuidv4(),
+      instance_id: approvedInstanceId,
+      status: 'APPROVED',
+      created_at: new Date(),
+      submitted_at: new Date(),
+      resolved_at: new Date(),
+      resolved_by: 'admin@imi-test.example.de',
+      snapshot_json: JSON.stringify({}),
+    });
   });
 
   afterAll(async () => {
     await db('memberships').where({ organization_id: approvedOrgId }).del();
     await db('certificates').where({ organization_id: approvedOrgId }).del();
     await db('endpoints').where({ identifier: epId }).del();
-    await db('approval_requests').whereIn('instance_id', [approvedInstanceId, draftInstanceId]).del();
+    await db('approval_requests')
+      .whereIn('instance_id', [approvedInstanceId, draftInstanceId])
+      .del();
     await db('organizations').whereIn('identifier', [approvedOrgId, draftOrgId]).del();
     await db('instances').whereIn('id', [approvedInstanceId, draftInstanceId]).del();
     await db('users').where({ id: userId }).del();
   });
 
   it('includes the approved org but NOT the draft org', async () => {
-    const bundle = await generateFullBundle() as { entry: Entry[] };
-    const orgIds = bundle.entry.flatMap(e =>
-      e.resource.resourceType === 'Organization' ? (e.resource.identifier ?? []).map(i => i.value) : [],
+    const bundle = (await generateFullBundle()) as { entry: Entry[] };
+    const orgIds = bundle.entry.flatMap((e) =>
+      e.resource.resourceType === 'Organization'
+        ? (e.resource.identifier ?? []).map((i) => i.value)
+        : [],
     );
     expect(orgIds).toContain(approvedOrgId);
     expect(orgIds).not.toContain(draftOrgId);
   });
 
   it('emits the parent verbund Organization', async () => {
-    const bundle = await generateFullBundle() as { entry: Entry[] };
-    const orgIds = bundle.entry.flatMap(e =>
-      e.resource.resourceType === 'Organization' ? (e.resource.identifier ?? []).map(i => i.value) : [],
+    const bundle = (await generateFullBundle()) as { entry: Entry[] };
+    const orgIds = bundle.entry.flatMap((e) =>
+      e.resource.resourceType === 'Organization'
+        ? (e.resource.identifier ?? []).map((i) => i.value)
+        : [],
     );
     expect(orgIds).toContain(verbundId);
   });
 
   it('attaches cert thumbprint as an extension on the org', async () => {
-    const bundle = await generateFullBundle() as { entry: Entry[] };
-    const approvedEntry = bundle.entry.find(e =>
-      e.resource.resourceType === 'Organization'
-      && (e.resource.identifier ?? []).some(i => i.value === approvedOrgId),
+    const bundle = (await generateFullBundle()) as { entry: Entry[] };
+    const approvedEntry = bundle.entry.find(
+      (e) =>
+        e.resource.resourceType === 'Organization' &&
+        (e.resource.identifier ?? []).some((i) => i.value === approvedOrgId),
     );
     expect(approvedEntry).toBeDefined();
     const ext = approvedEntry!.resource.extension ?? [];
-    expect(ext.some(x =>
-      x.url === 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint'
-      && x.valueString === 'a'.repeat(64),
-    )).toBe(true);
+    expect(
+      ext.some(
+        (x) =>
+          x.url === 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint' &&
+          x.valueString === 'a'.repeat(64),
+      ),
+    ).toBe(true);
   });
 
   it('every internal reference resolves to a fullUrl in the same bundle', async () => {
-    const bundle = await generateFullBundle() as { entry: Entry[]; type: string };
+    const bundle = (await generateFullBundle()) as { entry: Entry[]; type: string };
     // Bundle.identifier removed — DSF spec does not require it on transaction
     // bundles, and strict HAPI FHIR validators flag the custom value. Assert
     // the envelope is still a transaction bundle instead.
     expect(bundle.type).toBe('transaction');
-    const fullUrls = new Set(bundle.entry.map(e => e.fullUrl));
+    const fullUrls = new Set(bundle.entry.map((e) => e.fullUrl));
     const refs: string[] = [];
     for (const e of bundle.entry) {
       const r = e.resource;
-      if (r.endpoint) refs.push(...r.endpoint.map(x => x.reference));
+      if (r.endpoint) refs.push(...r.endpoint.map((x) => x.reference));
       if (r.managingOrganization) refs.push(r.managingOrganization.reference);
       if (r.organization) refs.push(r.organization.reference);
       if (r.participatingOrganization) refs.push(r.participatingOrganization.reference);
@@ -116,12 +180,15 @@ describe('generateFullBundle', () => {
       .update({ deleted_at: new Date() });
 
     try {
-      const bundle = await generateFullBundle() as { entry: Array<{ request?: { method: string; url: string } }> };
-      const deleteEntry = bundle.entry.find(e =>
-        e.request?.method === 'DELETE'
-        && e.request?.url.startsWith('OrganizationAffiliation?')
-        && e.request?.url.includes(`participating-organization:identifier=`)
-        && e.request?.url.includes(approvedOrgId),
+      const bundle = (await generateFullBundle()) as {
+        entry: Array<{ request?: { method: string; url: string } }>;
+      };
+      const deleteEntry = bundle.entry.find(
+        (e) =>
+          e.request?.method === 'DELETE' &&
+          e.request?.url.startsWith('OrganizationAffiliation?') &&
+          e.request?.url.includes(`participating-organization:identifier=`) &&
+          e.request?.url.includes(approvedOrgId),
       );
       expect(deleteEntry).toBeDefined();
     } finally {
@@ -133,7 +200,9 @@ describe('generateFullBundle', () => {
   });
 
   it('NEVER emits DELETE Organization or DELETE Endpoint (federation safety)', async () => {
-    const bundle = await generateFullBundle() as { entry: Array<{ request?: { method: string; url: string } }> };
+    const bundle = (await generateFullBundle()) as {
+      entry: Array<{ request?: { method: string; url: string } }>;
+    };
     for (const e of bundle.entry) {
       if (e.request?.method !== 'DELETE') continue;
       expect(e.request.url.startsWith('Organization?')).toBe(false);

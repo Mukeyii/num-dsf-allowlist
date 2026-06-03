@@ -28,7 +28,9 @@ function readRoles(raw: unknown): string[] {
     try {
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed.filter((r): r is string => typeof r === 'string') : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   }
   return [];
 }
@@ -46,9 +48,9 @@ const READ_ACCESS_TAG_ALL = {
 } as const;
 
 // DSF profile URLs for the four resource types in an allow-list bundle.
-const PROFILE_ORG         = 'http://dsf.dev/fhir/StructureDefinition/organization';
-const PROFILE_ORG_PARENT  = 'http://dsf.dev/fhir/StructureDefinition/organization-parent';
-const PROFILE_ENDPOINT    = 'http://dsf.dev/fhir/StructureDefinition/endpoint';
+const PROFILE_ORG = 'http://dsf.dev/fhir/StructureDefinition/organization';
+const PROFILE_ORG_PARENT = 'http://dsf.dev/fhir/StructureDefinition/organization-parent';
+const PROFILE_ENDPOINT = 'http://dsf.dev/fhir/StructureDefinition/endpoint';
 const PROFILE_AFFILIATION = 'http://dsf.dev/fhir/StructureDefinition/organization-affiliation';
 
 // Build the `meta` block every emitted resource needs. profile picks the
@@ -86,10 +88,14 @@ const BUNDLE_META = {
 export async function generateBundle(instanceId: string, endpointId: string): Promise<object> {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
-  const endpoint = await db('endpoints').where({ identifier: endpointId, organization_id: org.identifier }).first();
+  const endpoint = await db('endpoints')
+    .where({ identifier: endpointId, organization_id: org.identifier })
+    .first();
   if (!endpoint) throw new Error('ENDPOINT_NOT_FOUND');
   const certs = await db('certificates').where({ organization_id: org.identifier });
-  const memberships = await db('memberships').where({ organization_id: org.identifier }).whereNull('deleted_at');
+  const memberships = await db('memberships')
+    .where({ organization_id: org.identifier })
+    .whereNull('deleted_at');
 
   // Generate stable UUIDs for cross-referencing within the bundle
   const orgUuid = uuidv4();
@@ -151,9 +157,11 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
       },
       name: endpoint.name || `DSF Endpoint for ${endpoint.identifier}`,
       managingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
-      payloadType: [{
-        coding: [{ system: 'http://hl7.org/fhir/resource-types', code: 'Task' }],
-      }],
+      payloadType: [
+        {
+          coding: [{ system: 'http://hl7.org/fhir/resource-types', code: 'Task' }],
+        },
+      ],
       payloadMimeType: ['application/fhir+json', 'application/fhir+xml'],
       address: endpoint.address,
     },
@@ -244,9 +252,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
 export async function generateFullBundle(): Promise<object> {
   // Only orgs whose LATEST approval_request (by created_at) is 'APPROVED' AND active.
   // Using a correlated subquery so a newer REJECTED/PENDING entry supersedes an old APPROVED.
-  const orgs = await db('organizations')
-    .where({ active: true })
-    .whereRaw(`(
+  const orgs = await db('organizations').where({ active: true }).whereRaw(`(
       SELECT status FROM approval_requests
       WHERE instance_id = organizations.instance_id
       ORDER BY created_at DESC LIMIT 1
@@ -258,7 +264,10 @@ export async function generateFullBundle(): Promise<object> {
 
   // Collect all parent verbunds referenced in memberships of approved orgs.
   const memberships = await db('memberships')
-    .whereIn('organization_id', orgs.map((o: { identifier: string }) => o.identifier))
+    .whereIn(
+      'organization_id',
+      orgs.map((o: { identifier: string }) => o.identifier),
+    )
     .whereNull('deleted_at');
   const parentIdentifiers = Array.from(
     new Set(memberships.map((m: { parent_organization: string }) => m.parent_organization)),
@@ -343,9 +352,11 @@ export async function generateFullBundle(): Promise<object> {
           },
           name: ep.name || `DSF Endpoint for ${ep.identifier}`,
           managingOrganization: { reference: `urn:uuid:${orgUuid}`, type: 'Organization' },
-          payloadType: [{
-            coding: [{ system: 'http://hl7.org/fhir/resource-types', code: 'Task' }],
-          }],
+          payloadType: [
+            {
+              coding: [{ system: 'http://hl7.org/fhir/resource-types', code: 'Task' }],
+            },
+          ],
           payloadMimeType: ['application/fhir+json', 'application/fhir+xml'],
           address: ep.address,
         },
@@ -409,7 +420,10 @@ export async function generateFullBundle(): Promise<object> {
   // never emits DELETE for Organization/Endpoint — those records may still be
   // in another tool's allow-list.
   const softDeletedMs = await db('memberships')
-    .whereIn('organization_id', orgs.map((o: { identifier: string }) => o.identifier))
+    .whereIn(
+      'organization_id',
+      orgs.map((o: { identifier: string }) => o.identifier),
+    )
     .whereNotNull('deleted_at');
 
   for (const ms of softDeletedMs) {

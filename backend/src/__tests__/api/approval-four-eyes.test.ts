@@ -28,8 +28,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 // ─── Admin identities ────────────────────────────────────────────────────────
 
-const ADMIN_A_EMAIL = 'admin-a@imi-test.example.de';   // site: imi-test.example.de
-const ADMIN_B_EMAIL = 'admin-b@imi-test.example.de';   // same site as A
+const ADMIN_A_EMAIL = 'admin-a@imi-test.example.de'; // site: imi-test.example.de
+const ADMIN_B_EMAIL = 'admin-b@imi-test.example.de'; // same site as A
 const ADMIN_C_EMAIL = 'admin-c@charite-test.example.de'; // different site
 
 const ADMIN_A_ID = '10000000-0000-0000-0000-000000000001';
@@ -47,16 +47,31 @@ async function seedAdminUsers(): Promise<void> {
   for (const a of admins) {
     await db('email_whitelist')
       .insert({ id: uuidv4(), email: a.email, created_by: 'test', created_at: new Date() })
-      .onConflict('email').ignore();
+      .onConflict('email')
+      .ignore();
     // totp_enabled must be true so the route passes the TOTP_NOT_CONFIGURED guard.
     await db('users')
-      .insert({ id: a.id, email: a.email, totp_enabled: true, totp_secret: 'placeholder', created_at: new Date() })
-      .onConflict('email').ignore();
+      .insert({
+        id: a.id,
+        email: a.email,
+        totp_enabled: true,
+        totp_secret: 'placeholder',
+        created_at: new Date(),
+      })
+      .onConflict('email')
+      .ignore();
     const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
     const sig = signGrant(a.email, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
     await db('admin_grants')
-      .insert({ email: a.email, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
-      .onConflict('email').ignore();
+      .insert({
+        email: a.email,
+        granted_at: grantedAt,
+        granted_by_a: 'SYSTEM:test',
+        granted_by_b: 'SYSTEM:test',
+        signature_hex: sig,
+      })
+      .onConflict('email')
+      .ignore();
   }
 }
 
@@ -94,7 +109,10 @@ describe('4-eyes approval workflow', () => {
   let rid: string;
 
   beforeEach(async () => {
-    userToken = getTestToken((await db('users').where({ id: '00000000-0000-0000-0000-000000000001' }).first())?.email || 'test@test-hospital.de');
+    userToken = getTestToken(
+      (await db('users').where({ id: '00000000-0000-0000-0000-000000000001' }).first())?.email ||
+        'test@test-hospital.de',
+    );
     adminAToken = getTestToken(ADMIN_A_EMAIL, ADMIN_A_ID);
     adminBToken = getTestToken(ADMIN_B_EMAIL, ADMIN_B_ID);
     adminCToken = getTestToken(ADMIN_C_EMAIL, ADMIN_C_ID);

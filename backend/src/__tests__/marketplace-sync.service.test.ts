@@ -48,8 +48,11 @@ describe('marketplace-sync.service – offline sync paths', () => {
 
   it('syncEntry writes sync_error and rethrows on a GitHub rate limit (403), no network', async () => {
     // Every GitHub call returns 403 → service throws RATE_LIMIT internally.
-    global.fetch = (async () =>
-      ({ status: 403, ok: false, json: async () => ({}) })) as unknown as typeof fetch;
+    global.fetch = (async () => ({
+      status: 403,
+      ok: false,
+      json: async () => ({}),
+    })) as unknown as typeof fetch;
 
     await expect(syncEntry(id)).rejects.toThrow('RATE_LIMIT');
 
@@ -58,15 +61,20 @@ describe('marketplace-sync.service – offline sync paths', () => {
   });
 
   it('syncAll handles a rate limit gracefully — returns a result and does not throw', async () => {
-    global.fetch = (async () =>
-      ({ status: 403, ok: false, json: async () => ({}) })) as unknown as typeof fetch;
+    global.fetch = (async () => ({
+      status: 403,
+      ok: false,
+      json: async () => ({}),
+    })) as unknown as typeof fetch;
 
     // Must resolve (not reject) even though a sync hit the rate limit.
     const result = await syncAll();
-    expect(result).toEqual(expect.objectContaining({
-      ok: expect.any(Number),
-      failed: expect.any(Number),
-    }));
+    expect(result).toEqual(
+      expect.objectContaining({
+        ok: expect.any(Number),
+        failed: expect.any(Number),
+      }),
+    );
     // A rate limit aborts the batch, so at least one entry failed.
     expect(result.failed).toBeGreaterThanOrEqual(1);
   });

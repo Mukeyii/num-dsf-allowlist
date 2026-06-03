@@ -22,15 +22,22 @@ import { listAdminAudit } from '../services/auditQuery.service';
 export const adminRouter = Router();
 adminRouter.use(requireAuth, requireImiAdmin);
 
-adminRouter.get('/instances', asyncHandler(async (_req, res) => {
-  res.json({ data: await listAllInstances() });
-}));
+adminRouter.get(
+  '/instances',
+  asyncHandler(async (_req, res) => {
+    res.json({ data: await listAllInstances() });
+  }),
+);
 
-adminRouter.get('/audit', validate(auditQuerySchema, 'query'), asyncHandler(async (req, res) => {
-  const { page, limit } = req.query as unknown as { page: number; limit: number };
-  const { rows, total } = await listAdminAudit({ page, limit });
-  res.json({
-    data: rows,
-    meta: { page, limit, total, pages: Math.ceil(total / limit) },
-  });
-}));
+adminRouter.get(
+  '/audit',
+  validate(auditQuerySchema, 'query'),
+  asyncHandler(async (req, res) => {
+    const { page, limit } = req.query as unknown as { page: number; limit: number };
+    const { rows, total } = await listAdminAudit({ page, limit });
+    res.json({
+      data: rows,
+      meta: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  }),
+);

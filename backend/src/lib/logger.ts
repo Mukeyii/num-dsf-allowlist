@@ -35,7 +35,8 @@ export const logger = pino({
     ],
     censor: '[REDACTED]',
   },
-  transport: !isProduction && !isTest
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
+  transport:
+    !isProduction && !isTest
+      ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+      : undefined,
 });

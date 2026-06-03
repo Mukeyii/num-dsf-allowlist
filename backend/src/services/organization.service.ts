@@ -34,7 +34,7 @@ export async function upsertOrganization(
     clientCertThumbprint?: string;
   },
   userEmail: string,
-  ipAddress: string
+  ipAddress: string,
 ) {
   const existing = await getOrganization(instanceId);
   const now = new Date();
@@ -66,9 +66,13 @@ export async function upsertOrganization(
     const { email: _e1, ...beforeSafe } = before || {};
     const { email: _e2, ...afterSafe } = data || {};
     await writeAuditLog({
-      userEmail, instanceId, resourceType: 'ORGANIZATION',
-      resourceId: existing.identifier, operation: 'UPDATE',
-      diffJson: { before: beforeSafe, after: afterSafe }, ipAddress,
+      userEmail,
+      instanceId,
+      resourceType: 'ORGANIZATION',
+      resourceId: existing.identifier,
+      operation: 'UPDATE',
+      diffJson: { before: beforeSafe, after: afterSafe },
+      ipAddress,
     });
     return getOrganization(instanceId);
   } else {
@@ -88,9 +92,13 @@ export async function upsertOrganization(
     });
     const { email: _e3, ...createSafe } = data || {};
     await writeAuditLog({
-      userEmail, instanceId, resourceType: 'ORGANIZATION',
-      resourceId: data.identifier, operation: 'CREATE',
-      diffJson: { after: createSafe }, ipAddress,
+      userEmail,
+      instanceId,
+      resourceType: 'ORGANIZATION',
+      resourceId: data.identifier,
+      operation: 'CREATE',
+      diffJson: { after: createSafe },
+      ipAddress,
     });
     return getOrganization(instanceId);
   }

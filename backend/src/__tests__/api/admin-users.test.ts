@@ -21,8 +21,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 // ─── Admin identities ────────────────────────────────────────────────────────
 
-const ADMIN_A_EMAIL = 'admin-a@imi-test.example.de';   // site: imi-test.example.de
-const ADMIN_B_EMAIL = 'admin-b@imi-test.example.de';   // same site as A
+const ADMIN_A_EMAIL = 'admin-a@imi-test.example.de'; // site: imi-test.example.de
+const ADMIN_B_EMAIL = 'admin-b@imi-test.example.de'; // same site as A
 const ADMIN_C_EMAIL = 'admin-c@charite-test.example.de'; // different site
 
 const ADMIN_A_ID = '10000000-0000-0000-0000-000000000001';
@@ -30,31 +30,42 @@ const ADMIN_B_ID = '10000000-0000-0000-0000-000000000002';
 const ADMIN_C_ID = '10000000-0000-0000-0000-000000000003';
 
 const NON_ADMIN_EMAIL = 'user@outsider-hospital.de';
-const NON_ADMIN_ID    = '10000000-0000-0000-0000-000000000099';
+const NON_ADMIN_ID = '10000000-0000-0000-0000-000000000099';
 
 // ─── Seed helpers ─────────────────────────────────────────────────────────────
 
 async function seedAdminUser(id: string, email: string): Promise<void> {
   await db('email_whitelist')
     .insert({ id: uuidv4(), email, created_by: 'test', created_at: new Date() })
-    .onConflict('email').ignore();
+    .onConflict('email')
+    .ignore();
   await db('users')
     .insert({ id, email, totp_enabled: true, totp_secret: 'placeholder', created_at: new Date() })
-    .onConflict('email').ignore();
+    .onConflict('email')
+    .ignore();
   const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
   const sig = signGrant(email, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
   await db('admin_grants')
-    .insert({ email, granted_at: grantedAt, granted_by_a: 'SYSTEM:test', granted_by_b: 'SYSTEM:test', signature_hex: sig })
-    .onConflict('email').ignore();
+    .insert({
+      email,
+      granted_at: grantedAt,
+      granted_by_a: 'SYSTEM:test',
+      granted_by_b: 'SYSTEM:test',
+      signature_hex: sig,
+    })
+    .onConflict('email')
+    .ignore();
 }
 
 async function seedNonAdmin(id: string, email: string): Promise<void> {
   await db('email_whitelist')
     .insert({ id: uuidv4(), email, created_by: 'test', created_at: new Date() })
-    .onConflict('email').ignore();
+    .onConflict('email')
+    .ignore();
   await db('users')
     .insert({ id, email, totp_enabled: false, created_at: new Date() })
-    .onConflict('email').ignore();
+    .onConflict('email')
+    .ignore();
 }
 
 // ─── Suite setup ─────────────────────────────────────────────────────────────

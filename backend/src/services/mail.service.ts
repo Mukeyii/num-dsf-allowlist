@@ -8,17 +8,23 @@
 import nodemailer from 'nodemailer';
 
 function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail',
   port: parseInt(process.env.SMTP_PORT || '1025'),
   secure: false,
-  auth: process.env.SMTP_USER ? {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  } : undefined,
+  auth: process.env.SMTP_USER
+    ? {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      }
+    : undefined,
 });
 
 export async function sendOtpEmail(to: string, code: string): Promise<void> {

@@ -10,8 +10,12 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const JWT_PRIVATE_KEY = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64 || '', 'base64').toString('utf8');
-const JWT_PUBLIC_KEY = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString('utf8');
+const JWT_PRIVATE_KEY = Buffer.from(process.env.JWT_PRIVATE_KEY_BASE64 || '', 'base64').toString(
+  'utf8',
+);
+const JWT_PUBLIC_KEY = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString(
+  'utf8',
+);
 
 // Derive a stable kid from the public key: first 16 hex chars of its
 // SHA-256 fingerprint. Same algorithm on the verifier side maps kid → key.
@@ -22,7 +26,11 @@ const KEY_ID = JWT_PUBLIC_KEY
 /**
  * Sign a bundle JSON and return { bundle, signature, contentHash }
  */
-export function signBundle(bundle: object): { bundle: object; signature: string; contentHash: string } {
+export function signBundle(bundle: object): {
+  bundle: object;
+  signature: string;
+  contentHash: string;
+} {
   const json = JSON.stringify(bundle);
   const contentHash = crypto.createHash('sha256').update(json).digest('hex');
 

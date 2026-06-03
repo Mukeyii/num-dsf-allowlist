@@ -9,7 +9,15 @@ export async function generateIpAddressListExcel(): Promise<Buffer> {
   const ips = await db('endpoint_ips as eip')
     .join('endpoints as ep', 'eip.endpoint_id', 'ep.identifier')
     .join('organizations as org', 'ep.organization_id', 'org.identifier')
-    .select('org.identifier as orgIdentifier', 'org.name as orgName', 'ep.identifier as endpointIdentifier', 'ep.address as endpointAddress', 'eip.ip', 'eip.is_fhir as isFhir', 'eip.is_bpe as isBpe')
+    .select(
+      'org.identifier as orgIdentifier',
+      'org.name as orgName',
+      'ep.identifier as endpointIdentifier',
+      'ep.address as endpointAddress',
+      'eip.ip',
+      'eip.is_fhir as isFhir',
+      'eip.is_bpe as isBpe',
+    )
     .orderBy(['org.identifier', 'ep.identifier', 'eip.ip']);
 
   const workbook = new ExcelJS.Workbook();
@@ -28,7 +36,9 @@ export async function generateIpAddressListExcel(): Promise<Buffer> {
   sheet.getRow(1).font = { bold: true };
   sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6C63FF' } };
   sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-  ips.forEach((row: any) => { sheet.addRow({ ...row, isFhir: row.isFhir ? 'Yes' : 'No', isBpe: row.isBpe ? 'Yes' : 'No' }); });
+  ips.forEach((row: any) => {
+    sheet.addRow({ ...row, isFhir: row.isFhir ? 'Yes' : 'No', isBpe: row.isBpe ? 'Yes' : 'No' });
+  });
   sheet.autoFilter = { from: 'A1', to: 'G1' };
   const buffer = await workbook.xlsx.writeBuffer();
   return Buffer.from(buffer);

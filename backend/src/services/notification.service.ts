@@ -10,16 +10,22 @@
 import nodemailer from 'nodemailer';
 
 function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 const IS_TEST = process.env.NODE_ENV === 'test';
 
 const transporter = nodemailer.createTransport({
-  host: IS_TEST ? 'localhost' : (process.env.SMTP_HOST || 'mail'),
+  host: IS_TEST ? 'localhost' : process.env.SMTP_HOST || 'mail',
   port: parseInt(process.env.SMTP_PORT || '1025'),
   secure: false,
-  auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+  auth: process.env.SMTP_USER
+    ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+    : undefined,
 });
 
 const FROM = process.env.MAIL_FROM || 'noreply@dsf-allowlist.local';
@@ -70,7 +76,9 @@ export async function sendAdminNewRequestEmail(
     `Please log in to the portal to review this request.`,
   ].join('\n');
 
-  const html = baseHtml('New Approval Request', `
+  const html = baseHtml(
+    'New Approval Request',
+    `
     <p>A new approval request has been submitted and requires your review.</p>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
       <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Organization</td>
@@ -88,7 +96,8 @@ export async function sendAdminNewRequestEmail(
         Review in Portal
       </a>
     </p>
-  `);
+  `,
+  );
 
   await transporter.sendMail({ from: FROM, to: adminEmails.join(','), subject, text, html });
 }
@@ -115,14 +124,18 @@ export async function sendAdminApprovalResultEmail(
     `Status       : ${status}`,
     `Resolved by  : ${resolvedBy}`,
     commentLine,
-  ].filter(line => line !== '').join('\n');
+  ]
+    .filter((line) => line !== '')
+    .join('\n');
 
   const commentHtml = comment
     ? `<tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Comment</td>
            <td style="padding:6px 0;">${esc(comment)}</td></tr>`
     : '';
 
-  const html = baseHtml(`Request ${status.charAt(0) + status.slice(1).toLowerCase()}`, `
+  const html = baseHtml(
+    `Request ${status.charAt(0) + status.slice(1).toLowerCase()}`,
+    `
     <p>An approval request has been resolved.</p>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
       <tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">Organization</td>
@@ -135,7 +148,8 @@ export async function sendAdminApprovalResultEmail(
           <td style="padding:6px 0;">${esc(resolvedBy)}</td></tr>
       ${commentHtml}
     </table>
-  `);
+  `,
+  );
 
   await transporter.sendMail({ from: FROM, to: adminEmails.join(','), subject, text, html });
 }
@@ -163,7 +177,9 @@ export async function sendAdminFirstApprovalEmail(
     `Request ID: ${requestId}`,
   ].join('\n');
 
-  const html = baseHtml('First Approval Recorded', `
+  const html = baseHtml(
+    'First Approval Recorded',
+    `
     <p><strong>${esc(firstApproverEmail)}</strong> has approved the request for <strong>${esc(orgName)}</strong> (${esc(orgId)}).</p>
     <p>A second admin from a <strong>different site</strong> must approve OR reject within <strong>${days} days</strong>.</p>
     <p>If no rejection arrives in that window, the request will be automatically approved (<em>Schweigen als Zustimmung</em>).</p>
@@ -183,7 +199,8 @@ export async function sendAdminFirstApprovalEmail(
         Review in Portal
       </a>
     </p>
-  `);
+  `,
+  );
 
   await transporter.sendMail({ from: FROM, to: adminEmails.join(','), subject, text, html });
 }
@@ -206,7 +223,9 @@ export async function sendSiteApprovalResultEmail(
     commentLine,
     ``,
     `If you have questions, please contact the GECKO team.`,
-  ].filter(s => s !== '').join('\n');
+  ]
+    .filter((s) => s !== '')
+    .join('\n');
 
   const commentHtml = comment
     ? `<div style="margin-top:16px;padding:12px;background:#f8f8fb;border-left:4px solid #ddd;border-radius:4px;">
@@ -216,11 +235,14 @@ export async function sendSiteApprovalResultEmail(
     : '';
 
   const outcomeColor = status === 'APPROVED' ? COLOR_APPROVED : COLOR_REJECTED;
-  const outcomeText = status === 'APPROVED'
-    ? 'Congratulations – your DSF Allow List entry has been approved.'
-    : 'Unfortunately, your DSF Allow List request was not approved at this time.';
+  const outcomeText =
+    status === 'APPROVED'
+      ? 'Congratulations – your DSF Allow List entry has been approved.'
+      : 'Unfortunately, your DSF Allow List request was not approved at this time.';
 
-  const html = baseHtml(`Request ${status.charAt(0) + status.slice(1).toLowerCase()}`, `
+  const html = baseHtml(
+    `Request ${status.charAt(0) + status.slice(1).toLowerCase()}`,
+    `
     <div style="padding:16px;border-radius:8px;border:2px solid ${outcomeColor};margin-bottom:20px;">
       <p style="margin:0;">${statusBadge(status)}&nbsp;&nbsp;${outcomeText}</p>
     </div>
@@ -228,7 +250,8 @@ export async function sendSiteApprovalResultEmail(
     <p style="margin-top:20px;font-size:13px;color:#555;">
       If you have questions or wish to resubmit, please log in to the portal or contact the GECKO team.
     </p>
-  `);
+  `,
+  );
 
   await transporter.sendMail({ from: FROM, to: contactEmails.join(','), subject, text, html });
 }
@@ -242,7 +265,10 @@ export async function sendSiteApprovalResultEmail(
  * verification-focused template: bundle version, content hash, signature
  * kid, download + verify URLs, change counts vs the previous version.
  */
-import { renderApprovedBundleMail, type ApprovedBundleMailContext } from './mail-templates/approved-bundle-mail';
+import {
+  renderApprovedBundleMail,
+  type ApprovedBundleMailContext,
+} from './mail-templates/approved-bundle-mail';
 
 export async function sendApprovedBundleNotification(
   recipient: { email: string; name?: string | null; language: 'en' | 'de' },
@@ -275,7 +301,9 @@ export async function sendAdminPromotionRequestedEmail(
     ``,
     `Request ID: ${requestId}`,
   ].join('\n');
-  const html = baseHtml('New Admin Promotion Request', `
+  const html = baseHtml(
+    'New Admin Promotion Request',
+    `
     <p><strong>${esc(requestedBy)}</strong> has requested to promote <strong>${esc(targetEmail)}</strong> to IMI admin.</p>
     <p>Two admins from <strong>different sites</strong> must explicitly approve.</p>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
@@ -292,13 +320,26 @@ export async function sendAdminPromotionRequestedEmail(
         Review in Portal
       </a>
     </p>
-  `);
-  await transporter.sendMail({ from: FROM, to: recipientAdminEmails.join(','), subject, text, html });
+  `,
+  );
+  await transporter.sendMail({
+    from: FROM,
+    to: recipientAdminEmails.join(','),
+    subject,
+    text,
+    html,
+  });
 }
 
 export async function sendCertExpiryWarning(
   to: string,
-  opts: { orgName: string; orgIdentifier: string; subject: string; daysLeft: number; validUntil: string },
+  opts: {
+    orgName: string;
+    orgIdentifier: string;
+    subject: string;
+    daysLeft: number;
+    validUntil: string;
+  },
 ): Promise<void> {
   if (IS_TEST) return;
 
@@ -318,7 +359,9 @@ export async function sendCertExpiryWarning(
 
   const urgencyColor = opts.daysLeft <= 7 ? '#ef4444' : opts.daysLeft <= 30 ? '#f97316' : '#f59e0b';
 
-  const html = baseHtml('Certificate Expiry Warning', `
+  const html = baseHtml(
+    'Certificate Expiry Warning',
+    `
     <div style="padding:16px;border-radius:8px;border:2px solid ${urgencyColor};margin-bottom:20px;">
       <p style="margin:0;font-weight:bold;color:${urgencyColor};">
         Certificate expires in ${opts.daysLeft} day${opts.daysLeft === 1 ? '' : 's'}
@@ -340,7 +383,8 @@ export async function sendCertExpiryWarning(
         Renew in Portal
       </a>
     </p>
-  `);
+  `,
+  );
 
   await transporter.sendMail({ from: FROM, to, subject: mailSubject, text, html });
 }
@@ -352,30 +396,37 @@ export async function sendAdminPromotionResultEmail(
   reason: string | null,
 ): Promise<void> {
   if (recipients.length === 0 || IS_TEST) return;
-  const subject = status === 'APPROVED'
-    ? `[DSF Allow List – ${ENV}] Admin promotion approved: ${targetEmail}`
-    : status === 'REJECTED'
-      ? `[DSF Allow List – ${ENV}] Admin promotion rejected: ${targetEmail}`
-      : `[DSF Allow List – ${ENV}] Admin promotion cancelled: ${targetEmail}`;
+  const subject =
+    status === 'APPROVED'
+      ? `[DSF Allow List – ${ENV}] Admin promotion approved: ${targetEmail}`
+      : status === 'REJECTED'
+        ? `[DSF Allow List – ${ENV}] Admin promotion rejected: ${targetEmail}`
+        : `[DSF Allow List – ${ENV}] Admin promotion cancelled: ${targetEmail}`;
   const reasonLine = reason ? `\n\nReason: ${reason}` : '';
   const text = [
     `DSF Allow List – ${ENV}`,
     ``,
     `Promotion request for ${targetEmail} was ${status.toLowerCase()}.`,
     reasonLine,
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
   const reasonHtml = reason
     ? `<div style="margin-top:16px;padding:12px;background:#f8f8fb;border-left:4px solid #ddd;border-radius:4px;">
          <p style="margin:0 0 4px 0;color:#666;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Reason</p>
          <p style="margin:0;">${esc(reason)}</p>
        </div>`
     : '';
-  const statusColor = status === 'APPROVED' ? COLOR_APPROVED : status === 'REJECTED' ? COLOR_REJECTED : '#9b9fad';
-  const html = baseHtml(`Admin Promotion ${status.charAt(0) + status.slice(1).toLowerCase()}`, `
+  const statusColor =
+    status === 'APPROVED' ? COLOR_APPROVED : status === 'REJECTED' ? COLOR_REJECTED : '#9b9fad';
+  const html = baseHtml(
+    `Admin Promotion ${status.charAt(0) + status.slice(1).toLowerCase()}`,
+    `
     <p>Promotion request for <strong>${esc(targetEmail)}</strong> was
       <span style="font-weight:bold;color:${statusColor};">${status.toLowerCase()}</span>.
     </p>
     ${reasonHtml}
-  `);
+  `,
+  );
   await transporter.sendMail({ from: FROM, to: recipients.join(','), subject, text, html });
 }

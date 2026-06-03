@@ -24,33 +24,50 @@ const listSchema = z.object({
 export const adminBundleVersionsRouter = Router();
 adminBundleVersionsRouter.use(requireAuth, requireImiAdmin);
 
-adminBundleVersionsRouter.get('/', asyncHandler(async (req, res) => {
-  const parsed = listSchema.parse(req.query);
-  const { rows, total } = await svc.listVersions(parsed);
-  res.json({
-    data: rows,
-    meta: { page: parsed.page, limit: parsed.limit, total, pages: Math.ceil(total / parsed.limit) },
-  });
-}));
+adminBundleVersionsRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    const parsed = listSchema.parse(req.query);
+    const { rows, total } = await svc.listVersions(parsed);
+    res.json({
+      data: rows,
+      meta: {
+        page: parsed.page,
+        limit: parsed.limit,
+        total,
+        pages: Math.ceil(total / parsed.limit),
+      },
+    });
+  }),
+);
 
-adminBundleVersionsRouter.get('/:id', asyncHandler(async (req, res) => {
-  const v = await svc.getVersion(req.params.id);
-  res.json({ data: v });
-}));
+adminBundleVersionsRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const v = await svc.getVersion(req.params.id);
+    res.json({ data: v });
+  }),
+);
 
-adminBundleVersionsRouter.get('/:id/download', asyncHandler(async (req, res) => {
-  const v = await svc.getVersion(req.params.id);
-  res.setHeader('Content-Type', 'application/fhir+json');
-  res.setHeader(
-    'Content-Disposition',
-    `attachment; filename="dsf-bundle-v${v.version_number}.json"`,
-  );
-  res.setHeader('X-Bundle-Signature', v.signature);
-  res.setHeader('X-Content-Hash', v.content_hash);
-  res.send(v.bundle_json);
-}));
+adminBundleVersionsRouter.get(
+  '/:id/download',
+  asyncHandler(async (req, res) => {
+    const v = await svc.getVersion(req.params.id);
+    res.setHeader('Content-Type', 'application/fhir+json');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="dsf-bundle-v${v.version_number}.json"`,
+    );
+    res.setHeader('X-Bundle-Signature', v.signature);
+    res.setHeader('X-Content-Hash', v.content_hash);
+    res.send(v.bundle_json);
+  }),
+);
 
-adminBundleVersionsRouter.get('/:idA/diff/:idB', asyncHandler(async (req, res) => {
-  const diff = await svc.diffVersions(req.params.idA, req.params.idB);
-  res.json({ data: diff });
-}));
+adminBundleVersionsRouter.get(
+  '/:idA/diff/:idB',
+  asyncHandler(async (req, res) => {
+    const diff = await svc.diffVersions(req.params.idA, req.params.idB);
+    res.json({ data: diff });
+  }),
+);

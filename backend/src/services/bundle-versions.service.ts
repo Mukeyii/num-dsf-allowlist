@@ -89,7 +89,8 @@ export async function listVersions(opts: { page: number; limit: number }) {
       'approval_request_id',
     )
     .orderBy('version_number', 'desc')
-    .limit(limit).offset((page - 1) * limit);
+    .limit(limit)
+    .offset((page - 1) * limit);
   const [{ total }] = await db('bundle_versions').count<[{ total: number }]>({ total: '*' });
   return { rows, total: Number(total) };
 }
@@ -100,8 +101,13 @@ export async function getVersion(id: string) {
   return { ...row, bundle: JSON.parse(row.bundle_json) };
 }
 
-interface FhirEntry { resource?: { id?: string; resourceType?: string }; fullUrl?: string }
-interface FhirBundle { entry?: FhirEntry[] }
+interface FhirEntry {
+  resource?: { id?: string; resourceType?: string };
+  fullUrl?: string;
+}
+interface FhirBundle {
+  entry?: FhirEntry[];
+}
 
 function keyOf(entry: FhirEntry): string {
   const r = entry.resource;
@@ -110,15 +116,20 @@ function keyOf(entry: FhirEntry): string {
 
 export async function diffVersions(idA: string, idB: string) {
   const [a, b] = await Promise.all([getVersion(idA), getVersion(idB)]);
-  const aMap = new Map<string, FhirEntry>((a.bundle as FhirBundle).entry?.map(e => [keyOf(e), e]) ?? []);
-  const bMap = new Map<string, FhirEntry>((b.bundle as FhirBundle).entry?.map(e => [keyOf(e), e]) ?? []);
+  const aMap = new Map<string, FhirEntry>(
+    (a.bundle as FhirBundle).entry?.map((e) => [keyOf(e), e]) ?? [],
+  );
+  const bMap = new Map<string, FhirEntry>(
+    (b.bundle as FhirBundle).entry?.map((e) => [keyOf(e), e]) ?? [],
+  );
   const added: FhirEntry[] = [];
   const removed: FhirEntry[] = [];
   const changed: Array<{ before: FhirEntry; after: FhirEntry }> = [];
   for (const [k, entry] of bMap) {
     const before = aMap.get(k);
     if (!before) added.push(entry);
-    else if (JSON.stringify(before) !== JSON.stringify(entry)) changed.push({ before, after: entry });
+    else if (JSON.stringify(before) !== JSON.stringify(entry))
+      changed.push({ before, after: entry });
   }
   for (const [k, entry] of aMap) {
     if (!bMap.has(k)) removed.push(entry);

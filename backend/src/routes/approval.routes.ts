@@ -19,7 +19,11 @@ export const approvalRouter = Router({ mergeParams: true });
 
 approvalRouter.post('/submit', requireAuth, requireInstanceOwnership, async (req, res) => {
   try {
-    const request = await svc.submitApproval(req.instance!.id, req.user!.email, req.ip || 'unknown');
+    const request = await svc.submitApproval(
+      req.instance!.id,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
     res.json({ data: request });
   } catch (err: unknown) {
     res.status(400).json({ error: sanitizeError(err) });

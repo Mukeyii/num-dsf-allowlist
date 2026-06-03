@@ -25,9 +25,17 @@ describe('bundle-versions service', () => {
   });
 
   it('createSnapshot returns id + monotonic versionNumber + content hash', async () => {
-    const a = await createSnapshot({ triggeredBy: 'MANUAL', triggeredByEmail: ADMIN_EMAIL, notes: 'first' });
+    const a = await createSnapshot({
+      triggeredBy: 'MANUAL',
+      triggeredByEmail: ADMIN_EMAIL,
+      notes: 'first',
+    });
     firstId = a.id;
-    const b = await createSnapshot({ triggeredBy: 'MANUAL', triggeredByEmail: ADMIN_EMAIL, notes: 'second' });
+    const b = await createSnapshot({
+      triggeredBy: 'MANUAL',
+      triggeredByEmail: ADMIN_EMAIL,
+      notes: 'second',
+    });
     secondId = b.id;
     expect(b.versionNumber).toBeGreaterThan(a.versionNumber);
     expect(a.contentHash).toMatch(/^[a-f0-9]{64}$/i);
@@ -37,8 +45,8 @@ describe('bundle-versions service', () => {
   it('listVersions returns the snapshots newest-first', async () => {
     const { rows, total } = await listVersions({ page: 1, limit: 50 });
     expect(total).toBeGreaterThanOrEqual(2);
-    const idx1 = rows.findIndex(r => r.id === firstId);
-    const idx2 = rows.findIndex(r => r.id === secondId);
+    const idx1 = rows.findIndex((r) => r.id === firstId);
+    const idx2 = rows.findIndex((r) => r.id === secondId);
     expect(idx1).toBeGreaterThanOrEqual(0);
     expect(idx2).toBeGreaterThanOrEqual(0);
     expect(idx2).toBeLessThan(idx1); // 'second' (higher version_number) appears earlier in DESC order

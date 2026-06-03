@@ -34,8 +34,11 @@ function rowToEntry(r: any): MarketplaceEntry {
   if (r.topics) {
     try {
       const parsed = typeof r.topics === 'string' ? JSON.parse(r.topics) : r.topics;
-      if (Array.isArray(parsed)) topics = parsed.filter((x: unknown): x is string => typeof x === 'string');
-    } catch { topics = []; }
+      if (Array.isArray(parsed))
+        topics = parsed.filter((x: unknown): x is string => typeof x === 'string');
+    } catch {
+      topics = [];
+    }
   }
   return {
     id: r.id,
@@ -87,27 +90,42 @@ export async function addEntry(
   });
 
   await writeAuditLog({
-    userEmail: adminEmail, resourceType: 'MARKETPLACE', resourceId: id,
-    operation: 'CREATE', diffJson: { gitUrl: canonical, status: data.status }, ipAddress: ip,
+    userEmail: adminEmail,
+    resourceType: 'MARKETPLACE',
+    resourceId: id,
+    operation: 'CREATE',
+    diffJson: { gitUrl: canonical, status: data.status },
+    ipAddress: ip,
   });
 
   // First sync runs synchronously so the response includes metadata.
   const { syncEntry } = await import('./marketplace-sync.service');
-  try { await syncEntry(id); } catch { /* sync failure stays in sync_error column */ }
+  try {
+    await syncEntry(id);
+  } catch {
+    /* sync failure stays in sync_error column */
+  }
 
   const row = await db('marketplace_entries').where({ id }).first();
   return rowToEntry(row);
 }
 
 export async function updateStatus(
-  id: string, status: MarketplaceStatus, adminEmail: string, ip: string,
+  id: string,
+  status: MarketplaceStatus,
+  adminEmail: string,
+  ip: string,
 ): Promise<MarketplaceEntry> {
   const existing = await db('marketplace_entries').where({ id }).first();
   if (!existing) throw new Error('NOT_FOUND');
   await db('marketplace_entries').where({ id }).update({ status, updated_at: new Date() });
   await writeAuditLog({
-    userEmail: adminEmail, resourceType: 'MARKETPLACE', resourceId: id,
-    operation: 'UPDATE', diffJson: { before: { status: existing.status }, after: { status } }, ipAddress: ip,
+    userEmail: adminEmail,
+    resourceType: 'MARKETPLACE',
+    resourceId: id,
+    operation: 'UPDATE',
+    diffJson: { before: { status: existing.status }, after: { status } },
+    ipAddress: ip,
   });
   const row = await db('marketplace_entries').where({ id }).first();
   return rowToEntry(row);
@@ -118,7 +136,11 @@ export async function removeEntry(id: string, adminEmail: string, ip: string): P
   if (!existing) throw new Error('NOT_FOUND');
   await db('marketplace_entries').where({ id }).delete();
   await writeAuditLog({
-    userEmail: adminEmail, resourceType: 'MARKETPLACE', resourceId: id,
-    operation: 'DELETE', diffJson: { gitUrl: existing.git_url }, ipAddress: ip,
+    userEmail: adminEmail,
+    resourceType: 'MARKETPLACE',
+    resourceId: id,
+    operation: 'DELETE',
+    diffJson: { gitUrl: existing.git_url },
+    ipAddress: ip,
   });
 }

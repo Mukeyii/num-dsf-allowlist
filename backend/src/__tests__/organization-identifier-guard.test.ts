@@ -16,15 +16,32 @@ const orgIdentifier = `orgguard-${Date.now()}.example.de`;
 
 describe('organization identifier-guard (service layer)', () => {
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: userEmail, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'orgguard-test', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: userEmail,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'orgguard-test',
+      created_at: new Date(),
+    });
     await upsertOrganization(
       instanceId,
       {
-        identifier: orgIdentifier, name: 'Guard Org', active: true, email: `admin@${orgIdentifier}`,
-        addressLine: '', postalCode: '', city: '', countryCode: '',
+        identifier: orgIdentifier,
+        name: 'Guard Org',
+        active: true,
+        email: `admin@${orgIdentifier}`,
+        addressLine: '',
+        postalCode: '',
+        city: '',
+        countryCode: '',
       },
-      userEmail, '0.0.0.0',
+      userEmail,
+      '0.0.0.0',
     );
   });
 
@@ -39,10 +56,17 @@ describe('organization identifier-guard (service layer)', () => {
       upsertOrganization(
         instanceId,
         {
-          identifier: 'renamed.example.de', name: 'Guard Org', active: true, email: `admin@${orgIdentifier}`,
-          addressLine: '', postalCode: '', city: '', countryCode: '',
+          identifier: 'renamed.example.de',
+          name: 'Guard Org',
+          active: true,
+          email: `admin@${orgIdentifier}`,
+          addressLine: '',
+          postalCode: '',
+          city: '',
+          countryCode: '',
         },
-        userEmail, '0.0.0.0',
+        userEmail,
+        '0.0.0.0',
       ),
     ).rejects.toThrow('IDENTIFIER_IMMUTABLE');
   });
@@ -52,10 +76,17 @@ describe('organization identifier-guard (service layer)', () => {
       upsertOrganization(
         instanceId,
         {
-          identifier: orgIdentifier, name: 'Renamed-Display-Only', active: true, email: `admin@${orgIdentifier}`,
-          addressLine: '', postalCode: '', city: '', countryCode: '',
+          identifier: orgIdentifier,
+          name: 'Renamed-Display-Only',
+          active: true,
+          email: `admin@${orgIdentifier}`,
+          addressLine: '',
+          postalCode: '',
+          city: '',
+          countryCode: '',
         },
-        userEmail, '0.0.0.0',
+        userEmail,
+        '0.0.0.0',
       ),
     ).resolves.toBeDefined();
     const row = await db('organizations').where({ identifier: orgIdentifier }).first();

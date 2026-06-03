@@ -23,13 +23,16 @@ describe('admin-bootstrap.service – bootstrapAdminGrants idempotent no-op', ()
   beforeAll(async () => {
     const grantedAt = new Date(Math.floor(Date.now() / 1000) * 1000);
     const sig = signGrant(seededEmail, grantedAt, 'SYSTEM:test', 'SYSTEM:test');
-    await db('admin_grants').insert({
-      email: seededEmail,
-      granted_at: grantedAt,
-      granted_by_a: 'SYSTEM:test',
-      granted_by_b: 'SYSTEM:test',
-      signature_hex: sig,
-    }).onConflict('email').ignore();
+    await db('admin_grants')
+      .insert({
+        email: seededEmail,
+        granted_at: grantedAt,
+        granted_by_a: 'SYSTEM:test',
+        granted_by_b: 'SYSTEM:test',
+        signature_hex: sig,
+      })
+      .onConflict('email')
+      .ignore();
   });
 
   afterAll(async () => {

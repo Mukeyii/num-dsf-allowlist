@@ -29,7 +29,10 @@ export interface KnownCaRow {
   synced_at: Date;
 }
 
-export async function isCaBlacklisted(args: { subjectDn?: string; fingerprint?: string }): Promise<boolean> {
+export async function isCaBlacklisted(args: {
+  subjectDn?: string;
+  fingerprint?: string;
+}): Promise<boolean> {
   if (!args.subjectDn && !args.fingerprint) return false;
   const q = db('ca_blacklist');
   q.where(function () {

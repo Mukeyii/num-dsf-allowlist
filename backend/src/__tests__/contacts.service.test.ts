@@ -20,12 +20,30 @@ describe('contacts.service', () => {
   const email = 'caller@example.de';
 
   beforeAll(async () => {
-    await db('users').insert({ id: userId, email: `${userId}@x.de`, totp_enabled: false, created_at: new Date() });
-    await db('instances').insert({ id: instanceId, user_id: userId, label: 'svc', created_at: new Date() });
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'svc',
+      created_at: new Date(),
+    });
     await db('organizations').insert({
-      identifier: org, instance_id: instanceId, name: 'Svc', active: 1,
-      email: 'x@x.de', address_line: 'x', postal_code: '0', city: 'x',
-      country_code: 'DE', created_at: new Date(), updated_at: new Date(),
+      identifier: org,
+      instance_id: instanceId,
+      name: 'Svc',
+      active: 1,
+      email: 'x@x.de',
+      address_line: 'x',
+      postal_code: '0',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
     });
   });
 
@@ -43,7 +61,8 @@ describe('contacts.service', () => {
     const created = await createContact(
       instanceId,
       { types: ['MEDIC'], name: 'Dr X', email: 'm@x.de' },
-      email, '127.0.0.1',
+      email,
+      '127.0.0.1',
     );
     expect(created).toBeTruthy();
     const contactId = created!.id as string;
@@ -51,7 +70,13 @@ describe('contacts.service', () => {
     const listed = await getContacts(instanceId);
     expect(listed.some((r: any) => r.id === contactId && r.email === 'm@x.de')).toBe(true);
 
-    const updated = await updateContact(instanceId, contactId, { name: 'Dr Y' }, email, '127.0.0.1');
+    const updated = await updateContact(
+      instanceId,
+      contactId,
+      { name: 'Dr Y' },
+      email,
+      '127.0.0.1',
+    );
     expect(updated!.name).toBe('Dr Y');
 
     await deleteContact(instanceId, contactId, email, '127.0.0.1');

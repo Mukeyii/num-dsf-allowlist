@@ -15,9 +15,14 @@ export async function bootstrapAdminGrants(): Promise<void> {
     if (n > 0) return;
 
     const raw = process.env.IMI_ADMIN_EMAILS || '';
-    const emails = raw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+    const emails = raw
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
     if (emails.length === 0) {
-      logger.warn('[admin-bootstrap] admin_grants empty AND IMI_ADMIN_EMAILS not set — no admins exist');
+      logger.warn(
+        '[admin-bootstrap] admin_grants empty AND IMI_ADMIN_EMAILS not set — no admins exist',
+      );
       return;
     }
 
@@ -27,15 +32,20 @@ export async function bootstrapAdminGrants(): Promise<void> {
     const now = new Date(Math.floor(Date.now() / 1000) * 1000);
     for (const email of emails) {
       const sig = signGrant(email, now, 'SYSTEM:bootstrap', 'SYSTEM:bootstrap');
-      await db('admin_grants').insert({
-        email,
-        granted_at: now,
-        granted_by_a: 'SYSTEM:bootstrap',
-        granted_by_b: 'SYSTEM:bootstrap',
-        signature_hex: sig,
-      }).onConflict('email').ignore();
+      await db('admin_grants')
+        .insert({
+          email,
+          granted_at: now,
+          granted_by_a: 'SYSTEM:bootstrap',
+          granted_by_b: 'SYSTEM:bootstrap',
+          signature_hex: sig,
+        })
+        .onConflict('email')
+        .ignore();
     }
-    logger.info(`[admin-bootstrap] Created ${emails.length} signed admin_grants from IMI_ADMIN_EMAILS. Future runs will ignore the env var.`);
+    logger.info(
+      `[admin-bootstrap] Created ${emails.length} signed admin_grants from IMI_ADMIN_EMAILS. Future runs will ignore the env var.`,
+    );
   } catch (err) {
     logger.error({ err }, '[admin-bootstrap] failed');
   }

@@ -16,22 +16,32 @@ adminPromotionsRouter.use(requireAuth, requireImiAdmin);
 function handleError(err: unknown, res: Response): Response {
   if (err instanceof PromotionError) {
     const status =
-      err.code === 'NOT_FOUND' ? 404
-      : err.code === 'ALREADY_PENDING' ? 409
-      : err.code === 'ALREADY_ADMIN' ? 409
-      : err.code === 'NOT_PENDING' ? 409
-      : err.code === 'SAME_SITE' ? 403
-      : err.code === 'SELF_APPROVE' ? 403
-      : 400;
+      err.code === 'NOT_FOUND'
+        ? 404
+        : err.code === 'ALREADY_PENDING'
+          ? 409
+          : err.code === 'ALREADY_ADMIN'
+            ? 409
+            : err.code === 'NOT_PENDING'
+              ? 409
+              : err.code === 'SAME_SITE'
+                ? 403
+                : err.code === 'SELF_APPROVE'
+                  ? 403
+                  : 400;
     return res.status(status).json({ error: { code: err.code, message: err.message } });
   }
-  return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: (err as Error)?.message } });
+  return res
+    .status(500)
+    .json({ error: { code: 'INTERNAL_ERROR', message: (err as Error)?.message } });
 }
 
 async function checkTotp(req: Request, res: Response): Promise<boolean> {
   const code = req.body?.totpCode;
   if (!code || typeof code !== 'string' || code.length !== 6) {
-    res.status(400).json({ error: { code: 'TOTP_REQUIRED', message: '6-digit TOTP code required' } });
+    res
+      .status(400)
+      .json({ error: { code: 'TOTP_REQUIRED', message: '6-digit TOTP code required' } });
     return false;
   }
   const ok = await verifyTotpCode(req.user!.id, code);

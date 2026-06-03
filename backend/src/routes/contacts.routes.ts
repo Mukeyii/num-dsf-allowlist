@@ -19,22 +19,52 @@ contactsRouter.get('/', async (req, res) => {
   res.json({ data: await svc.getContacts(req.instance!.id) });
 });
 
-contactsRouter.post('/', validate(createContactSchema), asyncHandler(async (req, res) => {
-  const contact = await svc.createContact(req.instance!.id, req.body, req.user!.email, req.ip || 'unknown');
-  res.status(201).json({ data: contact });
-}));
+contactsRouter.post(
+  '/',
+  validate(createContactSchema),
+  asyncHandler(async (req, res) => {
+    const contact = await svc.createContact(
+      req.instance!.id,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.status(201).json({ data: contact });
+  }),
+);
 
-contactsRouter.put('/:cid', validate(updateContactSchema), asyncHandler(async (req, res) => {
-  const contact = await svc.updateContact(req.instance!.id, req.params.cid, req.body, req.user!.email, req.ip || 'unknown');
-  res.json({ data: contact });
-}));
+contactsRouter.put(
+  '/:cid',
+  validate(updateContactSchema),
+  asyncHandler(async (req, res) => {
+    const contact = await svc.updateContact(
+      req.instance!.id,
+      req.params.cid,
+      req.body,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: contact });
+  }),
+);
 
-contactsRouter.delete('/:cid', asyncHandler(async (req, res) => {
-  await svc.deleteContact(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
-  res.json({ data: { deleted: true } });
-}));
+contactsRouter.delete(
+  '/:cid',
+  asyncHandler(async (req, res) => {
+    await svc.deleteContact(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
+    res.json({ data: { deleted: true } });
+  }),
+);
 
-contactsRouter.post('/:cid/resend-verification', asyncHandler(async (req, res) => {
-  await svc.resendVerification(req.instance!.id, req.params.cid, req.user!.email, req.ip || 'unknown');
-  res.json({ data: { message: 'Verification email sent.' } });
-}));
+contactsRouter.post(
+  '/:cid/resend-verification',
+  asyncHandler(async (req, res) => {
+    await svc.resendVerification(
+      req.instance!.id,
+      req.params.cid,
+      req.user!.email,
+      req.ip || 'unknown',
+    );
+    res.json({ data: { message: 'Verification email sent.' } });
+  }),
+);

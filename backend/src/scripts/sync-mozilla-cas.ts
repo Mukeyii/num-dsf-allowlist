@@ -52,7 +52,8 @@ export async function syncOnce(text: string): Promise<{ upserted: number; skippe
       const subject_dn = subjectDnOf(pem);
       await db('known_cas')
         .insert({ fingerprint, subject_dn, source: 'mozilla', synced_at: new Date() })
-        .onConflict('fingerprint').merge({ subject_dn, synced_at: new Date() });
+        .onConflict('fingerprint')
+        .merge({ subject_dn, synced_at: new Date() });
       upserted++;
     } catch (e) {
       skipped++;
@@ -74,7 +75,10 @@ async function main() {
 // Run when invoked directly, skip when imported (e.g. by tests).
 if (require.main === module) {
   main().catch((err) => {
-    logger.fatal({ err: err instanceof Error ? err.message : 'unknown' }, 'sync-mozilla-cas failed');
+    logger.fatal(
+      { err: err instanceof Error ? err.message : 'unknown' },
+      'sync-mozilla-cas failed',
+    );
     process.exit(1);
   });
 }

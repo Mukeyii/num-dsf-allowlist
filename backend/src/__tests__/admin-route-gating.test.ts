@@ -11,16 +11,19 @@ import { app } from '../app';
 import { cleanTestData, seedTestUser } from './helpers/seed';
 import { getTestToken } from './helpers/auth';
 
-interface AdminRoute { method: 'get' | 'post' | 'delete'; path: string }
+interface AdminRoute {
+  method: 'get' | 'post' | 'delete';
+  path: string;
+}
 
 const ADMIN_ROUTES: AdminRoute[] = [
-  { method: 'get',    path: '/api/v1/admin/instances' },
-  { method: 'get',    path: '/api/v1/admin/audit' },
-  { method: 'get',    path: '/api/v1/admin/users' },
-  { method: 'get',    path: '/api/v1/admin/promotions' },
-  { method: 'get',    path: '/api/v1/admin/ca-blacklist' },
-  { method: 'get',    path: '/api/v1/admin/bundle-versions' },
-  { method: 'get',    path: '/api/v1/admin/marketplace' },
+  { method: 'get', path: '/api/v1/admin/instances' },
+  { method: 'get', path: '/api/v1/admin/audit' },
+  { method: 'get', path: '/api/v1/admin/users' },
+  { method: 'get', path: '/api/v1/admin/promotions' },
+  { method: 'get', path: '/api/v1/admin/ca-blacklist' },
+  { method: 'get', path: '/api/v1/admin/bundle-versions' },
+  { method: 'get', path: '/api/v1/admin/marketplace' },
 ];
 
 describe('admin-route gating', () => {
@@ -33,7 +36,8 @@ describe('admin-route gating', () => {
   });
 
   it.each(ADMIN_ROUTES)('non-admin gets 403 on $method $path', async (route) => {
-    const res = await (request(app) as unknown as Record<string, (p: string) => request.Test>)[route.method](route.path)
+    const res = await (request(app) as unknown as Record<string, (p: string) => request.Test>)
+      [route.method](route.path)
       .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(403);
   });
