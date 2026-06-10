@@ -12,7 +12,7 @@
  *   POST /auth/logout
  */
 import { Router, Request, Response } from 'express';
-import { otpRateLimit } from '../middleware/rateLimit.middleware';
+import { otpRateLimit, refreshRateLimit } from '../middleware/rateLimit.middleware';
 import { REFRESH_TOKEN_TTL_MS } from '../lib/time';
 import { logger } from '../lib/logger';
 import {
@@ -45,19 +45,34 @@ const REFRESH_COOKIE_OPTIONS = {
   path: '/auth',
 };
 
-// POST /auth/request-otp
+// Rate-limiter selection.
 //
-// otpLimiter is the Redis-backed 5-req/15-min bucket. Skip it when running
-// jest (NODE_ENV=test) and when running a dev/CI environment that enabled
-// DEV_AUTO_LOGIN — the e2e suite shares a single CI runner IP and calls
-// /dev-login from every test, blowing past 5 in 15 min and silently 429ing.
-// Production never sets DEV_AUTO_LOGIN, so the limiter still applies there.
-const otpLimiter =
-  process.env.NODE_ENV === 'test' ||
-  (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true')
-    ? []
-    : [otpRateLimit];
-authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Response) => {
+// `verifyLimiter` — the tight 5-req/15-min OTP bucket — guards the credential-
+// verification routes (verify-otp, verify-totp, confirm/setup-totp, client-cert
+// login). It is skipped ONLY under jest (NODE_ENV=test) to avoid cross-test
+// Redis-bucket flakiness; it is NOT skipped for DEV_AUTO_LOGIN, so an exposed
+// dev/preview environment still throttles brute-force against the verify
+// routes. (The e2e/contract suites only ever call /dev-login, so keeping the
+// verify routes throttled does not affect them.)
+//
+// `devEntryLimiter` additionally drops the limiter when DEV_AUTO_LOGIN is on:
+// the OTP entrypoint and the /dev-login shortcut are hit from every e2e test on
+// one shared CI-runner IP, which would blow past 5/15min. Production never sets
+// DEV_AUTO_LOGIN, so the limiter still applies there.
+//
+// `refreshLimiter` is the separate, generous /auth/refresh bucket; /auth/logout
+// carries no limiter. Previously every auth route — including refresh/logout —
+// shared one per-IP OTP bucket, so a logged-in user could 429 themselves
+// mid-session after a few token refreshes.
+const isTest = process.env.NODE_ENV === 'test';
+const isDevAutoLogin =
+  process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true';
+const verifyLimiter = isTest ? [] : [otpRateLimit];
+const devEntryLimiter = isTest || isDevAutoLogin ? [] : [otpRateLimit];
+const refreshLimiter = isTest ? [] : [refreshRateLimit];
+
+// POST /auth/request-otp
+authRouter.post('/request-otp', ...devEntryLimiter, async (req: Request, res: Response) => {
   const { email } = req.body;
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'Email required' } });
@@ -72,7 +87,7 @@ authRouter.post('/request-otp', ...otpLimiter, async (req: Request, res: Respons
 });
 
 // POST /auth/verify-otp
-authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/verify-otp', ...verifyLimiter, async (req: Request, res: Response) => {
   const { email, code } = req.body;
   if (!email || !code) {
     return res
@@ -93,7 +108,7 @@ authRouter.post('/verify-otp', ...otpLimiter, async (req: Request, res: Response
 // once TOTP is already enabled on the account. Without this gate, a holder
 // of a valid totp_setup tempToken (10-min TTL) could call /setup-totp
 // repeatedly to rotate the TOTP secret out from under the user.
-authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/setup-totp', ...verifyLimiter, async (req: Request, res: Response) => {
   const { tempToken } = req.body;
   if (!tempToken) {
     return res.status(400).json({ error: { code: 'VALIDATION', message: 'tempToken required' } });
@@ -122,7 +137,7 @@ authRouter.post('/setup-totp', ...otpLimiter, async (req: Request, res: Response
 });
 
 // POST /auth/confirm-totp  → confirm TOTP after setup + create session
-authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/confirm-totp', ...verifyLimiter, async (req: Request, res: Response) => {
   const { tempToken, code } = req.body;
   if (!tempToken || !code) {
     return res
@@ -143,7 +158,7 @@ authRouter.post('/confirm-totp', ...otpLimiter, async (req: Request, res: Respon
 });
 
 // POST /auth/verify-totp  → TOTP for subsequent logins
-authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/verify-totp', ...verifyLimiter, async (req: Request, res: Response) => {
   const { tempToken, code } = req.body;
   if (!tempToken || !code) {
     return res
@@ -164,7 +179,7 @@ authRouter.post('/verify-totp', ...otpLimiter, async (req: Request, res: Respons
 });
 
 // POST /auth/refresh  → new access token
-authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/refresh', ...refreshLimiter, async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'No refresh token' } });
@@ -186,7 +201,7 @@ authRouter.post('/refresh', ...otpLimiter, async (req: Request, res: Response) =
 // were toggled at runtime.
 // Body: { role?: 'admin' | 'member' | 'site' }
 if (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true') {
-  authRouter.post('/dev-login', ...otpLimiter, async (req: Request, res: Response) => {
+  authRouter.post('/dev-login', ...devEntryLimiter, async (req: Request, res: Response) => {
     const inputRole = req.body?.role;
     const role: 'admin' | 'member' | 'site' =
       inputRole === 'member' ? 'member' : inputRole === 'site' ? 'site' : 'admin';
@@ -240,7 +255,7 @@ if (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'tru
 }
 
 // POST /auth/client-cert-login → authenticate by client certificate thumbprint
-authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/client-cert-login', ...verifyLimiter, async (req: Request, res: Response) => {
   const cert = extractClientCert(req);
   if (!cert) {
     res
@@ -296,7 +311,7 @@ authRouter.post('/client-cert-login', ...otpLimiter, async (req: Request, res: R
 });
 
 // POST /auth/logout
-authRouter.post('/logout', ...otpLimiter, async (req: Request, res: Response) => {
+authRouter.post('/logout', async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
   const userEmail = req.body?.email || 'unknown';
   if (refreshToken) {
