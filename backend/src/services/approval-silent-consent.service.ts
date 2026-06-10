@@ -11,7 +11,13 @@ import { writeAuditLog } from './audit.service';
 import { notifySiteOnApproval } from './approval-reminder.service';
 import { ApprovalSig } from '../lib/approvalState';
 
-const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
+// Clamp to ≥1 day so a 0/negative env value cannot promote a fresh single
+// APPROVE on the nightly sweep (mirrors approval.service.ts). Non-numeric
+// input falls back to the 7-day default.
+const SILENT_CONSENT_DAYS = Math.max(
+  1,
+  parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10) || 7,
+);
 
 export async function runSilentConsentSweep(now: Date = new Date()): Promise<number> {
   const cutoff = new Date(now.getTime() - SILENT_CONSENT_DAYS * 86400_000);
