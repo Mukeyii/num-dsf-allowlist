@@ -71,10 +71,15 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
   if (!user?.totp_secret) return false;
 
   const secret = decryptSecret(user.totp_secret);
+  // Normalize once: speakeasy verifies the whitespace-stripped token, so the
+  // anti-replay claim below MUST hash the same normalized value. Hashing the
+  // raw input instead would let a captured code replay under different
+  // spacing ('123456' vs '123 456') — each variant claims a different key.
+  const normalized = code.replace(/\s/g, '');
   const valid = speakeasy.totp.verify({
     secret,
     encoding: 'base32',
-    token: code.replace(/\s/g, ''),
+    token: normalized,
     window: 1,
   });
 
@@ -85,7 +90,7 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
   // is valid for the current 30s step plus ±1 step), the worst-case acceptance
   // window is 90 s. A 60 s TTL would let an attacker re-submit a captured code
   // in the last 30 s of its lifetime. 120 s gives a 30 s safety margin.
-  const codeHash = crypto.createHash('sha256').update(`${userId}:${code}`).digest('hex');
+  const codeHash = crypto.createHash('sha256').update(`${userId}:${normalized}`).digest('hex');
   const replayKey = `totp_used:${codeHash}`;
   const claimed = await redis.set(replayKey, '1', 'EX', 120, 'NX');
   if (claimed === null) return false;
