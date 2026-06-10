@@ -3,15 +3,19 @@
  * Mounted at /api/v1/admin/promotions.
  * Dependencies: auth.middleware, admin.middleware, totp.service, admin-promotions.service
  */
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireImiAdmin } from '../middleware/admin.middleware';
-import { verifyTotpCode } from '../services/totp.service';
+import { requireFreshTotp } from '../middleware/totp.middleware';
+import { stepUpTotpRateLimit } from '../middleware/rateLimit.middleware';
 import * as svc from '../services/admin-promotions.service';
 import { PromotionError } from '../services/admin-promotions.service';
 
 export const adminPromotionsRouter = Router();
 adminPromotionsRouter.use(requireAuth, requireImiAdmin);
+
+// Step-up rate limiter for the TOTP-gated writes (skipped under jest).
+const stepUp = process.env.NODE_ENV === 'test' ? [] : [stepUpTotpRateLimit];
 
 function handleError(err: unknown, res: Response): Response {
   if (err instanceof PromotionError) {
@@ -36,22 +40,6 @@ function handleError(err: unknown, res: Response): Response {
     .json({ error: { code: 'INTERNAL_ERROR', message: (err as Error)?.message } });
 }
 
-async function checkTotp(req: Request, res: Response): Promise<boolean> {
-  const code = req.body?.totpCode;
-  if (!code || typeof code !== 'string' || code.length !== 6) {
-    res
-      .status(400)
-      .json({ error: { code: 'TOTP_REQUIRED', message: '6-digit TOTP code required' } });
-    return false;
-  }
-  const ok = await verifyTotpCode(req.user!.id, code);
-  if (!ok) {
-    res.status(401).json({ error: { code: 'TOTP_INVALID', message: 'Invalid TOTP code' } });
-    return false;
-  }
-  return true;
-}
-
 // GET /api/v1/admin/promotions
 adminPromotionsRouter.get('/', async (_req, res) => {
   try {
@@ -63,8 +51,7 @@ adminPromotionsRouter.get('/', async (_req, res) => {
 });
 
 // POST /api/v1/admin/promotions  { targetEmail, totpCode }
-adminPromotionsRouter.post('/', async (req, res) => {
-  if (!(await checkTotp(req, res))) return;
+adminPromotionsRouter.post('/', ...stepUp, requireFreshTotp, async (req, res) => {
   try {
     const result = await svc.createPromotionRequest(req.body?.targetEmail, req.user!.email, req.ip);
     res.status(201).json({ data: result });
@@ -74,8 +61,7 @@ adminPromotionsRouter.post('/', async (req, res) => {
 });
 
 // POST /api/v1/admin/promotions/:id/approve  { totpCode }
-adminPromotionsRouter.post('/:id/approve', async (req, res) => {
-  if (!(await checkTotp(req, res))) return;
+adminPromotionsRouter.post('/:id/approve', ...stepUp, requireFreshTotp, async (req, res) => {
   try {
     await svc.approvePromotion(req.params.id, req.user!.email, req.ip);
     res.json({ data: { ok: true } });
@@ -85,8 +71,7 @@ adminPromotionsRouter.post('/:id/approve', async (req, res) => {
 });
 
 // POST /api/v1/admin/promotions/:id/reject  { reason, totpCode }
-adminPromotionsRouter.post('/:id/reject', async (req, res) => {
-  if (!(await checkTotp(req, res))) return;
+adminPromotionsRouter.post('/:id/reject', ...stepUp, requireFreshTotp, async (req, res) => {
   try {
     await svc.rejectPromotion(req.params.id, req.user!.email, req.body?.reason || '', req.ip);
     res.json({ data: { ok: true } });
@@ -96,8 +81,7 @@ adminPromotionsRouter.post('/:id/reject', async (req, res) => {
 });
 
 // POST /api/v1/admin/promotions/:id/cancel  { totpCode }
-adminPromotionsRouter.post('/:id/cancel', async (req, res) => {
-  if (!(await checkTotp(req, res))) return;
+adminPromotionsRouter.post('/:id/cancel', ...stepUp, requireFreshTotp, async (req, res) => {
   try {
     await svc.cancelPromotion(req.params.id, req.user!.email, req.ip);
     res.json({ data: { ok: true } });
