@@ -15,7 +15,14 @@ import {
 import { siteOfEmail, validateApproval, deriveStatus, ApprovalSig } from '../lib/approvalState';
 import { logger } from '../lib/logger';
 
-const SILENT_CONSENT_DAYS = parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10);
+// Clamp to ≥1 day. A 0 or negative value would make deriveStatus's silent-
+// consent check (ageMs >= days * DAY_MS) true for a brand-new single APPROVE,
+// promoting it immediately and collapsing the 4-eyes rule. Non-numeric input
+// falls back to the 7-day default.
+const SILENT_CONSENT_DAYS = Math.max(
+  1,
+  parseInt(process.env.APPROVAL_SILENT_CONSENT_DAYS || '7', 10) || 7,
+);
 
 async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = db) {
   const org = await trx('organizations').where({ instance_id: instanceId }).first();
