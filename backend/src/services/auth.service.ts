@@ -230,6 +230,17 @@ export async function refreshAccessToken(
   const user = await db('users').where({ id: userId }).first();
   if (!user) throw new Error('USER_NOT_FOUND');
 
+  // Lock check on every rotation. The access token is stateless (lives ≤
+  // JWT_EXPIRES_IN), but without this a locked or de-whitelisted account could
+  // keep minting fresh 7-day refresh tokens forever — revokeAllSessions only
+  // clears the tokens that existed at lock time. Re-checking here caps a locked
+  // account's residual access at one access-token lifetime.
+  const whitelisted = await db('email_whitelist').where({ email: user.email }).first();
+  if (!whitelisted || whitelisted.locked_at) {
+    await deleteRefreshToken(hash);
+    throw new Error('ACCOUNT_LOCKED');
+  }
+
   // Idle timeout check: reject refresh if user has been inactive. A missing
   // activity key means the idle window lapsed. But if Redis itself is
   // unreachable, the read throws — and treating that as "idle" would log out
