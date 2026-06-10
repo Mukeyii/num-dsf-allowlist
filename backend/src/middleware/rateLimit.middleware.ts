@@ -43,6 +43,21 @@ export const refreshRateLimit = rateLimit({
   },
 });
 
+// Step-up brute-force guard for the 6-digit TOTP on admin write routes. These
+// run after requireAuth, so req.user is set and we key per admin. Sized for
+// legitimate multi-action admin work (locking several users, reviewing a batch
+// of promotions) while still bounding how many guesses a stolen access token
+// can make against the rotating 6-digit code.
+export const stepUpTotpRateLimit = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_STEPUP_WINDOW_MS || '900000'),
+  max: parseInt(process.env.RATE_LIMIT_STEPUP_MAX || '20'),
+  store: createRedisStore('stepup'),
+  keyGenerator: (req) => `user:${(req as { user?: { id: string } }).user?.id || req.ip}`,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many attempts. Please wait.' } },
+});
+
 export const apiRateLimit = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_API_WINDOW_MS || '60000'),
   max: parseInt(process.env.RATE_LIMIT_API_MAX || '100'),
