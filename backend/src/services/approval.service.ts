@@ -230,37 +230,52 @@ export async function rejectRequest(
   const adminSite = siteOfEmail(resolvedBy);
   if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
 
-  const request = await db('approval_requests').where({ id: requestId }).first();
-  if (!request) throw new Error('REQUEST_NOT_FOUND');
-  if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
+  // Mirror approveRequest's serialization: lock the parent row so a concurrent
+  // approve (or the silent-consent sweep) cannot finalize the request between
+  // our status check and the UPDATE. Without the lock, a reject could overwrite
+  // an already-APPROVED request — after its signed bundle was published — to
+  // REJECTED, leaving the state machine and bundle history inconsistent.
+  const instanceId = await db.transaction(async (trx) => {
+    const request = await trx('approval_requests').where({ id: requestId }).forUpdate().first();
+    if (!request) throw new Error('REQUEST_NOT_FOUND');
+    if (request.status !== 'PENDING') throw new Error('REQUEST_FINALIZED');
 
-  await db('approval_signatures').insert({
-    id: uuidv4(),
-    approval_request_id: requestId,
-    admin_email: resolvedBy,
-    admin_site: adminSite,
-    decision: 'REJECT',
-    signed_at: new Date(),
-    comment,
+    try {
+      await trx('approval_signatures').insert({
+        id: uuidv4(),
+        approval_request_id: requestId,
+        admin_email: resolvedBy,
+        admin_site: adminSite,
+        decision: 'REJECT',
+        signed_at: new Date(),
+        comment,
+      });
+    } catch (err: any) {
+      // UNIQUE(approval_request_id, admin_email): the same admin already signed
+      // (e.g. approved then tried to reject). Map to a clean 409 instead of
+      // letting the raw driver error escape as a 500 / unhandled rejection.
+      if (err?.code === 'ER_DUP_ENTRY') throw new Error('ALREADY_DECIDED');
+      throw err;
+    }
+
+    await trx('approval_requests').where({ id: requestId }).update({
+      status: 'REJECTED',
+      resolved_at: new Date(),
+      resolved_by: resolvedBy,
+      comment,
+    });
+    return request.instance_id as string;
   });
 
-  await db('approval_requests').where({ id: requestId }).update({
-    status: 'REJECTED',
-    resolved_at: new Date(),
-    resolved_by: resolvedBy,
-    comment,
-  });
-
+  // After commit: audit (non-blocking) and notify the site.
   await writeAuditLog({
     userEmail: resolvedBy,
-    instanceId: request.instance_id,
+    instanceId,
     resourceType: 'APPROVAL',
     resourceId: requestId,
     operation: 'REJECT',
     ipAddress,
     diffJson: { comment },
   });
-  notifySiteOnApproval(requestId, request.instance_id, 'REJECTED', comment, resolvedBy).catch(
-    () => {},
-  );
+  notifySiteOnApproval(requestId, instanceId, 'REJECTED', comment, resolvedBy).catch(() => {});
 }
