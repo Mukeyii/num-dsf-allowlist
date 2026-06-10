@@ -33,6 +33,30 @@ describe('TOTP anti-replay', () => {
     }
   });
 
+  (bypassOn ? it.skip : it)(
+    'rejects a reused code resubmitted with different whitespace',
+    async () => {
+      const userId = uuidv4();
+      const email = `totp-replay-ws-${Date.now()}@example.de`;
+      await db('users').insert({ id: userId, email, totp_enabled: true, created_at: new Date() });
+      const secret = speakeasy.generateSecret({ length: 20 }).base32;
+      await saveTotpSecret(userId, secret);
+
+      const code = speakeasy.totp({ secret, encoding: 'base32' });
+
+      try {
+        // First use of the bare code is accepted and claimed.
+        expect(await verifyTotpCode(userId, code)).toBe(true);
+        // The same code with embedded spaces normalizes to the same token —
+        // it must hit the same replay claim and be rejected, not slip through.
+        const spaced = `${code.slice(0, 3)} ${code.slice(3)}`;
+        expect(await verifyTotpCode(userId, spaced)).toBe(false);
+      } finally {
+        await db('users').where({ id: userId }).del();
+      }
+    },
+  );
+
   (bypassOn ? it.skip : it)('rejects a wrong code outright', async () => {
     const userId = uuidv4();
     const email = `totp-wrong-${Date.now()}@example.de`;
