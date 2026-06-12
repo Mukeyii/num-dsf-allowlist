@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { writeAuditLog } from './audit.service';
 import { revokeAllSessions } from './auth.service';
 import { siteOfEmail } from '../lib/approvalState';
-import { verifyGrant, isVerifiedAdminEmail } from '../lib/adminGrants';
+import { verifyGrant, isVerifiedAdminEmail, listVerifiedAdminEmails } from '../lib/adminGrants';
 
 export interface WhitelistEntry {
   email: string;
@@ -65,19 +65,16 @@ async function deleteGrantWithQuorumGuard(
 
 export async function listWhitelist(): Promise<WhitelistEntry[]> {
   const rows = await db('email_whitelist').orderBy('created_at', 'asc');
-  const result: WhitelistEntry[] = [];
-  for (const r of rows) {
-    result.push({
-      email: r.email,
-      created_at: r.created_at,
-      created_by: r.created_by,
-      locked_at: r.locked_at ?? null,
-      locked_by: r.locked_by ?? null,
-      locked_reason: r.locked_reason ?? null,
-      is_admin: await isVerifiedAdminEmail(r.email),
-    });
-  }
-  return result;
+  const adminSet = new Set(await listVerifiedAdminEmails());
+  return rows.map((r) => ({
+    email: r.email,
+    created_at: r.created_at,
+    created_by: r.created_by,
+    locked_at: r.locked_at ?? null,
+    locked_by: r.locked_by ?? null,
+    locked_reason: r.locked_reason ?? null,
+    is_admin: adminSet.has(r.email),
+  }));
 }
 
 export async function addToWhitelist(
