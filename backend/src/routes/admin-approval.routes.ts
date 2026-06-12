@@ -22,12 +22,11 @@ adminApprovalRouter.get(
   async (_req, res, next: NextFunction) => {
     try {
       const requests = await svc.getPendingApprovals();
-      const enriched = await Promise.all(
-        requests.map(async (r: any) => ({
-          ...r,
-          signatures: await svc.getSignatures(r.id),
-        })),
-      );
+      const sigsByRequest = await svc.getSignaturesForRequests(requests.map((r: any) => r.id));
+      const enriched = requests.map((r: any) => ({
+        ...r,
+        signatures: sigsByRequest.get(r.id) ?? [],
+      }));
       res.json({ data: enriched });
     } catch (e) {
       // Forward to the global error handler — an unguarded throw from an async

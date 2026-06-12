@@ -122,6 +122,23 @@ export async function getSignatures(requestId: string): Promise<ApprovalSig[]> {
     .orderBy('signed_at', 'asc');
 }
 
+/** Batched variant of getSignatures: one query for many requests, grouped by request id. */
+export async function getSignaturesForRequests(
+  requestIds: string[],
+): Promise<Map<string, ApprovalSig[]>> {
+  const map = new Map<string, ApprovalSig[]>();
+  if (requestIds.length === 0) return map;
+  const rows = (await db('approval_signatures')
+    .whereIn('approval_request_id', requestIds)
+    .orderBy('signed_at', 'asc')) as (ApprovalSig & { approval_request_id: string })[];
+  for (const row of rows) {
+    const list = map.get(row.approval_request_id);
+    if (list) list.push(row);
+    else map.set(row.approval_request_id, [row]);
+  }
+  return map;
+}
+
 export async function approveRequest(
   requestId: string,
   resolvedBy: string,

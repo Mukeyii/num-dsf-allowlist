@@ -24,13 +24,28 @@ const SILENT_CONSENT_DAYS = Math.max(
 
 export async function runSilentConsentSweep(now: Date = new Date()): Promise<number> {
   const cutoff = new Date(now.getTime() - SILENT_CONSENT_DAYS * 86400_000);
-  const pending = await db('approval_requests').where({ status: 'PENDING' });
+  // Skip the multi-KB snapshot_json column — the sweep only needs the ids.
+  const pending = await db('approval_requests')
+    .where({ status: 'PENDING' })
+    .select('id', 'instance_id');
+
+  // One signature query for the whole sweep instead of one per request.
+  const sigRows = pending.length
+    ? ((await db('approval_signatures').whereIn(
+        'approval_request_id',
+        pending.map((p) => p.id),
+      )) as (ApprovalSig & { approval_request_id: string })[])
+    : [];
+  const sigsByRequest = new Map<string, ApprovalSig[]>();
+  for (const s of sigRows) {
+    const list = sigsByRequest.get(s.approval_request_id);
+    if (list) list.push(s);
+    else sigsByRequest.set(s.approval_request_id, [s]);
+  }
 
   let promoted = 0;
   for (const r of pending) {
-    const sigs = (await db('approval_signatures').where({
-      approval_request_id: r.id,
-    })) as ApprovalSig[];
+    const sigs = sigsByRequest.get(r.id) ?? [];
     if (sigs.some((s) => s.decision === 'REJECT')) continue;
     const approves = sigs.filter((s) => s.decision === 'APPROVE');
     if (approves.length === 0) continue;
