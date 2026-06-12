@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { writeAuditLog } from './audit.service';
 import { revokeAllSessions } from './auth.service';
 import { siteOfEmail } from '../lib/approvalState';
-import { verifyGrant } from '../lib/adminGrants';
+import { verifyGrant, isVerifiedAdminEmail } from '../lib/adminGrants';
 
 export interface WhitelistEntry {
   email: string;
@@ -34,12 +34,6 @@ export class AdminUsersError extends Error {
 
 function lower(email: string): string {
   return email.toLowerCase().trim();
-}
-
-async function isVerifiedAdmin(email: string): Promise<boolean> {
-  const grant = await db('admin_grants').where({ email }).first();
-  if (!grant) return false;
-  return verifyGrant(grant);
 }
 
 /**
@@ -80,7 +74,7 @@ export async function listWhitelist(): Promise<WhitelistEntry[]> {
       locked_at: r.locked_at ?? null,
       locked_by: r.locked_by ?? null,
       locked_reason: r.locked_reason ?? null,
-      is_admin: await isVerifiedAdmin(r.email),
+      is_admin: await isVerifiedAdminEmail(r.email),
     });
   }
   return result;
@@ -172,8 +166,7 @@ export async function demoteAdmin(
   if (email === lower(demotedBy)) {
     throw new AdminUsersError('CANNOT_DEMOTE_SELF', 'You cannot demote yourself');
   }
-  const grant = await db('admin_grants').where({ email }).first();
-  if (!grant || !verifyGrant(grant)) {
+  if (!(await isVerifiedAdminEmail(email))) {
     throw new AdminUsersError('NOT_AN_ADMIN', 'Email is not a verified admin');
   }
   await deleteGrantWithQuorumGuard(email, 'demote');
@@ -200,7 +193,7 @@ export async function removeFromWhitelist(
   const existing = await db('email_whitelist').where({ email }).first();
   if (!existing) throw new AdminUsersError('NOT_FOUND', 'Email not in whitelist');
 
-  const adminFlag = await isVerifiedAdmin(email);
+  const adminFlag = await isVerifiedAdminEmail(email);
   if (adminFlag) {
     // Removing an admin counts as demotion + removal — apply min-admins guard.
     await deleteGrantWithQuorumGuard(email, 'remove');

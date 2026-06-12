@@ -1,9 +1,12 @@
 /**
- * adminGrants.ts – RS256 sign/verify helpers for admin_grants rows.
+ * adminGrants.ts – RS256 sign/verify helpers for admin_grants rows,
+ * plus the canonical verified-admin lookups (single source of truth).
  * Private key from ADMIN_GRANT_PRIVATE_KEY_BASE64 (or fallback to JWT private key).
  * Public key from ADMIN_GRANT_PUBLIC_KEY_BASE64 (or fallback to JWT public key).
+ * Dependencies: crypto, db/connection
  */
 import crypto from 'crypto';
+import { db } from '../db/connection';
 
 function decodeBase64Pem(envName: string, fallbackEnvName: string): string {
   const b64 = process.env[envName] ?? process.env[fallbackEnvName];
@@ -66,4 +69,15 @@ export function verifyGrant(
   } catch {
     return false;
   }
+}
+
+export async function isVerifiedAdminEmail(email: string): Promise<boolean> {
+  const grant = await db('admin_grants').where({ email: email.toLowerCase().trim() }).first();
+  if (!grant) return false;
+  return verifyGrant(grant);
+}
+
+export async function listVerifiedAdminEmails(): Promise<string[]> {
+  const grants = await db('admin_grants');
+  return grants.filter(verifyGrant).map((g: AdminGrant) => g.email);
 }
