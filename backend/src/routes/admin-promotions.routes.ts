@@ -10,6 +10,7 @@ import { requireFreshTotp } from '../middleware/totp.middleware';
 import { stepUpTotpRateLimit } from '../middleware/rateLimit.middleware';
 import * as svc from '../services/admin-promotions.service';
 import { PromotionError } from '../services/admin-promotions.service';
+import { sanitizeError } from '../lib/sanitizeError';
 
 export const adminPromotionsRouter = Router();
 adminPromotionsRouter.use(requireAuth, requireImiAdmin);
@@ -35,9 +36,7 @@ function handleError(err: unknown, res: Response): Response {
                   : 400;
     return res.status(status).json({ error: { code: err.code, message: err.message } });
   }
-  return res
-    .status(500)
-    .json({ error: { code: 'INTERNAL_ERROR', message: (err as Error)?.message } });
+  return res.status(500).json({ error: sanitizeError(err) });
 }
 
 // GET /api/v1/admin/promotions
