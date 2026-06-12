@@ -8,7 +8,7 @@
  */
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
-import { signGrant, verifyGrant } from '../lib/adminGrants';
+import { signGrant, isVerifiedAdminEmail, listVerifiedAdminEmails } from '../lib/adminGrants';
 import { siteOfEmail } from '../lib/approvalState';
 import { writeAuditLog } from './audit.service';
 import {
@@ -42,32 +42,19 @@ function lower(s: string): string {
   return s.toLowerCase().trim();
 }
 
-async function isVerifiedAdmin(email: string): Promise<boolean> {
-  const grant = await db('admin_grants')
-    .where({ email: lower(email) })
-    .first();
-  if (!grant) return false;
-  return verifyGrant(grant);
-}
-
-async function listAllAdmins(): Promise<string[]> {
-  const grants = await db('admin_grants');
-  return grants.filter(verifyGrant).map((g: any) => g.email as string);
-}
-
 export async function createPromotionRequest(
   targetEmailRaw: string,
   requestedBy: string,
   ipAddress?: string,
 ): Promise<{ id: string }> {
   const targetEmail = lower(targetEmailRaw);
-  if (!(await isVerifiedAdmin(requestedBy))) {
+  if (!(await isVerifiedAdminEmail(requestedBy))) {
     throw new PromotionError('NOT_ADMIN', 'Only admins can request promotions');
   }
   const wl = await db('email_whitelist').where({ email: targetEmail }).first();
   if (!wl) throw new PromotionError('NOT_WHITELISTED', 'Target email is not whitelisted');
   if (wl.locked_at) throw new PromotionError('TARGET_LOCKED', 'Target email is locked');
-  if (await isVerifiedAdmin(targetEmail)) {
+  if (await isVerifiedAdminEmail(targetEmail)) {
     throw new PromotionError('ALREADY_ADMIN', 'Target email is already an admin');
   }
   const existingPending = await db('admin_promotion_requests')
@@ -96,7 +83,7 @@ export async function createPromotionRequest(
   }).catch(() => {});
 
   // Notify all OTHER admins.
-  const allAdmins = await listAllAdmins();
+  const allAdmins = await listVerifiedAdminEmails();
   const recipients = allAdmins.filter((e) => e !== lower(requestedBy));
   if (recipients.length > 0) {
     sendAdminPromotionRequestedEmail(recipients, targetEmail, requestedBy, id).catch(() => {});
@@ -113,7 +100,7 @@ export async function approvePromotion(
   approverEmail: string,
   ipAddress?: string,
 ): Promise<void> {
-  if (!(await isVerifiedAdmin(approverEmail))) {
+  if (!(await isVerifiedAdminEmail(approverEmail))) {
     throw new PromotionError('NOT_ADMIN', 'Only admins can approve promotions');
   }
   const req = await db('admin_promotion_requests').where({ id: requestId }).first();
@@ -180,7 +167,7 @@ export async function rejectPromotion(
   reason: string,
   ipAddress?: string,
 ): Promise<void> {
-  if (!(await isVerifiedAdmin(rejectorEmail))) {
+  if (!(await isVerifiedAdminEmail(rejectorEmail))) {
     throw new PromotionError('NOT_ADMIN', 'Only admins can reject promotions');
   }
   const req = await db('admin_promotion_requests').where({ id: requestId }).first();
