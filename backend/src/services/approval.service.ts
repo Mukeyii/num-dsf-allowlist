@@ -147,6 +147,11 @@ export async function approveRequest(
   const adminSite = siteOfEmail(resolvedBy);
   if (!adminSite) throw new Error('INVALID_ADMIN_EMAIL');
 
+  // Keep the forUpdate transaction minimal: no re-SELECT of the signature we
+  // just inserted, and no audit writes while the row lock is held —
+  // writeAuditLog runs on the global pool, so a second connection inside the
+  // transaction can starve under pool exhaustion. Audit, mails and the bundle
+  // snapshot all run after commit.
   const result = await db.transaction(async (trx) => {
     // Lock the parent row so concurrent approves serialize.
     const request = await trx('approval_requests').where({ id: requestId }).forUpdate().first();
@@ -160,14 +165,17 @@ export async function approveRequest(
     const validation = validateApproval(sigs, resolvedBy, adminSite);
     if (validation) throw new Error(validation);
 
+    const newSig: ApprovalSig = {
+      admin_email: resolvedBy,
+      admin_site: adminSite,
+      decision: 'APPROVE',
+      signed_at: new Date(),
+    };
     try {
       await trx('approval_signatures').insert({
         id: uuidv4(),
         approval_request_id: requestId,
-        admin_email: resolvedBy,
-        admin_site: adminSite,
-        decision: 'APPROVE',
-        signed_at: new Date(),
+        ...newSig,
         comment: null,
       });
     } catch (err: any) {
@@ -175,10 +183,7 @@ export async function approveRequest(
       throw err;
     }
 
-    const refreshed = (await trx('approval_signatures').where({
-      approval_request_id: requestId,
-    })) as ApprovalSig[];
-    const newStatus = deriveStatus(refreshed, new Date(), SILENT_CONSENT_DAYS);
+    const newStatus = deriveStatus([...sigs, newSig], new Date(), SILENT_CONSENT_DAYS);
 
     if (newStatus === 'APPROVED') {
       await trx('approval_requests').where({ id: requestId }).update({
@@ -186,32 +191,41 @@ export async function approveRequest(
         resolved_at: new Date(),
         resolved_by: resolvedBy,
       });
-      await writeAuditLog({
-        userEmail: resolvedBy,
-        instanceId: request.instance_id,
-        resourceType: 'APPROVAL',
-        resourceId: requestId,
-        operation: 'APPROVE',
-        ipAddress,
-      });
-      notifySiteOnApproval(requestId, request.instance_id, 'APPROVED', null, resolvedBy).catch(
-        () => {},
-      );
-      return { status: 'APPROVED' as const };
+      return { status: 'APPROVED' as const, instanceId: request.instance_id as string };
     }
 
+    return {
+      status: 'PENDING' as const,
+      reason: 'AWAITING_SECOND_OR_SILENT_CONSENT',
+      instanceId: request.instance_id as string,
+    };
+  });
+
+  // After commit: audit (failure-tolerant) and fire-and-forget notifications.
+  if (result.status === 'APPROVED') {
     await writeAuditLog({
       userEmail: resolvedBy,
-      instanceId: request.instance_id,
+      instanceId: result.instanceId,
+      resourceType: 'APPROVAL',
+      resourceId: requestId,
+      operation: 'APPROVE',
+      ipAddress,
+    });
+    notifySiteOnApproval(requestId, result.instanceId, 'APPROVED', null, resolvedBy).catch(
+      () => {},
+    );
+  } else {
+    await writeAuditLog({
+      userEmail: resolvedBy,
+      instanceId: result.instanceId,
       resourceType: 'APPROVAL',
       resourceId: requestId,
       operation: 'APPROVE',
       ipAddress,
       diffJson: { firstApproval: true },
     });
-    notifyImiOnFirstApproval(request.instance_id, resolvedBy, requestId).catch(() => {});
-    return { status: 'PENDING' as const, reason: 'AWAITING_SECOND_OR_SILENT_CONSENT' };
-  });
+    notifyImiOnFirstApproval(result.instanceId, resolvedBy, requestId).catch(() => {});
+  }
 
   // Post-commit hook: snapshot the federation-wide bundle whenever an
   // approval just transitioned the world to APPROVED. The snapshot runs
@@ -235,7 +249,10 @@ export async function approveRequest(
     }
   }
 
-  return result;
+  // instanceId is internal plumbing for the post-commit work — keep the
+  // response shape unchanged for the route.
+  const { instanceId: _instanceId, ...response } = result;
+  return response;
 }
 
 export async function rejectRequest(
