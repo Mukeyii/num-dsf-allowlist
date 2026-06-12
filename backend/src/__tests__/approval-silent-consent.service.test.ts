@@ -1,8 +1,9 @@
 /**
  * approval-silent-consent.service.test.ts – DB-backed test for
  * runSilentConsentSweep. Promotes a PENDING approval_request whose single
- * APPROVE signature is older than the silent-consent window to APPROVED, and
- * leaves a PENDING request whose only APPROVE is recent untouched.
+ * APPROVE signature is older than the silent-consent window to APPROVED
+ * (and writes a signed bundle_versions snapshot for it), and leaves a
+ * PENDING request whose only APPROVE is recent untouched.
  * notifySiteOnApproval is mocked so nothing is sent.
  * Dependencies: db/connection, approval-silent-consent.service, approval-reminder.service
  */
@@ -79,6 +80,18 @@ describe('approval-silent-consent.service – runSilentConsentSweep', () => {
       // The sweep promotes a request and writes an (unmocked) audit_logs row
       // scoped to this instance; audit_logs has no FK, so clean it explicitly.
       await db('audit_logs').where({ instance_id: instanceId }).del();
+      // The promotion also snapshots the bundle (bundle_versions row with an
+      // ON DELETE SET NULL FK to approval_requests, plus an audit_logs row
+      // keyed by the snapshot id) — remove both before the requests.
+      const bundleIds = (
+        await db('bundle_versions')
+          .whereIn('approval_request_id', [eligibleId, recentId])
+          .select('id')
+      ).map((b: { id: string }) => b.id);
+      if (bundleIds.length) {
+        await db('audit_logs').whereIn('resource_id', bundleIds).del();
+        await db('bundle_versions').whereIn('id', bundleIds).del();
+      }
       await db('approval_signatures').whereIn('approval_request_id', [eligibleId, recentId]).del();
       await db('approval_requests').whereIn('id', [eligibleId, recentId]).del();
     } finally {
@@ -97,5 +110,14 @@ describe('approval-silent-consent.service – runSilentConsentSweep', () => {
 
     const recent = await db('approval_requests').where({ id: recentId }).first();
     expect(recent.status).toBe('PENDING');
+
+    // The promotion must leave a signed bundle snapshot behind.
+    const snapshot = await db('bundle_versions').where({ approval_request_id: eligibleId }).first();
+    expect(snapshot).toBeDefined();
+    expect(snapshot.triggered_by).toBe('APPROVAL');
+    expect(snapshot.triggered_by_email).toBe('SYSTEM:silent-consent');
+
+    const noSnapshot = await db('bundle_versions').where({ approval_request_id: recentId }).first();
+    expect(noSnapshot).toBeUndefined();
   });
 });
