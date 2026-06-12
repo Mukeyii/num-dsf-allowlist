@@ -42,6 +42,33 @@ async function isVerifiedAdmin(email: string): Promise<boolean> {
   return verifyGrant(grant);
 }
 
+/**
+ * Deletes an admin grant only if ≥2 verified admins from ≥2 distinct sites
+ * remain afterwards. Reads all grants FOR UPDATE inside one transaction so
+ * concurrent demotions serialize instead of both passing the simulated check
+ * and dropping the system below the quorum floor.
+ */
+async function deleteGrantWithQuorumGuard(
+  email: string,
+  action: 'demote' | 'remove',
+): Promise<void> {
+  await db.transaction(async (trx) => {
+    const allGrants = await trx('admin_grants').forUpdate();
+    const remainingValid = allGrants
+      .filter(verifyGrant)
+      .map((g: { email: string }) => g.email)
+      .filter((e: string) => e !== email);
+    const remainingSites = new Set(remainingValid.map(siteOfEmail).filter(Boolean));
+    if (remainingValid.length < 2 || remainingSites.size < 2) {
+      throw new AdminUsersError(
+        'MIN_ADMINS_REACHED',
+        `Cannot ${action}: at least 2 admins from 2 different sites must remain`,
+      );
+    }
+    await trx('admin_grants').where({ email }).del();
+  });
+}
+
 export async function listWhitelist(): Promise<WhitelistEntry[]> {
   const rows = await db('email_whitelist').orderBy('created_at', 'asc');
   const result: WhitelistEntry[] = [];
@@ -149,17 +176,7 @@ export async function demoteAdmin(
   if (!grant || !verifyGrant(grant)) {
     throw new AdminUsersError('NOT_AN_ADMIN', 'Email is not a verified admin');
   }
-  // Simulate the demote: would removing this grant leave ≥ 2 admins from ≥ 2 distinct sites?
-  const allGrants = await db('admin_grants').whereNot({ email });
-  const remainingValid = allGrants.filter(verifyGrant).map((g: { email: string }) => g.email);
-  const remainingSites = new Set(remainingValid.map(siteOfEmail).filter(Boolean));
-  if (remainingValid.length < 2 || remainingSites.size < 2) {
-    throw new AdminUsersError(
-      'MIN_ADMINS_REACHED',
-      'Cannot demote: at least 2 admins from 2 different sites must remain',
-    );
-  }
-  await db('admin_grants').where({ email }).del();
+  await deleteGrantWithQuorumGuard(email, 'demote');
   await revokeAllSessions(email).catch(() => {});
   await writeAuditLog({
     userEmail: demotedBy,
@@ -186,16 +203,7 @@ export async function removeFromWhitelist(
   const adminFlag = await isVerifiedAdmin(email);
   if (adminFlag) {
     // Removing an admin counts as demotion + removal — apply min-admins guard.
-    const allGrants = await db('admin_grants').whereNot({ email });
-    const remainingValid = allGrants.filter(verifyGrant).map((g: { email: string }) => g.email);
-    const remainingSites = new Set(remainingValid.map(siteOfEmail).filter(Boolean));
-    if (remainingValid.length < 2 || remainingSites.size < 2) {
-      throw new AdminUsersError(
-        'MIN_ADMINS_REACHED',
-        'Cannot remove: at least 2 admins from 2 different sites must remain',
-      );
-    }
-    await db('admin_grants').where({ email }).del();
+    await deleteGrantWithQuorumGuard(email, 'remove');
   }
   await db('email_whitelist').where({ email }).del();
   await revokeAllSessions(email).catch(() => {});
