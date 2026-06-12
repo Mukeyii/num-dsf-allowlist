@@ -5,12 +5,13 @@
  * APPROVED. Implements "Schweigen als Zustimmung".
  *
  * Dependencies: db/connection, audit.service, approval-reminder.service,
- * bundle-versions.service (dynamic), lib/approvalState, lib/logger
+ * bundle-versions.service (dynamic), lib/approvalState, lib/isAdmin, lib/logger
  */
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { notifySiteOnApproval } from './approval-reminder.service';
 import { ApprovalSig } from '../lib/approvalState';
+import { isAdminEmail } from '../lib/isAdmin';
 import { logger } from '../lib/logger';
 
 // Clamp to ≥1 day so a 0/negative env value cannot promote a fresh single
@@ -38,6 +39,16 @@ export async function runSilentConsentSweep(now: Date = new Date()): Promise<num
     const first = approves[0];
     const firstAt = new Date(first.signed_at);
     if (firstAt > cutoff) continue;
+
+    // The signer must STILL be a verified admin — their grant may have been
+    // revoked for cause during the silent-consent window.
+    if (!(await isAdminEmail(first.admin_email))) {
+      logger.info(
+        { requestId: r.id, approver: first.admin_email },
+        'silent-consent promotion skipped: approver is no longer a verified admin',
+      );
+      continue;
+    }
 
     const updated = await db('approval_requests').where({ id: r.id, status: 'PENDING' }).update({
       status: 'APPROVED',
