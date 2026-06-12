@@ -4,12 +4,14 @@
  * window (default 7 days, configurable via APPROVAL_SILENT_CONSENT_DAYS) to
  * APPROVED. Implements "Schweigen als Zustimmung".
  *
- * Dependencies: db/connection, audit.service, approval-reminder.service, lib/approvalState
+ * Dependencies: db/connection, audit.service, approval-reminder.service,
+ * bundle-versions.service (dynamic), lib/approvalState, lib/logger
  */
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { notifySiteOnApproval } from './approval-reminder.service';
 import { ApprovalSig } from '../lib/approvalState';
+import { logger } from '../lib/logger';
 
 // Clamp to ≥1 day so a 0/negative env value cannot promote a fresh single
 // APPROVE on the nightly sweep (mirrors approval.service.ts). Non-numeric
@@ -55,6 +57,25 @@ export async function runSilentConsentSweep(now: Date = new Date()): Promise<num
         firstApprovedAt: firstAt.toISOString(),
       },
     });
+
+    // Mirror approveRequest's post-commit hook: persist a signed bundle
+    // snapshot so silent-consent approvals also get a bundle_versions row
+    // (otherwise flushPendingNotifications degrades to the legacy mail).
+    // Failure must not abort the sweep — the promotion is already committed.
+    try {
+      const { createSnapshot } = await import('./bundle-versions.service');
+      await createSnapshot({
+        triggeredBy: 'APPROVAL',
+        triggeredByEmail: 'SYSTEM:silent-consent',
+        approvalRequestId: r.id,
+        notes: `auto-snapshot after silent-consent approval ${r.id}`,
+      });
+    } catch (err) {
+      logger.error(
+        { err: err instanceof Error ? err.message : 'unknown', requestId: r.id },
+        'bundle snapshot after silent-consent promotion failed',
+      );
+    }
 
     // notifySiteOnApproval signature: (requestId, instanceId, status, comment, resolvedBy)
     notifySiteOnApproval(r.id, r.instance_id, 'APPROVED', null, 'SYSTEM:silent-consent').catch(
