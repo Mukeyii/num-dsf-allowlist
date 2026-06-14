@@ -8,6 +8,22 @@ import { writeAuditLog } from './audit.service';
 import { sendCertExpiryWarning } from './notification.service';
 import { logger } from '../lib/logger';
 
+// mysql2 (no `timezone`/`dateStrings` set) returns a DATE column as a JS Date at
+// the process's LOCAL midnight, while `today` below is built at UTC midnight.
+// Differencing the two on a non-UTC server skews the day count by one. Rebuild
+// the stored calendar date as a UTC-midnight value so both sides share a basis.
+export function toUtcMidnight(value: Date | string): number {
+  if (value instanceof Date) {
+    // The Date's LOCAL Y/M/D is the calendar date mysql2 stored.
+    return Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+  const [y, m, d] = String(value)
+    .slice(0, 10)
+    .split('-')
+    .map((n) => parseInt(n, 10));
+  return Date.UTC(y, m - 1, d);
+}
+
 export async function runCertExpiryCheck(): Promise<void> {
   const now = new Date();
   logger.info(`[CertMonitor] Running at ${now.toISOString()}`);
@@ -42,16 +58,14 @@ export async function runCertExpiryCheck(): Promise<void> {
 
   let sent = 0;
   for (const cert of expiring) {
-    // Fix (a): use Math.ceil so a cert expiring later today counts as 0 days,
-    // and a cert expiring tomorrow counts as 1 day (not 0 with floor).
-    const daysLeft = Math.ceil((new Date(cert.validUntil).getTime() - today.getTime()) / 86400000);
+    // Both operands are UTC midnights, so the quotient is a whole number of
+    // days; a cert expiring today is 0 days left, tomorrow is 1, and so on.
+    const daysLeft = Math.ceil((toUtcMidnight(cert.validUntil) - today.getTime()) / 86400000);
     const shouldNotify = [90, 60, 30, 14, 7, 3, 1, 0].includes(daysLeft);
     if (!shouldNotify) continue;
 
-    // Idempotency: skip certs already notified today (UTC).
-    const todayUtc = new Date();
-    todayUtc.setUTCHours(0, 0, 0, 0);
-    if (cert.lastNotifiedAt && new Date(cert.lastNotifiedAt) >= todayUtc) {
+    // Idempotency: skip certs already notified today (UTC midnight = `today`).
+    if (cert.lastNotifiedAt && new Date(cert.lastNotifiedAt) >= today) {
       continue;
     }
 
