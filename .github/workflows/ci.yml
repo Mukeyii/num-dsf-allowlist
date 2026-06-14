@@ -24,8 +24,13 @@ jobs:
         working-directory: frontend
         run: |
           npm install
-          # GHSA-5xrq-8626-4rwp affects only the vitest --ui server, which CI never starts (vitest run only).
-          npx better-npm-audit audit --level high -x GHSA-5xrq-8626-4rwp
+          # Excluded advisories are all in BUILD-TIME dev tooling (vitest/esbuild),
+          # never shipped in the production bundle and not reachable at app runtime:
+          #  - GHSA-5xrq-8626-4rwp: vitest --ui server, which CI never starts (vitest run only).
+          #  - GHSA-gv7w-rqvm-qjhr: esbuild binary-download integrity (install-time of the
+          #    bundler via vite); the fix is a breaking vite/esbuild major bump that
+          #    Dependabot will propose. The deployed app contains no esbuild.
+          npx better-npm-audit audit --level high -x GHSA-5xrq-8626-4rwp,GHSA-gv7w-rqvm-qjhr
 
   backend-lint:
     name: Backend Lint
