@@ -11,7 +11,9 @@ import { writeAuditLog } from './audit.service';
  * @returns The organization row, or null if none exists.
  */
 export async function getOrganization(instanceId: string) {
-  return db('organizations').where({ instance_id: instanceId }).first() ?? null;
+  // Coalesce the resolved row, not the query promise, so no-org returns null.
+  const row = await db('organizations').where({ instance_id: instanceId }).first();
+  return row ?? null;
 }
 
 /**
