@@ -17,12 +17,21 @@ function esc(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+function titleCase(s: string): string {
+  return s.charAt(0) + s.slice(1).toLowerCase();
+}
+
 const IS_TEST = process.env.NODE_ENV === 'test';
 
 const transporter = nodemailer.createTransport({
   host: IS_TEST ? 'localhost' : process.env.SMTP_HOST || 'mail',
   port: parseInt(process.env.SMTP_PORT || '1025'),
   secure: false,
+  // Reuse SMTP connections across the per-recipient sendMail calls instead of
+  // opening a fresh connection each time; cap concurrency so a large contact
+  // list can't exhaust the relay's connection slots.
+  pool: true,
+  maxConnections: 5,
   auth: process.env.SMTP_USER
     ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
     : undefined,
@@ -134,7 +143,7 @@ export async function sendAdminApprovalResultEmail(
     : '';
 
   const html = baseHtml(
-    `Request ${status.charAt(0) + status.slice(1).toLowerCase()}`,
+    `Request ${titleCase(status)}`,
     `
     <p>An approval request has been resolved.</p>
     <table style="border-collapse:collapse;width:100%;font-size:14px;">
@@ -241,7 +250,7 @@ export async function sendSiteApprovalResultEmail(
       : 'Unfortunately, your DSF Allow List request was not approved at this time.';
 
   const html = baseHtml(
-    `Request ${status.charAt(0) + status.slice(1).toLowerCase()}`,
+    `Request ${titleCase(status)}`,
     `
     <div style="padding:16px;border-radius:8px;border:2px solid ${outcomeColor};margin-bottom:20px;">
       <p style="margin:0;">${statusBadge(status)}&nbsp;&nbsp;${outcomeText}</p>
@@ -420,7 +429,7 @@ export async function sendAdminPromotionResultEmail(
   const statusColor =
     status === 'APPROVED' ? COLOR_APPROVED : status === 'REJECTED' ? COLOR_REJECTED : '#9b9fad';
   const html = baseHtml(
-    `Admin Promotion ${status.charAt(0) + status.slice(1).toLowerCase()}`,
+    `Admin Promotion ${titleCase(status)}`,
     `
     <p>Promotion request for <strong>${esc(targetEmail)}</strong> was
       <span style="font-weight:bold;color:${statusColor};">${status.toLowerCase()}</span>.
