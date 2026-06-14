@@ -71,7 +71,14 @@ export async function requestOtp(email: string, ipAddress: string): Promise<void
   }
 
   const code = await createAndStoreOtp(normalized);
-  await sendOtpEmail(normalized, code);
+  // Fire-and-forget the SMTP send. Awaiting it makes the whitelisted path block
+  // on an SMTP round-trip while the non-whitelisted path throws immediately —
+  // the latency gap leaks whitelist membership despite the identical generic
+  // 200 the route returns. The mail still goes out; the response no longer
+  // waits on it.
+  sendOtpEmail(normalized, code).catch((err) =>
+    logger.error({ err }, '[auth] OTP mail send failed'),
+  );
   await writeAuditLog({
     userEmail: normalized,
     resourceType: 'AUTH',
