@@ -61,12 +61,24 @@ export async function runCertExpiryCheck(): Promise<void> {
         .where({ organization_id: cert.orgIdentifier })
         .select('email', 'types');
 
-      const recipientEmails = contacts
-        .filter((c) => {
-          const types: string[] = typeof c.types === 'string' ? JSON.parse(c.types) : c.types;
-          return types.includes('SECURITY') || types.includes('DSF_ADMIN');
-        })
-        .map((c) => c.email);
+      // Parse each contact's types in its own guard so one corrupt `types`
+      // JSON row can't suppress notifications to the cert's other recipients.
+      const recipientEmails: string[] = [];
+      for (const c of contacts) {
+        let types: string[];
+        try {
+          types = typeof c.types === 'string' ? JSON.parse(c.types) : c.types;
+        } catch (parseErr) {
+          logger.warn(
+            { parseErr, email: c.email, org: cert.orgIdentifier },
+            '[CertMonitor] Skipping contact with malformed types JSON',
+          );
+          continue;
+        }
+        if (Array.isArray(types) && (types.includes('SECURITY') || types.includes('DSF_ADMIN'))) {
+          recipientEmails.push(c.email);
+        }
+      }
 
       for (const email of recipientEmails) {
         await sendCertExpiryWarning(email, {

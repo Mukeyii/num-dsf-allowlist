@@ -103,3 +103,99 @@ describe('cert-monitor.service – runCertExpiryCheck', () => {
     expect(cert.last_notified_at).not.toBeNull();
   });
 });
+
+describe('cert-monitor.service – malformed contact types isolation', () => {
+  const org = `svc-certmon-bad-${Date.now()}-${uuidv4().slice(0, 8)}.example.de`;
+  const instanceId = uuidv4();
+  const userId = uuidv4();
+  const certId = uuidv4();
+  const badContactId = uuidv4();
+  const goodContactId = uuidv4();
+  const badEmail = 'broken@certmon-bad.example.de';
+  const goodEmail = 'security@certmon-bad.example.de';
+
+  const validUntil = new Date();
+  validUntil.setUTCHours(0, 0, 0, 0);
+  validUntil.setDate(validUntil.getDate() + 7);
+  const validUntilDate = validUntil.toISOString().slice(0, 10);
+
+  beforeAll(async () => {
+    await db('users').insert({
+      id: userId,
+      email: `${userId}@x.de`,
+      totp_enabled: false,
+      created_at: new Date(),
+    });
+    await db('instances').insert({
+      id: instanceId,
+      user_id: userId,
+      label: 'certmon-bad',
+      created_at: new Date(),
+    });
+    await db('organizations').insert({
+      identifier: org,
+      instance_id: instanceId,
+      name: 'CertMonBad',
+      active: 1,
+      email: 'x@x.de',
+      address_line: 'x',
+      postal_code: '0',
+      city: 'x',
+      country_code: 'DE',
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    // A contact whose types column holds a non-array JSON value. The column is
+    // JSON-typed so MySQL rejects unparseable text, but a stored object still
+    // breaks the old `.includes` filter — under the previous code this threw at
+    // the certificate level and suppressed EVERY recipient of the cert.
+    await db('contacts').insert({
+      id: badContactId,
+      organization_id: org,
+      types: JSON.stringify({ bogus: true }),
+      name: 'Broken',
+      email: badEmail,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    await db('contacts').insert({
+      id: goodContactId,
+      organization_id: org,
+      types: JSON.stringify(['SECURITY']),
+      name: 'Security',
+      email: goodEmail,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    await db('certificates').insert({
+      id: certId,
+      organization_id: org,
+      pem: '-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----',
+      subject: 'CN=certmon-bad',
+      thumbprint: 'b'.repeat(40),
+      valid_until: validUntilDate,
+      created_at: new Date(),
+    });
+  });
+
+  afterAll(async () => {
+    try {
+      await db('certificates').where({ id: certId }).del();
+      await db('contacts').where({ organization_id: org }).del();
+    } finally {
+      await db('organizations').where({ identifier: org }).del();
+      await db('instances').where({ id: instanceId }).del();
+      await db('users').where({ id: userId }).del();
+    }
+  });
+
+  it('still notifies the valid SECURITY contact when another contact has malformed types', async () => {
+    (sendCertExpiryWarning as jest.Mock).mockClear();
+    await runCertExpiryCheck();
+
+    const calls = (sendCertExpiryWarning as jest.Mock).mock.calls;
+    expect(calls.find((c) => c[0] === goodEmail)).toBeDefined();
+    // The malformed contact is skipped, not treated as a recipient.
+    expect(calls.find((c) => c[0] === badEmail)).toBeUndefined();
+  });
+});
