@@ -2,9 +2,9 @@
  * ca-blacklist.service.ts – Admin-managed CA blacklist + lookup used during
  * PEM upload (certificate.service.ts → createCertificate / renewCertificate).
  *
- * Match strategy: Subject DN equality (OR fingerprint, when the admin
- * uploaded the CA cert directly). DN-only match is intentional — operators
- * usually know the CA by name long before they have its PEM in hand.
+ * Match strategy: normalized Subject DN equality (OR exact fingerprint, when
+ * the admin uploaded the CA cert directly). DN-only match is intentional —
+ * operators usually know the CA by name long before they have its PEM in hand.
  *
  * Storage: ca_blacklist (admin-managed deny-list), known_cas (Mozilla cache
  * for the picker UI). See migration 016.
@@ -29,18 +29,37 @@ export interface KnownCaRow {
   synced_at: Date;
 }
 
+// Normalize a DN for tolerant comparison: split on commas, trim + lowercase
+// each RDN, drop empties, sort. This makes the deny-list robust to the cosmetic
+// differences between an admin-typed DN and node-forge's rendered issuer DN
+// (surrounding spaces, attribute ordering, letter case) that would otherwise
+// silently bypass the blacklist. Fingerprint matching stays exact (it's a hash).
+export function normalizeDn(dn: string): string {
+  return dn
+    .split(',')
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean)
+    .sort()
+    .join(',');
+}
+
 export async function isCaBlacklisted(args: {
   subjectDn?: string;
   fingerprint?: string;
 }): Promise<boolean> {
   if (!args.subjectDn && !args.fingerprint) return false;
-  const q = db('ca_blacklist');
-  q.where(function () {
-    if (args.subjectDn) this.orWhere({ subject_dn: args.subjectDn });
-    if (args.fingerprint) this.orWhere({ fingerprint: args.fingerprint.toUpperCase() });
-  });
-  const row = await q.first();
-  return !!row;
+  if (args.fingerprint) {
+    const hit = await db('ca_blacklist')
+      .where({ fingerprint: args.fingerprint.toUpperCase() })
+      .first();
+    if (hit) return true;
+  }
+  if (args.subjectDn) {
+    const target = normalizeDn(args.subjectDn);
+    const rows = await db('ca_blacklist').select('subject_dn');
+    if (rows.some((r: { subject_dn: string }) => normalizeDn(r.subject_dn) === target)) return true;
+  }
+  return false;
 }
 
 export async function listBlacklist(): Promise<CaBlacklistRow[]> {
