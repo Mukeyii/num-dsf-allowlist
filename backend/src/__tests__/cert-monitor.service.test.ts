@@ -16,7 +16,7 @@ jest.mock('../services/audit.service', () => ({
 }));
 
 import { db } from '../db/connection';
-import { runCertExpiryCheck } from '../services/cert-monitor.service';
+import { runCertExpiryCheck, toUtcMidnight } from '../services/cert-monitor.service';
 import { sendCertExpiryWarning } from '../services/notification.service';
 
 describe('cert-monitor.service – runCertExpiryCheck', () => {
@@ -101,6 +101,28 @@ describe('cert-monitor.service – runCertExpiryCheck', () => {
 
     const cert = await db('certificates').where({ id: certId }).first();
     expect(cert.last_notified_at).not.toBeNull();
+  });
+});
+
+describe('cert-monitor.service – toUtcMidnight date basis', () => {
+  it('parses a YYYY-MM-DD string to that calendar date at UTC midnight', () => {
+    expect(toUtcMidnight('2026-09-12')).toBe(Date.UTC(2026, 8, 12));
+  });
+
+  it('maps a Date at LOCAL midnight to its calendar date at UTC midnight', () => {
+    // new Date(y, m, d) is LOCAL midnight; on a non-UTC host its raw epoch is
+    // offset, but the day count must still come out whole. Using the date's
+    // calendar components (not its epoch) makes the result host-independent.
+    const local = new Date(2026, 8, 12); // local midnight, Sep 12 2026
+    expect(toUtcMidnight(local)).toBe(Date.UTC(2026, 8, 12));
+  });
+
+  it('yields a whole-day difference against a UTC-midnight today', () => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const sevenOut = new Date(today.getTime() + 7 * 86400000);
+    const iso = sevenOut.toISOString().slice(0, 10);
+    expect((toUtcMidnight(iso) - today.getTime()) / 86400000).toBe(7);
   });
 });
 
