@@ -67,7 +67,11 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
     endpointIds.length > 0 ? await db('endpoint_ips').whereIn('endpoint_id', endpointIds) : [];
   const contacts: any[] = await db('contacts').whereIn('organization_id', approvedOrgIds);
   const certs: any[] = await db('certificates').whereIn('organization_id', approvedOrgIds);
-  const memberships: any[] = await db('memberships').whereIn('organization_id', approvedOrgIds);
+  // Exclude soft-deleted (admin-removed) affiliations, matching fhir.service
+  // and the approval snapshot — they are no longer live relationships.
+  const memberships: any[] = await db('memberships')
+    .whereIn('organization_id', approvedOrgIds)
+    .whereNull('deleted_at');
 
   const organizations = orgs.map((org) => {
     const orgCerts = certs.filter((c) => c.organization_id === org.identifier);
