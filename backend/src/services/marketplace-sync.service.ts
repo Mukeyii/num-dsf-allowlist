@@ -36,7 +36,10 @@ function ghHeaders(): Record<string, string> {
 }
 
 async function ghJson<T>(url: string): Promise<T | null> {
-  const r = await fetch(url, { headers: ghHeaders() });
+  // Bound every GitHub call so a hung connection can't block the admin add
+  // request or stall the daily cron indefinitely. An abort surfaces as an
+  // AbortError and falls through to syncEntry's generic error path.
+  const r = await fetch(url, { headers: ghHeaders(), signal: AbortSignal.timeout(10000) });
   if (r.status === 404) throw new Error('NOT_FOUND');
   if (r.status === 403 || r.status === 429) throw new Error('RATE_LIMIT');
   if (!r.ok) throw new Error(`HTTP_${r.status}`);
@@ -74,7 +77,12 @@ export async function syncEntry(id: string): Promise<void> {
     let lastCommitAt: Date | null = null;
     try {
       const commits = await ghJson<CommitResp[]>(`${base}/commits?per_page=1`);
-      if (commits && commits[0]) lastCommitAt = new Date(commits[0].commit.committer.date);
+      if (commits && commits[0]) {
+        const parsed = new Date(commits[0].commit.committer.date);
+        // Only persist a real date; a malformed committer date must not write
+        // an Invalid Date into last_commit_at.
+        if (!Number.isNaN(parsed.getTime())) lastCommitAt = parsed;
+      }
     } catch (err: any) {
       if (err.message !== 'NOT_FOUND') throw err;
     }
@@ -98,37 +106,41 @@ export async function syncEntry(id: string): Promise<void> {
         updated_at: new Date(),
       });
   } catch (err: any) {
+    // A rate limit is transient and not a fault of this entry, so leave its
+    // sync_error untouched and let the caller stop the batch.
+    if (err.message === 'RATE_LIMIT') throw err;
     const message =
       err.message === 'NOT_FOUND'
         ? 'repository not found'
-        : err.message === 'RATE_LIMIT'
-          ? 'github rate limit'
-          : `sync failed: ${err.message || 'unknown'}`;
+        : `sync failed: ${err.message || 'unknown'}`;
     await db('marketplace_entries').where({ id }).update({
       sync_error: message,
       updated_at: new Date(),
     });
-    if (err.message === 'RATE_LIMIT') throw err;
   }
 }
 
-export async function syncAll(): Promise<{ ok: number; failed: number }> {
+export async function syncAll(): Promise<{ ok: number; failed: number; rateLimited: boolean }> {
   const rows = await db('marketplace_entries').select('id');
   let ok = 0,
     failed = 0;
+  let rateLimited = false;
   for (const r of rows) {
     try {
       await syncEntry(r.id);
       ok += 1;
     } catch (err: any) {
-      failed += 1;
+      // A rate limit stops the batch; the throttled entry is neither ok nor
+      // failed (it was never really attempted), so it is left uncounted.
       if (err.message === 'RATE_LIMIT') {
+        rateLimited = true;
         logger.warn('marketplace sync hit rate limit; aborting batch');
         break;
       }
+      failed += 1;
     }
     await new Promise((res) => setTimeout(res, SLEEP_BETWEEN_MS));
   }
-  logger.info({ ok, failed }, 'marketplace sync complete');
-  return { ok, failed };
+  logger.info({ ok, failed, rateLimited }, 'marketplace sync complete');
+  return { ok, failed, rateLimited };
 }
