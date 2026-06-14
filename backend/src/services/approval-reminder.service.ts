@@ -303,7 +303,11 @@ export async function flushPendingNotifications(): Promise<void> {
                     contentHash: latest.content_hash,
                     signatureKid,
                     changes,
-                    downloadUrl: `${apiBase}/admin/bundle-versions/${latest.id}/download`,
+                    // Site contacts are not IMI admins, so the admin-only
+                    // /admin/bundle-versions/:id/download (requireImiAdmin) would
+                    // 403 for them. Link the instance-scoped full-bundle export,
+                    // which is gated by requireAuth only.
+                    downloadUrl: `${apiBase}/instances/${instanceId}/download/full-bundle`,
                     verifyUrl: `${portalUrl}/app/admin/bundle-versions`,
                     supportEmail,
                   },
