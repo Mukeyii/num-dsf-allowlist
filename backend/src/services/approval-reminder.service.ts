@@ -276,10 +276,16 @@ async function runPendingNotificationFlush(): Promise<void> {
               try {
                 const { diffVersions } = await import('./bundle-versions.service');
                 const diff = await diffVersions(previous.id, latest.id);
+                // The diff buckets hold every FHIR entry type (Endpoint,
+                // OrganizationAffiliation, DELETE). The mail labels these as
+                // organization counts, so keep only Organization resources.
+                // DELETE entries carry no resource and are excluded anyway.
+                const isOrg = (e: { resource?: { resourceType?: string } }) =>
+                  e.resource?.resourceType === 'Organization';
                 changes = {
-                  addedOrgs: diff.added.length,
-                  removedOrgs: diff.removed.length,
-                  changedOrgs: diff.changed.length,
+                  addedOrgs: diff.added.filter(isOrg).length,
+                  removedOrgs: diff.removed.filter(isOrg).length,
+                  changedOrgs: diff.changed.filter((c) => isOrg(c.after)).length,
                 };
               } catch (e) {
                 logger.warn(
