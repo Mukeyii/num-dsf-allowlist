@@ -19,7 +19,7 @@ const JWT_PUBLIC_KEY = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'bas
 
 // Derive a stable kid from the public key: first 16 hex chars of its
 // SHA-256 fingerprint. Same algorithm on the verifier side maps kid → key.
-const KEY_ID = JWT_PUBLIC_KEY
+export const KEY_ID = JWT_PUBLIC_KEY
   ? crypto.createHash('sha256').update(JWT_PUBLIC_KEY).digest('hex').slice(0, 16)
   : 'unknown';
 

@@ -17,7 +17,7 @@ import {
 } from './notification.service';
 import { verifyGrant } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
-import crypto from 'crypto';
+import { KEY_ID } from './bundle-signing.service';
 import { SITE_NOTIFY_DELAY_MS, DAY_MS } from '../lib/time';
 import { logger } from '../lib/logger';
 
@@ -295,15 +295,9 @@ export async function flushPendingNotifications(): Promise<void> {
             const apiBase = process.env.API_BASE_URL || `${portalUrl}/api/v1`;
             const supportEmail =
               process.env.OPERATOR_SUPPORT_EMAIL || 'noreply@dsf-allowlist.local';
-            // Derive the kid the bundle was signed with — same algorithm as
-            // bundle-signing.service so the value in the mail matches the JWT
-            // header the recipient inspects offline.
-            const pub = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64 || '', 'base64').toString(
-              'utf8',
-            );
-            const signatureKid = pub
-              ? crypto.createHash('sha256').update(pub).digest('hex').slice(0, 16)
-              : undefined;
+            // Stamp the same kid the bundle JWT carries so the value in the
+            // mail matches the header the recipient inspects offline.
+            const signatureKid = KEY_ID;
 
             for (const c of contacts as Array<{
               email: string;
