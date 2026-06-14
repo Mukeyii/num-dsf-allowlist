@@ -96,4 +96,22 @@ describe('endpoints.service', () => {
     const after = await getEndpoints(instanceId);
     expect(after.some((e: any) => e.identifier === endpointId)).toBe(false);
   });
+
+  it('rejects a duplicate endpoint identifier with ENDPOINT_EXISTS', async () => {
+    const dupId = `dup-${Date.now()}-${uuidv4().slice(0, 8)}.example.de`;
+    await createEndpoint(
+      instanceId,
+      { identifier: dupId, address: 'https://dup.example.de/fhir' },
+      email,
+      '127.0.0.1',
+    );
+    await expect(
+      createEndpoint(
+        instanceId,
+        { identifier: dupId, address: 'https://dup2.example.de/fhir' },
+        email,
+        '127.0.0.1',
+      ),
+    ).rejects.toThrow('ENDPOINT_EXISTS');
+  });
 });
