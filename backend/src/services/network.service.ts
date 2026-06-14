@@ -41,11 +41,21 @@ function certStatus(validUntils: (Date | string | null)[]): {
 }
 
 export async function getNetworkMap(opts: { isAdmin: boolean }) {
-  const approvedRows = await db('approval_requests as ar')
-    .join('instances as i', 'i.id', 'ar.instance_id')
-    .join('organizations as o', 'o.instance_id', 'i.id')
-    .where('ar.status', 'APPROVED')
-    .distinct('o.identifier as identifier');
+  // The federation set MUST match fhir.service.generateFullBundle (the single
+  // source of truth): active = true AND the LATEST approval_requests row (by
+  // created_at) for the instance is 'APPROVED'. A divergent rule (e.g. ANY
+  // APPROVED row) would keep de-approved or deactivated orgs on the map.
+  // created_at, id DESC is a deterministic tiebreaker on equal timestamps.
+  const approvedRows = await db('organizations')
+    .where({ active: true })
+    .whereRaw(
+      `(
+      SELECT status FROM approval_requests
+      WHERE instance_id = organizations.instance_id
+      ORDER BY created_at DESC, id DESC LIMIT 1
+    ) = 'APPROVED'`,
+    )
+    .select('identifier');
   const approvedOrgIds: string[] = approvedRows.map((r: any) => r.identifier);
 
   if (approvedOrgIds.length === 0) return { organizations: [] };
