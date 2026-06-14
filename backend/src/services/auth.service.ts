@@ -10,9 +10,9 @@ import crypto from 'crypto';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { createAndStoreOtp, verifyOtp } from './otp.service';
-import { verifyTotpCode, verifyBackupCode } from './totp.service';
+import { verifyTotpCode, verifyBackupCode, generateBackupCodes } from './totp.service';
 import { sendOtpEmail } from './mail.service';
-import { setRefreshToken, deleteRefreshToken } from './redis.service';
+import { setRefreshToken, deleteRefreshToken, getRefreshToken, redis } from './redis.service';
 import { writeAuditLog } from './audit.service';
 import type { AuthUser, JwtPayload, TempTokenPayload } from '../types/auth.types';
 import { REFRESH_TOKEN_TTL_SEC as REFRESH_TTL_SEC } from '../lib/time';
@@ -196,7 +196,6 @@ export async function confirmTotpSetupAndCreateSession(
     ipAddress,
   });
 
-  const { generateBackupCodes } = await import('./totp.service');
   const backupCodes = await generateBackupCodes(user.id);
   const tokens = await createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
 
@@ -223,7 +222,6 @@ export async function refreshAccessToken(
   refreshToken: string,
 ): Promise<{ accessToken: string; refreshToken: string }> {
   const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-  const { getRefreshToken } = await import('./redis.service');
   const userId = await getRefreshToken(hash);
   if (!userId) throw new Error('INVALID_REFRESH_TOKEN');
 
@@ -247,11 +245,10 @@ export async function refreshAccessToken(
   // every active user during a transient Redis blip. So distinguish the two:
   // on a Redis error we fail soft (allow the refresh) and log it, instead of
   // mass-revoking sessions.
-  const { redis: redisClient } = await import('./redis.service');
   let lastActivity: string | null = null;
   let redisReachable = true;
   try {
-    lastActivity = await redisClient.get(`activity:${userId}`);
+    lastActivity = await redis.get(`activity:${userId}`);
   } catch (err) {
     redisReachable = false;
     logger.warn(
@@ -294,8 +291,6 @@ export async function logout(
 export async function revokeAllSessions(
   emailOrUser: string | { id: string; email?: string },
 ): Promise<number> {
-  const { redis } = await import('./redis.service');
-
   let userId: string | undefined;
   if (typeof emailOrUser === 'string') {
     const user = await db('users').where({ email: emailOrUser.toLowerCase() }).first();
