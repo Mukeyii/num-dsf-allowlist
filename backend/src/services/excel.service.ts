@@ -6,9 +6,21 @@ import ExcelJS from 'exceljs';
 import { db } from '../db/connection';
 
 export async function generateIpAddressListExcel(): Promise<Buffer> {
+  // Firewall allow-list parity with fhir.service.generateFullBundle: only
+  // export IPs of orgs that are active AND whose LATEST approval_request is
+  // APPROVED. Correlated subquery so a newer REJECTED/PENDING supersedes an
+  // old APPROVED. `org` is the organizations alias here.
   const ips = await db('endpoint_ips as eip')
     .join('endpoints as ep', 'eip.endpoint_id', 'ep.identifier')
     .join('organizations as org', 'ep.organization_id', 'org.identifier')
+    .where('org.active', true)
+    .whereRaw(
+      `(
+      SELECT status FROM approval_requests
+      WHERE instance_id = org.instance_id
+      ORDER BY created_at DESC LIMIT 1
+    ) = 'APPROVED'`,
+    )
     .select(
       'org.identifier as orgIdentifier',
       'org.name as orgName',
