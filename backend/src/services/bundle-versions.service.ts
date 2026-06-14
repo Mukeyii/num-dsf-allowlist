@@ -4,10 +4,12 @@
  * outer transaction commits, so generateFullBundle sees the new
  * APPROVED state.
  *
- * Diff is computed over bundle.entry: an entry is keyed by
- * `resource.resourceType + '/' + resource.id`. Added / removed /
- * changed buckets are returned as raw FHIR entries so the admin UI
- * can render them inline.
+ * Diff is computed over bundle.entry, keyed by a STABLE business
+ * identity (see keyOf) — NOT resource.id, which generateFullBundle
+ * regenerates as a fresh uuid on every run, so id-keyed diffs would
+ * report every entry as added+removed. Added / removed / changed
+ * buckets are returned as raw FHIR entries so the admin UI can render
+ * them inline.
  *
  * Storage: every snapshot stores the full JSON. ~50 KB / approval.
  */
@@ -102,16 +104,46 @@ export async function getVersion(id: string) {
 }
 
 interface FhirEntry {
-  resource?: { id?: string; resourceType?: string };
+  resource?: {
+    id?: string;
+    resourceType?: string;
+    identifier?: Array<{ value?: string }>;
+  };
+  request?: { url?: string };
   fullUrl?: string;
 }
 interface FhirBundle {
   entry?: FhirEntry[];
 }
 
+// Stable identity for an entry, in priority order:
+//  1. resource.identifier[0].value — the sid/FQDN of Organization & Endpoint
+//     resources (stable across regenerations).
+//  2. request.url — the conditional PUT/DELETE URL, built from FQDN
+//     identifiers; covers OrganizationAffiliation and DELETE entries that
+//     carry no top-level identifier.
+//  3. resource.id — only as a fallback (e.g. synthetic test fixtures);
+//     real bundle ids are random uuids and must not be the primary key.
+//  4. fullUrl — last resort.
 function keyOf(entry: FhirEntry): string {
   const r = entry.resource;
-  return `${r?.resourceType ?? 'Unknown'}/${r?.id ?? entry.fullUrl ?? ''}`;
+  const identValue = r?.identifier?.[0]?.value;
+  if (identValue) return `${r?.resourceType ?? 'Unknown'}:${identValue}`;
+  if (entry.request?.url) return entry.request.url;
+  if (r?.id) return `${r?.resourceType ?? 'Unknown'}:${r.id}`;
+  return entry.fullUrl ?? '';
+}
+
+// Content fingerprint for change detection. generateFullBundle regenerates
+// fullUrl, resource.id, and every urn:uuid: cross-reference built from them
+// on each run, so all three are volatile and must be neutralised — otherwise
+// two snapshots of unchanged data would report every matched entry as
+// changed (the same random-id defect this diff fixes, in the changed bucket).
+function stableJson(entry: FhirEntry): string {
+  const clone = JSON.parse(JSON.stringify(entry)) as FhirEntry & { fullUrl?: string };
+  delete clone.fullUrl;
+  if (clone.resource) delete clone.resource.id;
+  return JSON.stringify(clone).replace(/urn:uuid:[0-9a-f-]+/gi, 'urn:uuid:*');
 }
 
 export async function diffVersions(idA: string, idB: string) {
@@ -128,8 +160,7 @@ export async function diffVersions(idA: string, idB: string) {
   for (const [k, entry] of bMap) {
     const before = aMap.get(k);
     if (!before) added.push(entry);
-    else if (JSON.stringify(before) !== JSON.stringify(entry))
-      changed.push({ before, after: entry });
+    else if (stableJson(before) !== stableJson(entry)) changed.push({ before, after: entry });
   }
   for (const [k, entry] of aMap) {
     if (!bMap.has(k)) removed.push(entry);
