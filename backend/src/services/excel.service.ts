@@ -45,7 +45,6 @@ export async function generateIpAddressListExcel(): Promise<Buffer> {
     { header: 'FHIR', key: 'isFhir', width: 10 },
     { header: 'BPE', key: 'isBpe', width: 10 },
   ];
-  sheet.getRow(1).font = { bold: true };
   sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6C63FF' } };
   sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
   ips.forEach((row: any) => {
