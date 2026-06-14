@@ -16,7 +16,7 @@ const baseCtx: ApprovedBundleMailContext = {
   contentHash: 'a'.repeat(64),
   signatureKid: '0123456789abcdef',
   changes: { addedOrgs: 3, removedOrgs: 1, changedOrgs: 2 },
-  downloadUrl: 'https://allowlist.example.de/api/v1/admin/bundle-versions/abc/download',
+  downloadUrl: 'https://allowlist.example.de/api/v1/instances/inst-1/download/full-bundle',
   verifyUrl: 'https://allowlist.example.de/app/admin/bundle-versions',
   supportEmail: 'dsf-support@example.de',
 };
