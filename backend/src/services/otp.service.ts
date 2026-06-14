@@ -10,8 +10,7 @@
  */
 import crypto from 'crypto';
 import { setOtp, getOtp, deleteOtp } from './redis.service';
-
-const OTP_TTL_SECONDS = 600;
+import { OTP_TTL_SEC } from '../lib/time';
 
 function generateOtp(): string {
   // 6-digit code, preserving leading zeros
@@ -25,7 +24,7 @@ function hashOtp(code: string): string {
 export async function createAndStoreOtp(email: string): Promise<string> {
   const code = generateOtp();
   const hashed = hashOtp(code);
-  await setOtp(email.toLowerCase(), hashed, OTP_TTL_SECONDS);
+  await setOtp(email.toLowerCase(), hashed, OTP_TTL_SEC);
   return code; // only briefly in memory – send via mail immediately, then discard
 }
 
