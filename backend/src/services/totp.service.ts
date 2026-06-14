@@ -115,42 +115,58 @@ export async function generateBackupCodes(userId: string): Promise<string[]> {
 }
 
 export async function verifyBackupCode(userId: string, code: string): Promise<boolean> {
-  // Atomic claim: the prior implementation was a read → bcrypt.compare → write
-  // sequence without a transaction. Two simultaneous calls for the same
-  // userId could both pass bcrypt.compare on the same code, both splice
-  // their (now-stale) in-memory array, and both write — last-writer-wins
-  // could leave the consumed code still present, letting the same backup
-  // code authenticate twice. Wrap in a transaction with SELECT ... FOR UPDATE
-  // so the second caller blocks until the first commits; by then the
-  // consumed code is gone from `backup_codes` and the compare fails.
-  return db.transaction(async (trx) => {
-    const user = await trx('users').where({ id: userId }).forUpdate().first();
-    if (!user?.backup_codes) return false;
+  // The bcrypt comparisons (up to 10 × ~250 ms) run on an UNLOCKED read so they
+  // never hold a SELECT ... FOR UPDATE row lock for seconds. Only the atomic
+  // single-use claim runs under the lock, and it does string ops only.
+  const user = await db('users').where({ id: userId }).first();
+  if (!user?.backup_codes) return false;
 
-    let hashed: string[];
-    try {
-      // MySQL JSON columns return parsed objects; plain strings need parsing
-      hashed =
-        typeof user.backup_codes === 'string' ? JSON.parse(user.backup_codes) : user.backup_codes;
-    } catch {
-      logger.error({ userId }, 'Corrupt backup_codes JSON in database');
-      return false;
-    }
-    if (!Array.isArray(hashed)) {
-      logger.error({ userId }, 'Corrupt backup_codes JSON in database');
-      return false;
-    }
-    for (let i = 0; i < hashed.length; i++) {
-      if (await bcrypt.compare(code.trim().toUpperCase(), hashed[i])) {
-        // Remove consumed code under the row lock so concurrent verifies
-        // observe the shrunken array.
-        hashed.splice(i, 1);
-        await trx('users')
-          .where({ id: userId })
-          .update({ backup_codes: JSON.stringify(hashed) });
-        return true;
-      }
-    }
+  let hashed: string[];
+  try {
+    // MySQL JSON columns return parsed objects; plain strings need parsing
+    hashed =
+      typeof user.backup_codes === 'string' ? JSON.parse(user.backup_codes) : user.backup_codes;
+  } catch {
+    logger.error({ userId }, 'Corrupt backup_codes JSON in database');
     return false;
+  }
+  if (!Array.isArray(hashed)) {
+    logger.error({ userId }, 'Corrupt backup_codes JSON in database');
+    return false;
+  }
+
+  const candidate = code.trim().toUpperCase();
+  let matchedHash: string | null = null;
+  for (const h of hashed) {
+    if (await bcrypt.compare(candidate, h)) {
+      matchedHash = h;
+      break;
+    }
+  }
+  if (!matchedHash) return false;
+
+  // Atomic single-use claim under the row lock — string ops only, no bcrypt.
+  // The matched hash can be spliced exactly once; a concurrent caller that
+  // already consumed it finds idx === -1 here and the splice/write never runs,
+  // so the same backup code can never authenticate twice.
+  return db.transaction(async (trx) => {
+    const locked = await trx('users').where({ id: userId }).forUpdate().first();
+    let current: string[];
+    try {
+      current =
+        typeof locked.backup_codes === 'string'
+          ? JSON.parse(locked.backup_codes)
+          : locked.backup_codes;
+    } catch {
+      return false;
+    }
+    if (!Array.isArray(current)) return false;
+    const idx = current.indexOf(matchedHash);
+    if (idx === -1) return false; // already consumed by a concurrent call
+    current.splice(idx, 1);
+    await trx('users')
+      .where({ id: userId })
+      .update({ backup_codes: JSON.stringify(current) });
+    return true;
   });
 }
