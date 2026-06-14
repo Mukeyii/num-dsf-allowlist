@@ -174,7 +174,28 @@ export async function runApprovalReminders(): Promise<void> {
   }
 }
 
+// Drops a tick whose predecessor is still mid-flush. Each row is DELETEd only
+// after its send completes, so two overlapping runs (a slow sweep outlasting
+// the */5min interval) would re-send the same not-yet-deleted rows. This guard
+// is per-process only; a multi-backend-instance deployment would additionally
+// need an atomic DB claim (e.g. a claimed_at column) so two processes can't
+// pick up the same row — not added here.
+let flushRunning = false;
+
 export async function flushPendingNotifications(): Promise<void> {
+  if (flushRunning) {
+    logger.warn('[PendingNotify] flush already running; skipping tick');
+    return;
+  }
+  flushRunning = true;
+  try {
+    await runPendingNotificationFlush();
+  } finally {
+    flushRunning = false;
+  }
+}
+
+async function runPendingNotificationFlush(): Promise<void> {
   const now = new Date();
   // Bound each sweep so an SMTP outage backlog can't make one run exceed its
   // 5-min interval; oldest-queued first so nothing starves.
