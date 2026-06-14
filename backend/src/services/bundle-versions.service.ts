@@ -100,7 +100,15 @@ export async function listVersions(opts: { page: number; limit: number }) {
 export async function getVersion(id: string) {
   const row = await db<BundleVersionRow>('bundle_versions').where({ id }).first();
   if (!row) throw new Error('NOT_FOUND');
-  return { ...row, bundle: JSON.parse(row.bundle_json) };
+  // A corrupt stored bundle must surface as a clean business error, not a raw
+  // SyntaxError that crashes the caller (e.g. the raw-download route).
+  let bundle: unknown;
+  try {
+    bundle = JSON.parse(row.bundle_json);
+  } catch {
+    throw new Error('BUNDLE_CORRUPT');
+  }
+  return { ...row, bundle };
 }
 
 interface FhirEntry {
