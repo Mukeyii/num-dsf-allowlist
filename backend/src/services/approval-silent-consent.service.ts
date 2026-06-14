@@ -5,12 +5,12 @@
  * APPROVED. Implements "Schweigen als Zustimmung".
  *
  * Dependencies: db/connection, audit.service, approval-reminder.service,
- * bundle-versions.service (dynamic), lib/approvalState, lib/isAdmin, lib/logger
+ * approval.service, bundle-versions.service (dynamic), lib/isAdmin, lib/logger
  */
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { notifySiteOnApproval } from './approval-reminder.service';
-import { ApprovalSig } from '../lib/approvalState';
+import { getSignaturesForRequests } from './approval.service';
 import { isAdminEmail } from '../lib/isAdmin';
 import { logger } from '../lib/logger';
 
@@ -30,18 +30,7 @@ export async function runSilentConsentSweep(now: Date = new Date()): Promise<num
     .select('id', 'instance_id');
 
   // One signature query for the whole sweep instead of one per request.
-  const sigRows = pending.length
-    ? ((await db('approval_signatures').whereIn(
-        'approval_request_id',
-        pending.map((p) => p.id),
-      )) as (ApprovalSig & { approval_request_id: string })[])
-    : [];
-  const sigsByRequest = new Map<string, ApprovalSig[]>();
-  for (const s of sigRows) {
-    const list = sigsByRequest.get(s.approval_request_id);
-    if (list) list.push(s);
-    else sigsByRequest.set(s.approval_request_id, [s]);
-  }
+  const sigsByRequest = await getSignaturesForRequests(pending.map((p) => p.id));
 
   let promoted = 0;
   for (const r of pending) {

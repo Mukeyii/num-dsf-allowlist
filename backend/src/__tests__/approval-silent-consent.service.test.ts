@@ -162,6 +162,10 @@ describe('approval-silent-consent.service – runSilentConsentSweep', () => {
   });
 
   it('does not promote when the only APPROVE comes from a no-longer-verified admin', async () => {
+    // Run the sweep here too so this test stands alone (e.g. with -t). The
+    // sweep only touches PENDING rows, so a second run is idempotent.
+    await runSilentConsentSweep();
+
     const revoked = await db('approval_requests').where({ id: revokedId }).first();
     expect(revoked.status).toBe('PENDING');
 
