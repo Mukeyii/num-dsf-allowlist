@@ -31,7 +31,9 @@ function certStatus(validUntils: (Date | string | null)[]): {
     .map((v) => new Date(v).getTime())
     .filter((t) => !isNaN(t));
   if (valid.length === 0) return { status: 'NONE', next: null, daysUntil: null };
-  const furthest = Math.max(...valid);
+  // Reduce instead of Math.max(...valid): spreading every expiry as an arg
+  // risks a RangeError once a cert count exceeds the engine's arg limit.
+  const furthest = valid.reduce((a, b) => (b > a ? b : a), valid[0]);
   const days = Math.ceil((furthest - now) / (24 * 60 * 60 * 1000));
   if (furthest < now)
     return { status: 'EXPIRED', next: new Date(furthest).toISOString(), daysUntil: days };
