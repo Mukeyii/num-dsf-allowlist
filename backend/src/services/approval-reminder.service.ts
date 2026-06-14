@@ -18,7 +18,7 @@ import {
 import { verifyGrant } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
 import { KEY_ID } from './bundle-signing.service';
-import { SITE_NOTIFY_DELAY_MS, DAY_MS } from '../lib/time';
+import { SITE_NOTIFY_DELAY_MS, DAY_MS, REMINDER_THROTTLE_MS } from '../lib/time';
 import { logger } from '../lib/logger';
 
 async function getAllAdminEmails(): Promise<string[]> {
@@ -143,11 +143,9 @@ export async function notifyImiOnFirstApproval(
   );
 }
 
-const REMINDER_THROTTLE_DAYS = 7;
-
 export async function runApprovalReminders(): Promise<void> {
   const threeDaysAgo = new Date(Date.now() - 3 * DAY_MS);
-  const throttleCutoff = new Date(Date.now() - REMINDER_THROTTLE_DAYS * DAY_MS);
+  const throttleCutoff = new Date(Date.now() - REMINDER_THROTTLE_MS);
 
   const staleRequests = await db('approval_requests')
     .where({ status: 'PENDING' })
