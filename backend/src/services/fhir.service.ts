@@ -113,16 +113,19 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
   const entries: object[] = [];
 
   // --- Organization entry ---
+  // FHIR R4: extension must be absent or non-empty — never []. Omit the key
+  // entirely when the org has no certificate thumbprints.
+  const orgCertExtensions = certs.map((cert: { thumbprint: string }) => ({
+    url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
+    valueString: cert.thumbprint,
+  }));
   entries.push({
     fullUrl: `urn:uuid:${orgUuid}`,
     resource: {
       resourceType: 'Organization',
       id: orgUuid,
       meta: resourceMeta(PROFILE_ORG),
-      extension: certs.map((cert: { thumbprint: string }) => ({
-        url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
-        valueString: cert.thumbprint,
-      })),
+      ...(orgCertExtensions.length ? { extension: orgCertExtensions } : {}),
       identifier: [{ system: ORG_ID_SYSTEM, value: org.identifier }],
       active: true,
       name: org.name,
@@ -315,16 +318,19 @@ export async function generateFullBundle(): Promise<object> {
       epUuids[`${org.identifier}/${ep.identifier}`] = uuidv4();
     }
 
+    // FHIR R4: extension must be absent or non-empty — never []. Omit the key
+    // entirely when the org has no certificate thumbprints.
+    const orgCertExtensions = certs.map((c: { thumbprint: string }) => ({
+      url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
+      valueString: c.thumbprint,
+    }));
     entries.push({
       fullUrl: `urn:uuid:${orgUuid}`,
       resource: {
         resourceType: 'Organization',
         id: orgUuid,
         meta: resourceMeta(PROFILE_ORG),
-        extension: certs.map((c: { thumbprint: string }) => ({
-          url: 'http://dsf.dev/fhir/StructureDefinition/extension-certificate-thumbprint',
-          valueString: c.thumbprint,
-        })),
+        ...(orgCertExtensions.length ? { extension: orgCertExtensions } : {}),
         identifier: [{ system: ORG_ID_SYSTEM, value: org.identifier }],
         active: true,
         name: org.name,

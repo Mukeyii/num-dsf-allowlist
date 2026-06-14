@@ -128,6 +128,9 @@ describe('Bundle meta + per-resource meta (Phase A)', () => {
       expect(hasReadAccessTag(bundle.meta)).toBe(true);
       const org = (bundle.entry ?? []).find((e) => e.resource?.resourceType === 'Organization');
       expect(hasReadAccessTag(org?.resource?.meta)).toBe(true);
+      // No certificates seeded → extension must be absent, not an empty array
+      // (FHIR R4 rejects extension: []).
+      expect(org?.resource).not.toHaveProperty('extension');
     } finally {
       await db('endpoints').where({ identifier: endpointIdentifier }).del();
       await db('organizations').where({ identifier: orgIdentifier }).del();
