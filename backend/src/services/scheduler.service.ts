@@ -15,6 +15,11 @@ import { runMembershipCleanup } from './membership-cleanup.service';
 import { syncAll as syncMarketplaceAll } from './marketplace-sync.service';
 import { logger } from '../lib/logger';
 
+// The marketplace sweep walks every entry with a delay between GitHub calls, so
+// a slow run can outlast its daily interval. This guard drops a tick that would
+// otherwise overlap an in-flight sweep.
+let marketplaceSyncRunning = false;
+
 export function startScheduler(): void {
   cron.schedule(
     '*/5 * * * *',
@@ -80,10 +85,17 @@ export function startScheduler(): void {
   cron.schedule(
     '0 10 * * *',
     async () => {
+      if (marketplaceSyncRunning) {
+        logger.warn('[Scheduler] marketplace syncAll already running; skipping tick');
+        return;
+      }
+      marketplaceSyncRunning = true;
       try {
         await syncMarketplaceAll();
       } catch (err) {
         logger.error({ err }, '[Scheduler] marketplace syncAll failed');
+      } finally {
+        marketplaceSyncRunning = false;
       }
     },
     { timezone: 'UTC' },
