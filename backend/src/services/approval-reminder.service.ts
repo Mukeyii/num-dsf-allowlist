@@ -176,7 +176,12 @@ export async function runApprovalReminders(): Promise<void> {
 
 export async function flushPendingNotifications(): Promise<void> {
   const now = new Date();
-  const due = await db('pending_notifications').where('send_after', '<=', now);
+  // Bound each sweep so an SMTP outage backlog can't make one run exceed its
+  // 5-min interval; oldest-queued first so nothing starves.
+  const due = await db('pending_notifications')
+    .where('send_after', '<=', now)
+    .orderBy('created_at', 'asc')
+    .limit(50);
   if (due.length === 0) return;
 
   logger.info(`[PendingNotify] ${due.length} notification(s) due – flushing`);
