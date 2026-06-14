@@ -45,15 +45,25 @@ export async function createEndpoint(
 ) {
   const org = await db('organizations').where({ instance_id: instanceId }).first();
   if (!org) throw new Error('ORGANIZATION_NOT_FOUND');
+  // identifier is the global endpoint PK (an FQDN). Another org may already
+  // own it; pre-check for a clear conflict, and still catch ER_DUP_ENTRY to
+  // cover the insert race between this check and the write.
+  const existing = await db('endpoints').where({ identifier: data.identifier }).first();
+  if (existing) throw new Error('ENDPOINT_EXISTS');
   const now = new Date();
-  await db('endpoints').insert({
-    identifier: data.identifier,
-    organization_id: org.identifier,
-    name: data.name ?? null,
-    address: data.address,
-    created_at: now,
-    updated_at: now,
-  });
+  try {
+    await db('endpoints').insert({
+      identifier: data.identifier,
+      organization_id: org.identifier,
+      name: data.name ?? null,
+      address: data.address,
+      created_at: now,
+      updated_at: now,
+    });
+  } catch (err: any) {
+    if (err?.code === 'ER_DUP_ENTRY') throw new Error('ENDPOINT_EXISTS');
+    throw err;
+  }
   if (data.ipAddresses?.length) {
     await db('endpoint_ips').insert(
       data.ipAddresses.map((ip) => ({
