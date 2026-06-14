@@ -175,9 +175,17 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
   });
 
   // --- Parent Organization entries (for each unique parent) ---
+  // Batch-load all referenced parents in one query (a parent might be an
+  // external consortium like MII not in our DB) and look up the display name
+  // from a Map — avoids one query per parent.
+  const parentIds = Object.keys(parentOrgUuids);
+  const parentRows = parentIds.length
+    ? await db('organizations').whereIn('identifier', parentIds)
+    : [];
+  const parentNameById = new Map<string, string>(
+    parentRows.map((p: { identifier: string; name: string }) => [p.identifier, p.name]),
+  );
   for (const [parentId, parentUuid] of Object.entries(parentOrgUuids)) {
-    // Check if parent org exists in our DB (it might be an external consortium like MII)
-    const parentOrg = await db('organizations').where({ identifier: parentId }).first();
     entries.push({
       fullUrl: `urn:uuid:${parentUuid}`,
       resource: {
@@ -186,7 +194,7 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
         meta: resourceMeta(PROFILE_ORG_PARENT),
         identifier: [{ system: ORG_ID_SYSTEM, value: parentId }],
         active: true,
-        name: parentOrg?.name || parentId,
+        name: parentNameById.get(parentId) || parentId,
       },
       request: {
         method: 'PUT',
@@ -255,10 +263,11 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
 export async function generateFullBundle(): Promise<object> {
   // Only orgs whose LATEST approval_request (by created_at) is 'APPROVED' AND active.
   // Using a correlated subquery so a newer REJECTED/PENDING entry supersedes an old APPROVED.
+  // created_at, id DESC is a deterministic tiebreaker when timestamps collide.
   const orgs = await db('organizations').where({ active: true }).whereRaw(`(
       SELECT status FROM approval_requests
       WHERE instance_id = organizations.instance_id
-      ORDER BY created_at DESC LIMIT 1
+      ORDER BY created_at DESC, id DESC LIMIT 1
     ) = 'APPROVED'`);
 
   const orgUuids: Record<string, string> = {};
@@ -372,10 +381,18 @@ export async function generateFullBundle(): Promise<object> {
   }
 
   // Parent verbund Organizations (MII, NUM, ...) — only if not already an approved member org.
-  for (const pid of parentIdentifiers) {
+  // Batch-load the external parents' display names in one query instead of one
+  // per parent inside the loop.
+  const externalParentIds = (parentIdentifiers as string[]).filter((pid) => !orgUuids[pid]);
+  const externalParentRows = externalParentIds.length
+    ? await db('organizations').whereIn('identifier', externalParentIds)
+    : [];
+  const externalParentNameById = new Map<string, string>(
+    externalParentRows.map((p: { identifier: string; name: string }) => [p.identifier, p.name]),
+  );
+  for (const pid of parentIdentifiers as string[]) {
     if (orgUuids[pid]) continue;
     const parentUuid = parentUuids[pid];
-    const parentRow = await db('organizations').where({ identifier: pid }).first();
     entries.push({
       fullUrl: `urn:uuid:${parentUuid}`,
       resource: {
@@ -384,7 +401,7 @@ export async function generateFullBundle(): Promise<object> {
         meta: resourceMeta(PROFILE_ORG_PARENT),
         identifier: [{ system: ORG_ID_SYSTEM, value: pid }],
         active: true,
-        name: parentRow?.name || pid,
+        name: externalParentNameById.get(pid) || pid,
       },
       request: { method: 'PUT', url: `Organization?identifier=${ORG_ID_SYSTEM}|${pid}` },
     });
