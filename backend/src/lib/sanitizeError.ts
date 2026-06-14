@@ -32,6 +32,7 @@ const KNOWN_ERROR_CODES = new Set([
   'IDENTIFIER_IMMUTABLE',
   'CA_BLACKLISTED',
   'INVALID_PEM',
+  'BUNDLE_CORRUPT',
 ]);
 
 export function sanitizeError(err: any): { code: string; message: string } {

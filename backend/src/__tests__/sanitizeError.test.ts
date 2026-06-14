@@ -13,6 +13,13 @@ describe('sanitizeError', () => {
     });
   });
 
+  it('passes BUNDLE_CORRUPT through instead of collapsing it', () => {
+    expect(sanitizeError(new Error('BUNDLE_CORRUPT'))).toEqual({
+      code: 'BUNDLE_CORRUPT',
+      message: 'BUNDLE_CORRUPT',
+    });
+  });
+
   it('collapses an unknown error message to OPERATION_FAILED', () => {
     expect(sanitizeError(new Error('ER_DUP_ENTRY: duplicate key 42'))).toEqual({
       code: 'OPERATION_FAILED',
