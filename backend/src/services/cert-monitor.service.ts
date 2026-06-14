@@ -56,6 +56,20 @@ export async function runCertExpiryCheck(): Promise<void> {
     return;
   }
 
+  // Batch-load contacts once for all affected orgs instead of re-querying per
+  // cert (an org with several expiring certs would otherwise fetch repeatedly).
+  const orgIds = [...new Set(expiring.map((c) => c.orgIdentifier))];
+  const allContacts: Array<{ organizationId: string; email: string; types: string | string[] }> =
+    await db('contacts')
+      .whereIn('organization_id', orgIds)
+      .select('organization_id as organizationId', 'email', 'types');
+  const contactsByOrg = new Map<string, Array<{ email: string; types: string | string[] }>>();
+  for (const c of allContacts) {
+    const list = contactsByOrg.get(c.organizationId);
+    if (list) list.push({ email: c.email, types: c.types });
+    else contactsByOrg.set(c.organizationId, [{ email: c.email, types: c.types }]);
+  }
+
   let sent = 0;
   for (const cert of expiring) {
     // Both operands are UTC midnights, so the quotient is a whole number of
@@ -70,10 +84,8 @@ export async function runCertExpiryCheck(): Promise<void> {
     }
 
     try {
-      // Fix (c): look up SECURITY and DSF_ADMIN contacts and send them an email.
-      const contacts: Array<{ email: string; types: string | string[] }> = await db('contacts')
-        .where({ organization_id: cert.orgIdentifier })
-        .select('email', 'types');
+      // SECURITY and DSF_ADMIN contacts for this org, from the batch-loaded map.
+      const contacts = contactsByOrg.get(cert.orgIdentifier) ?? [];
 
       // Parse each contact's types in its own guard so one corrupt `types`
       // JSON row can't suppress notifications to the cert's other recipients.
