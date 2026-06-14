@@ -15,31 +15,14 @@ import {
   sendSiteApprovalResultEmail,
   sendApprovedBundleNotification,
 } from './notification.service';
-import { verifyGrant } from '../lib/adminGrants';
+import { listVerifiedAdminEmails } from '../lib/adminGrants';
 import { v4 as uuidv4 } from 'uuid';
 import { KEY_ID } from './bundle-signing.service';
 import { SITE_NOTIFY_DELAY_MS, DAY_MS, REMINDER_THROTTLE_MS } from '../lib/time';
 import { logger } from '../lib/logger';
 
 async function getAllAdminEmails(): Promise<string[]> {
-  const rows = await db('admin_grants').select(
-    'email',
-    'granted_at',
-    'granted_by_a',
-    'granted_by_b',
-    'signature_hex',
-  );
-  return rows
-    .filter(
-      (r: {
-        email: string;
-        granted_at: Date | string;
-        granted_by_a: string;
-        granted_by_b: string;
-        signature_hex: string;
-      }) => verifyGrant(r),
-    )
-    .map((r: { email: string }) => r.email);
+  return listVerifiedAdminEmails();
 }
 
 export async function notifyImiOnSubmit(
