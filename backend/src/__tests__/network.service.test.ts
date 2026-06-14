@@ -14,6 +14,7 @@ describe('network.service', () => {
   const userId = uuidv4();
   const endpointId = `ep-${Date.now()}-${uuidv4().slice(0, 8)}.example.de`;
   const membershipId = uuidv4();
+  const deletedMembershipId = uuidv4();
   const approvalId = uuidv4();
 
   beforeAll(async () => {
@@ -59,6 +60,17 @@ describe('network.service', () => {
       created_at: new Date(),
       updated_at: new Date(),
     });
+    // Soft-deleted (admin-removed) affiliation — must NOT render on the map.
+    await db('memberships').insert({
+      id: deletedMembershipId,
+      organization_id: org,
+      parent_organization: 'removed-parent.example.de',
+      endpoint_id: endpointId,
+      roles: JSON.stringify(['HRP']),
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: new Date(),
+    });
     await db('approval_requests').insert({
       id: approvalId,
       instance_id: instanceId,
@@ -90,6 +102,10 @@ describe('network.service', () => {
     expect(found.memberships.some((m: any) => m.parent_organization === 'parent.example.de')).toBe(
       true,
     );
+    // Soft-deleted affiliations are absent from the map.
+    expect(
+      found.memberships.some((m: any) => m.parent_organization === 'removed-parent.example.de'),
+    ).toBe(false);
     // Non-admins get no contact PII or email.
     expect(found.email).toBeUndefined();
     expect(found.contacts).toBeUndefined();
