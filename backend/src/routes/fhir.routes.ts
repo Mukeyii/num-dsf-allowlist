@@ -17,7 +17,9 @@ export const fhirRouter = Router();
  * Returns the org row or null if not found.
  */
 async function findOrgByThumbprint(thumbprint: string) {
-  return db('organizations').where({ client_cert_thumbprint: thumbprint }).first() ?? null;
+  // Coalesce the resolved row, not the (always-truthy) query promise.
+  const row = await db('organizations').where({ client_cert_thumbprint: thumbprint }).first();
+  return row ?? null;
 }
 
 // GET /fhir/Bundle/:endpointId — Fetch a specific bundle by endpoint identifier
