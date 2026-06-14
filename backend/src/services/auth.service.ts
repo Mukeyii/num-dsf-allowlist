@@ -265,20 +265,11 @@ export async function refreshAccessToken(
     throw new Error('SESSION_EXPIRED');
   }
 
-  // Rotate: delete old token and issue a new one
+  // Rotate: delete old token and issue a new pair. createTokenPair is the
+  // single mint path (signs + mints + hashes + stores), so rotation and
+  // initial issuance can't drift apart.
   await deleteRefreshToken(hash);
-  const newRefreshToken = crypto.randomBytes(64).toString('hex');
-  const newHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
-  await setRefreshToken(newHash, userId, REFRESH_TTL_SEC);
-
-  return {
-    accessToken: signAccessToken({
-      id: user.id,
-      email: user.email,
-      totpEnabled: user.totp_enabled,
-    }),
-    refreshToken: newRefreshToken,
-  };
+  return createTokenPair({ id: user.id, email: user.email, totpEnabled: user.totp_enabled });
 }
 
 // Logout: revoke refresh token
