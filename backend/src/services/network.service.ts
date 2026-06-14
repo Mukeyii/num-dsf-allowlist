@@ -80,15 +80,6 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
     const orgEndpointsRaw = endpoints.filter((e) => e.organization_id === org.identifier);
     const orgMembershipsRaw = memberships.filter((m) => m.organization_id === org.identifier);
 
-    const publicEndpoints = orgEndpointsRaw.map((ep) => ({
-      identifier: ep.identifier,
-      name: ep.name,
-    }));
-    const publicMemberships = orgMembershipsRaw.map((m) => ({
-      parent_organization: m.parent_organization,
-      roles: safeJsonArray(m.roles),
-    }));
-
     const base = {
       identifier: org.identifier,
       name: org.name,
@@ -96,11 +87,24 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
       city: org.city ?? null,
       country_code: org.country_code ?? null,
       cert_status: status,
-      endpoints: publicEndpoints,
-      memberships: publicMemberships,
     };
 
-    if (!opts.isAdmin) return base;
+    // Non-admins get the redacted endpoint/membership view. The admin branch
+    // below supplies its own detailed arrays, so the public ones are built
+    // only here to avoid a discarded computation on the admin path.
+    if (!opts.isAdmin) {
+      return {
+        ...base,
+        endpoints: orgEndpointsRaw.map((ep) => ({
+          identifier: ep.identifier,
+          name: ep.name,
+        })),
+        memberships: orgMembershipsRaw.map((m) => ({
+          parent_organization: m.parent_organization,
+          roles: safeJsonArray(m.roles),
+        })),
+      };
+    }
 
     const adminEndpoints = orgEndpointsRaw.map((ep) => ({
       identifier: ep.identifier,
