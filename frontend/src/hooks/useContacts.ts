@@ -1,6 +1,6 @@
 /**
  * useContacts.ts — TanStack Query hooks for contact list, create, update, and delete.
- * Wraps the entities API; mutations invalidate contacts and approval-status caches.
+ * Wraps the entities API; mutations invalidate contacts, approval-status, activity-feed, and audit caches.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
@@ -24,6 +24,8 @@ export function useCreateContact(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -36,6 +38,8 @@ export function useUpdateContact(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -47,6 +51,8 @@ export function useDeleteContact(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['contacts', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }

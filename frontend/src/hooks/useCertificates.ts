@@ -1,6 +1,6 @@
 /**
  * useCertificates.ts — TanStack Query hooks for certificate list, create, delete, and renew.
- * Wraps the entities API; mutations invalidate certificates, approval-status, and certs-expiring caches.
+ * Wraps the entities API; mutations invalidate certificates, approval-status, certs-expiring, activity-feed, and audit caches.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
@@ -25,6 +25,8 @@ export function useCreateCertificate(instanceId: string) {
       qc.invalidateQueries({ queryKey: ['certificates', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
       qc.invalidateQueries({ queryKey: ['certs-expiring', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -37,6 +39,8 @@ export function useDeleteCertificate(instanceId: string) {
       qc.invalidateQueries({ queryKey: ['certificates', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
       qc.invalidateQueries({ queryKey: ['certs-expiring', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -50,6 +54,8 @@ export function useRenewCertificate(instanceId: string) {
       qc.invalidateQueries({ queryKey: ['certificates', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
       qc.invalidateQueries({ queryKey: ['certs-expiring', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
