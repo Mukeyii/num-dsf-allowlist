@@ -705,6 +705,7 @@ export const en = {
   caBlacklistAddedToast: 'CA added to blacklist.',
   caBlacklistRemovedToast: 'CA removed from blacklist.',
   caBlacklistAddFailed: 'Failed to add CA.',
+  caBlacklistRemoveFailed: 'Failed to remove CA from blacklist.',
   caSubjectDn: 'Issuer Subject DN',
   caSubjectDnPlaceholder: 'CN=Example CA,O=Example,C=DE',
   caReason: 'Reason',
