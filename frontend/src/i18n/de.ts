@@ -184,6 +184,7 @@ export const de: Record<TranslationKey, string> = {
   loginCertBtn: 'Mit Client-Zertifikat anmelden',
   loginCertSigningIn: 'Wird angemeldet…',
   loginCertFailed: 'Anmeldung mit Client-Zertifikat fehlgeschlagen.',
+  loginOtpRequestFailed: 'Server nicht erreichbar. Bitte versuche es erneut.',
 
   // OtpPage
   otpTitle: 'Code eingeben',

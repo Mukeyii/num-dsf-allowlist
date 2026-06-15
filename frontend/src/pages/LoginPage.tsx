@@ -31,8 +31,18 @@ export function LoginPage() {
     try {
       await authApi.requestOtp(email.trim().toLowerCase());
       navigate('/otp', { state: { email: email.trim().toLowerCase() } });
-    } catch {
-      navigate('/otp', { state: { email: email.trim().toLowerCase() } });
+    } catch (err: unknown) {
+      // No-enumeration: a whitelisted or non-whitelisted email both return 200
+      // and proceed to /otp. Only a genuine transport failure (no response) or
+      // a 5xx means the request never reached/was processed by the server —
+      // surface that and stay on the page. Any other server response navigates.
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      const transportOrServerError = status == null || status >= 500;
+      if (transportOrServerError) {
+        setError(getErrorMessage(err, t('loginOtpRequestFailed')));
+      } else {
+        navigate('/otp', { state: { email: email.trim().toLowerCase() } });
+      }
     } finally {
       setLoading(false);
     }

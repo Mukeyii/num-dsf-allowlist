@@ -181,6 +181,7 @@ export const en = {
   loginCertBtn: 'Sign in with client certificate',
   loginCertSigningIn: 'Signing in…',
   loginCertFailed: 'Client-certificate sign-in failed.',
+  loginOtpRequestFailed: 'Could not reach the server. Please try again.',
 
   // OtpPage
   otpTitle: 'Enter your code',
