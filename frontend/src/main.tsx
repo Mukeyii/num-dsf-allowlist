@@ -26,6 +26,29 @@ if (import.meta.env.VITE_DEMO === 'true') {
   import('./api/mock-adapter').then((m) => m.setupMockAdapter());
 }
 
+// Single-flight token refresh: when several requests 401 at once, only the
+// first triggers POST /auth/refresh; the rest await the same promise. The
+// backend rotates the refresh cookie on every call, so concurrent refreshes
+// would invalidate each other and log the user out mid-session.
+let refreshPromise: Promise<string> | null = null;
+
+function refreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = authApi
+      .refresh()
+      .then((res) => {
+        const accessToken = res.data.data.accessToken;
+        const decoded: any = jwtDecode(accessToken);
+        useAuthStore.getState().setTokens(accessToken, { id: decoded.sub, email: decoded.email });
+        return accessToken;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
 // Axios interceptors – token refresh + global error handling
 axios.interceptors.response.use(
   (response) => response,
@@ -33,14 +56,13 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
 
-    // 401 – silent token refresh
-    if (status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/')) {
-      originalRequest._retry = true;
+    // 401 – silent token refresh. /auth/* is excluded so the refresh call
+    // itself, and login-flow 401s (bad OTP/TOTP), never re-enter the refresh
+    // path. _retried bails a request that 401s again after one retry.
+    if (status === 401 && !originalRequest._retried && !originalRequest.url?.includes('/auth/')) {
+      originalRequest._retried = true;
       try {
-        const res = await authApi.refresh();
-        const accessToken = res.data.data.accessToken;
-        const decoded: any = jwtDecode(accessToken);
-        useAuthStore.getState().setTokens(accessToken, { id: decoded.sub, email: decoded.email });
+        const accessToken = await refreshAccessToken();
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
         return axios(originalRequest);
       } catch {
