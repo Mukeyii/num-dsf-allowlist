@@ -29,4 +29,42 @@ describe('getErrorMessage', () => {
     expect(getErrorMessage(null, 'fallback')).toBe('fallback');
     expect(getErrorMessage(undefined, 'fallback')).toBe('fallback');
   });
+
+  it('surfaces the first validation issue with its field path', () => {
+    const err = {
+      response: {
+        data: {
+          error: {
+            code: 'VALIDATION',
+            message: 'Invalid input',
+            details: [{ path: ['body', 'email'], message: 'Invalid email' }],
+          },
+        },
+      },
+    };
+    expect(getErrorMessage(err, 'fallback')).toBe('body.email: Invalid email');
+  });
+
+  it('surfaces a validation issue without a path', () => {
+    const err = {
+      response: {
+        data: { error: { message: 'Invalid input', details: [{ message: 'Too short' }] } },
+      },
+    };
+    expect(getErrorMessage(err, 'fallback')).toBe('Too short');
+  });
+
+  it('falls back to the envelope message when details is malformed', () => {
+    const err = {
+      response: {
+        data: { error: { message: 'Invalid input', details: [{ path: ['x'], code: 'custom' }] } },
+      },
+    };
+    expect(getErrorMessage(err, 'fallback')).toBe('Invalid input');
+  });
+
+  it('falls back to the envelope message on an empty details array', () => {
+    const err = { response: { data: { error: { message: 'Invalid input', details: [] } } } };
+    expect(getErrorMessage(err, 'fallback')).toBe('Invalid input');
+  });
 });
