@@ -41,9 +41,13 @@ export function useInstances() {
   });
 
   useEffect(() => {
-    if (query.data?.length && !activeInstanceId) {
-      setActiveInstance(query.data[0].id);
-    }
+    const list = query.data;
+    if (!list) return; // still loading — keep the current selection
+    const stillPresent = activeInstanceId != null && list.some((i) => i.id === activeInstanceId);
+    if (stillPresent) return;
+    // No selection yet, or the active instance vanished from a refetch: fall
+    // back to the first instance, or clear when the list is now empty.
+    setActiveInstance(list[0]?.id ?? null);
   }, [query.data, activeInstanceId, setActiveInstance]);
 
   return query;

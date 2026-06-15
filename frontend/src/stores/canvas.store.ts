@@ -14,7 +14,7 @@ type EntityId =
 interface CanvasState {
   activeInstanceId: string | null;
   highlightedEntity: EntityId | null;
-  setActiveInstance: (id: string) => void;
+  setActiveInstance: (id: string | null) => void;
   highlightEntity: (id: EntityId | null) => void;
 }
 
