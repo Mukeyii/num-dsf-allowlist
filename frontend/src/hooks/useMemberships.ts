@@ -1,6 +1,6 @@
 /**
  * useMemberships.ts — TanStack Query hooks for membership list, create, update, and delete.
- * Wraps the entities API; mutations invalidate memberships and approval-status caches.
+ * Wraps the entities API; mutations invalidate memberships, approval-status, activity-feed, and audit caches.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
@@ -24,6 +24,8 @@ export function useCreateMembership(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -36,6 +38,8 @@ export function useUpdateMembership(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -47,6 +51,8 @@ export function useDeleteMembership(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }

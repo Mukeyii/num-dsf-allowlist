@@ -24,6 +24,8 @@ export function useCreateEndpoint(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -36,6 +38,8 @@ export function useUpdateEndpoint(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
@@ -47,6 +51,8 @@ export function useDeleteEndpoint(instanceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
+      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
+      qc.invalidateQueries({ queryKey: ['audit'] });
     },
   });
 }
