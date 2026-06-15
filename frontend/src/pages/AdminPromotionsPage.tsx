@@ -12,6 +12,7 @@ import { adminPromotionsApi, type PromotionRequest } from '../api/admin.api';
 import { useI18n } from '../stores/i18n.store';
 import { useMe } from '../hooks/useMe';
 import { getErrorMessage } from '../lib/getErrorMessage';
+import { relTime } from '../lib/dateUtils';
 import { useToastMutation } from '../hooks/useToastMutation';
 
 type ActionKind = 'approve' | 'reject' | 'cancel';
@@ -22,14 +23,6 @@ function siteOf(email: string): string {
 
 export function AdminPromotionsPage() {
   const { t } = useI18n();
-
-  function relTime(dateStr: string): string {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return t('relJustNow');
-    if (diff < 3600) return t('relAgoMinutes', { n: Math.floor(diff / 60) });
-    if (diff < 86400) return t('relAgoHours', { n: Math.floor(diff / 3600) });
-    return t('relAgoDays', { n: Math.floor(diff / 86400) });
-  }
 
   const { data: me } = useMe();
   const qc = useQueryClient();
@@ -193,7 +186,7 @@ export function AdminPromotionsPage() {
                       {t('adminPromotionsRequestedBy')}:{' '}
                       <span style={{ fontFamily: 'monospace' }}>{req.requested_by}</span>
                       {' · '}
-                      <span>{relTime(req.requested_at)}</span>
+                      <span>{relTime(req.requested_at, t)}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
