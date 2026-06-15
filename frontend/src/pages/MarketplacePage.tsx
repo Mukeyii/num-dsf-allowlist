@@ -9,6 +9,7 @@ import { useMarketplace, useDeleteMarketplaceEntry } from '../hooks/useMarketpla
 import { useMe } from '../hooks/useMe';
 import { useI18n } from '../stores/i18n.store';
 import { getErrorMessage } from '../lib/getErrorMessage';
+import { relTime } from '../lib/dateUtils';
 import { MarketplaceAddModal } from '../components/modals/MarketplaceAddModal';
 import { MarketplaceEditStatusModal } from '../components/modals/MarketplaceEditStatusModal';
 import type { MarketplaceEntry } from '../api/marketplace.api';
@@ -332,14 +333,6 @@ function EntryRow({
   const { t } = useI18n();
   const pill = STATUS_PILL[entry.status];
 
-  function relTime(dateStr: string): string {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return t('relJustNow');
-    if (diff < 3600) return t('relAgoMinutes').replace('{n}', String(Math.floor(diff / 60)));
-    if (diff < 86400) return t('relAgoHours').replace('{n}', String(Math.floor(diff / 3600)));
-    return t('relAgoDays').replace('{n}', String(Math.floor(diff / 86400)));
-  }
-
   return (
     <div
       style={{
@@ -454,11 +447,11 @@ function EntryRow({
           <span>· ⓘ {entry.openIssues}</span>
           {entry.license && <span>· {entry.license}</span>}
           {entry.syncAt && !entry.syncError && (
-            <span>· {t('marketplaceSyncedAgo').replace('{ago}', relTime(entry.syncAt))}</span>
+            <span>· {t('marketplaceSyncedAgo').replace('{ago}', relTime(entry.syncAt, t))}</span>
           )}
           {entry.lastCommitAt && (
             <span>
-              · {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt))}
+              · {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt, t))}
             </span>
           )}
           {entry.syncError && (
