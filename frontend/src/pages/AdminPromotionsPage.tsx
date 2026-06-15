@@ -75,6 +75,14 @@ export function AdminPromotionsPage() {
 
   if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
+  // The confirm button fires a single-use TOTP-guarded mutation; gate it on the
+  // matching mutation's pending state so a double-click can't consume the code
+  // twice (the second call 401s on the already-spent code).
+  const confirmPending =
+    (pending?.kind === 'approve' && mutApprove.isPending) ||
+    (pending?.kind === 'reject' && mutReject.isPending) ||
+    (pending?.kind === 'cancel' && mutCancel.isPending);
+
   function reset() {
     setPending(null);
     setTotpCode('');
@@ -312,7 +320,11 @@ export function AdminPromotionsPage() {
               <button onClick={reset} style={modalCancelBtn}>
                 {t('cancel')}
               </button>
-              <button onClick={execute} style={modalConfirmBtn}>
+              <button
+                onClick={execute}
+                disabled={confirmPending}
+                style={{ ...modalConfirmBtn, opacity: confirmPending ? 0.6 : 1 }}
+              >
                 {t('confirm')}
               </button>
             </div>
