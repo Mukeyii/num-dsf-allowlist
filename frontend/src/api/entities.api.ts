@@ -71,7 +71,7 @@ function api(instanceId: string) {
       axios.post(`${base}/approval/submit`, {}, { headers: authHeader() }),
 
     downloadBundle: (endpointId: string) =>
-      axios.get(`${base}/download/bundle?endpointId=${endpointId}`, {
+      axios.get(`${base}/download/bundle?endpointId=${encodeURIComponent(endpointId)}`, {
         headers: authHeader(), responseType: 'blob',
       }),
     downloadIpList: () =>
