@@ -25,7 +25,9 @@ export function AuditPage() {
   const { data: me } = useMe();
   const [page, setPage] = useState(1);
   const limit = 50;
-  const { data, isLoading, error } = useCrossInstanceAudit(page, limit);
+  // Only query once admin is confirmed: a non-admin would otherwise fetch and
+  // briefly render audit rows before the me-based redirect below resolves.
+  const { data, isLoading, error } = useCrossInstanceAudit(page, limit, me?.isAdmin === true);
   const rows = data?.data ?? [];
   const total = data?.meta.total ?? 0;
   const isAdmin = !!data?.meta.isAdmin;
