@@ -1,9 +1,11 @@
 /**
  * useMemberships.ts — TanStack Query hooks for membership list, create, update, and delete.
- * Wraps the entities API; mutations invalidate memberships, approval-status, activity-feed, and audit caches.
+ * Wraps the entities API; mutations invalidate the memberships list plus the shared
+ * post-mutation caches (see invalidateAfterEntityMutation).
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
+import { invalidateAfterEntityMutation } from './useEntityInvalidation';
 
 export function useMemberships(instanceId: string | null) {
   return useQuery({
@@ -23,9 +25,7 @@ export function useCreateMembership(instanceId: string) {
     mutationFn: (data: object) => api(instanceId).createMembership(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }
@@ -37,9 +37,7 @@ export function useUpdateMembership(instanceId: string) {
       api(instanceId).updateMembership(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }
@@ -50,9 +48,7 @@ export function useDeleteMembership(instanceId: string) {
     mutationFn: (id: string) => api(instanceId).deleteMembership(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }

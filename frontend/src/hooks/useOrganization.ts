@@ -1,9 +1,11 @@
 /**
  * useOrganization.ts — TanStack Query hooks to fetch and update the instance organization.
- * Wraps the entities API; update invalidates organization, approval-status, activity-feed, and audit caches.
+ * Wraps the entities API; update invalidates the organization plus the shared
+ * post-mutation caches (see invalidateAfterEntityMutation).
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
+import { invalidateAfterEntityMutation } from './useEntityInvalidation';
 
 export function useOrganization(instanceId: string | null) {
   return useQuery({
@@ -23,9 +25,7 @@ export function useUpdateOrganization(instanceId: string) {
     mutationFn: (data: object) => api(instanceId).updateOrganization(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['organization', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }

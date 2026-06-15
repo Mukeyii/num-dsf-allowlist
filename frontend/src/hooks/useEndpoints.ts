@@ -1,10 +1,12 @@
 /**
  * useEndpoints.ts — TanStack Query hooks for endpoint list, create, update, and delete.
- * Wraps the entities API; mutations invalidate endpoints, approval-status, activity-feed, and audit caches;
- * update/delete also invalidate memberships since those reference endpoint_id.
+ * Wraps the entities API; mutations invalidate the endpoints list plus the shared
+ * post-mutation caches (see invalidateAfterEntityMutation); update/delete also
+ * invalidate memberships since those reference endpoint_id.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
+import { invalidateAfterEntityMutation } from './useEntityInvalidation';
 
 export function useEndpoints(instanceId: string | null) {
   return useQuery({
@@ -24,9 +26,7 @@ export function useCreateEndpoint(instanceId: string) {
     mutationFn: (data: object) => api(instanceId).createEndpoint(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }
@@ -38,11 +38,9 @@ export function useUpdateEndpoint(instanceId: string) {
       api(instanceId).updateEndpoint(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
       // memberships reference endpoint_id; a renamed identifier orphans them
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }
@@ -53,11 +51,9 @@ export function useDeleteEndpoint(instanceId: string) {
     mutationFn: (id: string) => api(instanceId).deleteEndpoint(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['endpoints', instanceId] });
-      qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
-      qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
-      qc.invalidateQueries({ queryKey: ['audit'] });
       // memberships reference endpoint_id; a deleted endpoint orphans them
       qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
+      invalidateAfterEntityMutation(qc, instanceId);
     },
   });
 }
