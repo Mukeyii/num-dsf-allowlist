@@ -42,6 +42,9 @@ export function AdminCaBlacklistPage() {
   const blacklist: CaBlacklistRow[] = data?.blacklist ?? [];
   const knownCas: KnownCaRow[] = data?.knownCas ?? [];
 
+  // Mirror the backend addSchema: subjectDn must be 3–500 chars.
+  const subjectDnValid = subjectDn.length >= 3 && subjectDn.length <= 500;
+
   return (
     <div className="p-8 max-w-4xl mx-auto" data-testid="admin-ca-blacklist">
       <h1 className="text-2xl font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>
@@ -92,8 +95,8 @@ export function AdminCaBlacklistPage() {
           </label>
           <button
             type="button"
-            onClick={() => addMut.mutate()}
-            disabled={!subjectDn || addMut.isPending}
+            onClick={() => subjectDnValid && addMut.mutate()}
+            disabled={!subjectDnValid || addMut.isPending}
             className="px-4 py-2 text-sm font-semibold rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: '#b01e66' }}
             data-testid="ca-blacklist-add-btn"
