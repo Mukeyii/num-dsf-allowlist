@@ -1,6 +1,7 @@
 /**
  * useEndpoints.ts — TanStack Query hooks for endpoint list, create, update, and delete.
- * Wraps the entities API; mutations invalidate endpoints and approval-status caches.
+ * Wraps the entities API; mutations invalidate endpoints, approval-status, activity-feed, and audit caches;
+ * update/delete also invalidate memberships since those reference endpoint_id.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/entities.api';
@@ -40,6 +41,8 @@ export function useUpdateEndpoint(instanceId: string) {
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
       qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
       qc.invalidateQueries({ queryKey: ['audit'] });
+      // memberships reference endpoint_id; a renamed identifier orphans them
+      qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
     },
   });
 }
@@ -53,6 +56,8 @@ export function useDeleteEndpoint(instanceId: string) {
       qc.invalidateQueries({ queryKey: ['approval-status', instanceId] });
       qc.invalidateQueries({ queryKey: ['activity-feed', instanceId] });
       qc.invalidateQueries({ queryKey: ['audit'] });
+      // memberships reference endpoint_id; a deleted endpoint orphans them
+      qc.invalidateQueries({ queryKey: ['memberships', instanceId] });
     },
   });
 }
