@@ -1,17 +1,24 @@
 /**
  * auth.api.ts – Axios client for all auth endpoints
- * Base URL from Vite env variable VITE_API_URL
+ * Auth routes live at /auth/* (not under /api/v1/).
+ *
+ * Uses the default axios singleton — the same instance the rest of the app and
+ * the main.tsx interceptors (refresh + error toasts) and the demo mock-adapter
+ * hook — so a 401 on /auth/me and global error handling run consistently. The
+ * 401-refresh interceptor excludes /auth/*, so these calls never recurse.
  */
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth.store';
 
-// Auth routes are at /auth/*, not under /api/v1/
+// withCredentials is required so the browser sends the httpOnly refresh cookie
+// on /auth/refresh and /auth/logout. Set per-request (not on axios.defaults) so
+// the Bearer-only entity APIs on the same singleton are unaffected.
 const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
-const api = axios.create({
+const authConfig = {
   baseURL: baseOrigin,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
-});
+};
 
 function authHeader() {
   const token = useAuthStore.getState().accessToken;
@@ -40,34 +47,43 @@ export interface TotpVerifyResponse {
 
 export const authApi = {
   requestOtp: (email: string) =>
-    api.post<OtpRequestResponse>('/auth/request-otp', { email }),
+    axios.post<OtpRequestResponse>('/auth/request-otp', { email }, authConfig),
 
   verifyOtp: (email: string, code: string) =>
-    api.post<OtpVerifyResponse>('/auth/verify-otp', { email, code }),
+    axios.post<OtpVerifyResponse>('/auth/verify-otp', { email, code }, authConfig),
 
   setupTotp: (tempToken: string) =>
-    api.post<TotpSetupResponse>('/auth/setup-totp', { tempToken }),
+    axios.post<TotpSetupResponse>('/auth/setup-totp', { tempToken }, authConfig),
 
   confirmTotp: (tempToken: string, code: string) =>
-    api.post<TotpConfirmResponse>('/auth/confirm-totp', { tempToken, code }),
+    axios.post<TotpConfirmResponse>('/auth/confirm-totp', { tempToken, code }, authConfig),
 
   verifyTotp: (tempToken: string, code: string) =>
-    api.post<TotpVerifyResponse>('/auth/verify-totp', { tempToken, code }),
+    axios.post<TotpVerifyResponse>('/auth/verify-totp', { tempToken, code }, authConfig),
 
   refresh: () =>
-    api.post<{ data: { accessToken: string } }>('/auth/refresh'),
+    axios.post<{ data: { accessToken: string } }>('/auth/refresh', undefined, authConfig),
 
   logout: (email: string) =>
-    api.post('/auth/logout', { email }),
+    axios.post('/auth/logout', { email }, authConfig),
 
   clientCertLogin: () =>
-    api.post<{ data: { accessToken: string; email: string } }>('/auth/client-cert-login'),
+    axios.post<{ data: { accessToken: string; email: string } }>(
+      '/auth/client-cert-login',
+      undefined,
+      authConfig,
+    ),
 
   devLogin: (role?: 'admin' | 'member' | 'site') =>
-    api.post<{ data: { accessToken: string; email: string; role: 'admin' | 'member' | 'site' } }>(
-      '/auth/dev-login', role ? { role } : {},
+    axios.post<{ data: { accessToken: string; email: string; role: 'admin' | 'member' | 'site' } }>(
+      '/auth/dev-login',
+      role ? { role } : {},
+      authConfig,
     ),
 
   getMe: () =>
-    api.get<{ data: { email: string; isAdmin: boolean } }>('/auth/me', { headers: authHeader() }),
+    axios.get<{ data: { email: string; isAdmin: boolean } }>('/auth/me', {
+      ...authConfig,
+      headers: { ...authConfig.headers, ...authHeader() },
+    }),
 };
