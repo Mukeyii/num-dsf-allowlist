@@ -1,5 +1,6 @@
 /**
- * fqdn.test.ts – Validates the relaxed FQDN regex used in organization/endpoint schemas.
+ * fqdn.test.ts – FQDN regex coverage. organization.identifier mirrors the
+ * backend (lowercase only, alphabetic TLD); endpoint.identifier stays relaxed.
  */
 import { describe, it, expect } from 'vitest';
 import { organizationSchema } from '../organization.schema';
@@ -22,9 +23,8 @@ describe('FQDN validation – organization.identifier', () => {
     'sub.dsf.ukm.de',
     'a-b.example.de',
     'host01.example.de',
-    'UKM.de',
-    'Sub-Domain.Example.Com',
     'xn--bcher-kva.example',
+    'trailing-.de', // backend regex permits a hyphen before the dot
   ])('accepts %s', (id) => expect(orgOk(id)).toBe(true));
 
   it.each([
@@ -36,8 +36,9 @@ describe('FQDN validation – organization.identifier', () => {
     'ukm.de/path',
     'ukm.de:8443',
     '-leading-hyphen.de',
-    'trailing-.de',
     '.startsdot.de',
+    'UKM.de', // backend FQDN rule is lowercase-only
+    'Sub-Domain.Example.Com', // backend FQDN rule is lowercase-only
   ])('rejects %s', (id) => expect(orgOk(id)).toBe(false));
 });
 
