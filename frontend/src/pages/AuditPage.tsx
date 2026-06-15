@@ -3,7 +3,7 @@
  * Shows events across ALL instances the user has access to (admin = all).
  * Dependencies: useCrossInstanceAudit, useI18n
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useCrossInstanceAudit } from '../hooks/useAudit';
 import { useMe } from '../hooks/useMe';
@@ -30,6 +30,12 @@ export function AuditPage() {
   const total = data?.meta.total ?? 0;
   const isAdmin = !!data?.meta.isAdmin;
   const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+  // When the dataset shrinks the current page can fall past the last page,
+  // querying an empty page; clamp back into [1, totalPages].
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   if (me && !me.isAdmin) return <Navigate to="/app" replace />;
 
