@@ -42,4 +42,37 @@ describe('useInstances', () => {
     expect(result.current.data).toEqual(fixture);
     expect(getInstances).toHaveBeenCalledTimes(1);
   });
+
+  it('auto-selects the first instance when none is active', async () => {
+    useAuthStore.getState().setTokens('tok', { email: 'a@b.de', id: 'u1' });
+    getInstances.mockResolvedValue({ data: { data: [{ id: 'inst-1', label: 'ukm.de' }] } });
+
+    const { result } = renderHook(() => useInstances(), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(useCanvasStore.getState().activeInstanceId).toBe('inst-1'));
+  });
+
+  it('reselects the first instance when the active one disappears', async () => {
+    useAuthStore.getState().setTokens('tok', { email: 'a@b.de', id: 'u1' });
+    // Active instance points at a row the refetched list no longer contains.
+    useCanvasStore.setState({ activeInstanceId: 'gone' });
+    getInstances.mockResolvedValue({ data: { data: [{ id: 'inst-1', label: 'ukm.de' }] } });
+
+    const { result } = renderHook(() => useInstances(), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(useCanvasStore.getState().activeInstanceId).toBe('inst-1'));
+  });
+
+  it('clears the active instance when the list is empty', async () => {
+    useAuthStore.getState().setTokens('tok', { email: 'a@b.de', id: 'u1' });
+    useCanvasStore.setState({ activeInstanceId: 'gone' });
+    getInstances.mockResolvedValue({ data: { data: [] } });
+
+    const { result } = renderHook(() => useInstances(), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(useCanvasStore.getState().activeInstanceId).toBeNull());
+  });
 });
