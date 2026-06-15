@@ -12,10 +12,15 @@ export interface PeerEdge {
 }
 
 export function derivePeerEdges(orgs: MapOrganization[]): PeerEdge[] {
-  // verbund -> identifiers of member orgs
+  // verbund -> identifiers of member orgs. Dedupe parents per org so two
+  // memberships under the same parent don't list the org twice (which would
+  // yield a self-loop and a duplicate edge in the pairwise expansion below).
   const byVerbund = new Map<string, string[]>();
   for (const o of orgs) {
+    const seen = new Set<string>();
     for (const m of o.memberships) {
+      if (seen.has(m.parent_organization)) continue;
+      seen.add(m.parent_organization);
       const list = byVerbund.get(m.parent_organization) ?? [];
       list.push(o.identifier);
       byVerbund.set(m.parent_organization, list);
@@ -25,6 +30,7 @@ export function derivePeerEdges(orgs: MapOrganization[]): PeerEdge[] {
   for (const [verbund, members] of byVerbund) {
     for (let i = 0; i < members.length; i++) {
       for (let j = i + 1; j < members.length; j++) {
+        if (members[i] === members[j]) continue; // never a self-loop
         edges.push({ from: members[i], to: members[j], verbund });
       }
     }
