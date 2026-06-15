@@ -38,7 +38,7 @@ function refreshAccessToken(): Promise<string> {
       .refresh()
       .then((res) => {
         const accessToken = res.data.data.accessToken;
-        const decoded: any = jwtDecode(accessToken);
+        const decoded = jwtDecode<{ sub: string; email: string }>(accessToken);
         useAuthStore.getState().setTokens(accessToken, { id: decoded.sub, email: decoded.email });
         return accessToken;
       })
@@ -69,6 +69,16 @@ axios.interceptors.response.use(
         useAuthStore.getState().clearAuth();
         window.location.replace('/login');
       }
+    } else if (
+      status === 401 &&
+      originalRequest._retried &&
+      !originalRequest.url?.includes('/auth/')
+    ) {
+      // Refresh succeeded but the fresh token is still rejected (revoked or a
+      // permission 401). Without _retried we'd loop on refresh forever; instead
+      // end the session so the user isn't stuck authenticated-but-broken.
+      useAuthStore.getState().clearAuth();
+      window.location.replace('/login');
     }
 
     // Global error toasts (avoid duplicates with _handled flag)
