@@ -51,4 +51,18 @@ describe('derivePeerEdges', () => {
   it('handles orgs with no memberships', () => {
     expect(derivePeerEdges([org('a', []), org('b', [])])).toEqual([]);
   });
+
+  it('produces no self-loop for one org with two memberships under one parent', () => {
+    const edges = derivePeerEdges([org('a', ['mii', 'mii'])]);
+    expect(edges).toEqual([]);
+  });
+
+  it('does not duplicate or self-loop across two same-parent memberships', () => {
+    const edges = derivePeerEdges([org('a', ['mii', 'mii']), org('b', ['mii', 'mii'])]);
+    expect(edges).toHaveLength(1);
+    for (const e of edges) expect(e.from).not.toBe(e.to);
+    const pairs = new Set(edges.map((e) => [e.from, e.to].sort().join('|')));
+    expect(pairs.size).toBe(1);
+    expect(edges[0].verbund).toBe('mii');
+  });
 });
