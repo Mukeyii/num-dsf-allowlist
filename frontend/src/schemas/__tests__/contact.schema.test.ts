@@ -24,6 +24,14 @@ describe('contactSchema', () => {
     expect(contactSchema.safeParse({ ...base, email: 'nope' }).success).toBe(false);
   });
 
+  it('rejects an email longer than 255 chars (backend max)', () => {
+    const longEmail = `${'a'.repeat(247)}@ukm.de`; // 247 + 7 = 254 -> ok
+    expect(contactSchema.safeParse({ ...base, email: longEmail }).success).toBe(true);
+    const tooLong = `${'a'.repeat(249)}@ukm.de`; // 249 + 7 = 256 -> too long
+    expect(tooLong.length).toBe(256);
+    expect(contactSchema.safeParse({ ...base, email: tooLong }).success).toBe(false);
+  });
+
   it('accepts an empty phone but rejects a malformed one', () => {
     expect(contactSchema.safeParse({ ...base, phone: '' }).success).toBe(true);
     expect(contactSchema.safeParse({ ...base, phone: 'call me' }).success).toBe(false);
