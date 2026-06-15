@@ -9,7 +9,10 @@ const CONTACT_TYPES = ['MEDIC', 'DSF_ADMIN', 'SECURITY'] as const;
 export const contactSchema = z.object({
   types: z.array(z.enum(CONTACT_TYPES)).min(1, 'Select at least one type'),
   name: z.string().optional(),
-  email: z.string().email('Must be a valid email address'),
+  email: z
+    .string()
+    .email('Must be a valid email address')
+    .max(255, 'Email must be at most 255 characters'),
   phone: z
     .string()
     .regex(/^\+?[\d\s\-()]{7,20}$/, 'Invalid phone format (e.g. +49 251 12345)')
