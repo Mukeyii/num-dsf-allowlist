@@ -4,13 +4,17 @@
  */
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
-import { normalizeGithubUrl } from '../schemas/marketplace.schema';
+import { normalizeGithubUrl, slugify } from '../schemas/marketplace.schema';
+import { isLicenseOsi, isStale } from '../lib/marketplaceDerived';
 import { writeAuditLog } from './audit.service';
 
 export type MarketplaceStatus = 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
+export type MetadataSource = 'MANIFEST' | 'MANUAL';
+export type AdvisorySeverity = 'INFO' | 'WARNING' | 'CRITICAL';
 
 export interface MarketplaceEntry {
   id: string;
+  slug: string | null;
   gitUrl: string;
   name: string;
   description: string | null;
@@ -25,23 +29,40 @@ export interface MarketplaceEntry {
   archived: boolean;
   homepage: string | null;
   language: string | null;
+  processIdentifiers: string[];
+  dsfVersionMin: string | null;
+  requiredRoles: string[];
+  messageNames: string[];
+  artifactUrl: string | null;
+  metadataSource: MetadataSource;
+  verified: boolean;
+  advisoryText: string | null;
+  advisorySeverity: AdvisorySeverity | null;
+  supersededBy: string | null;
+  licenseOk: boolean;
+  stale: boolean;
   syncAt: Date | null;
   syncError: string | null;
 }
 
-function rowToEntry(r: any): MarketplaceEntry {
-  let topics: string[] = [];
-  if (r.topics) {
-    try {
-      const parsed = typeof r.topics === 'string' ? JSON.parse(r.topics) : r.topics;
-      if (Array.isArray(parsed))
-        topics = parsed.filter((x: unknown): x is string => typeof x === 'string');
-    } catch {
-      topics = [];
-    }
+// Parse a JSON-array column defensively into string[]; a malformed value (a
+// hand-edited row, a legacy NULL) degrades to an empty list rather than throwing.
+function parseStringArray(value: unknown): string[] {
+  if (!value) return [];
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (Array.isArray(parsed))
+      return parsed.filter((x: unknown): x is string => typeof x === 'string');
+  } catch {
+    /* fall through to [] */
   }
+  return [];
+}
+
+function rowToEntry(r: any): MarketplaceEntry {
   return {
     id: r.id,
+    slug: r.slug ?? null,
     gitUrl: r.git_url,
     name: r.name,
     description: r.description,
@@ -50,12 +71,24 @@ function rowToEntry(r: any): MarketplaceEntry {
     lastCommitAt: r.last_commit_at,
     stars: r.stars,
     license: r.license,
-    topics,
+    topics: parseStringArray(r.topics),
     forks: Number(r.forks) || 0,
     openIssues: Number(r.open_issues) || 0,
     archived: !!r.archived,
     homepage: r.homepage || null,
     language: r.language || null,
+    processIdentifiers: parseStringArray(r.process_identifiers),
+    dsfVersionMin: r.dsf_version_min ?? null,
+    requiredRoles: parseStringArray(r.required_roles),
+    messageNames: parseStringArray(r.message_names),
+    artifactUrl: r.artifact_url ?? null,
+    metadataSource: r.metadata_source,
+    verified: !!r.verified,
+    advisoryText: r.advisory_text ?? null,
+    advisorySeverity: r.advisory_severity ?? null,
+    supersededBy: r.superseded_by ?? null,
+    licenseOk: isLicenseOsi(r.license),
+    stale: isStale(!!r.archived, r.last_commit_at, new Date()),
     syncAt: r.sync_at,
     syncError: r.sync_error,
   };
@@ -71,7 +104,7 @@ export async function addEntry(
   adminEmail: string,
   ip: string,
 ): Promise<MarketplaceEntry> {
-  const { canonical, repo } = normalizeGithubUrl(data.gitUrl);
+  const { canonical, owner, repo } = normalizeGithubUrl(data.gitUrl);
   const existing = await db('marketplace_entries').where({ git_url: canonical }).first();
   if (existing) throw new Error('ALREADY_EXISTS');
 
@@ -79,11 +112,13 @@ export async function addEntry(
   const now = new Date();
   await db('marketplace_entries').insert({
     id,
+    slug: slugify(owner, repo),
     git_url: canonical,
     name: repo,
     description: null,
     status: data.status,
     stars: 0,
+    metadata_source: 'MANUAL',
     added_by: adminEmail,
     added_at: now,
     updated_at: now,
