@@ -149,7 +149,7 @@ export function MarketplaceDetailPage() {
                 rel="noopener noreferrer"
                 style={{ fontSize: '12px', color: '#6c63ff', textDecoration: 'none' }}
               >
-                ↗ Docs
+                ↗ {t('marketplaceDocs')}
               </a>
             )}
           </div>

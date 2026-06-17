@@ -51,6 +51,7 @@ export const en = {
   marketplaceSupersededBy: 'Superseded by',
   marketplaceCommaSeparated: 'Comma-separated',
   marketplaceSeverityNone: 'None',
+  marketplaceDocs: 'Docs',
   instances: 'Instances',
   newInstance: '+ New instance',
   noInstanceSelected: 'No instance selected',
