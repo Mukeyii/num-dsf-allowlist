@@ -127,3 +127,55 @@ describe('GET /api/v1/marketplace/:slug', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// A third app that keeps the real requireImiAdmin in front of the admin router
+// with a non-admin identity, so the 403 gate is genuinely exercised.
+function buildNonAdminApp() {
+  const { requireImiAdmin } = jest.requireActual('../middleware/admin.middleware');
+  const a = express();
+  a.use(express.json());
+  a.use((req, _res, next) => {
+    (req as any).user = { id: ADMIN_ID, email: 'not-an-admin@example.com' };
+    next();
+  });
+  a.use('/api/v1/admin/marketplace', requireImiAdmin, adminMarketplaceRouter);
+  return a;
+}
+
+const nonAdminApp = buildNonAdminApp();
+
+describe('PATCH /api/v1/admin/marketplace/:id/meta', () => {
+  it('updates the metadata and returns the entry with a valid TOTP', async () => {
+    const res = await request(testApp)
+      .patch(`/api/v1/admin/marketplace/${entryId}/meta`)
+      .send({ dsfVersionMin: '1.7.0', verified: true, totpCode: TOTP });
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(entryId);
+    expect(res.body.data.dsfVersionMin).toBe('1.7.0');
+    expect(res.body.data.verified).toBe(true);
+  });
+
+  it('returns 400 when the TOTP code is missing', async () => {
+    // patchMarketplaceMetaSchema requires totpCode, so an absent code is
+    // rejected at the validate layer before the handler's checkTotp gate.
+    const res = await request(testApp)
+      .patch(`/api/v1/admin/marketplace/${entryId}/meta`)
+      .send({ verified: false });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 for an unknown id', async () => {
+    const res = await request(testApp)
+      .patch(`/api/v1/admin/marketplace/${uuidv4()}/meta`)
+      .send({ verified: true, totpCode: TOTP });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 403 for a non-admin caller', async () => {
+    const res = await request(nonAdminApp)
+      .patch(`/api/v1/admin/marketplace/${entryId}/meta`)
+      .send({ verified: true, totpCode: TOTP });
+    expect(res.status).toBe(403);
+  });
+});

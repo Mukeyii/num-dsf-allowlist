@@ -11,9 +11,10 @@ import { verifyTotpCode } from '../services/totp.service';
 import {
   createMarketplaceSchema,
   patchMarketplaceSchema,
+  patchMarketplaceMetaSchema,
   deleteMarketplaceSchema,
 } from '../schemas/marketplace.schema';
-import { addEntry, updateStatus, removeEntry } from '../services/marketplace.service';
+import { addEntry, updateStatus, updateMeta, removeEntry } from '../services/marketplace.service';
 import { sanitizeError } from '../lib/sanitizeError';
 
 export const adminMarketplaceRouter = Router();
@@ -67,6 +68,22 @@ adminMarketplaceRouter.patch('/:id', validate(patchMarketplaceSchema), async (re
     res.status(status).json({ error: sanitizeError(err) });
   }
 });
+
+// PATCH /api/v1/admin/marketplace/:id/meta  { ...dsf/trust fields, totpCode }
+adminMarketplaceRouter.patch(
+  '/:id/meta',
+  validate(patchMarketplaceMetaSchema),
+  async (req, res) => {
+    if (!(await checkTotp(req, res))) return;
+    try {
+      const entry = await updateMeta(req.params.id, req.body, req.user!.email, req.ip || 'unknown');
+      res.json({ data: entry });
+    } catch (err: unknown) {
+      const status = err instanceof Error && err.message === 'NOT_FOUND' ? 404 : 400;
+      res.status(status).json({ error: sanitizeError(err) });
+    }
+  },
+);
 
 // DELETE /api/v1/admin/marketplace/:id  { totpCode }
 adminMarketplaceRouter.delete('/:id', validate(deleteMarketplaceSchema), async (req, res) => {
