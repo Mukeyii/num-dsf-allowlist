@@ -45,6 +45,38 @@ export interface MarketplaceEntry {
   syncError: string | null;
 }
 
+export interface MarketplaceRelease {
+  tag: string;
+  publishedAt: Date | null;
+}
+
+export interface MarketplaceEntryDetail extends MarketplaceEntry {
+  releases: MarketplaceRelease[];
+}
+
+// DSF fields the manifest sync owns; editing any of them makes the entry
+// admin-curated (metadata_source = MANUAL) so a later sync can't clobber it.
+const DSF_META_FIELDS = [
+  'processIdentifiers',
+  'dsfVersionMin',
+  'requiredRoles',
+  'messageNames',
+  'artifactUrl',
+] as const;
+
+export interface UpdateMetaFields {
+  status?: MarketplaceStatus;
+  verified?: boolean;
+  advisoryText?: string | null;
+  advisorySeverity?: AdvisorySeverity | null;
+  supersededBy?: string | null;
+  processIdentifiers?: string[];
+  dsfVersionMin?: string | null;
+  requiredRoles?: string[];
+  messageNames?: string[];
+  artifactUrl?: string | null;
+}
+
 // Parse a JSON-array column defensively into string[]; a malformed value (a
 // hand-edited row, a legacy NULL) degrades to an empty list rather than throwing.
 function parseStringArray(value: unknown): string[] {
@@ -178,4 +210,62 @@ export async function removeEntry(id: string, adminEmail: string, ip: string): P
     diffJson: { gitUrl: existing.git_url },
     ipAddress: ip,
   });
+}
+
+export async function getEntryBySlug(slug: string): Promise<MarketplaceEntryDetail | null> {
+  const row = await db('marketplace_entries').where({ slug }).first();
+  if (!row) return null;
+  const releaseRows = await db('marketplace_releases')
+    .where({ entry_id: row.id })
+    .orderBy('published_at', 'desc');
+  const releases: MarketplaceRelease[] = releaseRows.map((r: any) => ({
+    tag: r.tag,
+    publishedAt: r.published_at ?? null,
+  }));
+  return { ...rowToEntry(row), releases };
+}
+
+export async function updateMeta(
+  id: string,
+  fields: UpdateMetaFields,
+  adminEmail: string,
+  ip: string,
+): Promise<MarketplaceEntry> {
+  const existing = await db('marketplace_entries').where({ id }).first();
+  if (!existing) throw new Error('NOT_FOUND');
+
+  // Build a partial update from only the provided fields; an absent key is left
+  // untouched, while an explicit null clears the column.
+  const update: Record<string, unknown> = { updated_at: new Date() };
+  if (fields.status !== undefined) update.status = fields.status;
+  if (fields.verified !== undefined) update.verified = fields.verified ? 1 : 0;
+  if (fields.advisoryText !== undefined) update.advisory_text = fields.advisoryText;
+  if (fields.advisorySeverity !== undefined) update.advisory_severity = fields.advisorySeverity;
+  if (fields.supersededBy !== undefined) update.superseded_by = fields.supersededBy;
+  if (fields.processIdentifiers !== undefined)
+    update.process_identifiers = JSON.stringify(fields.processIdentifiers);
+  if (fields.dsfVersionMin !== undefined) update.dsf_version_min = fields.dsfVersionMin;
+  if (fields.requiredRoles !== undefined)
+    update.required_roles = JSON.stringify(fields.requiredRoles);
+  if (fields.messageNames !== undefined) update.message_names = JSON.stringify(fields.messageNames);
+  if (fields.artifactUrl !== undefined) update.artifact_url = fields.artifactUrl;
+
+  // Editing any DSF field hands ownership to the admin; the sync no longer
+  // overwrites this row's DSF columns (the B3 no-clobber invariant).
+  const touchesDsf = DSF_META_FIELDS.some((f) => fields[f] !== undefined);
+  if (touchesDsf) update.metadata_source = 'MANUAL';
+
+  await db('marketplace_entries').where({ id }).update(update);
+
+  await writeAuditLog({
+    userEmail: adminEmail,
+    resourceType: 'MARKETPLACE',
+    resourceId: id,
+    operation: 'UPDATE',
+    diffJson: { fields: Object.keys(fields) },
+    ipAddress: ip,
+  });
+
+  const row = await db('marketplace_entries').where({ id }).first();
+  return rowToEntry(row);
 }
