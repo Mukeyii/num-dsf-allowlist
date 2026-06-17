@@ -4,6 +4,7 @@
  */
 import { db } from '../db/connection';
 import { logger } from '../lib/logger';
+import { parseManifest, type DsfManifest } from '../schemas/marketplace-manifest.schema';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const SLEEP_BETWEEN_MS = 1500;
@@ -18,6 +19,7 @@ interface RepoResp {
   archived?: boolean;
   homepage?: string | null;
   language?: string | null;
+  default_branch?: string;
 }
 interface ReleaseResp {
   tag_name: string;
@@ -49,6 +51,30 @@ async function ghJson<T>(url: string): Promise<T | null> {
 function parseOwnerRepo(gitUrl: string): { owner: string; repo: string } | null {
   const m = gitUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?\/?$/);
   return m ? { owner: m[1], repo: m[2] } : null;
+}
+
+type ManifestFetch =
+  | { kind: 'absent' }
+  | { kind: 'parsed'; data: DsfManifest }
+  | { kind: 'error'; error: string };
+
+// Fetch and parse the optional dsf-marketplace.json from the repo's raw content
+// host. This is intentionally self-contained: a missing file (404) is a normal,
+// silent outcome, and any network/HTTP/parse failure is mapped to an error
+// result so the caller never has to let it abort the wider sync.
+async function fetchManifest(owner: string, repo: string, branch: string): Promise<ManifestFetch> {
+  const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/dsf-marketplace.json`;
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (r.status === 404) return { kind: 'absent' };
+    if (!r.ok) return { kind: 'error', error: `manifest HTTP ${r.status}` };
+    const body = await r.json();
+    const result = parseManifest(body);
+    if (!result.ok) return { kind: 'error', error: result.error };
+    return { kind: 'parsed', data: result.data };
+  } catch (err: any) {
+    return { kind: 'error', error: `manifest fetch failed: ${err?.message || 'unknown'}` };
+  }
 }
 
 export async function syncEntry(id: string): Promise<void> {
@@ -87,6 +113,29 @@ export async function syncEntry(id: string): Promise<void> {
       if (err.message !== 'NOT_FOUND') throw err;
     }
 
+    // Parse the optional manifest. The no-clobber invariant: a MANUAL row is
+    // admin-curated, so its DSF columns and metadata_source are never touched
+    // here regardless of what the manifest says. For a non-MANUAL row a parsed
+    // manifest takes ownership (metadata_source=MANIFEST) and a parse/fetch
+    // failure is surfaced via manifest_error; an absent manifest is silent.
+    const manifestUpdate: Record<string, unknown> = {};
+    if (row.metadata_source !== 'MANUAL') {
+      const manifest = await fetchManifest(owner, repo, main.default_branch || 'main');
+      if (manifest.kind === 'parsed') {
+        const m = manifest.data;
+        manifestUpdate.process_identifiers = JSON.stringify(m.processIdentifiers ?? []);
+        manifestUpdate.dsf_version_min = m.dsfVersionMin ?? null;
+        manifestUpdate.required_roles = JSON.stringify(m.requiredRoles ?? []);
+        manifestUpdate.message_names = JSON.stringify(m.messageNames ?? []);
+        manifestUpdate.artifact_url = m.artifactUrl ?? null;
+        manifestUpdate.metadata_source = 'MANIFEST';
+        manifestUpdate.manifest_error = null;
+      } else if (manifest.kind === 'error') {
+        manifestUpdate.manifest_error = manifest.error;
+      }
+      // 'absent' leaves DSF fields and metadata_source untouched (silent).
+    }
+
     await db('marketplace_entries')
       .where({ id })
       .update({
@@ -101,6 +150,7 @@ export async function syncEntry(id: string): Promise<void> {
         language: main.language ?? null,
         latest_release_tag: latestTag,
         last_commit_at: lastCommitAt,
+        ...manifestUpdate,
         sync_at: new Date(),
         sync_error: null,
         updated_at: new Date(),
