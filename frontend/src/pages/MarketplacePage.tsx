@@ -1,15 +1,16 @@
 /**
- * MarketplacePage.tsx – Process Marketplace listing with filter chips + admin toolbar
+ * MarketplacePage.tsx – Process Marketplace: card-grid listing with status
+ * filter chips, client-side search, and the admin toolbar (Add/Edit/Delete).
  * Dependencies: useMarketplace, useDeleteMarketplaceEntry, useMe, i18n.store,
- *               MarketplaceAddModal, MarketplaceEditStatusModal, sonner
+ *               MarketplaceCard, MarketplaceAddModal, MarketplaceEditStatusModal, sonner
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useMarketplace, useDeleteMarketplaceEntry } from '../hooks/useMarketplace';
 import { useMe } from '../hooks/useMe';
 import { useI18n } from '../stores/i18n.store';
 import { getErrorMessage } from '../lib/getErrorMessage';
-import { relTime } from '../lib/dateUtils';
+import { MarketplaceCard } from '../components/marketplace/MarketplaceCard';
 import { MarketplaceAddModal } from '../components/modals/MarketplaceAddModal';
 import { MarketplaceEditStatusModal } from '../components/modals/MarketplaceEditStatusModal';
 import type { MarketplaceEntry } from '../api/marketplace.api';
@@ -17,11 +18,12 @@ import type { MarketplaceEntry } from '../api/marketplace.api';
 type Filter = 'ALL' | 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
 type Status = 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
 
-const STATUS_PILL: Record<Status, { bg: string; fg: string }> = {
-  APPROVED: { bg: '#dfffe7', fg: '#106a3b' },
-  EXPERIMENTAL: { bg: '#fff4d6', fg: '#8a5b00' },
-  DEPRECATED: { bg: '#e9ecef', fg: '#495057' },
-};
+function matchesQuery(entry: MarketplaceEntry, q: string): boolean {
+  const haystack = [entry.name, entry.description ?? '', ...entry.topics, ...entry.requiredRoles]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(q);
+}
 
 export function MarketplacePage() {
   const { t } = useI18n();
@@ -30,6 +32,7 @@ export function MarketplacePage() {
   const deleteMut = useDeleteMarketplaceEntry();
 
   const [filter, setFilter] = useState<Filter>('ALL');
+  const [search, setSearch] = useState('');
   const [addOpen, setAddOpen] = useState(false);
   const [editEntry, setEditEntry] = useState<{ id: string; status: Status } | null>(null);
 
@@ -39,7 +42,14 @@ export function MarketplacePage() {
 
   const isAdmin = !!me?.isAdmin;
 
-  const filtered = filter === 'ALL' ? entries : entries.filter((e) => e.status === filter);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return entries.filter((e) => {
+      if (filter !== 'ALL' && e.status !== filter) return false;
+      if (q && !matchesQuery(e, q)) return false;
+      return true;
+    });
+  }, [entries, filter, search]);
 
   const FILTERS: { key: Filter; label: string }[] = [
     { key: 'ALL', label: t('marketplaceFilterAll') },
@@ -88,6 +98,25 @@ export function MarketplacePage() {
       </div>
 
       <div style={{ height: '1px', background: 'var(--border)', margin: '20px 0 20px' }} />
+
+      {/* Search */}
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder={t('marketplaceSearchPlaceholder')}
+        aria-label={t('marketplaceSearchPlaceholder')}
+        style={{
+          width: '100%',
+          maxWidth: '420px',
+          padding: '8px 14px',
+          borderRadius: '10px',
+          border: '1px solid var(--border)',
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          fontSize: '13px',
+          marginBottom: '16px',
+        }}
+      />
 
       {/* Filter chips + admin toolbar */}
       <div
@@ -146,7 +175,7 @@ export function MarketplacePage() {
         )}
       </div>
 
-      {/* List */}
+      {/* Grid */}
       {isLoading && <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{t('loading')}</p>}
 
       {!isLoading && filtered.length === 0 && (
@@ -171,24 +200,50 @@ export function MarketplacePage() {
       {!isLoading && filtered.length > 0 && (
         <div
           style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            overflow: 'hidden',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '16px',
           }}
         >
-          {filtered.map((entry, idx) => (
-            <EntryRow
-              key={entry.id}
-              entry={entry}
-              isLast={idx === filtered.length - 1}
-              isAdmin={isAdmin}
-              onEditStatus={() => setEditEntry({ id: entry.id, status: entry.status })}
-              onDelete={() => {
-                setDeleteTarget(entry);
-                setDeleteTotpCode('');
-              }}
-            />
+          {filtered.map((entry) => (
+            <div key={entry.id} style={{ position: 'relative' }}>
+              <MarketplaceCard entry={entry} />
+              {isAdmin && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    display: 'flex',
+                    gap: '6px',
+                  }}
+                >
+                  <button
+                    aria-label={t('marketplaceEdit')}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setEditEntry({ id: entry.id, status: entry.status });
+                    }}
+                    style={adminBtn('var(--text-primary)')}
+                  >
+                    {t('marketplaceEdit')}
+                  </button>
+                  <button
+                    aria-label={t('marketplaceDelete')}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDeleteTarget(entry);
+                      setDeleteTotpCode('');
+                    }}
+                    style={adminBtn('#b91c1c')}
+                  >
+                    {t('marketplaceDelete')}
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -317,207 +372,14 @@ export function MarketplacePage() {
   );
 }
 
-function EntryRow({
-  entry,
-  isLast,
-  isAdmin,
-  onEditStatus,
-  onDelete,
-}: {
-  entry: MarketplaceEntry;
-  isLast: boolean;
-  isAdmin: boolean;
-  onEditStatus: () => void;
-  onDelete: () => void;
-}) {
-  const { t } = useI18n();
-  const pill = STATUS_PILL[entry.status];
-
-  return (
-    <div
-      style={{
-        borderBottom: isLast ? 'none' : '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '12px',
-        padding: '14px 18px',
-      }}
-    >
-      {/* Main link area */}
-      <a
-        href={entry.gitUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          flex: 1,
-          textDecoration: 'none',
-          color: 'inherit',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '3px',
-          minWidth: 0,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
-            {entry.name || entry.gitUrl}
-          </span>
-          <span
-            style={{
-              fontSize: '10px',
-              fontWeight: 700,
-              padding: '2px 8px',
-              borderRadius: '20px',
-              background: pill.bg,
-              color: pill.fg,
-            }}
-          >
-            {entry.status}
-          </span>
-          {entry.archived && (
-            <span
-              style={{
-                fontSize: '10px',
-                background: '#fde7e7',
-                color: '#a01919',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                marginLeft: '6px',
-                fontWeight: 600,
-              }}
-            >
-              Archived
-            </span>
-          )}
-        </div>
-
-        {entry.description && (
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--text-secondary)',
-              margin: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {entry.description}
-          </p>
-        )}
-
-        {entry.topics.length > 0 && (
-          <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {entry.topics.slice(0, 6).map((topic) => (
-              <span
-                key={topic}
-                style={{
-                  fontSize: '10px',
-                  background: '#eef0f4',
-                  color: '#5d6470',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                }}
-              >
-                {topic}
-              </span>
-            ))}
-            {entry.topics.length > 6 && (
-              <span style={{ fontSize: '10px', color: '#6c757d' }}>
-                +{entry.topics.length - 6} more
-              </span>
-            )}
-          </div>
-        )}
-
-        <div
-          style={{
-            fontSize: '10px',
-            color: '#6c757d',
-            marginTop: '6px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}
-        >
-          {entry.language && <span>{entry.language}</span>}
-          {entry.latestReleaseTag && <span>· {entry.latestReleaseTag}</span>}
-          <span>· ★ {entry.stars}</span>
-          <span>· ⑂ {entry.forks}</span>
-          <span>· ⓘ {entry.openIssues}</span>
-          {entry.license && <span>· {entry.license}</span>}
-          {entry.syncAt && !entry.syncError && (
-            <span>· {t('marketplaceSyncedAgo').replace('{ago}', relTime(entry.syncAt, t))}</span>
-          )}
-          {entry.lastCommitAt && (
-            <span>
-              · {t('marketplaceLastUpdated').replace('{ago}', relTime(entry.lastCommitAt, t))}
-            </span>
-          )}
-          {entry.syncError && (
-            <span style={{ color: '#ef4444' }}>{t('marketplaceSyncFailed')}</span>
-          )}
-        </div>
-      </a>
-
-      {/* Homepage link + Admin action buttons */}
-      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
-        {entry.homepage && (
-          <a
-            href={entry.homepage}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              fontSize: '10px',
-              color: '#6c63ff',
-              marginLeft: '8px',
-              textDecoration: 'none',
-            }}
-            title={entry.homepage}
-          >
-            ↗ docs
-          </a>
-        )}
-        {isAdmin && (
-          <>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditStatus();
-              }}
-              style={{
-                padding: '4px 10px',
-                border: '1px solid var(--border)',
-                background: 'var(--bg-card)',
-                borderRadius: '6px',
-                fontSize: '11px',
-                cursor: 'pointer',
-                color: 'var(--text-primary)',
-              }}
-            >
-              {t('marketplaceEdit')}
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              style={{
-                padding: '4px 10px',
-                border: '1px solid var(--border)',
-                background: 'var(--bg-card)',
-                borderRadius: '6px',
-                fontSize: '11px',
-                cursor: 'pointer',
-                color: '#b91c1c',
-              }}
-            >
-              {t('marketplaceDelete')}
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
+function adminBtn(color: string): React.CSSProperties {
+  return {
+    padding: '3px 9px',
+    border: '1px solid var(--border)',
+    background: 'var(--bg-card)',
+    borderRadius: '6px',
+    fontSize: '11px',
+    cursor: 'pointer',
+    color,
+  };
 }
