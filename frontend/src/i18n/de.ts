@@ -34,6 +34,7 @@ export const de: Record<TranslationKey, string> = {
   marketplaceInvalidUrl: 'Muss eine https://github.com/owner/repo URL sein',
   marketplaceVerified: 'Verifiziert',
   marketplaceDsfVersion: 'DSF',
+  marketplaceSearchPlaceholder: 'Prozesse suchen…',
   instances: 'Instanzen',
   newInstance: '+ Neue Instanz',
   noInstanceSelected: 'Keine Instanz ausgewählt',

@@ -33,6 +33,7 @@ export const en = {
   marketplaceInvalidUrl: 'Must be a https://github.com/owner/repo URL',
   marketplaceVerified: 'Verified',
   marketplaceDsfVersion: 'DSF',
+  marketplaceSearchPlaceholder: 'Search processes…',
   instances: 'Instances',
   newInstance: '+ New instance',
   noInstanceSelected: 'No instance selected',
