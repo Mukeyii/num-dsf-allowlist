@@ -1,6 +1,6 @@
 {
   "name": "num-dsf-allowlist-tooling",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "private": true,
   "description": "Repo-level developer tooling (formatting, hooks, commit linting).",
   "scripts": {
