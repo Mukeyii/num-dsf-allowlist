@@ -24,13 +24,17 @@ jobs:
         working-directory: frontend
         run: |
           npm install
-          # Excluded advisories are all in BUILD-TIME dev tooling (vitest/esbuild),
+          # Excluded advisories are all in BUILD-TIME dev tooling (vitest/vite/esbuild),
           # never shipped in the production bundle and not reachable at app runtime:
           #  - GHSA-5xrq-8626-4rwp: vitest --ui server, which CI never starts (vitest run only).
           #  - GHSA-gv7w-rqvm-qjhr: esbuild binary-download integrity (install-time of the
           #    bundler via vite); the fix is a breaking vite/esbuild major bump that
           #    Dependabot will propose. The deployed app contains no esbuild.
-          npx better-npm-audit audit --level high -x GHSA-5xrq-8626-4rwp,GHSA-gv7w-rqvm-qjhr
+          #  - GHSA-fx2h-pf6j-xcff: vite dev-server `server.fs.deny` bypass, only reachable
+          #    when the dev server is bound to the network via --host. Production serves the
+          #    static `vite build` output through nginx and never starts the dev server. The
+          #    only fix is vite 5 -> 8 (semver-major, cascading vitest 1 -> 4); Dependabot owns it.
+          npx better-npm-audit audit --level high -x GHSA-5xrq-8626-4rwp,GHSA-gv7w-rqvm-qjhr,GHSA-fx2h-pf6j-xcff
 
   backend-lint:
     name: Backend Lint
