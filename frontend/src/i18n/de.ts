@@ -52,6 +52,7 @@ export const de: Record<TranslationKey, string> = {
   marketplaceSupersededBy: 'Ersetzt durch',
   marketplaceCommaSeparated: 'Kommagetrennt',
   marketplaceSeverityNone: 'Keiner',
+  marketplaceDocs: 'Doku',
   instances: 'Instanzen',
   newInstance: '+ Neue Instanz',
   noInstanceSelected: 'Keine Instanz ausgewählt',
