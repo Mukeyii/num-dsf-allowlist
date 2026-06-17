@@ -14,8 +14,20 @@ export const marketplaceAddFormSchema = z.object({
 
 export type MarketplaceAddForm = z.infer<typeof marketplaceAddFormSchema>;
 
+// The edit modal carries the DSF/trust fields as plain text inputs (array
+// fields comma-separated); they are split into arrays on submit. Only status
+// and totpCode are constrained here — the backend validates the rest strictly.
 export const marketplaceEditFormSchema = z.object({
   status: z.enum(['APPROVED', 'EXPERIMENTAL', 'DEPRECATED']),
+  verified: z.boolean().optional(),
+  advisoryText: z.string().optional(),
+  advisorySeverity: z.enum(['', 'INFO', 'WARNING', 'CRITICAL']).optional(),
+  supersededBy: z.string().optional(),
+  processIdentifiers: z.string().optional(),
+  dsfVersionMin: z.string().optional(),
+  requiredRoles: z.string().optional(),
+  messageNames: z.string().optional(),
+  artifactUrl: z.string().optional(),
   totpCode: z.string().length(6),
 });
 

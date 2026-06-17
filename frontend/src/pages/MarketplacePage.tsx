@@ -16,7 +16,6 @@ import { MarketplaceEditStatusModal } from '../components/modals/MarketplaceEdit
 import type { MarketplaceEntry } from '../api/marketplace.api';
 
 type Filter = 'ALL' | 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
-type Status = 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
 
 function matchesQuery(entry: MarketplaceEntry, q: string): boolean {
   const haystack = [entry.name, entry.description ?? '', ...entry.topics, ...entry.requiredRoles]
@@ -34,7 +33,7 @@ export function MarketplacePage() {
   const [filter, setFilter] = useState<Filter>('ALL');
   const [search, setSearch] = useState('');
   const [addOpen, setAddOpen] = useState(false);
-  const [editEntry, setEditEntry] = useState<{ id: string; status: Status } | null>(null);
+  const [editEntry, setEditEntry] = useState<MarketplaceEntry | null>(null);
 
   // Delete confirm state
   const [deleteTarget, setDeleteTarget] = useState<MarketplaceEntry | null>(null);
@@ -223,7 +222,7 @@ export function MarketplacePage() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setEditEntry({ id: entry.id, status: entry.status });
+                      setEditEntry(entry);
                     }}
                     style={adminBtn('var(--text-primary)')}
                   >
@@ -257,6 +256,8 @@ export function MarketplacePage() {
           onClose={() => setEditEntry(null)}
           entryId={editEntry.id}
           currentStatus={editEntry.status}
+          slug={editEntry.slug}
+          entry={editEntry}
         />
       )}
 

@@ -356,6 +356,8 @@ export function MarketplaceDetailPage() {
           onClose={() => setEditOpen(false)}
           entryId={entry.id}
           currentStatus={entry.status}
+          slug={entry.slug}
+          entry={entry}
         />
       )}
     </div>
