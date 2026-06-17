@@ -24,6 +24,7 @@ const api = {
 
 export interface MarketplaceEntry {
   id: string;
+  slug: string;
   gitUrl: string;
   name: string;
   description: string | null;
@@ -38,17 +39,54 @@ export interface MarketplaceEntry {
   archived: boolean;
   homepage: string | null;
   language: string | null;
+  processIdentifiers: string[];
+  dsfVersionMin: string | null;
+  requiredRoles: string[];
+  messageNames: string[];
+  artifactUrl: string | null;
+  metadataSource: 'MANIFEST' | 'MANUAL';
+  verified: boolean;
+  advisoryText: string | null;
+  advisorySeverity: 'INFO' | 'WARNING' | 'CRITICAL' | null;
+  supersededBy: string | null;
+  licenseOk: boolean;
+  stale: boolean;
   syncAt: string | null;
   syncError: string | null;
+}
+
+export interface MarketplaceRelease {
+  tag: string;
+  publishedAt: string | null;
+}
+
+export type MarketplaceDetail = MarketplaceEntry & { releases: MarketplaceRelease[] };
+
+export interface MarketplaceMetaBody {
+  status?: string;
+  verified?: boolean;
+  advisoryText?: string | null;
+  advisorySeverity?: 'INFO' | 'WARNING' | 'CRITICAL' | null;
+  supersededBy?: string | null;
+  processIdentifiers?: string[];
+  dsfVersionMin?: string | null;
+  requiredRoles?: string[];
+  messageNames?: string[];
+  artifactUrl?: string | null;
+  totpCode: string;
 }
 
 export const marketplaceApi = {
   list: () =>
     api.get<{ data: MarketplaceEntry[] }>('/marketplace'),
+  getBySlug: (slug: string) =>
+    api.get<{ data: MarketplaceDetail }>(`/marketplace/${encodeURIComponent(slug)}`),
   add: (body: { gitUrl: string; status: string; totpCode: string }) =>
     api.post<{ data: MarketplaceEntry }>('/admin/marketplace', body),
   patch: (id: string, body: { status: string; totpCode: string }) =>
     api.patch<{ data: MarketplaceEntry }>(`/admin/marketplace/${id}`, body),
+  updateMeta: (id: string, body: MarketplaceMetaBody) =>
+    api.patch<{ data: MarketplaceEntry }>(`/admin/marketplace/${encodeURIComponent(id)}/meta`, body),
   remove: (id: string, body: { totpCode: string }) =>
     api.delete<{ data: { deleted: true } }>(`/admin/marketplace/${id}`, { data: body }),
 };
