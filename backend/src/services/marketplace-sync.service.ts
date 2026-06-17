@@ -3,6 +3,7 @@
  * Daily cron at 10:00 UTC; also called synchronously on add.
  */
 import { db } from '../db/connection';
+import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../lib/logger';
 import { parseManifest, type DsfManifest } from '../schemas/marketplace-manifest.schema';
 
@@ -23,6 +24,10 @@ interface RepoResp {
 }
 interface ReleaseResp {
   tag_name: string;
+}
+interface ReleaseListItem {
+  tag_name: string;
+  published_at: string | null;
 }
 interface CommitResp {
   commit: { committer: { date: string } };
@@ -77,6 +82,27 @@ async function fetchManifest(owner: string, repo: string, branch: string): Promi
   }
 }
 
+// Fetch up to 10 releases and upsert them into marketplace_releases keyed by
+// (entry_id, tag) so repeated syncs never duplicate rows. A NOT_FOUND (the repo
+// has no releases) is handled by the caller's wrap; a malformed published_at is
+// stored as NULL rather than an Invalid Date.
+async function syncReleases(entryId: string, base: string): Promise<void> {
+  const releases = await ghJson<ReleaseListItem[]>(`${base}/releases?per_page=10`);
+  if (!releases || releases.length === 0) return;
+  const rows = releases.map((rel) => {
+    let publishedAt: Date | null = null;
+    if (rel.published_at) {
+      const d = new Date(rel.published_at);
+      if (!Number.isNaN(d.getTime())) publishedAt = d;
+    }
+    return { id: uuidv4(), entry_id: entryId, tag: rel.tag_name, published_at: publishedAt };
+  });
+  await db('marketplace_releases')
+    .insert(rows)
+    .onConflict(['entry_id', 'tag'])
+    .merge(['published_at']);
+}
+
 export async function syncEntry(id: string): Promise<void> {
   const row = await db('marketplace_entries').where({ id }).first();
   if (!row) return;
@@ -110,6 +136,14 @@ export async function syncEntry(id: string): Promise<void> {
         if (!Number.isNaN(parsed.getTime())) lastCommitAt = parsed;
       }
     } catch (err: any) {
+      if (err.message !== 'NOT_FOUND') throw err;
+    }
+
+    try {
+      await syncReleases(id, base);
+    } catch (err: any) {
+      // No releases (404) is normal; a rate limit still propagates to the outer
+      // handler so the batch can stop.
       if (err.message !== 'NOT_FOUND') throw err;
     }
 
