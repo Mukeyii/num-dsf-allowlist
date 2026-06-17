@@ -294,3 +294,51 @@ describe('marketplace-sync.service – manifest parsing (no-clobber)', () => {
     expect(row.manifest_error).toBeNull();
   });
 });
+
+describe('marketplace-sync.service – release history upsert', () => {
+  const stamp = Date.now();
+  const id = uuidv4();
+  const gitUrl = `https://github.com/dsf-test/mp-releases-${stamp}`;
+
+  beforeAll(async () => {
+    await db('marketplace_entries').insert({
+      id,
+      name: `mp-releases-${stamp}`,
+      git_url: gitUrl,
+      status: 'EXPERIMENTAL',
+      metadata_source: 'MANUAL',
+      added_by: `mp-releases-${stamp}@example.de`,
+      added_at: new Date(),
+      updated_at: new Date(),
+    });
+  });
+
+  afterAll(async () => {
+    global.fetch = realFetch;
+    await db('marketplace_releases').where({ entry_id: id }).del();
+    await db('marketplace_entries').where({ id }).del();
+  });
+
+  afterEach(() => {
+    global.fetch = realFetch;
+  });
+
+  it('records one row per release tag and re-sync does not duplicate', async () => {
+    global.fetch = mockGithub({
+      releases: [
+        { tag_name: 'v2.0.0', published_at: '2025-02-01T00:00:00Z' },
+        { tag_name: 'v1.0.0', published_at: '2024-02-01T00:00:00Z' },
+      ],
+    });
+
+    await syncEntry(id);
+    let rows = await db('marketplace_releases').where({ entry_id: id }).orderBy('tag', 'asc');
+    expect(rows.map((r) => r.tag)).toEqual(['v1.0.0', 'v2.0.0']);
+    expect(rows.find((r) => r.tag === 'v2.0.0')!.published_at).not.toBeNull();
+
+    // A second sync over the same tags must be an idempotent upsert.
+    await syncEntry(id);
+    rows = await db('marketplace_releases').where({ entry_id: id });
+    expect(rows).toHaveLength(2);
+  });
+});
