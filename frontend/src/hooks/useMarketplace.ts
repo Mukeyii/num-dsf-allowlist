@@ -3,7 +3,12 @@
  * Dependencies: @tanstack/react-query, marketplace.api
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { marketplaceApi, MarketplaceEntry } from '../api/marketplace.api';
+import {
+  marketplaceApi,
+  MarketplaceEntry,
+  MarketplaceDetail,
+  MarketplaceMetaBody,
+} from '../api/marketplace.api';
 
 const KEY = ['marketplace'];
 
@@ -12,6 +17,14 @@ export function useMarketplace() {
     queryKey: KEY,
     queryFn: () => marketplaceApi.list().then((r) => r.data.data),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useMarketplaceEntry(slug: string) {
+  return useQuery<MarketplaceDetail>({
+    queryKey: ['marketplace', slug],
+    queryFn: () => marketplaceApi.getBySlug(slug).then((r) => r.data.data),
+    enabled: !!slug,
   });
 }
 
@@ -39,5 +52,18 @@ export function useDeleteMarketplaceEntry() {
     mutationFn: ({ id, body }: { id: string; body: { totpCode: string } }) =>
       marketplaceApi.remove(id, body).then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  });
+}
+
+export function useUpdateMarketplaceMeta() {
+  const qc = useQueryClient();
+  return useMutation({
+    // slug is carried only to invalidate the matching detail query.
+    mutationFn: ({ id, body }: { id: string; slug?: string; body: MarketplaceMetaBody }) =>
+      marketplaceApi.updateMeta(id, body).then((r) => r.data.data),
+    onSuccess: (_data, { slug }) => {
+      qc.invalidateQueries({ queryKey: KEY });
+      if (slug) qc.invalidateQueries({ queryKey: ['marketplace', slug] });
+    },
   });
 }
