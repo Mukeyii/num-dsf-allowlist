@@ -31,6 +31,8 @@ export const en = {
   marketplaceFieldGitUrl: 'GitHub URL',
   marketplaceFieldStatus: 'Status',
   marketplaceInvalidUrl: 'Must be a https://github.com/owner/repo URL',
+  marketplaceVerified: 'Verified',
+  marketplaceDsfVersion: 'DSF',
   instances: 'Instances',
   newInstance: '+ New instance',
   noInstanceSelected: 'No instance selected',
