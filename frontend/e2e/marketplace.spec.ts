@@ -16,7 +16,8 @@ test('admin can add a marketplace entry through the UI', async ({ page }) => {
   await expect(addBtn).toBeVisible({ timeout: 30_000 });
   await addBtn.click();
 
-  const url = `https://github.com/example/e2e-test-${Date.now()}`;
+  const ts = Date.now();
+  const url = `https://github.com/example/e2e-test-${ts}`;
   // FormField doesn't pair <label htmlFor> with input id, so getByLabel won't
   // resolve. Match the placeholders the modal renders instead.
   await page.getByPlaceholder('https://github.com/owner/repo').fill(url);
@@ -29,6 +30,8 @@ test('admin can add a marketplace entry through the UI', async ({ page }) => {
     .getByRole('button', { name: /add process|prozess hinzufügen/i })
     .click();
 
-  // Marketplace renders entries as anchors with href = gitUrl. Match by href.
-  await expect(page.locator(`a[href="${url}"]`)).toBeVisible({ timeout: 8_000 });
+  // Each entry renders as a card linking to its detail page at
+  // /app/marketplace/{slug}, where slug = slugify(owner, repo) = "owner-repo".
+  const slug = `example-e2e-test-${ts}`;
+  await expect(page.locator(`a[href="/app/marketplace/${slug}"]`)).toBeVisible({ timeout: 8_000 });
 });
