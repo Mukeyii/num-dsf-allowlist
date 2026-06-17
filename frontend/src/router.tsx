@@ -19,6 +19,7 @@ import { AdminBundleVersionsPage } from './pages/AdminBundleVersionsPage';
 import { StatusPage } from './pages/StatusPage';
 import { MapPage } from './pages/MapPage';
 import { MarketplacePage } from './pages/MarketplacePage';
+import { MarketplaceDetailPage } from './pages/MarketplaceDetailPage';
 import { LegalPage } from './pages/LegalPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { useAuthStore } from './stores/auth.store';
@@ -62,6 +63,7 @@ export const router = createBrowserRouter([
       { path: 'status', element: <StatusPage /> },
       { path: 'map', element: <MapPage /> },
       { path: 'marketplace', element: <MarketplacePage /> },
+      { path: 'marketplace/:slug', element: <MarketplaceDetailPage /> },
       { path: 'legal', element: <LegalPage /> },
     ],
   },
