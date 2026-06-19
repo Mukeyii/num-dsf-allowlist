@@ -154,11 +154,7 @@ export function MarketplaceEditStatusModal({
           <input {...register('artifactUrl')} className={inputClass} />
         </FormField>
 
-        <FormField
-          label={t('totpCodeLabel')}
-          required
-          error={errors.totpCode && t('totpDigitsRequired')}
-        >
+        <FormField label={t('totpCodeLabel')} required error={errors.totpCode?.message}>
           <input
             {...register('totpCode')}
             className={inputClass}
