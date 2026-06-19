@@ -863,4 +863,9 @@ export const de: Record<TranslationKey, string> = {
   certPemEnd: 'PEM muss mit -----END CERTIFICATE----- enden',
   certPrivateKeyDetected:
     '⚠ Privater Schlüssel erkannt. Entferne den privaten Schlüssel und füge nur das Zertifikat ein.',
+
+  // Schema validation — membership
+  membershipParentRequired: 'Übergeordnete Organisation ist erforderlich',
+  membershipEndpointRequired: 'Endpunkt ist erforderlich',
+  membershipRolesRequired: 'Mindestens eine Rolle auswählen',
 };
