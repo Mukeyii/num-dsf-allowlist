@@ -1,6 +1,6 @@
 # Architecture
 
-Technical reference for the DSF Allow List Management Portal. Covers the runtime
+Technical reference for the DSF Management Portal. Covers the runtime
 topology, request handling, authentication, the approval-to-bundle lifecycle,
 scheduled work, and the Redis keyspace. The entity data model is documented in
 [`README.md`](../../README.md#entity-model); it is not duplicated here.
