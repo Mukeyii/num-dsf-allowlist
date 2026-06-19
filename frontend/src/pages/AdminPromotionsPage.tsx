@@ -47,7 +47,7 @@ export function AdminPromotionsPage() {
       qc.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
     onError: (err: unknown) => {
-      const msg = getErrorMessage(err, 'Failed');
+      const msg = getErrorMessage(err, t('genericActionFailed'));
       toast.error(msg);
     },
   });
