@@ -157,8 +157,6 @@ export function AdminHelpPage() {
       <Section id="support" title={t('adminHelpSupportTitle')}>
         <p>{t('adminHelpSupportP1')}</p>
         <p style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-muted)' }}>
-          {t('adminHelpDevelopedBy')}:{' '}
-          <strong style={{ color: 'var(--text-primary)' }}>Kemal Yildirim</strong> ·{' '}
           {t('footerAffiliation')}
         </p>
       </Section>
