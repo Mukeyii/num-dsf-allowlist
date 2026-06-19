@@ -830,6 +830,12 @@ export const en = {
   dsfResourcesDescHub: 'Public registry of DSF process plugins.',
   dsfResourcesDescGithub: 'DSF reference implementation source code.',
   dsfResourcesDescCommunity: 'Team, communication channels, and how to contribute.',
+
+  // Schema validation — organization
+  identifierTooShort: 'Identifier must be at least 3 characters',
+  orgIdentifierInvalidFqdn: 'Must be a valid FQDN (e.g. ukm.de)',
+  nameRequired: 'Name is required',
+  emailInvalid: 'Must be a valid email address',
 } as const;
 
 export type TranslationKey = keyof typeof en;
