@@ -231,6 +231,7 @@ Mounted at `/api/v1/marketplace`. `requireAuth`.
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
 | GET | /api/v1/marketplace | requireAuth | List marketplace entries. |
+| GET | /api/v1/marketplace/:slug | requireAuth | Fetch a single marketplace entry by slug (404 if not found). |
 
 ---
 
