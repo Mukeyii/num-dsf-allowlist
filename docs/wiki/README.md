@@ -1,6 +1,6 @@
 # Wiki
 
-Reference documentation for the DSF Allow List Management Portal.
+Reference documentation for the DSF Management Portal.
 
 | Document | Contents |
 |---|---|
