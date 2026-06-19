@@ -45,7 +45,7 @@ export function AdminBundleVersionsPage() {
         <table className="w-full text-sm mb-8">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th className="text-left py-2 px-2 font-semibold">v#</th>
+              <th className="text-left py-2 px-2 font-semibold">{t('bundleVersionsColVersion')}</th>
               <th className="text-left py-2 px-2 font-semibold">{t('createdAt')}</th>
               <th className="text-left py-2 px-2 font-semibold">{t('triggeredBy')}</th>
               <th className="text-left py-2 px-2 font-semibold">{t('triggeredByEmail')}</th>
