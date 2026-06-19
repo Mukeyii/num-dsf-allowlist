@@ -846,6 +846,13 @@ export const en = {
   endpointFqdnInvalid: 'Must be a valid FQDN',
   endpointUrlInvalid: 'Must be a valid URL',
   endpointUrlHttps: 'URL must start with https://',
+
+  // Schema validation — certificate
+  certPemRequired: 'Certificate PEM is required',
+  certPemBegin: 'PEM must begin with -----BEGIN CERTIFICATE-----',
+  certPemEnd: 'PEM must end with -----END CERTIFICATE-----',
+  certPrivateKeyDetected:
+    '⚠ Private key material detected. Remove the private key and paste only the certificate.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
