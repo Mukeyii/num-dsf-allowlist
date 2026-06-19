@@ -311,13 +311,12 @@ cd frontend && npm run test:contract     # contract suite vs the real backend
 
 ### Pre-commit hooks
 
-The repo ships gitleaks-based pre-commit hooks to block accidental commit of JWT private keys, SendGrid API keys, or TOTP encryption keys. After cloning, enable them with:
+The repo uses [husky](https://typicode.github.io/husky/) for git hooks. They install automatically when you run `npm install` in the repo root (via the `prepare` script), so no manual setup is needed after cloning.
 
-```bash
-git config core.hooksPath .githooks
-```
+- `.husky/pre-commit` runs `npx lint-staged` (Prettier/ESLint on staged files) followed by a conditional `gitleaks protect --staged` scan to block accidental commit of JWT private keys, SMTP / mail-provider credentials, or TOTP encryption keys.
+- `.husky/commit-msg` runs commitlint to enforce Conventional Commit messages.
 
-Install gitleaks (`brew install gitleaks` on macOS, `choco install gitleaks` on Windows) so the hook can run. Bypass with `git commit --no-verify` only if you understand the risk.
+The gitleaks step is skipped if the binary is not on your `PATH`; install it (`brew install gitleaks` on macOS, `choco install gitleaks` on Windows) so the scan can run locally. Bypass the hooks with `git commit --no-verify` only if you understand the risk.
 
 </details>
 
