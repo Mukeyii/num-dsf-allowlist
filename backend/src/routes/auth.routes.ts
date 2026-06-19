@@ -28,6 +28,7 @@ import {
 import { generateTotpSetup, saveTotpSecret } from '../services/totp.service';
 import { writeAuditLog } from '../services/audit.service';
 import { extractClientCert } from '../lib/clientCert';
+import { isDevEnv } from '../lib/isDevEnv';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -195,12 +196,12 @@ authRouter.post('/refresh', ...refreshLimiter, async (req: Request, res: Respons
 });
 
 // POST /auth/dev-login → dev-only shortcut that bypasses OTP/TOTP.
-// Route is only REGISTERED when NODE_ENV !== 'production' AND DEV_AUTO_LOGIN
-// === 'true'. In any prod-like image, no handler is mounted and the path
-// returns Express's default 404 — zero attack surface even if a future flag
-// were toggled at runtime.
+// Route is only REGISTERED when NODE_ENV is development/test (isDevEnv) AND
+// DEV_AUTO_LOGIN === 'true'. In any other environment — production, staging,
+// or any unrecognized value — no handler is mounted and the path returns
+// Express's default 404, so a future flag toggle can't expose it.
 // Body: { role?: 'admin' | 'member' | 'site' }
-if (process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true') {
+if (isDevEnv() && process.env.DEV_AUTO_LOGIN === 'true') {
   authRouter.post('/dev-login', ...devEntryLimiter, async (req: Request, res: Response) => {
     const inputRole = req.body?.role;
     const role: 'admin' | 'member' | 'site' =

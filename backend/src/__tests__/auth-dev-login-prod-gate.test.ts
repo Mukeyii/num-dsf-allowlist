@@ -1,9 +1,9 @@
 /**
  * auth-dev-login-prod-gate.test.ts — proves the /auth/dev-login route is
  * NOT registered in production. The route is gated at module-load time on
- * `NODE_ENV !== 'production' && DEV_AUTO_LOGIN === 'true'`. We assert the
- * gate appears in source AND verify behavior by re-requiring the router
- * with NODE_ENV=production set.
+ * `isDevEnv() && DEV_AUTO_LOGIN === 'true'`, where isDevEnv() is a positive
+ * development/test allowlist. We assert the gate appears in source AND verify
+ * behavior by re-requiring the router with NODE_ENV=production set.
  *
  * Dependencies: fs (source-scan), supertest (runtime), express.
  */
@@ -13,8 +13,8 @@ import path from 'path';
 const ROUTES_SRC = fs.readFileSync(path.join(__dirname, '..', 'routes', 'auth.routes.ts'), 'utf8');
 
 describe('/auth/dev-login route gating', () => {
-  it('is registered under a NODE_ENV !== "production" guard in source', () => {
-    expect(ROUTES_SRC).toMatch(/NODE_ENV\s*!==\s*['"]production['"][\s\S]{0,80}DEV_AUTO_LOGIN/);
+  it('is registered under an isDevEnv() allowlist guard in source', () => {
+    expect(ROUTES_SRC).toMatch(/isDevEnv\(\)\s*&&[\s\S]{0,80}DEV_AUTO_LOGIN/);
   });
 
   it('requires DEV_AUTO_LOGIN === "true" in source', () => {
