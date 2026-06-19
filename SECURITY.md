@@ -1,6 +1,6 @@
 # Security Policy
 
-The **DSF Allow List Management Portal** is operated by the Institute of Medical Informatics (IMI), University of Münster, for the German Medical Informatics Initiative (MII) and the Network University Medicine (NUM). It manages organizational, technical, and contact metadata for healthcare research nodes — data that is partially public (network membership) and partially regulated (contact details, X.509 certificates, FHIR endpoints).
+The **DSF Management Portal** is operated by the Institute of Medical Informatics (IMI), University of Münster, for the German Medical Informatics Initiative (MII) and the Network University Medicine (NUM). It manages organizational, technical, and contact metadata for healthcare research nodes — data that is partially public (network membership) and partially regulated (contact details, X.509 certificates, FHIR endpoints).
 
 This document describes how to report a security issue, how reports are handled, what is in scope, and the safe-harbor policy for good-faith research.
 
