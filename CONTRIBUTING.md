@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for working on the DSF Allow List Management Portal. This guide covers
+Thanks for working on the DSF Management Portal. This guide covers
 local setup, the test suites, and the conventions the repository follows.
 
 ## Prerequisites
