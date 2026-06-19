@@ -256,6 +256,16 @@ if (isDevEnv() && process.env.DEV_AUTO_LOGIN === 'true') {
 
 // POST /auth/client-cert-login → authenticate by client certificate thumbprint
 authRouter.post('/client-cert-login', ...verifyLimiter, async (req: Request, res: Response) => {
+  // Defense-in-depth: only an nginx-verified mTLS handshake may authenticate
+  // here. extractClientCert already enforces X-Client-Verify === 'SUCCESS',
+  // but we reject up front so a forged X-Client-Cert never reaches the lookup
+  // even if that helper is ever changed.
+  if (req.headers['x-client-verify'] !== 'SUCCESS') {
+    res
+      .status(401)
+      .json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
+    return;
+  }
   const cert = extractClientCert(req);
   if (!cert) {
     res

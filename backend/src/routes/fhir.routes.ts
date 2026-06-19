@@ -25,6 +25,17 @@ async function findOrgByThumbprint(thumbprint: string) {
 // GET /fhir/Bundle/:endpointId — Fetch a specific bundle by endpoint identifier
 fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
   try {
+    // Only an nginx-verified mTLS handshake is trusted. extractClientCert
+    // already enforces X-Client-Verify === 'SUCCESS'; reject here too so a
+    // forged X-Client-Cert never reaches the thumbprint lookup.
+    if (req.headers['x-client-verify'] !== 'SUCCESS') {
+      return res.status(401).json({
+        resourceType: 'OperationOutcome',
+        issue: [
+          { severity: 'error', code: 'security', diagnostics: 'Client certificate required' },
+        ],
+      });
+    }
     const cert = extractClientCert(req);
     if (!cert) {
       return res.status(401).json({
@@ -91,6 +102,15 @@ fhirRouter.get('/Bundle/:endpointId', async (req: Request, res: Response) => {
 // GET /fhir/Bundle — Search by client cert; returns first endpoint bundle wrapped in a searchset
 fhirRouter.get('/Bundle', async (req: Request, res: Response) => {
   try {
+    // Only an nginx-verified mTLS handshake is trusted (see :endpointId route).
+    if (req.headers['x-client-verify'] !== 'SUCCESS') {
+      return res.status(401).json({
+        resourceType: 'OperationOutcome',
+        issue: [
+          { severity: 'error', code: 'security', diagnostics: 'Client certificate required' },
+        ],
+      });
+    }
     const cert = extractClientCert(req);
     if (!cert) {
       return res.status(401).json({
