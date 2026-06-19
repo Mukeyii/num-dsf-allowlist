@@ -96,7 +96,7 @@ export function MarketplaceEditStatusModal({
       toast.success(t('marketplaceEditMeta'));
       onClose();
     } catch (err: unknown) {
-      const msg = getErrorMessage(err, 'Failed');
+      const msg = getErrorMessage(err, t('genericActionFailed'));
       toast.error(msg);
     }
   }
@@ -154,7 +154,11 @@ export function MarketplaceEditStatusModal({
           <input {...register('artifactUrl')} className={inputClass} />
         </FormField>
 
-        <FormField label="TOTP Code" required error={errors.totpCode && '6 digits required'}>
+        <FormField
+          label={t('totpCodeLabel')}
+          required
+          error={errors.totpCode && t('totpDigitsRequired')}
+        >
           <input
             {...register('totpCode')}
             className={inputClass}

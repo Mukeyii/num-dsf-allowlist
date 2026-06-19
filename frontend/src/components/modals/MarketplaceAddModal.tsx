@@ -42,7 +42,7 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
       toast.success(t('marketplaceAdd'));
       onClose();
     } catch (err: unknown) {
-      const msg = getErrorMessage(err, 'Failed');
+      const msg = getErrorMessage(err, t('genericActionFailed'));
       toast.error(msg);
     }
   }
@@ -70,7 +70,11 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
           </select>
         </FormField>
 
-        <FormField label="TOTP Code" required error={errors.totpCode && '6 digits required'}>
+        <FormField
+          label={t('totpCodeLabel')}
+          required
+          error={errors.totpCode && t('totpDigitsRequired')}
+        >
           <input
             {...register('totpCode')}
             className={inputClass}
