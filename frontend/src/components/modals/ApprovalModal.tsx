@@ -159,15 +159,21 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
           </div>
         </div>
         {org && (
-          <Section title="Organization">
-            <KV k="Identifier" v={<span className="mono-id text-primary">{org.identifier}</span>} />
-            <KV k="Name" v={org.name} />
-            <KV k="Email" v={org.email} />
-            <KV k="City" v={`${org.city} · ${org.country_code}`} />
-            <KV k="Active" v={org.active ? t('approvalModalActive') : t('approvalModalInactive')} />
+          <Section title={t('organization')}>
+            <KV
+              k={t('orgCardIdentifier')}
+              v={<span className="mono-id text-primary">{org.identifier}</span>}
+            />
+            <KV k={t('orgCardName')} v={org.name} />
+            <KV k={t('orgCardEmail')} v={org.email} />
+            <KV k={t('orgCardCity')} v={`${org.city} · ${org.country_code}`} />
+            <KV
+              k={t('orgModalActiveLabel')}
+              v={org.active ? t('approvalModalActive') : t('approvalModalInactive')}
+            />
           </Section>
         )}
-        <Section title={`Contacts (${contacts.length})`}>
+        <Section title={t('requestCardSectionContacts', { n: contacts.length })}>
           {contacts.length === 0 && (
             <p className="text-xs text-slate-400">{t('approvalModalNoContacts')}</p>
           )}
@@ -176,12 +182,12 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
               <p className="text-xs font-bold text-slate-700">{c.name || '—'}</p>
               <p className="text-[10px] text-slate-400">
                 {parseJsonArray(c.types).join(' · ')} ·{' '}
-                {c.email_validated ? '✓ validated' : '⚠ not validated'}
+                {c.email_validated ? t('contactEmailValidated') : t('contactEmailNotValidated')}
               </p>
             </div>
           ))}
         </Section>
-        <Section title={`Endpoints (${endpoints.length})`}>
+        <Section title={t('requestCardSectionEndpoints', { n: endpoints.length })}>
           {endpoints.length === 0 && (
             <p className="text-xs text-slate-400">{t('approvalModalNoEndpoints')}</p>
           )}
@@ -202,7 +208,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
             </div>
           ))}
         </Section>
-        <Section title={`Certificates (${certs.length})`}>
+        <Section title={t('requestCardSectionCertificates', { n: certs.length })}>
           {certs.length === 0 && (
             <p className="text-xs text-slate-400">{t('approvalModalNoCerts')}</p>
           )}
@@ -215,7 +221,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
             </div>
           ))}
         </Section>
-        <Section title={`Memberships (${memberships.length})`}>
+        <Section title={t('requestCardSectionMemberships', { n: memberships.length })}>
           {memberships.length === 0 && (
             <p className="text-xs text-slate-400">{t('approvalModalNoMemberships')}</p>
           )}
