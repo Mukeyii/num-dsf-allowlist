@@ -7,9 +7,12 @@ import { z } from 'zod';
 export const marketplaceAddFormSchema = z.object({
   gitUrl: z
     .string()
-    .regex(/^https:\/\/github\.com\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+(?:\.git)?\/?$/, 'invalid'),
+    .regex(
+      /^https:\/\/github\.com\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+(?:\.git)?\/?$/,
+      'marketplaceInvalidUrl',
+    ),
   status: z.enum(['APPROVED', 'EXPERIMENTAL', 'DEPRECATED']).default('APPROVED'),
-  totpCode: z.string().length(6),
+  totpCode: z.string().length(6, 'totpDigitsRequired'),
 });
 
 export type MarketplaceAddForm = z.infer<typeof marketplaceAddFormSchema>;
@@ -28,7 +31,7 @@ export const marketplaceEditFormSchema = z.object({
   requiredRoles: z.string().optional(),
   messageNames: z.string().optional(),
   artifactUrl: z.string().optional(),
-  totpCode: z.string().length(6),
+  totpCode: z.string().length(6, 'totpDigitsRequired'),
 });
 
 export type MarketplaceEditForm = z.infer<typeof marketplaceEditFormSchema>;

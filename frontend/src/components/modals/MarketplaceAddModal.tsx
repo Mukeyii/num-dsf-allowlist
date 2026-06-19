@@ -50,11 +50,7 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
   return (
     <Modal open={open} onClose={onClose} title={t('marketplaceAdd')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          label={t('marketplaceFieldGitUrl')}
-          required
-          error={errors.gitUrl && t('marketplaceInvalidUrl')}
-        >
+        <FormField label={t('marketplaceFieldGitUrl')} required error={errors.gitUrl?.message}>
           <input
             {...register('gitUrl')}
             className={inputClass}
@@ -70,11 +66,7 @@ export function MarketplaceAddModal({ open, onClose }: Props) {
           </select>
         </FormField>
 
-        <FormField
-          label={t('totpCodeLabel')}
-          required
-          error={errors.totpCode && t('totpDigitsRequired')}
-        >
+        <FormField label={t('totpCodeLabel')} required error={errors.totpCode?.message}>
           <input
             {...register('totpCode')}
             className={inputClass}
