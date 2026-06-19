@@ -10,6 +10,25 @@ import { parseManifest, type DsfManifest } from '../schemas/marketplace-manifest
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const SLEEP_BETWEEN_MS = 1500;
 
+/**
+ * Only persist a homepage that parses as an http(s) URL. GitHub lets repo
+ * owners set an arbitrary "homepage" string; storing it verbatim would let a
+ * `javascript:` or `data:` value reach the frontend and be rendered as an
+ * href. Returns the trimmed URL or null.
+ */
+function safeHomepage(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  try {
+    const protocol = new URL(trimmed).protocol;
+    if (protocol === 'http:' || protocol === 'https:') return trimmed;
+  } catch {
+    // not a parseable URL
+  }
+  return null;
+}
+
 interface RepoResp {
   description: string | null;
   stargazers_count: number;
@@ -180,7 +199,7 @@ export async function syncEntry(id: string): Promise<void> {
         forks: main.forks_count ?? 0,
         open_issues: main.open_issues_count ?? 0,
         archived: main.archived ? 1 : 0,
-        homepage: main.homepage && main.homepage.trim() ? main.homepage.trim() : null,
+        homepage: safeHomepage(main.homepage),
         language: main.language ?? null,
         latest_release_tag: latestTag,
         last_commit_at: lastCommitAt,

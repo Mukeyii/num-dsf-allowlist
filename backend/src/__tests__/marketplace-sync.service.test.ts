@@ -342,3 +342,46 @@ describe('marketplace-sync.service – release history upsert', () => {
     expect(rows).toHaveLength(2);
   });
 });
+
+describe('marketplace-sync.service – homepage URL sanitation', () => {
+  const stamp = Date.now();
+  const id = uuidv4();
+  const gitUrl = `https://github.com/dsf-test/mp-homepage-${stamp}`;
+
+  beforeAll(async () => {
+    await db('marketplace_entries').insert({
+      id,
+      name: `mp-homepage-${stamp}`,
+      git_url: gitUrl,
+      status: 'EXPERIMENTAL',
+      metadata_source: 'MANUAL',
+      added_by: `mp-homepage-${stamp}@example.de`,
+      added_at: new Date(),
+      updated_at: new Date(),
+    });
+  });
+
+  afterAll(async () => {
+    global.fetch = realFetch;
+    await db('marketplace_releases').where({ entry_id: id }).del();
+    await db('marketplace_entries').where({ id }).del();
+  });
+
+  afterEach(() => {
+    global.fetch = realFetch;
+  });
+
+  it('stores a javascript: homepage as null', async () => {
+    global.fetch = mockGithub({ repo: { homepage: 'javascript:alert(1)' } });
+    await syncEntry(id);
+    const row = await db('marketplace_entries').where({ id }).first();
+    expect(row.homepage).toBeNull();
+  });
+
+  it('keeps a valid https homepage', async () => {
+    global.fetch = mockGithub({ repo: { homepage: 'https://docs.example.org' } });
+    await syncEntry(id);
+    const row = await db('marketplace_entries').where({ id }).first();
+    expect(row.homepage).toBe('https://docs.example.org');
+  });
+});
