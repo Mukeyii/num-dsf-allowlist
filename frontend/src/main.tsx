@@ -11,6 +11,7 @@ import { ToastProvider } from './components/ToastProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { getErrorMessage } from './lib/getErrorMessage';
+import { useI18n } from './stores/i18n.store';
 import './index.css';
 import './stores/theme.store';
 
@@ -84,14 +85,15 @@ axios.interceptors.response.use(
     // Global error toasts (avoid duplicates with _handled flag)
     if (!error._handled) {
       const { toast } = await import('sonner');
+      const t = useI18n.getState().t;
       if (status === 429) {
-        toast.error('Too many requests. Please wait a moment.');
+        toast.error(t('rateLimited'));
         error._handled = true;
       } else if (status >= 500) {
-        toast.error('Server error. Please try again later.');
+        toast.error(t('serverError'));
         error._handled = true;
       } else if (!error.response) {
-        toast.error('Network error. Check your connection.');
+        toast.error(t('networkError'));
         error._handled = true;
       }
     }
