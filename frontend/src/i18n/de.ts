@@ -762,6 +762,7 @@ export const de: Record<TranslationKey, string> = {
   bundleVersionsEmpty:
     'Noch keine Bundle-Versionen. Snapshots entstehen automatisch beim Übergang einer Freigabe in den Zustand APPROVED.',
   bundleVersionsNavLabel: 'Bundle-Versionen',
+  bundleVersionsColVersion: 'Version',
   createdAt: 'Erstellt',
   triggeredBy: 'Auslöser',
   triggeredByEmail: 'von',

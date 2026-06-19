@@ -753,6 +753,7 @@ export const en = {
   bundleVersionsEmpty:
     'No bundle versions yet. Snapshots are created automatically when an approval reaches APPROVED.',
   bundleVersionsNavLabel: 'Bundle Versions',
+  bundleVersionsColVersion: 'Version',
   createdAt: 'Created',
   triggeredBy: 'Trigger',
   triggeredByEmail: 'By',
