@@ -836,6 +836,10 @@ export const en = {
   orgIdentifierInvalidFqdn: 'Must be a valid FQDN (e.g. ukm.de)',
   nameRequired: 'Name is required',
   emailInvalid: 'Must be a valid email address',
+
+  // Schema validation — contact
+  contactTypesRequired: 'Select at least one type',
+  contactPhoneInvalid: 'Invalid phone format (e.g. +49 251 12345)',
 } as const;
 
 export type TranslationKey = keyof typeof en;
