@@ -38,6 +38,15 @@ function validateEnv(): void {
     logger.fatal('JWT_PRIVATE_KEY_BASE64 is invalid');
     process.exit(1);
   }
+  // Reject an unrecognized NODE_ENV. Anything other than the three known
+  // environments (e.g. a typo'd 'prodcution' or 'staging') would otherwise
+  // silently fall into the non-production code paths that gate dev-only
+  // shortcuts; refuse to start instead.
+  const nodeEnv = process.env.NODE_ENV;
+  if (nodeEnv && !['production', 'development', 'test'].includes(nodeEnv)) {
+    logger.fatal('NODE_ENV must be one of: production, development, test');
+    process.exit(1);
+  }
   logger.info('Environment variables validated');
 }
 
