@@ -15,7 +15,7 @@ const ipAddressSchema = z.object({
 export const endpointSchema = z.object({
   identifier: z
     .string()
-    .min(3)
+    .min(3, 'endpointIdentifierTooShort')
     .regex(
       /^(?=.{1,253}\.?$)([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+\.?$/,
       'endpointFqdnInvalid',

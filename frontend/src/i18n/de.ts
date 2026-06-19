@@ -846,12 +846,16 @@ export const de: Record<TranslationKey, string> = {
   orgIdentifierInvalidFqdn: 'Muss ein gültiger FQDN sein (z.B. ukm.de)',
   nameRequired: 'Name ist erforderlich',
   emailInvalid: 'Muss eine gültige E-Mail-Adresse sein',
+  emailTooLong: 'E-Mail darf höchstens 255 Zeichen lang sein',
+  countryCodeInvalid: 'Muss ein 2-Buchstaben-ISO-Ländercode sein (z. B. DE)',
+  thumbprintTooLong: 'Fingerabdruck darf höchstens 128 Zeichen lang sein',
 
   // Schema validation — contact
   contactTypesRequired: 'Mindestens einen Typ auswählen',
   contactPhoneInvalid: 'Ungültiges Telefonformat (z.B. +49 251 12345)',
 
   // Schema validation — endpoint
+  endpointIdentifierTooShort: 'Bezeichner muss mindestens 3 Zeichen lang sein',
   endpointIpInvalid: 'Muss eine gültige IPv4-Adresse sein (z.B. 192.168.1.1)',
   endpointFqdnInvalid: 'Muss ein gültiger FQDN sein',
   endpointUrlInvalid: 'Muss eine gültige URL sein',
