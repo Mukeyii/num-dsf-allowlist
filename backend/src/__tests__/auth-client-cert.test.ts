@@ -89,9 +89,20 @@ describe('POST /auth/client-cert-login', () => {
     expect(res.body.error.code).toBe('NO_CLIENT_CERT');
   });
 
+  it('401 when a cert is presented but nginx verification did not succeed', async () => {
+    const res = await request(appWith())
+      .post('/auth/client-cert-login')
+      .set('x-client-cert', encodeURIComponent(SAMPLE_PEM)); // no X-Client-Verify
+    expect(res.status).toBe(401);
+    // Rejected as "no cert" before any thumbprint lookup, so a spoofed
+    // X-Client-Cert can never authenticate as the matching org.
+    expect(res.body.error.code).toBe('NO_CLIENT_CERT');
+  });
+
   it('401 when thumbprint does not match any org', async () => {
     const res = await request(appWith())
       .post('/auth/client-cert-login')
+      .set('x-client-verify', 'SUCCESS')
       .set('x-client-cert', encodeURIComponent(OTHER_PEM));
     expect(res.status).toBe(401);
     expect(res.body.error.code).toBe('CERT_NOT_REGISTERED');
@@ -100,6 +111,7 @@ describe('POST /auth/client-cert-login', () => {
   it('200 when thumbprint matches a registered org', async () => {
     const res = await request(appWith())
       .post('/auth/client-cert-login')
+      .set('x-client-verify', 'SUCCESS')
       .set('x-client-cert', encodeURIComponent(SAMPLE_PEM));
     expect(res.status).toBe(200);
     expect(typeof res.body.data.accessToken).toBe('string');
@@ -112,6 +124,7 @@ describe('POST /auth/client-cert-login', () => {
       .update({ locked_at: new Date(), locked_by: 'test', locked_reason: 'test' });
     const res = await request(appWith())
       .post('/auth/client-cert-login')
+      .set('x-client-verify', 'SUCCESS')
       .set('x-client-cert', encodeURIComponent(SAMPLE_PEM));
     expect(res.status).toBe(401);
     expect(res.body.error.code).toBe('ACCOUNT_LOCKED');
