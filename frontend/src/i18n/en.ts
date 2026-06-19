@@ -122,6 +122,11 @@ export const en = {
   // Dashboard
   dashboard: 'Dashboard',
 
+  // ErrorBoundary
+  errorBoundaryTitle: 'Something went wrong',
+  errorBoundaryBody: 'An unexpected error occurred. Please reload the page.',
+  errorBoundaryReload: 'Reload Page',
+
   // AdminPage
   adminPageTitle: 'Approval Review',
   adminPageSubtitle: 'Review and action pending approval requests from DSF participants',
