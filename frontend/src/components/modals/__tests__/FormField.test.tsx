@@ -32,4 +32,16 @@ describe('FormField', () => {
     expect(screen.queryByText('This field is required')).not.toBeInTheDocument();
     expect(screen.getByText('Some hint')).toBeInTheDocument();
   });
+
+  it('resolves an error that is a known translation key', () => {
+    // When a Zod schema emits a stable i18n key code as its message, FormField
+    // resolves it to the localized string instead of rendering the raw code.
+    renderWithProviders(
+      <FormField label="Some Field" error="modalSaveBtn">
+        <input />
+      </FormField>,
+    );
+    expect(screen.getByText('Save')).toBeInTheDocument();
+    expect(screen.queryByText('modalSaveBtn')).not.toBeInTheDocument();
+  });
 });

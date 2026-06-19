@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import { useI18n } from '../../stores/i18n.store';
+import { en, type TranslationKey } from '../../i18n/en';
 
 interface FormFieldProps {
   label: string;
@@ -13,7 +14,18 @@ interface FormFieldProps {
   children: React.ReactNode;
 }
 
+/**
+ * Resolve a field error to display text. Zod schemas emit stable i18n key codes
+ * as their messages (e.g. 'identifierTooShort'); if the message matches a known
+ * translation key, render its localized text. Any other string renders verbatim,
+ * so plain backend/runtime messages stay backward-compatible.
+ */
+function resolveError(error: string, t: (key: TranslationKey) => string): string {
+  return error in en ? t(error as TranslationKey) : error;
+}
+
 export function FormField({ label, required, error, hint, children }: FormFieldProps) {
+  const { t } = useI18n();
   return (
     <div className="space-y-1.5">
       <label className="block text-xs font-semibold text-slate-600">
@@ -25,7 +37,7 @@ export function FormField({ label, required, error, hint, children }: FormFieldP
       {error && (
         <p className="text-[10px] text-red-500 flex items-center gap-1">
           <span className="material-symbols-outlined text-[12px]">error</span>
-          {error}
+          {resolveError(error, t)}
         </p>
       )}
     </div>
