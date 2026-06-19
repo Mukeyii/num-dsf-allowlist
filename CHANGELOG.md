@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3](https://github.com/Mukeyii/num-dsf-allowlist/compare/v0.1.2...v0.1.3) (2026-06-19)
+
+
+### Features
+
+* **i18n:** add DSF resources category headings ([e203129](https://github.com/Mukeyii/num-dsf-allowlist/commit/e20312991302c39288761cdd296153981b8eaf89))
+* **i18n:** add DSF resources link descriptions ([fa4f0b2](https://github.com/Mukeyii/num-dsf-allowlist/commit/fa4f0b21345a8df050b8232cc4b710a53d75ab59))
+* **i18n:** add DSF resources page chrome strings ([7f98281](https://github.com/Mukeyii/num-dsf-allowlist/commit/7f98281508e4bc73948b2d21de800ba42bc21096))
+* **i18n:** add error-boundary keys ([65d3882](https://github.com/Mukeyii/num-dsf-allowlist/commit/65d3882d841678212d5b85dc7cbd413f463b3bbf))
+* **i18n:** add marketplace TOTP and failure keys ([5a87b68](https://github.com/Mukeyii/num-dsf-allowlist/commit/5a87b68d74eaa84fb44beb944d8a58115e3f73a2))
+* **i18n:** add remaining admin-page keys ([7267589](https://github.com/Mukeyii/num-dsf-allowlist/commit/726758921c1035de5185fc668ac3581567934975))
+* **i18n:** add status-page keys ([2477160](https://github.com/Mukeyii/num-dsf-allowlist/commit/2477160c6d4d176145b0498c9dac2ec66775ea6e))
+* **i18n:** translate certificate-schema validation ([fe72717](https://github.com/Mukeyii/num-dsf-allowlist/commit/fe72717d5bb695151c48ff317e91cd4fcdd28dc0))
+* **i18n:** translate contact-schema validation ([9a58622](https://github.com/Mukeyii/num-dsf-allowlist/commit/9a586222e4a0d228558d65bddf5863b17e24533f))
+* **i18n:** translate endpoint-schema validation ([0f8a19a](https://github.com/Mukeyii/num-dsf-allowlist/commit/0f8a19a6d04c15254a36fac146f3b0e30e0b9417))
+* **i18n:** translate marketplace-schema validation ([3257e1a](https://github.com/Mukeyii/num-dsf-allowlist/commit/3257e1aba409d30790c54dc450ebedb6ba8fd669))
+* **i18n:** translate membership-schema validation ([4dc897b](https://github.com/Mukeyii/num-dsf-allowlist/commit/4dc897b66843f5edaa7fc8954f8040bbe12369d9))
+* **i18n:** translate organization-schema validation ([c1ec695](https://github.com/Mukeyii/num-dsf-allowlist/commit/c1ec695ae125f2978353d26457a510b8c3f3f983))
+* **i18n:** translate remaining admin-page strings ([4d3aa79](https://github.com/Mukeyii/num-dsf-allowlist/commit/4d3aa79596c2d89100d77ef0e761b9e1e904a77f))
+* **i18n:** translate the approval review modal ([fcd344d](https://github.com/Mukeyii/num-dsf-allowlist/commit/fcd344d532548f3c8a00c019a5344831966d023d))
+* **i18n:** translate the error-boundary fallback ([63390aa](https://github.com/Mukeyii/num-dsf-allowlist/commit/63390aaf026d494fa99e0e8582d57d46021e56d3))
+* **i18n:** translate the remaining schema validation messages ([3c310e2](https://github.com/Mukeyii/num-dsf-allowlist/commit/3c310e24f93906ca0882440aef6cc028339662c6))
+* **i18n:** translate the status page ([659450e](https://github.com/Mukeyii/num-dsf-allowlist/commit/659450e2a8d701d87b073127a312d53e876045a1))
+* **i18n:** use the marketplace TOTP and failure keys ([a700611](https://github.com/Mukeyii/num-dsf-allowlist/commit/a700611c5b733b00fb927a89f5524d067b1a750e))
+* **resources:** add the DSF resources link catalog ([2bf838d](https://github.com/Mukeyii/num-dsf-allowlist/commit/2bf838d660a3943f66e8f7bc0a315ec0ad96fd6f))
+* **resources:** add the DSF resources page ([dfc76cf](https://github.com/Mukeyii/num-dsf-allowlist/commit/dfc76cfe3c6271a3fd617a3548b1c9c9d6269bfd))
+* **resources:** add the sidebar link to DSF resources ([22b8d85](https://github.com/Mukeyii/num-dsf-allowlist/commit/22b8d856df995258ea8365ed0592d86de3762b00))
+* **resources:** route the DSF resources page ([d5d4d97](https://github.com/Mukeyii/num-dsf-allowlist/commit/d5d4d979746a99137954cb0c61e1eb1071348ce6))
+
+
+### Bug Fixes
+
+* **auth:** enforce client-cert verify in the cert-login and fhir callers ([2b99f2d](https://github.com/Mukeyii/num-dsf-allowlist/commit/2b99f2d79ff9669f8ff1e074d439af69cced680e))
+* **auth:** gate isDevAutoLogin on the development/test allowlist ([8e8d5d5](https://github.com/Mukeyii/num-dsf-allowlist/commit/8e8d5d54254d8da438afeee8e4b5597c0c372115))
+* **auth:** gate the dev-login route on a development/test allowlist ([0a4636e](https://github.com/Mukeyii/num-dsf-allowlist/commit/0a4636ef993bda79053b475c6c77ef2ceaab3620))
+* **auth:** require X-Client-Verify=SUCCESS in extractClientCert ([0a2a870](https://github.com/Mukeyii/num-dsf-allowlist/commit/0a2a870dbc9633b8a183cd38f76ba3cb1b91b282))
+* **config:** reject unrecognized NODE_ENV at startup ([ca652f9](https://github.com/Mukeyii/num-dsf-allowlist/commit/ca652f9f6d544634276ae8f9eb1ac476fe8f2c4f))
+* **deps:** bump nodemailer to 9 for the raw-option SSRF advisory ([10eda5c](https://github.com/Mukeyii/num-dsf-allowlist/commit/10eda5cfb7637b82f0bf2f213c6400ad0edd81e6))
+* **deps:** bump react-router-dom to 6.30.4 for the open-redirect advisory ([367cd78](https://github.com/Mukeyii/num-dsf-allowlist/commit/367cd78778f9bdf842dfa6771f1cd51e7eba454b))
+* **forms:** use hasOwnProperty for the FormField error-code lookup ([a7a20cd](https://github.com/Mukeyii/num-dsf-allowlist/commit/a7a20cd10cbcca0903d999ea458b6c7ae43135eb))
+* **i18n:** translate the contacts-card FK label ([4bc1f69](https://github.com/Mukeyii/num-dsf-allowlist/commit/4bc1f69a84bfdbb8af61dfa26639472f1645c286))
+* **i18n:** translate the global error-toast interceptor ([7a1c94e](https://github.com/Mukeyii/num-dsf-allowlist/commit/7a1c94e2fbabaed62ed1dd22af97c4402ee320d2))
+* **i18n:** translate the idle-timeout toasts ([2549233](https://github.com/Mukeyii/num-dsf-allowlist/commit/25492335eebb35c7a1f92b290ebc510cd64c52aa))
+* **marketplace:** only render http(s) homepage links ([f0c9037](https://github.com/Mukeyii/num-dsf-allowlist/commit/f0c90379ad00b76bed2f9597cac579ce254ee27a))
+* **marketplace:** store only http(s) homepage at the sync boundary ([8172344](https://github.com/Mukeyii/num-dsf-allowlist/commit/817234407a96f7ccc379f583d0af6a31e6005b36))
+* **totp:** gate the TOTP bypass on the development/test allowlist ([0329247](https://github.com/Mukeyii/num-dsf-allowlist/commit/0329247811d1fdadbe764a04a9031369ff3a9a41))
+
 ## [0.1.2](https://github.com/Mukeyii/num-dsf-allowlist/compare/v0.1.1...v0.1.2) (2026-06-17)
 
 
