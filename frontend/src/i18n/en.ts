@@ -803,6 +803,10 @@ export const en = {
   dsfResourcesTitle: 'DSF Resources',
   dsfResourcesSubtitle: 'Official Data Sharing Framework documentation and tooling',
   dsfResourcesIntro: 'Links to the official DSF project (dsf.dev). All links open in a new tab.',
+  dsfResourcesCatGettingStarted: 'Getting Started',
+  dsfResourcesCatOperations: 'Operations',
+  dsfResourcesCatDevelopment: 'Process & FHIR Development',
+  dsfResourcesCatEcosystem: 'Ecosystem',
 } as const;
 
 export type TranslationKey = keyof typeof en;

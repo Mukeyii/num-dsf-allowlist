@@ -813,4 +813,8 @@ export const de: Record<TranslationKey, string> = {
   dsfResourcesSubtitle: 'Offizielle Data-Sharing-Framework-Dokumentation und Werkzeuge',
   dsfResourcesIntro:
     'Links zum offiziellen DSF-Projekt (dsf.dev). Alle Links öffnen in einem neuen Tab.',
+  dsfResourcesCatGettingStarted: 'Einstieg',
+  dsfResourcesCatOperations: 'Betrieb',
+  dsfResourcesCatDevelopment: 'Prozess- & FHIR-Entwicklung',
+  dsfResourcesCatEcosystem: 'Ökosystem',
 };
