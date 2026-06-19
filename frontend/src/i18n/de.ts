@@ -806,4 +806,11 @@ export const de: Record<TranslationKey, string> = {
   ariaGoForward: 'Vorwärts',
   ariaToggleTheme: 'Design umschalten',
   ariaToggleLanguage: 'Sprache umschalten',
+
+  // DSF Resources page
+  dsfResourcesNavLabel: 'DSF-Ressourcen',
+  dsfResourcesTitle: 'DSF-Ressourcen',
+  dsfResourcesSubtitle: 'Offizielle Data-Sharing-Framework-Dokumentation und Werkzeuge',
+  dsfResourcesIntro:
+    'Links zum offiziellen DSF-Projekt (dsf.dev). Alle Links öffnen in einem neuen Tab.',
 };
