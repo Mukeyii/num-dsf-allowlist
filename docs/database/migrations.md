@@ -23,5 +23,4 @@ All migrations are idempotent (existence-guarded) except 013–018, which run un
 | 016 | 016_ca_blacklist.sql | Create ca_blacklist and known_cas tables for CA upload checks | — |
 | 017 | 017_bundle_versions.sql | Create bundle_versions table for FHIR bundle snapshots | FK to approval_requests (ON DELETE SET NULL) |
 | 018 | 018_contacts_language.sql | Add contacts.language for per-contact notification locale | — |
-
-No migration numbered higher than 018 exists in the repository.
+| 019 | 019_marketplace_v2.sql | Marketplace v2: add DSF metadata, trust-signal, and slug columns to marketplace_entries; create marketplace_releases table for release history (shipped in v0.1.2) | — |
