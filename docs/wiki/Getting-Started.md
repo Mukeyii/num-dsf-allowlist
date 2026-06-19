@@ -72,4 +72,4 @@ Then start (or restart) the backend: `docker compose restart backend`
 `IMI_ADMIN_EMAILS` is consumed only while `admin_grants` is empty; once the first
 admins exist the env var is ignored. Additional admins are then added via the
 4-eyes promotion flow at `/app/admin/promotions` (a second admin approves). See
-the [Admin Guide](Admin-Guide).
+the [Admin Guide](Admin-Guide.md).

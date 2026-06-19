@@ -20,11 +20,11 @@ A web application for managing participants in the **Data Sharing Framework (DSF
 
 ## Quick Links
 
-- [Getting Started](Getting-Started) — Setup with Docker Compose
-- [Architecture](Architecture) — Tech stack and system design
-- [API Reference](API-Reference) — All endpoints with examples
-- [Security](Security) — Authentication, encryption, GDPR
-- [Admin Guide](Admin-Guide) — Approval workflow and administration
-- [FAQ](FAQ) — Common questions and troubleshooting
+- [Getting Started](Getting-Started.md) — Setup with Docker Compose
+- [Architecture](Architecture.md) — Tech stack and system design
+- [API Reference](API-Reference.md) — All endpoints with examples
+- [Security](Security.md) — Authentication, encryption, GDPR
+- [Admin Guide](Admin-Guide.md) — Approval workflow and administration
+- [FAQ](FAQ.md) — Common questions and troubleshooting
 - [Architecture Decisions](https://github.com/Mukeyii/num-dsf-allowlist/tree/main/docs/adr) — ADRs (RS256, 4-eyes, mTLS, audit immutability, …)
 - [Database](https://github.com/Mukeyii/num-dsf-allowlist/tree/main/docs/database) — Schema, ERD, migrations, Redis keys, retention
