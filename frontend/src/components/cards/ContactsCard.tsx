@@ -35,7 +35,9 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
       icon="contact_phone"
       onAdd={() => useModals.getState().openModal('contact-add')}
     >
-      {org && <FkLink label="Organization" targetEntity="organization" value={org.identifier} />}
+      {org && (
+        <FkLink label={t('organization')} targetEntity="organization" value={org.identifier} />
+      )}
 
       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {isLoading && (
