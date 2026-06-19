@@ -853,6 +853,11 @@ export const en = {
   certPemEnd: 'PEM must end with -----END CERTIFICATE-----',
   certPrivateKeyDetected:
     '⚠ Private key material detected. Remove the private key and paste only the certificate.',
+
+  // Schema validation — membership
+  membershipParentRequired: 'Parent organization is required',
+  membershipEndpointRequired: 'Endpoint is required',
+  membershipRolesRequired: 'Select at least one role',
 } as const;
 
 export type TranslationKey = keyof typeof en;
