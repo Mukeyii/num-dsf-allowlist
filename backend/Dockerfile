@@ -14,6 +14,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 FROM node:20-alpine AS prod
+ENV NODE_ENV=production
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 COPY --from=build --chown=app:app /app/dist ./dist
