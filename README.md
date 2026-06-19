@@ -10,7 +10,7 @@
 
   <p>
     <a href="https://github.com/Mukeyii/num-dsf-allowlist/actions/workflows/ci.yml"><img src="https://github.com/Mukeyii/num-dsf-allowlist/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI/CD" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-Proprietary-blue.svg" alt="License: Proprietary" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache 2.0" /></a>
     <a href="https://www.medizin.uni-muenster.de/imi/das-institut.html"><img src="https://img.shields.io/badge/operated%20by-IMI%20M%C3%BCnster-b01e66.svg" alt="Operated by IMI Münster" /></a>
     <img src="https://img.shields.io/badge/stack-React%20%2B%20Express%20%2B%20MySQL-3a6fb0.svg" alt="Stack: React + Express + MySQL" />
   </p>
@@ -359,4 +359,4 @@ Each migration is idempotent (uses `information_schema` checks via `PREPARE` / `
 
 ## License
 
-Proprietary — Institute of Medical Informatics Muenster (IMI), University of Muenster. See [`LICENSE`](LICENSE).
+Apache 2.0 — Institute of Medical Informatics Muenster (IMI), University of Muenster. See [`LICENSE`](LICENSE).
