@@ -2,7 +2,7 @@
  * instances.service.ts — DSF instance CRUD: list, create, fetch, rename.
  *
  * Extracted from routes/instances.routes.ts so handlers stop running
- * inline Knex queries (CLAUDE.md: "DB access only via service layer").
+ * inline Knex queries (project rule: DB access only via the service layer).
  *
  * Dependencies: db/connection, audit.service, isAdmin, uuid
  */

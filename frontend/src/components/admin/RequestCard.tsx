@@ -1,7 +1,7 @@
 /**
  * RequestCard.tsx — Admin approval request card with TOTP-gated approve/reject
  * controls + expandable snapshot viewer. Extracted from pages/AdminPage.tsx
- * (CLAUDE.md 500-line limit).
+ * (project 500-line file limit).
  *
  * Dependencies: useAdmin (approve/reject mutations), useI18n, sonner toast.
  */
