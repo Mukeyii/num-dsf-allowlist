@@ -807,6 +807,17 @@ export const en = {
   dsfResourcesCatOperations: 'Operations',
   dsfResourcesCatDevelopment: 'Process & FHIR Development',
   dsfResourcesCatEcosystem: 'Ecosystem',
+  dsfResourcesDescUseCases: 'What the Data Sharing Framework is and the problems it solves.',
+  dsfResourcesDescOperations:
+    'Install, configure, and operate a DSF instance (current version 2.1.0).',
+  dsfResourcesDescSecurity: 'Security policy and how to report vulnerabilities.',
+  dsfResourcesDescLinter: 'Validate BPMN process plugins against DSF rules.',
+  dsfResourcesDescApiV1: 'Process plugin API, version 1.',
+  dsfResourcesDescApiV2: 'Process plugin API, version 2.',
+  dsfResourcesDescFhirIg: 'FHIR profiles and resources the allow-list bundle builds on.',
+  dsfResourcesDescHub: 'Public registry of DSF process plugins.',
+  dsfResourcesDescGithub: 'DSF reference implementation source code.',
+  dsfResourcesDescCommunity: 'Team, communication channels, and how to contribute.',
 } as const;
 
 export type TranslationKey = keyof typeof en;

@@ -817,4 +817,15 @@ export const de: Record<TranslationKey, string> = {
   dsfResourcesCatOperations: 'Betrieb',
   dsfResourcesCatDevelopment: 'Prozess- & FHIR-Entwicklung',
   dsfResourcesCatEcosystem: 'Ökosystem',
+  dsfResourcesDescUseCases: 'Was das Data Sharing Framework ist und welche Probleme es löst.',
+  dsfResourcesDescOperations:
+    'Eine DSF-Instanz installieren, konfigurieren und betreiben (aktuelle Version 2.1.0).',
+  dsfResourcesDescSecurity: 'Sicherheitsrichtlinie und wie man Schwachstellen meldet.',
+  dsfResourcesDescLinter: 'BPMN-Prozess-Plugins gegen DSF-Regeln validieren.',
+  dsfResourcesDescApiV1: 'Prozess-Plugin-API, Version 1.',
+  dsfResourcesDescApiV2: 'Prozess-Plugin-API, Version 2.',
+  dsfResourcesDescFhirIg: 'FHIR-Profile und -Ressourcen, auf denen das Allow-List-Bundle aufbaut.',
+  dsfResourcesDescHub: 'Öffentliches Verzeichnis von DSF-Prozess-Plugins.',
+  dsfResourcesDescGithub: 'Quellcode der DSF-Referenzimplementierung.',
+  dsfResourcesDescCommunity: 'Team, Kommunikationskanäle und wie man beiträgt.',
 };
