@@ -840,6 +840,12 @@ export const en = {
   // Schema validation — contact
   contactTypesRequired: 'Select at least one type',
   contactPhoneInvalid: 'Invalid phone format (e.g. +49 251 12345)',
+
+  // Schema validation — endpoint
+  endpointIpInvalid: 'Must be a valid IPv4 address (e.g. 192.168.1.1)',
+  endpointFqdnInvalid: 'Must be a valid FQDN',
+  endpointUrlInvalid: 'Must be a valid URL',
+  endpointUrlHttps: 'URL must start with https://',
 } as const;
 
 export type TranslationKey = keyof typeof en;
