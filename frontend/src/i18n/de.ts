@@ -846,4 +846,8 @@ export const de: Record<TranslationKey, string> = {
   orgIdentifierInvalidFqdn: 'Muss ein gültiger FQDN sein (z.B. ukm.de)',
   nameRequired: 'Name ist erforderlich',
   emailInvalid: 'Muss eine gültige E-Mail-Adresse sein',
+
+  // Schema validation — contact
+  contactTypesRequired: 'Mindestens einen Typ auswählen',
+  contactPhoneInvalid: 'Ungültiges Telefonformat (z.B. +49 251 12345)',
 };
