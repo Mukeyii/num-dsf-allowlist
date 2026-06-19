@@ -111,4 +111,29 @@ describe('MarketplaceDetailPage', () => {
     renderWithProviders(<MarketplaceDetailPage />);
     expect(screen.getByText(/not found/i)).toBeInTheDocument();
   });
+
+  it('does not render a homepage link for a non-http(s) (javascript:) URL', () => {
+    useMe.mockReturnValue({ data: { email: 'a@b.de', isAdmin: false } });
+    useMarketplaceEntry.mockReturnValue({
+      data: detail({ homepage: 'javascript:alert(1)' }),
+      isLoading: false,
+    });
+
+    const { container } = renderWithProviders(<MarketplaceDetailPage />);
+    // No anchor at all should carry a javascript: scheme.
+    expect(container.querySelector('a[href^="javascript:"]')).toBeNull();
+    // And the docs link must not be emitted for an unsafe homepage.
+    expect(screen.queryByText(/docs|doku/i)).toBeNull();
+  });
+
+  it('renders the homepage link for a valid https URL', () => {
+    useMe.mockReturnValue({ data: { email: 'a@b.de', isAdmin: false } });
+    useMarketplaceEntry.mockReturnValue({
+      data: detail({ homepage: 'https://docs.example.org' }),
+      isLoading: false,
+    });
+
+    const { container } = renderWithProviders(<MarketplaceDetailPage />);
+    expect(container.querySelector('a[href="https://docs.example.org"]')).not.toBeNull();
+  });
 });

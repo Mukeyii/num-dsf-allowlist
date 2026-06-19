@@ -142,7 +142,7 @@ export function MarketplaceDetailPage() {
             >
               ↗ GitHub
             </a>
-            {entry.homepage && (
+            {entry.homepage && /^https?:\/\//i.test(entry.homepage) && (
               <a
                 href={entry.homepage}
                 target="_blank"
