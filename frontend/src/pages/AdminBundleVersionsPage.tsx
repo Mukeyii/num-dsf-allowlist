@@ -65,7 +65,7 @@ export function AdminBundleVersionsPage() {
                   <a
                     href={bundleVersionsApi.downloadUrl(r.id)}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="text-xs font-semibold underline"
                     style={{ color: '#b01e66' }}
                   >
