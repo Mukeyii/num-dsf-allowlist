@@ -850,4 +850,10 @@ export const de: Record<TranslationKey, string> = {
   // Schema validation — contact
   contactTypesRequired: 'Mindestens einen Typ auswählen',
   contactPhoneInvalid: 'Ungültiges Telefonformat (z.B. +49 251 12345)',
+
+  // Schema validation — endpoint
+  endpointIpInvalid: 'Muss eine gültige IPv4-Adresse sein (z.B. 192.168.1.1)',
+  endpointFqdnInvalid: 'Muss ein gültiger FQDN sein',
+  endpointUrlInvalid: 'Muss eine gültige URL sein',
+  endpointUrlHttps: 'URL muss mit https:// beginnen',
 };
