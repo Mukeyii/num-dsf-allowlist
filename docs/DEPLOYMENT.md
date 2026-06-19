@@ -55,7 +55,7 @@ All configuration flows through env vars (no hardcoded secrets). Copy `.env.exam
 ```bash
 # 1. Clone
 git clone <repo-url>
-cd dsf-allowlist
+cd num-dsf-allowlist
 
 # 2. Environment
 cp .env.prod.example .env.prod
@@ -213,7 +213,7 @@ bash scripts/backup-db.sh
 bash scripts/backup-db.sh /mnt/backups
 
 # Schedule via cron (daily at 2 AM)
-0 2 * * * cd /path/to/dsf-allowlist && bash scripts/backup-db.sh >> /var/log/dsf-backup.log 2>&1
+0 2 * * * cd /path/to/num-dsf-allowlist && bash scripts/backup-db.sh >> /var/log/dsf-backup.log 2>&1
 ```
 
 The script:
