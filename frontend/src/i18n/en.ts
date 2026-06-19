@@ -797,6 +797,12 @@ export const en = {
   ariaGoForward: 'Go forward',
   ariaToggleTheme: 'Toggle theme',
   ariaToggleLanguage: 'Toggle language',
+
+  // DSF Resources page
+  dsfResourcesNavLabel: 'DSF Resources',
+  dsfResourcesTitle: 'DSF Resources',
+  dsfResourcesSubtitle: 'Official Data Sharing Framework documentation and tooling',
+  dsfResourcesIntro: 'Links to the official DSF project (dsf.dev). All links open in a new tab.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
