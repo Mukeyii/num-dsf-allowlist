@@ -666,7 +666,6 @@ export const de: Record<TranslationKey, string> = {
     'Wenn Ihr Browser ein registriertes Client-Zertifikat hält (das mit dem client_cert_thumbprint einer Organisation übereinstimmt), können Sie sich direkt ohne OTP/TOTP anmelden.',
   adminHelpSupportTitle: 'Support',
   adminHelpSupportP1: 'Bei betrieblichen Problemen wenden Sie sich bitte an das IMI-Betriebsteam.',
-  adminHelpDevelopedBy: 'Entwickelt von',
 
   // AdminUsersPage
   adminUsersTitle: 'Benutzerverwaltung',

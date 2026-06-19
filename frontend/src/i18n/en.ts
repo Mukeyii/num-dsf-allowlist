@@ -658,7 +658,6 @@ export const en = {
     "If your browser holds a registered client certificate (matching an organization's client_cert_thumbprint), you can sign in directly without OTP/TOTP.",
   adminHelpSupportTitle: 'Support',
   adminHelpSupportP1: 'For operational issues, please reach out to the IMI operator team.',
-  adminHelpDevelopedBy: 'Developed by',
 
   // AdminUsersPage
   adminUsersTitle: 'User management',
