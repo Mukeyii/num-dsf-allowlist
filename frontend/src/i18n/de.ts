@@ -100,6 +100,9 @@ export const de: Record<TranslationKey, string> = {
   awaitingVerification: 'Ausstehende Änderungen warten auf Prüfung.',
   lastApproved: 'Zuletzt genehmigt',
   instanceOverview: 'Instanzübersicht',
+  noOrgConfigured: 'Keine Organisation konfiguriert',
+  statusNoRequest: 'KEIN ANTRAG',
+  statusDaysSuffix: 'Tage',
   renewButtonHint:
     'Klicke Verlängern auf der Zertifikatskarte, um ein Ersatz-Zertifikat hochzuladen.',
   relJustNow: 'gerade eben',
