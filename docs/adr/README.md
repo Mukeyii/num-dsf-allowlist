@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 This directory records the significant architectural and security decisions
-behind the DSF Allow List Management Portal. Each file uses a MADR-lite format:
+behind the DSF Management Portal. Each file uses a MADR-lite format:
 a header block (Status, Date, Deciders) followed by **Context**, **Decision**,
 and **Consequences** sections.
 
