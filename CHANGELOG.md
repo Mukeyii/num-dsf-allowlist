@@ -281,4 +281,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive API integration tests (Jest + supertest)
 - Frontend unit tests (Vitest + MSW)
 - GitHub Actions CI/CD pipeline
-- GitHub Pages interactive demo
