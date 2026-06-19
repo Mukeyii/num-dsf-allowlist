@@ -66,8 +66,7 @@ const REFRESH_COOKIE_OPTIONS = {
 // shared one per-IP OTP bucket, so a logged-in user could 429 themselves
 // mid-session after a few token refreshes.
 const isTest = process.env.NODE_ENV === 'test';
-const isDevAutoLogin =
-  process.env.NODE_ENV !== 'production' && process.env.DEV_AUTO_LOGIN === 'true';
+const isDevAutoLogin = isDevEnv() && process.env.DEV_AUTO_LOGIN === 'true';
 const verifyLimiter = isTest ? [] : [otpRateLimit];
 const devEntryLimiter = isTest || isDevAutoLogin ? [] : [otpRateLimit];
 const refreshLimiter = isTest ? [] : [refreshRateLimit];
