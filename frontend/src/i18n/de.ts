@@ -840,4 +840,10 @@ export const de: Record<TranslationKey, string> = {
   dsfResourcesDescHub: 'Öffentliches Verzeichnis von DSF-Prozess-Plugins.',
   dsfResourcesDescGithub: 'Quellcode der DSF-Referenzimplementierung.',
   dsfResourcesDescCommunity: 'Team, Kommunikationskanäle und wie man beiträgt.',
+
+  // Schema validation — organization
+  identifierTooShort: 'Bezeichner muss mindestens 3 Zeichen lang sein',
+  orgIdentifierInvalidFqdn: 'Muss ein gültiger FQDN sein (z.B. ukm.de)',
+  nameRequired: 'Name ist erforderlich',
+  emailInvalid: 'Muss eine gültige E-Mail-Adresse sein',
 };

@@ -7,15 +7,12 @@ import { z } from 'zod';
 export const organizationSchema = z.object({
   identifier: z
     .string()
-    .min(3, 'Identifier must be at least 3 characters')
+    .min(3, 'identifierTooShort')
     // Mirror the backend FQDN rule: lowercase only, alphabetic TLD, no trailing dot.
-    .regex(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/, 'Must be a valid FQDN (e.g. ukm.de)'),
-  name: z.string().min(1, 'Name is required'),
+    .regex(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/, 'orgIdentifierInvalidFqdn'),
+  name: z.string().min(1, 'nameRequired'),
   active: z.boolean().default(true),
-  email: z
-    .string()
-    .email('Must be a valid email address')
-    .max(255, 'Email must be at most 255 characters'),
+  email: z.string().email('emailInvalid').max(255, 'Email must be at most 255 characters'),
   addressLine: z.string().optional(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
