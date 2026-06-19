@@ -13,6 +13,7 @@ import { jwtDecode } from 'jwt-decode';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
+import { useI18n } from '../stores/i18n.store';
 import { useAuthStore } from '../stores/auth.store';
 
 export function AuthBootstrap({ children }: { children: ReactNode }) {
@@ -106,13 +107,13 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       warnTimer = setTimeout(() => {
         if (!warningShown) {
           warningShown = true;
-          toast.warning('Your session will expire in 2 minutes due to inactivity.');
+          toast.warning(useI18n.getState().t('sessionExpiring'));
         }
       }, IDLE_MS - WARNING_MS);
 
       idleTimer = setTimeout(() => {
         useAuthStore.getState().clearAuth();
-        toast.error('Session expired due to inactivity.');
+        toast.error(useI18n.getState().t('sessionExpired'));
         window.location.replace('/login');
       }, IDLE_MS);
     }
