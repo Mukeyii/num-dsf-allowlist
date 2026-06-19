@@ -93,7 +93,7 @@ export function StatusPage() {
           {org?.name || t('instanceOverview')}
         </h1>
         <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
-          {org?.identifier || 'No organization configured'}
+          {org?.identifier || t('noOrgConfigured')}
         </p>
       </div>
 
@@ -154,7 +154,7 @@ export function StatusPage() {
               color: statusColor,
             }}
           >
-            {approval?.status || 'NO REQUEST'}
+            {approval?.status || t('statusNoRequest')}
           </span>
         </div>
         {lastApproved && (
@@ -194,7 +194,7 @@ export function StatusPage() {
                   margin: 0,
                 }}
               >
-                {t('certExpiresIn')} {nextExpiry} days
+                {t('certExpiresIn')} {nextExpiry} {t('statusDaysSuffix')}
               </p>
               <p
                 style={{
@@ -269,7 +269,7 @@ export function StatusPage() {
                       flex: 1,
                     }}
                   >
-                    Request #{history.length - i}
+                    {t('approvalCardRequestNum', { n: history.length - i })}
                   </span>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                     {new Date(req.submitted_at || req.created_at).toLocaleDateString('de-DE')}
