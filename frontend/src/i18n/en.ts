@@ -836,12 +836,16 @@ export const en = {
   orgIdentifierInvalidFqdn: 'Must be a valid FQDN (e.g. ukm.de)',
   nameRequired: 'Name is required',
   emailInvalid: 'Must be a valid email address',
+  emailTooLong: 'Email must be at most 255 characters',
+  countryCodeInvalid: 'Must be a 2-letter ISO country code (e.g. DE)',
+  thumbprintTooLong: 'Thumbprint must be at most 128 characters',
 
   // Schema validation — contact
   contactTypesRequired: 'Select at least one type',
   contactPhoneInvalid: 'Invalid phone format (e.g. +49 251 12345)',
 
   // Schema validation — endpoint
+  endpointIdentifierTooShort: 'Identifier must be at least 3 characters',
   endpointIpInvalid: 'Must be a valid IPv4 address (e.g. 192.168.1.1)',
   endpointFqdnInvalid: 'Must be a valid FQDN',
   endpointUrlInvalid: 'Must be a valid URL',
