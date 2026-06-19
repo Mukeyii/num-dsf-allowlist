@@ -15,8 +15,16 @@ export interface ClientCertInfo {
  * Extract a client certificate from request headers (set by nginx via
  * $ssl_client_escaped_cert) and compute its SHA-256 thumbprint. Returns
  * null when no usable cert is present.
+ *
+ * The cert is only trusted when nginx's mTLS verification succeeded:
+ * `X-Client-Verify` (from $ssl_client_verify) must be 'SUCCESS'. Without
+ * this guard a caller could spoof `X-Client-Cert` with any thumbprint and
+ * authenticate as the matching org. We check the verify result BEFORE doing
+ * any thumbprint work so a forged/unverified cert never reaches a lookup.
  */
 export function extractClientCert(req: Request): ClientCertInfo | null {
+  const verify = req.headers['x-client-verify'];
+  if (verify !== 'SUCCESS') return null;
   const raw = (req.headers['x-client-cert'] ?? req.headers['x-ssl-client-cert']) as
     | string
     | undefined;
