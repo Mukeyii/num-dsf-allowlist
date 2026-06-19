@@ -21,7 +21,7 @@ interface FormFieldProps {
  * so plain backend/runtime messages stay backward-compatible.
  */
 function resolveError(error: string, t: (key: TranslationKey) => string): string {
-  return error in en ? t(error as TranslationKey) : error;
+  return Object.prototype.hasOwnProperty.call(en, error) ? t(error as TranslationKey) : error;
 }
 
 export function FormField({ label, required, error, hint, children }: FormFieldProps) {
