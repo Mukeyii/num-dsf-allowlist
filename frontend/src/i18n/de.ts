@@ -124,6 +124,11 @@ export const de: Record<TranslationKey, string> = {
   // Dashboard
   dashboard: 'Übersicht',
 
+  // ErrorBoundary
+  errorBoundaryTitle: 'Etwas ist schiefgelaufen',
+  errorBoundaryBody: 'Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.',
+  errorBoundaryReload: 'Seite neu laden',
+
   // AdminPage
   adminPageTitle: 'Genehmigungen prüfen',
   adminPageSubtitle: 'Ausstehende Genehmigungsanträge von DSF-Teilnehmern prüfen und bearbeiten',
