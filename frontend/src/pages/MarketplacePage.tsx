@@ -59,7 +59,7 @@ export function MarketplacePage() {
 
   async function handleDelete() {
     if (!deleteTarget || deleteTotpCode.length !== 6) {
-      toast.error('6-digit TOTP code required');
+      toast.error(t('totpRequired'));
       return;
     }
     try {
@@ -68,7 +68,7 @@ export function MarketplacePage() {
       setDeleteTarget(null);
       setDeleteTotpCode('');
     } catch (err: unknown) {
-      const msg = getErrorMessage(err, 'Failed');
+      const msg = getErrorMessage(err, t('genericActionFailed'));
       toast.error(msg);
     }
   }
