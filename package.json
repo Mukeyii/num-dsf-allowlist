@@ -2,6 +2,7 @@
   "name": "num-dsf-allowlist-tooling",
   "version": "0.1.2",
   "private": true,
+  "license": "Apache-2.0",
   "description": "Repo-level developer tooling (formatting, hooks, commit linting).",
   "scripts": {
     "format": "prettier --write .",
