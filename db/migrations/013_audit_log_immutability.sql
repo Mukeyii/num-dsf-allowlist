@@ -1,7 +1,7 @@
 -- 013_audit_log_immutability.sql
 -- Enforce append-only semantics on audit_logs at the DB level.
 --
--- Until now the "no UPDATE / no DELETE on audit_logs" rule from CLAUDE.md
+-- Until now the no-UPDATE / no-DELETE rule on audit_logs
 -- was a convention only — any service holding DB_USER credentials, or any
 -- future regression in the writer code, could violate it silently. These
 -- triggers turn that convention into a hard SQL constraint.
