@@ -856,4 +856,11 @@ export const de: Record<TranslationKey, string> = {
   endpointFqdnInvalid: 'Muss ein gültiger FQDN sein',
   endpointUrlInvalid: 'Muss eine gültige URL sein',
   endpointUrlHttps: 'URL muss mit https:// beginnen',
+
+  // Schema validation — certificate
+  certPemRequired: 'Zertifikat-PEM ist erforderlich',
+  certPemBegin: 'PEM muss mit -----BEGIN CERTIFICATE----- beginnen',
+  certPemEnd: 'PEM muss mit -----END CERTIFICATE----- enden',
+  certPrivateKeyDetected:
+    '⚠ Privater Schlüssel erkannt. Entferne den privaten Schlüssel und füge nur das Zertifikat ein.',
 };
