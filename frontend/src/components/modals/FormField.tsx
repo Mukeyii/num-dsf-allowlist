@@ -26,13 +26,18 @@ function resolveError(error: string, t: (key: TranslationKey) => string): string
 
 export function FormField({ label, required, error, hint, children }: FormFieldProps) {
   const { t } = useI18n();
+  const fieldId = React.useId();
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-slate-600">
+      <label htmlFor={fieldId} className="block text-xs font-semibold text-slate-600">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      {children}
+      {React.isValidElement(children)
+        ? React.cloneElement(children as React.ReactElement, {
+            id: (children as React.ReactElement).props.id ?? fieldId,
+          })
+        : children}
       {hint && !error && <p className="text-[10px] text-slate-400">{hint}</p>}
       {error && (
         <p className="text-[10px] text-red-500 flex items-center gap-1">

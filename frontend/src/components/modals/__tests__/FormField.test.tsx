@@ -33,6 +33,27 @@ describe('FormField', () => {
     expect(screen.getByText('Some hint')).toBeInTheDocument();
   });
 
+  it('associates the label with its input via matching htmlFor/id', () => {
+    renderWithProviders(
+      <FormField label="Email Address">
+        <input data-testid="the-input" />
+      </FormField>,
+    );
+    const label = screen.getByText('Email Address');
+    const input = screen.getByTestId('the-input');
+    expect(label.getAttribute('for')).toBeTruthy();
+    expect(label.getAttribute('for')).toBe(input.getAttribute('id'));
+  });
+
+  it('keeps an explicitly provided child id', () => {
+    renderWithProviders(
+      <FormField label="Email Address">
+        <input id="explicit-id" data-testid="the-input" />
+      </FormField>,
+    );
+    expect(screen.getByTestId('the-input').getAttribute('id')).toBe('explicit-id');
+  });
+
   it('resolves an error that is a known translation key', () => {
     // When a Zod schema emits a stable i18n key code as its message, FormField
     // resolves it to the localized string instead of rendering the raw code.
