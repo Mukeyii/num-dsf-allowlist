@@ -49,144 +49,147 @@ export function CommandPalette() {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
-  const commands: Command[] = [
-    // Navigation
-    {
-      id: 'nav-canvas',
-      label: t('cmdGoToCanvas'),
-      icon: 'dashboard',
-      color: '#b01e66',
-      category: t('cmdCategoryNavigation'),
-      action: () => {
-        navigate('/app');
-        setOpen(false);
+  const commands: Command[] = useMemo(
+    () => [
+      // Navigation
+      {
+        id: 'nav-canvas',
+        label: t('cmdGoToCanvas'),
+        icon: 'dashboard',
+        color: '#b01e66',
+        category: t('cmdCategoryNavigation'),
+        action: () => {
+          navigate('/app');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'nav-admin',
-      label: t('cmdApprovalReview'),
-      icon: 'admin_panel_settings',
-      color: '#b01e66',
-      category: t('cmdCategoryNavigation'),
-      action: () => {
-        navigate('/app/admin');
-        setOpen(false);
+      {
+        id: 'nav-admin',
+        label: t('cmdApprovalReview'),
+        icon: 'admin_panel_settings',
+        color: '#b01e66',
+        category: t('cmdCategoryNavigation'),
+        action: () => {
+          navigate('/app/admin');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'nav-audit',
-      label: t('cmdAuditLog'),
-      icon: 'history',
-      color: '#b01e66',
-      category: t('cmdCategoryNavigation'),
-      action: () => {
-        navigate('/app/audit');
-        setOpen(false);
+      {
+        id: 'nav-audit',
+        label: t('cmdAuditLog'),
+        icon: 'history',
+        color: '#b01e66',
+        category: t('cmdCategoryNavigation'),
+        action: () => {
+          navigate('/app/audit');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'nav-map',
-      label: t('cmdNetworkMap'),
-      icon: 'hub',
-      color: '#b01e66',
-      category: t('cmdCategoryNavigation'),
-      action: () => {
-        navigate('/app/map');
-        setOpen(false);
+      {
+        id: 'nav-map',
+        label: t('cmdNetworkMap'),
+        icon: 'hub',
+        color: '#b01e66',
+        category: t('cmdCategoryNavigation'),
+        action: () => {
+          navigate('/app/map');
+          setOpen(false);
+        },
       },
-    },
-    // Actions
-    {
-      id: 'act-org',
-      label: t('cmdEditOrganization'),
-      icon: 'corporate_fare',
-      color: '#8a1750',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('org-edit');
-        setOpen(false);
+      // Actions
+      {
+        id: 'act-org',
+        label: t('cmdEditOrganization'),
+        icon: 'corporate_fare',
+        color: '#8a1750',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('org-edit');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'act-contact',
-      label: t('cmdAddContact'),
-      icon: 'contact_phone',
-      color: '#9b59b6',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('contact-add');
-        setOpen(false);
+      {
+        id: 'act-contact',
+        label: t('cmdAddContact'),
+        icon: 'contact_phone',
+        color: '#9b59b6',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('contact-add');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'act-endpoint',
-      label: t('cmdAddEndpoint'),
-      icon: 'hub',
-      color: '#3ecfb2',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('endpoint-add');
-        setOpen(false);
+      {
+        id: 'act-endpoint',
+        label: t('cmdAddEndpoint'),
+        icon: 'hub',
+        color: '#3ecfb2',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('endpoint-add');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'act-cert',
-      label: t('cmdAddCertificate'),
-      icon: 'verified_user',
-      color: '#f5a623',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('certificate-add');
-        setOpen(false);
+      {
+        id: 'act-cert',
+        label: t('cmdAddCertificate'),
+        icon: 'verified_user',
+        color: '#f5a623',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('certificate-add');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'act-membership',
-      label: t('cmdAddMembership'),
-      icon: 'groups',
-      color: '#4a90d9',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('membership-add');
-        setOpen(false);
+      {
+        id: 'act-membership',
+        label: t('cmdAddMembership'),
+        icon: 'groups',
+        color: '#4a90d9',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('membership-add');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'act-approval',
-      label: t('cmdSendForApproval'),
-      icon: 'rule',
-      color: '#e05c5c',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('approval');
-        setOpen(false);
+      {
+        id: 'act-approval',
+        label: t('cmdSendForApproval'),
+        icon: 'rule',
+        color: '#e05c5c',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('approval');
+          setOpen(false);
+        },
       },
-    },
-    {
-      id: 'act-download',
-      label: t('cmdDownloadAllowList'),
-      icon: 'download',
-      color: 'var(--text-secondary)',
-      category: t('cmdCategoryActions'),
-      action: () => {
-        useModals.getState().openModal('download');
-        setOpen(false);
+      {
+        id: 'act-download',
+        label: t('cmdDownloadAllowList'),
+        icon: 'download',
+        color: 'var(--text-secondary)',
+        category: t('cmdCategoryActions'),
+        action: () => {
+          useModals.getState().openModal('download');
+          setOpen(false);
+        },
       },
-    },
-    // Instances
-    ...instances.map((inst: any) => ({
-      id: `inst-${inst.id}`,
-      label: t('cmdSwitchToInstance', { label: inst.label }),
-      icon: 'swap_horiz',
-      color: '#3ecfb2',
-      category: t('cmdCategoryInstances'),
-      action: () => {
-        setActiveInstance(inst.id);
-        navigate('/app');
-        setOpen(false);
-      },
-    })),
-  ];
+      // Instances
+      ...instances.map((inst: any) => ({
+        id: `inst-${inst.id}`,
+        label: t('cmdSwitchToInstance', { label: inst.label }),
+        icon: 'swap_horiz',
+        color: '#3ecfb2',
+        category: t('cmdCategoryInstances'),
+        action: () => {
+          setActiveInstance(inst.id);
+          navigate('/app');
+          setOpen(false);
+        },
+      })),
+    ],
+    [instances, navigate, setActiveInstance, t],
+  );
 
   const ADMIN_COMMAND_IDS = ['nav-admin', 'nav-audit', 'nav-users', 'nav-promotions'];
   const visibleCommands = useMemo(() => {

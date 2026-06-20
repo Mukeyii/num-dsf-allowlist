@@ -8,7 +8,7 @@
  * Dependencies: stores/auth, stores/canvas, hooks/useInstance, hooks/useMe,
  * layout/Sidebar, layout/TopBar, layout/RightPanel, layout/AppFooter.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useMatch, Outlet } from 'react-router-dom';
 import { useCanvasStore } from '../stores/canvas.store';
 import { useInstances } from '../hooks/useInstance';
@@ -42,6 +42,24 @@ export function AppPage() {
 
   const { open, editId, openModal, closeModal } = useModals();
   const { data: org } = useOrganization(activeInstanceId);
+
+  const orgDefaults = useMemo(
+    () =>
+      org
+        ? {
+            identifier: org.identifier,
+            name: org.name,
+            active: !!org.active,
+            email: org.email,
+            addressLine: org.address_line || '',
+            postalCode: org.postal_code || '',
+            city: org.city || '',
+            countryCode: org.country_code || '',
+            clientCertThumbprint: org.client_cert_thumbprint || '',
+          }
+        : undefined,
+    [org],
+  );
 
   const [showSidebar, setShowSidebar] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
@@ -199,21 +217,7 @@ export function AppPage() {
             open={open === 'org-edit'}
             onClose={closeModal}
             instanceId={activeInstanceId}
-            defaultValues={
-              org
-                ? {
-                    identifier: org.identifier,
-                    name: org.name,
-                    active: !!org.active,
-                    email: org.email,
-                    addressLine: org.address_line || '',
-                    postalCode: org.postal_code || '',
-                    city: org.city || '',
-                    countryCode: org.country_code || '',
-                    clientCertThumbprint: org.client_cert_thumbprint || '',
-                  }
-                : undefined
-            }
+            defaultValues={orgDefaults}
           />
           <ContactModal
             open={open === 'contact-add' || open === 'contact-edit'}
