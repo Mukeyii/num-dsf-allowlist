@@ -131,7 +131,7 @@ export function AdminUsersPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: '28px', color: '#b01e66' }}
+          style={{ fontSize: '28px', color: 'var(--primary)' }}
           aria-hidden="true"
         >
           group
@@ -188,7 +188,7 @@ export function AdminUsersPage() {
             padding: '8px 16px',
             borderRadius: '10px',
             border: 'none',
-            background: '#b01e66',
+            background: 'var(--primary)',
             color: '#fff',
             fontWeight: 600,
             cursor: 'pointer',
@@ -320,7 +320,9 @@ function Row({
       </td>
       <td style={td}>
         {u.is_admin ? (
-          <span style={{ fontWeight: 700, color: '#b01e66' }}>{t('adminUsersRoleAdmin')}</span>
+          <span style={{ fontWeight: 700, color: 'var(--primary)' }}>
+            {t('adminUsersRoleAdmin')}
+          </span>
         ) : (
           <span style={{ color: 'var(--text-muted)' }}>{t('adminUsersRoleUser')}</span>
         )}
@@ -473,7 +475,7 @@ const confirmBtn: React.CSSProperties = {
   padding: '8px 16px',
   borderRadius: '10px',
   border: 'none',
-  background: '#b01e66',
+  background: 'var(--primary)',
   color: '#fff',
   fontWeight: 600,
   cursor: 'pointer',

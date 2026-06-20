@@ -67,7 +67,7 @@ export function AdminBundleVersionsPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs font-semibold underline"
-                    style={{ color: '#b01e66' }}
+                    style={{ color: 'var(--primary)' }}
                   >
                     {t('download')}
                   </a>
@@ -75,7 +75,7 @@ export function AdminBundleVersionsPage() {
                     type="button"
                     onClick={() => setSelA(r.id)}
                     className="text-xs font-semibold underline"
-                    style={{ color: selA === r.id ? '#b01e66' : 'var(--text-secondary)' }}
+                    style={{ color: selA === r.id ? 'var(--primary)' : 'var(--text-secondary)' }}
                   >
                     {t('diffPickA')}
                   </button>
@@ -83,7 +83,7 @@ export function AdminBundleVersionsPage() {
                     type="button"
                     onClick={() => setSelB(r.id)}
                     className="text-xs font-semibold underline"
-                    style={{ color: selB === r.id ? '#b01e66' : 'var(--text-secondary)' }}
+                    style={{ color: selB === r.id ? 'var(--primary)' : 'var(--text-secondary)' }}
                   >
                     {t('diffPickB')}
                   </button>

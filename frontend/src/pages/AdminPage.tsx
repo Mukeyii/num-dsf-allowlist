@@ -32,7 +32,10 @@ export function AdminPage() {
     >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#6c63ff' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '28px', color: 'var(--accent)' }}
+        >
           admin_panel_settings
         </span>
         <div>
@@ -50,7 +53,7 @@ export function AdminPage() {
           style={{
             marginLeft: 'auto',
             fontSize: '12px',
-            color: '#b01e66',
+            color: 'var(--primary)',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',

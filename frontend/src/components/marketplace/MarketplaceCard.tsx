@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useI18n } from '../../stores/i18n.store';
 import type { MarketplaceEntry } from '../../api/marketplace.api';
 
-const ACCENT = '#b01e66';
+const ACCENT = 'var(--primary)';
 
 const STATUS_PILL: Record<MarketplaceEntry['status'], { bg: string; fg: string }> = {
   APPROVED: { bg: '#dfffe7', fg: '#106a3b' },

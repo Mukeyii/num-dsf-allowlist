@@ -21,7 +21,10 @@ export function DsfResourcesPage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '28px', color: 'var(--primary)' }}
+        >
           menu_book
         </span>
         <div>
@@ -56,7 +59,12 @@ export function DsfResourcesPage() {
             }}
           >
             <span
-              style={{ width: '4px', height: '18px', background: '#b01e66', borderRadius: '2px' }}
+              style={{
+                width: '4px',
+                height: '18px',
+                background: 'var(--primary)',
+                borderRadius: '2px',
+              }}
             />
             {t(cat.headingKey)}
           </h2>

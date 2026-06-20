@@ -89,7 +89,7 @@ export function TotpSetupPage() {
                 onClick={() => setStep('confirm')}
                 className="w-full py-2.5 text-sm font-medium text-white"
                 style={{
-                  background: '#6c63ff',
+                  background: 'var(--accent)',
                   borderRadius: '10px',
                   border: 'none',
                   cursor: 'pointer',
@@ -131,7 +131,7 @@ export function TotpSetupPage() {
                 borderRadius: '10px',
                 color: '#1a1a2e',
               }}
-              onFocus={(e) => (e.target.style.borderColor = '#6c63ff')}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
               onBlur={(e) => (e.target.style.borderColor = '#e8eaf0')}
             />
           </div>
@@ -147,7 +147,7 @@ export function TotpSetupPage() {
             disabled={code.length !== 6 || loading}
             className="w-full py-2.5 text-sm font-medium text-white"
             style={{
-              background: '#6c63ff',
+              background: 'var(--accent)',
               borderRadius: '10px',
               border: 'none',
               opacity: code.length !== 6 || loading ? 0.6 : 1,
@@ -181,7 +181,7 @@ export function TotpSetupPage() {
             <code
               key={i}
               className="text-sm text-center py-1 px-2 rounded font-mono tracking-widest"
-              style={{ background: '#fff', color: '#6c63ff', border: '1px solid #e8eaf0' }}
+              style={{ background: '#fff', color: 'var(--accent)', border: '1px solid #e8eaf0' }}
             >
               {c}
             </code>
@@ -198,7 +198,12 @@ export function TotpSetupPage() {
         <button
           onClick={() => navigate('/app', { replace: true })}
           className="w-full py-2.5 text-sm font-medium text-white"
-          style={{ background: '#6c63ff', borderRadius: '10px', border: 'none', cursor: 'pointer' }}
+          style={{
+            background: 'var(--accent)',
+            borderRadius: '10px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
         >
           {t('totpBackupContinueBtn')}
         </button>

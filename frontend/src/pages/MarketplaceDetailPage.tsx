@@ -13,7 +13,7 @@ import { useI18n } from '../stores/i18n.store';
 import { MarketplaceEditStatusModal } from '../components/modals/MarketplaceEditStatusModal';
 import type { MarketplaceDetail } from '../api/marketplace.api';
 
-const ACCENT = '#b01e66';
+const ACCENT = 'var(--primary)';
 
 const STATUS_PILL: Record<MarketplaceDetail['status'], { bg: string; fg: string }> = {
   APPROVED: { bg: '#dfffe7', fg: '#106a3b' },
@@ -147,7 +147,7 @@ export function MarketplaceDetailPage() {
                 href={entry.homepage}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontSize: '12px', color: '#6c63ff', textDecoration: 'none' }}
+                style={{ fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}
               >
                 ↗ {t('marketplaceDocs')}
               </a>

@@ -84,7 +84,10 @@ export function MarketplacePage() {
     >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '28px', color: 'var(--primary)' }}
+        >
           hub
         </span>
         <div>
@@ -135,8 +138,8 @@ export function MarketplacePage() {
               padding: '5px 14px',
               borderRadius: '20px',
               border: '1px solid',
-              borderColor: filter === f.key ? '#b01e66' : 'var(--border)',
-              background: filter === f.key ? '#b01e66' : 'var(--bg-card)',
+              borderColor: filter === f.key ? 'var(--primary)' : 'var(--border)',
+              background: filter === f.key ? 'var(--primary)' : 'var(--bg-card)',
               color: filter === f.key ? '#fff' : 'var(--text-primary)',
               fontSize: '12px',
               fontWeight: filter === f.key ? 700 : 400,
@@ -156,7 +159,7 @@ export function MarketplacePage() {
               padding: '7px 16px',
               borderRadius: '10px',
               border: 'none',
-              background: '#b01e66',
+              background: 'var(--primary)',
               color: '#fff',
               fontWeight: 600,
               fontSize: '13px',

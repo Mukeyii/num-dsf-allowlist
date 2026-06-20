@@ -74,7 +74,7 @@ export function TotpPage() {
               borderRadius: '10px',
               color: '#1a1a2e',
             }}
-            onFocus={(e) => (e.target.style.borderColor = '#6c63ff')}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = '#e8eaf0')}
           />
         </div>
@@ -90,7 +90,7 @@ export function TotpPage() {
           disabled={loading || code.length < (useBackup ? 8 : 6)}
           className="w-full py-2.5 text-sm font-medium text-white"
           style={{
-            background: '#6c63ff',
+            background: 'var(--accent)',
             borderRadius: '10px',
             border: 'none',
             opacity: loading || code.length < (useBackup ? 8 : 6) ? 0.6 : 1,

@@ -99,7 +99,7 @@ export function AdminCaBlacklistPage() {
             onClick={() => subjectDnValid && addMut.mutate()}
             disabled={!subjectDnValid || addMut.isPending}
             className="px-4 py-2 text-sm font-semibold rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: '#b01e66' }}
+            style={{ background: 'var(--primary)' }}
             data-testid="ca-blacklist-add-btn"
           >
             {addMut.isPending ? '…' : t('add')}
@@ -144,7 +144,7 @@ export function AdminCaBlacklistPage() {
                       type="button"
                       onClick={() => removeMut.mutate(r.id)}
                       className="text-xs font-semibold underline"
-                      style={{ color: '#b01e66' }}
+                      style={{ color: 'var(--primary)' }}
                     >
                       {t('delete')}
                     </button>

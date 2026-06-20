@@ -122,13 +122,13 @@ export function OtpPage() {
               style={{
                 width: '48px',
                 height: '56px',
-                border: `1.5px solid ${d ? '#6c63ff' : '#e8eaf0'}`,
+                border: `1.5px solid ${d ? 'var(--accent)' : '#e8eaf0'}`,
                 borderRadius: '10px',
                 color: '#1a1a2e',
                 background: d ? '#ede9ff' : '#fff',
               }}
-              onFocus={(e) => (e.target.style.borderColor = '#6c63ff')}
-              onBlur={(e) => (e.target.style.borderColor = digits[i] ? '#6c63ff' : '#e8eaf0')}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+              onBlur={(e) => (e.target.style.borderColor = digits[i] ? 'var(--accent)' : '#e8eaf0')}
             />
           ))}
         </div>

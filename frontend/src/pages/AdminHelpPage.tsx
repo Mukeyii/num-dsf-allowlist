@@ -28,7 +28,12 @@ function Section({
         }}
       >
         <span
-          style={{ width: '4px', height: '20px', background: '#b01e66', borderRadius: '2px' }}
+          style={{
+            width: '4px',
+            height: '20px',
+            background: 'var(--primary)',
+            borderRadius: '2px',
+          }}
         />
         {title}
       </h2>
@@ -63,7 +68,10 @@ export function AdminHelpPage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '28px', color: 'var(--primary)' }}
+        >
           help
         </span>
         <div>
@@ -115,7 +123,7 @@ export function AdminHelpPage() {
             ['approval', 'crossUser', 'audit', 'download', 'certs', 'mtls', 'support'] as const
           ).map((id) => (
             <li key={id}>
-              <a href={`#${id}`} style={{ color: '#b01e66', textDecoration: 'none' }}>
+              <a href={`#${id}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
                 {TOC_LABEL[id]}
               </a>
             </li>

@@ -75,7 +75,7 @@ export function LoginPage() {
               color: 'var(--text-primary)',
               background: 'var(--bg-input)',
             }}
-            onFocus={(e) => (e.target.style.borderColor = '#6c63ff')}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
           />
         </div>
@@ -91,7 +91,7 @@ export function LoginPage() {
           disabled={loading || !email.trim()}
           className="w-full py-2.5 text-sm font-medium text-white transition-opacity"
           style={{
-            background: '#6c63ff',
+            background: 'var(--accent)',
             borderRadius: '10px',
             opacity: loading || !email.trim() ? 0.6 : 1,
             cursor: loading || !email.trim() ? 'not-allowed' : 'pointer',

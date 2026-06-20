@@ -42,7 +42,7 @@ export function NotFoundPage() {
         to="/app"
         style={{
           padding: '10px 24px',
-          background: '#6c63ff',
+          background: 'var(--accent)',
           color: '#fff',
           borderRadius: '8px',
           textDecoration: 'none',
