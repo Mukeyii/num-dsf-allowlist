@@ -152,9 +152,22 @@ export async function runApprovalReminders(): Promise<void> {
     return;
   }
 
+  // Resolve every stale request's organization in one query instead of one
+  // SELECT per request (N+1).
+  const orgRows = await db('organizations').whereIn(
+    'instance_id',
+    staleRequests.map((r) => r.instance_id),
+  );
+  const orgByInstance = new Map<string, { name: string; identifier: string }>(
+    orgRows.map((o: { instance_id: string; name: string; identifier: string }) => [
+      o.instance_id,
+      { name: o.name, identifier: o.identifier },
+    ]),
+  );
+
   for (const req of staleRequests) {
     try {
-      const org = await db('organizations').where({ instance_id: req.instance_id }).first();
+      const org = orgByInstance.get(req.instance_id);
       const orgName = org?.name ?? 'Unknown';
       const orgIdentifier = org?.identifier ?? req.instance_id;
 
