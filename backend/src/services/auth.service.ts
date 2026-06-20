@@ -54,7 +54,12 @@ export function verifyTempToken(token: string): TempTokenPayload {
 
 // ─── Auth flow steps ────────────────────────────────────────────────────────
 
-// Step 1: Check email + send OTP
+/**
+ * Step 1: whitelist-check an email and send a one-time code (fire-and-forget).
+ * Side-effects: stores an OTP in Redis, sends mail, writes an audit log.
+ * Failure and success take the same generic path so membership never leaks.
+ * @throws NOT_WHITELISTED if the email is absent or the account is locked.
+ */
 export async function requestOtp(email: string, ipAddress: string): Promise<void> {
   const normalized = email.toLowerCase().trim();
 
@@ -87,7 +92,11 @@ export async function requestOtp(email: string, ipAddress: string): Promise<void
   });
 }
 
-// Step 2: Verify OTP → return temporary token
+/**
+ * Step 2: verify the OTP and return a short-lived temp token for the TOTP step.
+ * Side-effects: lazily creates the user, writes an audit log.
+ * @throws INVALID_OTP if the code is wrong or expired.
+ */
 export async function verifyOtpAndGetTempToken(
   email: string,
   code: string,
@@ -131,7 +140,13 @@ export async function verifyOtpAndGetTempToken(
   return { tempToken, requiresTotpSetup };
 }
 
-// Step 3a: Verify TOTP code → create full session
+/**
+ * Step 3a: verify a TOTP (or backup) code and mint the access/refresh pair.
+ * Side-effects: updates last_login, writes TOTP_VERIFY + LOGIN audit logs.
+ * @throws INVALID_TOKEN_PURPOSE if the temp token is not a 'totp_required' token.
+ * @throws USER_NOT_FOUND if the token's user no longer exists.
+ * @throws INVALID_TOTP if neither the TOTP nor a backup code matches.
+ */
 export async function verifyTotpAndCreateSession(
   tempToken: string,
   code: string,
@@ -174,7 +189,14 @@ export async function verifyTotpAndCreateSession(
   return createTokenPair({ id: user.id, email: user.email, totpEnabled: true });
 }
 
-// Step 3b: Confirm TOTP after setup
+/**
+ * Step 3b: confirm a freshly set-up TOTP secret, enable 2FA, and create a session.
+ * Side-effects: sets totp_enabled + last_login, writes TOTP_SETUP + LOGIN audit
+ * logs, generates one-time backup codes.
+ * @throws INVALID_TOKEN_PURPOSE if the temp token is not a 'totp_setup' token.
+ * @throws TOTP_NOT_INITIALIZED if no secret was provisioned for the user.
+ * @throws INVALID_TOTP_CODE if the confirmation code does not match.
+ */
 export async function confirmTotpSetupAndCreateSession(
   tempToken: string,
   code: string,
@@ -224,7 +246,15 @@ export async function createTokenPair(
   return { accessToken, refreshToken };
 }
 
-// Refresh: rotate refresh token and issue new access token
+/**
+ * Rotate the refresh token and mint a new access/refresh pair.
+ * Re-checks the whitelist/lock and idle timeout on every rotation; fails soft
+ * if Redis is unreachable. Side-effects: deletes the old token, stores a new one.
+ * @throws INVALID_REFRESH_TOKEN if the presented token is unknown.
+ * @throws USER_NOT_FOUND if the token's user no longer exists.
+ * @throws ACCOUNT_LOCKED if the account was de-whitelisted or locked.
+ * @throws SESSION_EXPIRED if the idle window has lapsed.
+ */
 export async function refreshAccessToken(
   refreshToken: string,
 ): Promise<{ accessToken: string; refreshToken: string }> {

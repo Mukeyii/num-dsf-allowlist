@@ -18,12 +18,22 @@ import { v4 as uuidv4 } from 'uuid';
 const PRIVATE_KEY_MARKER =
   /-----BEGIN\s+(?:ENCRYPTED\s+|RSA\s+|EC\s+|DSA\s+|OPENSSH\s+)?PRIVATE[\s_-]+KEY-----/i;
 
+/**
+ * Guard against a private key reaching storage or logs. SECURITY CRITICAL.
+ * @throws PRIVATE_KEY_REJECTED if the PEM contains any private-key block.
+ */
 export function rejectPrivateKey(pem: string): void {
   if (PRIVATE_KEY_MARKER.test(pem)) {
     throw new Error('PRIVATE_KEY_REJECTED');
   }
 }
 
+/**
+ * Parse an X.509 PEM into subject, SHA-256 thumbprint, expiry, and issuer DN.
+ * Rejects private keys before parsing; never logs the PEM.
+ * @throws PRIVATE_KEY_REJECTED if the PEM carries a private key.
+ * @throws INVALID_PEM if the certificate cannot be parsed.
+ */
 export function parseCertificate(pem: string): {
   subject: string;
   thumbprint: string;
@@ -64,6 +74,13 @@ export async function getCertificates(instanceId: string) {
     .orderBy('created_at', 'desc');
 }
 
+/**
+ * Validate and store a certificate for the instance's organization.
+ * Side-effects: inserts a certificates row and writes a CREATE audit log.
+ * @throws PRIVATE_KEY_REJECTED / INVALID_PEM on a bad PEM.
+ * @throws ORGANIZATION_NOT_FOUND if the instance has no organization.
+ * @throws CA_BLACKLISTED if the issuing CA is blacklisted.
+ */
 export async function createCertificate(
   instanceId: string,
   pem: string,
@@ -125,6 +142,13 @@ export async function deleteCertificate(
   });
 }
 
+/**
+ * Atomically replace a certificate: insert the new PEM and delete the old one.
+ * Side-effects: runs in a transaction and writes audit logs for both actions.
+ * @throws PRIVATE_KEY_REJECTED / INVALID_PEM on a bad PEM.
+ * @throws ORGANIZATION_NOT_FOUND / CERTIFICATE_NOT_FOUND if the org or old cert is missing.
+ * @throws CA_BLACKLISTED if the issuing CA is blacklisted.
+ */
 export async function renewCertificate(
   instanceId: string,
   oldCertId: string,

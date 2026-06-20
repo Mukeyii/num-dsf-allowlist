@@ -61,6 +61,13 @@ async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = 
   };
 }
 
+/**
+ * Snapshot the instance's data and open a PENDING approval request.
+ * Side-effects: inserts an approval_requests row, writes a CREATE audit log,
+ * and notifies IMI (non-blocking).
+ * @throws APPROVAL_ALREADY_PENDING if a PENDING request already exists.
+ * @throws ORGANIZATION_NOT_FOUND if the instance has no organization to snapshot.
+ */
 export async function submitApproval(instanceId: string, userEmail: string, ipAddress: string) {
   return db.transaction(async (trx) => {
     const pending = await trx('approval_requests')
@@ -139,6 +146,15 @@ export async function getSignaturesForRequests(
   return map;
 }
 
+/**
+ * Record an admin's APPROVE signature; promote to APPROVED once the four-eyes
+ * (or silent-consent) rule is met. Side-effects: inserts a signature, may
+ * update the request status, writes audit logs and triggers bundle/mail after
+ * commit.
+ * @throws INVALID_ADMIN_EMAIL if the approver's email maps to no site.
+ * @throws REQUEST_NOT_FOUND / REQUEST_FINALIZED if the request is missing or already resolved.
+ * @throws ALREADY_DECIDED if this admin already signed the request.
+ */
 export async function approveRequest(
   requestId: string,
   resolvedBy: string,
@@ -255,6 +271,13 @@ export async function approveRequest(
   return response;
 }
 
+/**
+ * Reject a PENDING request with a comment. Side-effects: inserts a REJECT
+ * signature, sets status REJECTED, writes audit logs and notifies the site.
+ * @throws INVALID_ADMIN_EMAIL if the rejecter's email maps to no site.
+ * @throws REQUEST_NOT_FOUND / REQUEST_FINALIZED if the request is missing or already resolved.
+ * @throws ALREADY_DECIDED if this admin already signed the request.
+ */
 export async function rejectRequest(
   requestId: string,
   resolvedBy: string,
