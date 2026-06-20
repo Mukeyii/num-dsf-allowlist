@@ -38,7 +38,7 @@ export function ActivityFeed() {
       const res = await api(activeInstanceId).getAuditLog('limit=8&page=1');
       return (res.data?.data as AuditEntry[]) || [];
     },
-    enabled: !!activeInstanceId,
+    enabled: !!activeInstanceId && expanded,
     refetchInterval: 15_000,
     staleTime: 10_000,
   });
