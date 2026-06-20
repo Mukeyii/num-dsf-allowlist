@@ -141,6 +141,9 @@ export function Sidebar() {
                 return (
                   <div
                     key={inst.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={inst.label}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -154,6 +157,13 @@ export function Sidebar() {
                     onClick={() => {
                       setActiveInstance(inst.id);
                       navigate('/app');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveInstance(inst.id);
+                        navigate('/app');
+                      }
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)';
