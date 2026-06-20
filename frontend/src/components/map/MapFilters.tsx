@@ -5,6 +5,7 @@
 import type { ReactNode } from 'react';
 import type { MapOrganization } from '../../api/network.api';
 import { useI18n } from '../../stores/i18n.store';
+import { STATUS_COLOR } from '../../lib/statusColors';
 
 export interface MapFilterState {
   query: string;
@@ -22,13 +23,6 @@ interface Props {
   onToggleShowAllEdges: () => void;
   verbundPills: ReactNode; // <VerbundPills … /> instance, owned by parent
 }
-
-const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
-  VALID: '#22c55e',
-  EXPIRING: '#f5a623',
-  EXPIRED: '#ef4444',
-  NONE: '#94a3b8',
-};
 
 const STATUS_LABEL_KEY: Record<
   MapOrganization['cert_status'],

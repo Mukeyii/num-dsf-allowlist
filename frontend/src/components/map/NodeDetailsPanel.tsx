@@ -6,13 +6,7 @@
  */
 import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
 import { useI18n } from '../../stores/i18n.store';
-
-const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
-  VALID: '#22c55e',
-  EXPIRING: '#f5a623',
-  EXPIRED: '#ef4444',
-  NONE: '#94a3b8',
-};
+import { STATUS_COLOR } from '../../lib/statusColors';
 
 const STATUS_LABEL_KEY: Record<
   MapOrganization['cert_status'],

@@ -4,13 +4,7 @@
  * inactive. Initials inside use the same status color.
  */
 import type { MapOrganization } from '../../api/network.api';
-
-const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
-  VALID: '#22c55e',
-  EXPIRING: '#f5a623',
-  EXPIRED: '#ef4444',
-  NONE: '#94a3b8',
-};
+import { STATUS_COLOR } from '../../lib/statusColors';
 
 interface Props {
   org: MapOrganization;

@@ -4,15 +4,9 @@
  * Count badge top-right; mini status dot bottom-right shows the
  * worst cert_status of any member (priority: EXPIRED > EXPIRING > NONE > VALID).
  */
-import type { MapOrganization, MapClusterGroup } from '../../api/network.api';
+import type { MapClusterGroup } from '../../api/network.api';
 import { cityBucketKey } from '../../lib/germanCities';
-
-const STATUS_COLOR: Record<MapOrganization['cert_status'], string> = {
-  VALID: '#22c55e',
-  EXPIRING: '#f5a623',
-  EXPIRED: '#ef4444',
-  NONE: '#94a3b8',
-};
+import { STATUS_COLOR } from '../../lib/statusColors';
 
 const SLATE = '#475569';
 
