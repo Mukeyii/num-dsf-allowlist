@@ -9,7 +9,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
 import { validate } from '../middleware/validate.middleware';
-import { createCertificateSchema } from '../schemas/certificate.schema';
+import { createCertificateSchema, renewCertificateSchema } from '../schemas/certificate.schema';
 import * as svc from '../services/certificate.service';
 import { db } from '../db/connection';
 import { sanitizeError } from '../lib/sanitizeError';
@@ -72,7 +72,7 @@ certificatesRouter.delete(
   }),
 );
 
-certificatesRouter.post('/:cid/renew', async (req, res) => {
+certificatesRouter.post('/:cid/renew', validate(renewCertificateSchema), async (req, res) => {
   try {
     const cert = await svc.renewCertificate(
       req.instance!.id,
