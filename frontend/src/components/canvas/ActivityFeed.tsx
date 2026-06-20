@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../api/entities.api';
 import { useCanvasStore } from '../../stores/canvas.store';
 import { useI18n } from '../../stores/i18n.store';
+import { relTime } from '../../lib/dateUtils';
 
 const OP_STYLES: Record<string, { icon: string; color: string }> = {
   CREATE: { icon: 'add_circle', color: '#22c55e' },
@@ -29,14 +30,6 @@ export function ActivityFeed() {
   const [expanded, setExpanded] = useState(false);
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
   const { t } = useI18n();
-
-  function relTime(dateStr: string): string {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return t('relJustNow');
-    if (diff < 3600) return t('relAgoMinutes').replace('{n}', String(Math.floor(diff / 60)));
-    if (diff < 86400) return t('relAgoHours').replace('{n}', String(Math.floor(diff / 3600)));
-    return t('relAgoDays').replace('{n}', String(Math.floor(diff / 86400)));
-  }
 
   const { data } = useQuery({
     queryKey: ['activity-feed', activeInstanceId],
@@ -119,7 +112,7 @@ export function ActivityFeed() {
                       <strong>{log.operation}</strong> {log.resource_type}
                     </p>
                     <p style={{ margin: 0, fontSize: '9px', color: 'var(--text-muted)' }}>
-                      {relTime(log.timestamp)}
+                      {relTime(log.timestamp, t)}
                     </p>
                   </div>
                 </div>

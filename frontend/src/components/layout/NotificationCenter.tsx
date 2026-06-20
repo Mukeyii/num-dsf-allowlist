@@ -5,6 +5,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNotificationStore } from '../../stores/notification.store';
 import { useI18n } from '../../stores/i18n.store';
+import { relTime } from '../../lib/dateUtils';
 
 const TYPE_ICON: Record<string, { icon: string; color: string }> = {
   success: { icon: 'check_circle', color: '#22c55e' },
@@ -17,14 +18,6 @@ export function NotificationCenter() {
   const ref = useRef<HTMLDivElement>(null);
   const { notifications, unread, markAllRead, clear } = useNotificationStore();
   const { t } = useI18n();
-
-  function relTime(ts: number): string {
-    const diff = Math.floor((Date.now() - ts) / 1000);
-    if (diff < 60) return t('relJustNow');
-    if (diff < 3600) return t('relAgoMinutes').replace('{n}', String(Math.floor(diff / 60)));
-    if (diff < 86400) return t('relAgoHours').replace('{n}', String(Math.floor(diff / 3600)));
-    return t('relAgoDays').replace('{n}', String(Math.floor(diff / 86400)));
-  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -165,7 +158,7 @@ export function NotificationCenter() {
                         {n.message}
                       </p>
                       <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                        {relTime(n.timestamp)}
+                        {relTime(new Date(n.timestamp).toISOString(), t)}
                       </p>
                     </div>
                   </div>

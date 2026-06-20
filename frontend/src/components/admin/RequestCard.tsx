@@ -11,6 +11,7 @@ import { useApproveRequest, useRejectRequest } from '../../hooks/useAdmin';
 import type { ApprovalSignature } from '../../api/admin.api';
 import { useI18n } from '../../stores/i18n.store';
 import { getErrorMessage } from '../../lib/getErrorMessage';
+import { relTime } from '../../lib/dateUtils';
 
 interface SnapshotData {
   organization?: {
@@ -60,14 +61,6 @@ export type { RequestCardProps };
 
 export function RequestCard({ request, meEmail }: RequestCardProps) {
   const { t } = useI18n();
-
-  function relTime(dateStr: string): string {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return t('relJustNow');
-    if (diff < 3600) return t('relAgoMinutes', { n: Math.floor(diff / 60) });
-    if (diff < 86400) return t('relAgoHours', { n: Math.floor(diff / 3600) });
-    return t('relAgoDays', { n: Math.floor(diff / 86400) });
-  }
 
   const [expanded, setExpanded] = useState(false);
   const [rejecting, setRejecting] = useState(false);
@@ -204,7 +197,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
             </span>
             {timeStr && (
               <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                {relTime(timeStr)}
+                {relTime(timeStr, t)}
               </span>
             )}
           </div>
