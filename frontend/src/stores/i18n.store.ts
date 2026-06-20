@@ -33,7 +33,7 @@ export const useI18n = create<I18nState>((set, get) => ({
     let str: string = translations[lang][key] || translations.en[key] || key;
     if (params) {
       for (const [k, v] of Object.entries(params)) {
-        str = str.replace(`{${k}}`, String(v));
+        str = str.split(`{${k}}`).join(String(v));
       }
     }
     return str;
