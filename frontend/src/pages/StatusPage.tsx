@@ -55,6 +55,17 @@ function StatCard({
   );
 }
 
+interface ApprovalHistoryRow {
+  id: string;
+  status: string;
+  submitted_at?: string | null;
+  created_at: string;
+}
+
+interface CertRow {
+  valid_until: string;
+}
+
 export function StatusPage() {
   const { t } = useI18n();
   const activeInstanceId = useCanvasStore((s) => s.activeInstanceId);
@@ -66,9 +77,9 @@ export function StatusPage() {
   const { data: approval } = useApprovalStatus(activeInstanceId);
   const { data: history = [] } = useApprovalHistory(activeInstanceId);
 
-  const lastApproved = history.find((h: any) => h.status === 'APPROVED');
+  const lastApproved = history.find((h: ApprovalHistoryRow) => h.status === 'APPROVED');
   const nextExpiry =
-    certs.length > 0 ? Math.min(...certs.map((c: any) => daysUntil(c.valid_until))) : null;
+    certs.length > 0 ? Math.min(...certs.map((c: CertRow) => daysUntil(c.valid_until))) : null;
 
   const statusColor =
     approval?.status === 'APPROVED'
@@ -233,7 +244,7 @@ export function StatusPage() {
           <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('noApprovalRequests')}</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {history.slice(0, 10).map((req: any, i: number) => {
+            {history.slice(0, 10).map((req: ApprovalHistoryRow, i: number) => {
               const color =
                 req.status === 'APPROVED'
                   ? '#22c55e'

@@ -9,30 +9,51 @@ interface Props {
   instanceId: string;
 }
 
+interface ApprovalHistoryRow {
+  status: string;
+  snapshot_json: unknown;
+}
+
+interface EndpointIpRow {
+  ip: string;
+}
+
+interface EndpointRow {
+  ipAddresses?: EndpointIpRow[];
+}
+
 export function IpDiffBadge({ instanceId }: Props) {
   const { data: history = [] } = useApprovalHistory(instanceId);
   const { data: endpoints = [] } = useEndpoints(instanceId);
 
   // Find last APPROVED request
-  const lastApproved = history.find((r: any) => r.status === 'APPROVED');
+  const lastApproved = history.find((r: ApprovalHistoryRow) => r.status === 'APPROVED');
   if (!lastApproved) return null;
 
   // Get current IPs
   const currentIps = new Set<string>();
-  endpoints.forEach((ep: any) => {
-    (ep.ipAddresses || []).forEach((ip: any) => currentIps.add(ip.ip));
+  endpoints.forEach((ep: EndpointRow) => {
+    (ep.ipAddresses || []).forEach((ip: EndpointIpRow) => currentIps.add(ip.ip));
   });
 
   // Get previous IPs from snapshot
   const previousIps = new Set<string>();
   try {
-    const snapshot =
+    const snapshot: unknown =
       typeof lastApproved.snapshot_json === 'string'
         ? JSON.parse(lastApproved.snapshot_json)
         : lastApproved.snapshot_json;
-    if (snapshot?.endpoints) {
-      snapshot.endpoints.forEach((ep: any) => {
-        (ep.ipAddresses || ep.ips || []).forEach((ip: any) => previousIps.add(ip.ip));
+    const snapshotEndpoints = (snapshot as { endpoints?: unknown })?.endpoints;
+    if (Array.isArray(snapshotEndpoints)) {
+      snapshotEndpoints.forEach((ep: unknown) => {
+        const ips =
+          (ep as { ipAddresses?: unknown })?.ipAddresses ?? (ep as { ips?: unknown })?.ips;
+        if (Array.isArray(ips)) {
+          ips.forEach((ip: unknown) => {
+            const value = (ip as { ip?: unknown })?.ip;
+            if (typeof value === 'string') previousIps.add(value);
+          });
+        }
       });
     }
   } catch {

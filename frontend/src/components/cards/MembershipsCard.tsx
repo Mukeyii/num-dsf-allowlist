@@ -13,6 +13,12 @@ import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
+interface MembershipRow {
+  id: string;
+  parent_organization: string;
+  roles: unknown;
+}
+
 export function MembershipsCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
   const { data: memberships = [], isLoading } = useMemberships(instanceId);
@@ -50,7 +56,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
         {isLoading && (
           <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</p>
         )}
-        {memberships.map((ms: any) => {
+        {memberships.map((ms: MembershipRow) => {
           const roles = parseJsonArray(ms.roles);
           return (
             <div

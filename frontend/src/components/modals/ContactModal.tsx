@@ -29,6 +29,18 @@ interface Props {
   defaultValues?: Partial<ContactFormData>;
 }
 
+interface ContactRow {
+  id: string;
+  types: unknown;
+  name?: string;
+  email: string;
+  phone?: string;
+  address_line?: string;
+  postal_code?: string;
+  city?: string;
+  country_code?: string;
+}
+
 export function ContactModal({ open, onClose, instanceId, contactId, defaultValues }: Props) {
   const { t } = useI18n();
   const createMut = useCreateContact(instanceId);
@@ -50,7 +62,7 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
 
   useEffect(() => {
     if (open && contactId) {
-      const c = contacts.find((ct: any) => ct.id === contactId);
+      const c = contacts.find((ct: ContactRow) => ct.id === contactId);
       if (c) {
         const types = parseJsonArray(c.types) as ContactFormData['types'];
         reset({

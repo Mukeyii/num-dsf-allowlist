@@ -12,6 +12,20 @@ import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
+interface EndpointIpRow {
+  id: string;
+  ip: string;
+  isFhir?: boolean;
+  isBpe?: boolean;
+}
+
+interface EndpointRow {
+  identifier: string;
+  name?: string;
+  address: string;
+  ipAddresses?: EndpointIpRow[];
+}
+
 export function EndpointsCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
   const { data: endpoints = [], isLoading } = useEndpoints(instanceId);
@@ -39,7 +53,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
         {isLoading && (
           <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>
         )}
-        {endpoints.map((ep: any) => (
+        {endpoints.map((ep: EndpointRow) => (
           <div
             key={ep.identifier}
             style={{
@@ -82,7 +96,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
                 {ep.address}
               </div>
               <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                {(ep.ipAddresses || []).map((ip: any) => (
+                {(ep.ipAddresses || []).map((ip: EndpointIpRow) => (
                   <span
                     key={ip.id}
                     style={{

@@ -12,6 +12,12 @@ import { useI18n } from '../../stores/i18n.store';
 import { undoableDelete } from '../../lib/undoDelete';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
+interface CertRow {
+  id: string;
+  subject: string;
+  valid_until: string;
+}
+
 export function CertificatesCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
   const { data: certs = [], isLoading } = useCertificates(instanceId);
@@ -61,7 +67,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
         {isLoading && (
           <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</p>
         )}
-        {certs.map((cert: any) => {
+        {certs.map((cert: CertRow) => {
           const days = daysUntil(cert.valid_until);
           const pct = Math.max(0, Math.min(100, (days / 365) * 100));
           const barColor = days < 30 ? '#e05c5c' : days < 90 ? '#f5a623' : '#22c55e';

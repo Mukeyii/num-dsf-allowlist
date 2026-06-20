@@ -20,6 +20,14 @@ const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
   SECURITY: { bg: '#f0fff8', color: '#059669' },
 };
 
+interface ContactRow {
+  id: string;
+  name?: string;
+  email: string;
+  email_validated?: boolean;
+  types: unknown;
+}
+
 export function ContactsCard({ instanceId }: { instanceId: string }) {
   const { t } = useI18n();
   const { data: contacts = [], isLoading } = useContacts(instanceId);
@@ -43,7 +51,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
         {isLoading && (
           <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t('loading')}</div>
         )}
-        {contacts.map((c: any) => (
+        {contacts.map((c: ContactRow) => (
           <div
             key={c.id}
             style={{
