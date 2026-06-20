@@ -12,7 +12,11 @@ const ipAddressSchema = z.object({
 });
 
 export const createEndpointSchema = z.object({
-  identifier: z.string().min(1).max(255),
+  identifier: z
+    .string()
+    .min(1)
+    .max(255)
+    .regex(/^[A-Za-z0-9._:-]+$/, 'Invalid identifier characters'),
   name: z.string().max(255).optional().default(''),
   address: z.string().url().max(500),
   ipAddresses: z.array(ipAddressSchema).optional().default([]),

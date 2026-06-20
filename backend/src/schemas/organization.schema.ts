@@ -8,6 +8,7 @@ export const upsertOrganizationSchema = z.object({
     .string()
     .min(1)
     .max(255)
+    .regex(/^[A-Za-z0-9._:-]+$/, 'Invalid identifier characters')
     .regex(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/, 'Must be a valid FQDN'),
   name: z.string().min(1).max(255),
   email: z.string().email().max(255),
