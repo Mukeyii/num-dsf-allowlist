@@ -6,14 +6,7 @@
  * In prod: SMTP relay (e.g. Sendgrid) via SMTP_USER + SMTP_PASS
  */
 import nodemailer from 'nodemailer';
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import { escapeHtml as esc } from '../lib/escapeHtml';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail',

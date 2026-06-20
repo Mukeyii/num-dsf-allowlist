@@ -8,14 +8,7 @@
  *   sendSiteApprovalResultEmail  – notify site contacts of approve/reject outcome
  */
 import nodemailer from 'nodemailer';
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import { escapeHtml as esc } from '../lib/escapeHtml';
 
 function titleCase(s: string): string {
   return s.charAt(0) + s.slice(1).toLowerCase();

@@ -5,6 +5,7 @@
  * Renders both text and HTML variants. Language preference comes from
  * the contact record (defaults to EN).
  */
+import { escapeHtml as esc } from '../../lib/escapeHtml';
 
 export interface ApprovedBundleMailContext {
   language: 'en' | 'de';
@@ -83,23 +84,6 @@ const STR: Record<'en' | 'de', LocaleStrings> = {
       `Diese Nachricht wurde vom DSF-Allow-List-Portal (Umgebung ${env}) versandt. Bitte nicht antworten — diese Adresse wird nicht überwacht.`,
   },
 };
-
-// Tiny HTML-escape so untrusted strings (recipientName, endpointIdentifier,
-// support email) cannot inject markup into the HTML body. Plain text body
-// does not need this.
-function esc(s: string): string {
-  return s.replace(
-    /[&<>"']/g,
-    (c) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-      })[c] as string,
-  );
-}
 
 export function renderApprovedBundleMail(ctx: ApprovedBundleMailContext): {
   subject: string;
