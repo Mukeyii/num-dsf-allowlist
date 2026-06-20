@@ -148,7 +148,7 @@ export function OrganizationCard({ instanceId }: Props) {
                   height: '28px',
                   borderRadius: '50%',
                   background: '#ede9ff',
-                  color: '#6c63ff',
+                  color: 'var(--accent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -174,7 +174,7 @@ export function OrganizationCard({ instanceId }: Props) {
           <span style={{ color: 'var(--text-muted)' }}>{label}</span>
           <span
             style={{
-              color: mono ? '#6c63ff' : 'var(--text-primary)',
+              color: mono ? 'var(--accent)' : 'var(--text-primary)',
               fontFamily: mono ? "'JetBrains Mono', monospace" : 'inherit',
               fontSize: mono ? '11px' : '12px',
             }}

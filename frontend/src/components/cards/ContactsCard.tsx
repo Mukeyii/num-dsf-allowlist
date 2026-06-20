@@ -15,7 +15,7 @@ import { undoableDelete } from '../../lib/undoDelete';
 import { useCrossUserGuard } from '../../hooks/useCrossUserGuard';
 
 const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
-  MEDIC: { bg: '#fde3ef', color: '#b01e66' },
+  MEDIC: { bg: '#fde3ef', color: 'var(--primary)' },
   DSF_ADMIN: { bg: '#e8f0ff', color: '#1d4ed8' },
   SECURITY: { bg: '#f0fff8', color: '#059669' },
 };
@@ -75,7 +75,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
                 borderRadius: '50%',
                 flexShrink: 0,
                 background: '#ede9ff',
-                color: '#6c63ff',
+                color: 'var(--accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -158,7 +158,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '16px', color: '#6c63ff' }}
+                  style={{ fontSize: '16px', color: 'var(--accent)' }}
                 >
                   edit
                 </span>

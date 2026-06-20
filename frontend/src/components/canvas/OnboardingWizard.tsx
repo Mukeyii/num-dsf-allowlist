@@ -31,7 +31,7 @@ export function OnboardingWizard({ instanceId }: Props) {
       icon: 'corporate_fare',
       done: !!org,
       action: 'org-edit' as const,
-      color: '#b01e66',
+      color: 'var(--primary)',
     },
     {
       key: 'contact',
@@ -105,7 +105,7 @@ export function OnboardingWizard({ instanceId }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span
             className="material-symbols-outlined"
-            style={{ fontSize: '16px', color: '#b01e66' }}
+            style={{ fontSize: '16px', color: 'var(--primary)' }}
           >
             rocket_launch
           </span>
@@ -132,7 +132,7 @@ export function OnboardingWizard({ instanceId }: Props) {
           style={{
             width: `${(completedCount / steps.length) * 100}%`,
             height: '100%',
-            background: '#b01e66',
+            background: 'var(--primary)',
             borderRadius: '99px',
             transition: 'width 0.3s',
           }}

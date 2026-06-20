@@ -142,7 +142,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '16px', color: '#b01e66' }}
+                  style={{ fontSize: '16px', color: 'var(--primary)' }}
                 >
                   edit
                 </span>

@@ -11,7 +11,7 @@ import { relTime } from '../../lib/dateUtils';
 
 const OP_STYLES: Record<string, { icon: string; color: string }> = {
   CREATE: { icon: 'add_circle', color: '#22c55e' },
-  UPDATE: { icon: 'edit', color: '#b01e66' },
+  UPDATE: { icon: 'edit', color: 'var(--primary)' },
   DELETE: { icon: 'remove_circle', color: '#ef4444' },
   APPROVE: { icon: 'check_circle', color: '#22c55e' },
   REJECT: { icon: 'cancel', color: '#ef4444' },
@@ -140,7 +140,7 @@ export function ActivityFeed() {
           width: '40px',
           height: '40px',
           borderRadius: '50%',
-          background: '#b01e66',
+          background: 'var(--primary)',
           border: 'none',
           cursor: 'pointer',
           display: 'flex',
