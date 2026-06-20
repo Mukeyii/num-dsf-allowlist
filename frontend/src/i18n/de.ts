@@ -226,6 +226,8 @@ export const de: Record<TranslationKey, string> = {
   otpResend: 'Code erneut senden',
   otpResent: 'Ein neuer Code wurde gesendet.',
   otpDifferentEmail: '← Andere E-Mail-Adresse verwenden',
+  otpCodeAria: 'Einmalcode',
+  otpDigitAria: 'Ziffer {n} von 6',
 
   // TotpPage
   totpTitle: 'Zwei-Faktor-Authentifizierung',

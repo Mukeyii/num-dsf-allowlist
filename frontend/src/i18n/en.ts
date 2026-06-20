@@ -223,6 +223,8 @@ export const en = {
   otpResend: 'Resend code',
   otpResent: 'A new code has been sent.',
   otpDifferentEmail: '← Use a different email',
+  otpCodeAria: 'One-time code',
+  otpDigitAria: 'Digit {n} of 6',
 
   // TotpPage
   totpTitle: 'Two-factor authentication',

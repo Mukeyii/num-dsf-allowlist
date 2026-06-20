@@ -98,7 +98,12 @@ export function OtpPage() {
     <AuthLayout title={t('otpTitle')} subtitle={t('otpSubtitle', { email })}>
       <div className="space-y-5">
         {/* 6 Digit-Inputs */}
-        <div className="flex gap-2 justify-between" onPaste={handlePaste}>
+        <div
+          className="flex gap-2 justify-between"
+          role="group"
+          aria-label={t('otpCodeAria')}
+          onPaste={handlePaste}
+        >
           {digits.map((d, i) => (
             <input
               key={i}
@@ -108,6 +113,7 @@ export function OtpPage() {
               type="text"
               inputMode="numeric"
               maxLength={1}
+              aria-label={t('otpDigitAria', { n: i + 1 })}
               value={d}
               onChange={(e) => handleDigit(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
