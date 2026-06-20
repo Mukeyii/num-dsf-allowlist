@@ -40,6 +40,8 @@ services:
     build:
       context: ./frontend
       target: prod
+      args:
+        VITE_API_URL: /api/v1
     restart: always
     networks:
       - frontend-net

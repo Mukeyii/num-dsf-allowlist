@@ -40,7 +40,7 @@ jobs:
           docker push ${REPO}-backend:latest
 
           # Build and tag frontend
-          docker build -t ${REPO}-frontend:${TAG} -t ${REPO}-frontend:latest --target prod -f frontend/Dockerfile frontend/
+          docker build -t ${REPO}-frontend:${TAG} -t ${REPO}-frontend:latest --build-arg VITE_API_URL=/api/v1 --target prod -f frontend/Dockerfile frontend/
           docker push ${REPO}-frontend:${TAG}
           docker push ${REPO}-frontend:latest
 
