@@ -59,6 +59,9 @@ crossInstanceAuditRouter.get(
 
     const { rows, total } = await svc.listCrossInstanceAudit(userId, isAdmin, { page, limit });
 
-    res.json({ data: rows, meta: { total, page, limit, isAdmin } });
+    res.json({
+      data: rows,
+      meta: { total, page, limit, pages: Math.ceil(total / limit), isAdmin },
+    });
   }),
 );
