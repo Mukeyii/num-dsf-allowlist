@@ -116,13 +116,7 @@ export async function getPendingApprovals() {
   return db('approval_requests').where({ status: 'PENDING' }).orderBy('submitted_at', 'asc');
 }
 
-export async function getSignatures(requestId: string): Promise<ApprovalSig[]> {
-  return db('approval_signatures')
-    .where({ approval_request_id: requestId })
-    .orderBy('signed_at', 'asc');
-}
-
-/** Batched variant of getSignatures: one query for many requests, grouped by request id. */
+/** Load approval signatures for many requests in one query, grouped by request id. */
 export async function getSignaturesForRequests(
   requestIds: string[],
 ): Promise<Map<string, ApprovalSig[]>> {
