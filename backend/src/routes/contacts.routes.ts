@@ -15,9 +15,12 @@ import { asyncHandler } from '../lib/asyncHandler';
 export const contactsRouter = Router({ mergeParams: true });
 contactsRouter.use(requireAuth, requireInstanceOwnership);
 
-contactsRouter.get('/', async (req, res) => {
-  res.json({ data: await svc.getContacts(req.instance!.id) });
-});
+contactsRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.getContacts(req.instance!.id) });
+  }),
+);
 
 contactsRouter.post(
   '/',

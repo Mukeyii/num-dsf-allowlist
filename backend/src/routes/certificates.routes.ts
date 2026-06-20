@@ -18,21 +18,27 @@ import { asyncHandler } from '../lib/asyncHandler';
 export const certificatesRouter = Router({ mergeParams: true });
 certificatesRouter.use(requireAuth, requireInstanceOwnership);
 
-certificatesRouter.get('/', async (req, res) => {
-  res.json({ data: await svc.getCertificates(req.instance!.id) });
-});
+certificatesRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.getCertificates(req.instance!.id) });
+  }),
+);
 
-certificatesRouter.get('/expiring', async (req, res) => {
-  const org = await db('organizations').where({ instance_id: req.instance!.id }).first();
-  if (!org) return res.json({ data: [] });
-  const ninetyDaysFromNow = new Date();
-  ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
-  const expiring = await db('certificates')
-    .where({ organization_id: org.identifier })
-    .where('valid_until', '<=', ninetyDaysFromNow)
-    .select('id', 'subject', 'thumbprint', 'valid_until');
-  res.json({ data: expiring });
-});
+certificatesRouter.get(
+  '/expiring',
+  asyncHandler(async (req, res) => {
+    const org = await db('organizations').where({ instance_id: req.instance!.id }).first();
+    if (!org) return res.json({ data: [] });
+    const ninetyDaysFromNow = new Date();
+    ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+    const expiring = await db('certificates')
+      .where({ organization_id: org.identifier })
+      .where('valid_until', '<=', ninetyDaysFromNow)
+      .select('id', 'subject', 'thumbprint', 'valid_until');
+    res.json({ data: expiring });
+  }),
+);
 
 certificatesRouter.post('/', validate(createCertificateSchema), async (req, res) => {
   try {

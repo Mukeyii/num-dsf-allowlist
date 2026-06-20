@@ -17,9 +17,12 @@ import { asyncHandler } from '../lib/asyncHandler';
 export const membershipsRouter = Router({ mergeParams: true });
 membershipsRouter.use(requireAuth, requireInstanceOwnership);
 
-membershipsRouter.get('/', async (req, res) => {
-  res.json({ data: await svc.getMemberships(req.instance!.id) });
-});
+membershipsRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.getMemberships(req.instance!.id) });
+  }),
+);
 
 membershipsRouter.post(
   '/',

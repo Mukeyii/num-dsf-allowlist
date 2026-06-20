@@ -19,10 +19,13 @@ import { verifyTotpCode } from '../services/totp.service';
 export const organizationRouter = Router({ mergeParams: true });
 organizationRouter.use(requireAuth, requireInstanceOwnership);
 
-organizationRouter.get('/', async (req, res) => {
-  const org = await svc.getOrganization(req.instance!.id);
-  res.json({ data: org });
-});
+organizationRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    const org = await svc.getOrganization(req.instance!.id);
+    res.json({ data: org });
+  }),
+);
 
 organizationRouter.put(
   '/',

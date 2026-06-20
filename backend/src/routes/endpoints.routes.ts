@@ -14,9 +14,12 @@ import { sanitizeError } from '../lib/sanitizeError';
 export const endpointsRouter = Router({ mergeParams: true });
 endpointsRouter.use(requireAuth, requireInstanceOwnership);
 
-endpointsRouter.get('/', async (req, res) => {
-  res.json({ data: await svc.getEndpoints(req.instance!.id) });
-});
+endpointsRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.getEndpoints(req.instance!.id) });
+  }),
+);
 
 // A duplicate endpoint identifier is a 409 conflict; ENDPOINT_EXISTS is not a
 // sanitizeError business code (it would collapse to OPERATION_FAILED), so map
