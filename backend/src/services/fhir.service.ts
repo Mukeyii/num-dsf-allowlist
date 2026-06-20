@@ -208,6 +208,10 @@ export async function generateBundle(instanceId: string, endpointId: string): Pr
     const parentId: string = ms.parent_organization;
     const msEndpointId: string = ms.endpoint_id;
     const parentUuid = parentOrgUuids[parentId];
+    // A membership with a blank parent_organization has no parent UUID; emitting
+    // it would produce an `urn:uuid:undefined` reference. Skip it, mirroring the
+    // guard in generateFullBundle.
+    if (!parentId || !parentUuid) continue;
     const affUuid = uuidv4();
 
     // Emit one <code> block per stored role (DIC, DMS, HRP, ...). DSF
