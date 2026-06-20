@@ -181,7 +181,7 @@ export function MapOrgList({ organizations, selectedId, onSelect }: Props) {
                         flex: 1,
                         minWidth: 0,
                         fontSize: '11px',
-                        color: isSel ? '#b01e66' : 'var(--text-primary)',
+                        color: isSel ? 'var(--primary)' : 'var(--text-primary)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
