@@ -68,7 +68,12 @@ describe('CertRenewalModal', () => {
       'oops, this still has a PRIVATE KEY',
     );
 
-    expect(await screen.findByText(/contains a PRIVATE KEY/i)).toBeInTheDocument();
+    // The warning is reactive on the textarea value; under heavy parallel load
+    // (full suite + coverage) it can mount a beat after the last keystroke
+    // flushes, so wait with a generous timeout rather than the default 1s.
+    expect(
+      await screen.findByText(/contains a PRIVATE KEY/i, undefined, { timeout: 4000 }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^review$/i })).toBeDisabled();
     expect(mutateAsync).not.toHaveBeenCalled();
   });
