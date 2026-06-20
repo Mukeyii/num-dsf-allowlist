@@ -31,6 +31,7 @@ import { extractClientCert } from '../lib/clientCert';
 import { isDevEnv } from '../lib/isDevEnv';
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
+import { asyncHandler } from '../lib/asyncHandler';
 
 export const authRouter = Router();
 
@@ -201,47 +202,115 @@ authRouter.post('/refresh', ...refreshLimiter, async (req: Request, res: Respons
 // Express's default 404, so a future flag toggle can't expose it.
 // Body: { role?: 'admin' | 'member' | 'site' }
 if (isDevEnv() && process.env.DEV_AUTO_LOGIN === 'true') {
-  authRouter.post('/dev-login', ...devEntryLimiter, async (req: Request, res: Response) => {
-    const inputRole = req.body?.role;
-    const role: 'admin' | 'member' | 'site' =
-      inputRole === 'member' ? 'member' : inputRole === 'site' ? 'site' : 'admin';
-    const envKey =
-      role === 'member'
-        ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL'
-        : role === 'site'
-          ? 'DEV_AUTO_LOGIN_SITE_EMAIL'
-          : 'DEV_AUTO_LOGIN_EMAIL';
-    const fallback =
-      role === 'member'
-        ? 'member@imi-test.example.de'
-        : role === 'site'
-          ? 'site@imi-test.example.de'
-          : 'admin@imi-test.example.de';
-    const email = (process.env[envKey] || fallback).toLowerCase().trim();
-    if (!email) {
-      return res
-        .status(400)
-        .json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
+  authRouter.post(
+    '/dev-login',
+    ...devEntryLimiter,
+    asyncHandler(async (req: Request, res: Response) => {
+      const inputRole = req.body?.role;
+      const role: 'admin' | 'member' | 'site' =
+        inputRole === 'member' ? 'member' : inputRole === 'site' ? 'site' : 'admin';
+      const envKey =
+        role === 'member'
+          ? 'DEV_AUTO_LOGIN_MEMBER_EMAIL'
+          : role === 'site'
+            ? 'DEV_AUTO_LOGIN_SITE_EMAIL'
+            : 'DEV_AUTO_LOGIN_EMAIL';
+      const fallback =
+        role === 'member'
+          ? 'member@imi-test.example.de'
+          : role === 'site'
+            ? 'site@imi-test.example.de'
+            : 'admin@imi-test.example.de';
+      const email = (process.env[envKey] || fallback).toLowerCase().trim();
+      if (!email) {
+        return res
+          .status(400)
+          .json({ error: { code: 'CONFIG', message: `${envKey} not configured` } });
+      }
+
+      // Ensure whitelisted + user row exists. Idempotent so concurrent calls
+      // (e.g. React Strict Mode double-invokes useEffect in dev) don't crash on
+      // duplicate-key. Both tables have UNIQUE(email).
+      await db('email_whitelist')
+        .insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() })
+        .onConflict('email')
+        .ignore();
+      await db('users')
+        .insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() })
+        .onConflict('email')
+        .ignore();
+      const user = await db('users').where({ email }).first();
+      if (!user) {
+        return res.status(500).json({
+          error: { code: 'USER_NOT_FOUND', message: 'Failed to create or find dev user' },
+        });
+      }
+      await db('users').where({ id: user.id }).update({ last_login: new Date() });
+
+      const { accessToken, refreshToken } = await createTokenPair({
+        id: user.id,
+        email: user.email,
+        totpEnabled: true,
+      });
+      res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+      logger.warn({ role, email, ip: req.ip }, '[DEV_AUTO_LOGIN] issued dev session');
+      res.json({ data: { accessToken, email, role } });
+    }),
+  );
+}
+
+// POST /auth/client-cert-login → authenticate by client certificate thumbprint
+authRouter.post(
+  '/client-cert-login',
+  ...verifyLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    // Defense-in-depth: only an nginx-verified mTLS handshake may authenticate
+    // here. extractClientCert already enforces X-Client-Verify === 'SUCCESS',
+    // but we reject up front so a forged X-Client-Cert never reaches the lookup
+    // even if that helper is ever changed.
+    if (req.headers['x-client-verify'] !== 'SUCCESS') {
+      res
+        .status(401)
+        .json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
+      return;
+    }
+    const cert = extractClientCert(req);
+    if (!cert) {
+      res
+        .status(401)
+        .json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
+      return;
+    }
+    const org = await db('organizations')
+      .where({ client_cert_thumbprint: cert.thumbprint })
+      .first();
+    if (!org) {
+      res.status(401).json({
+        error: {
+          code: 'CERT_NOT_REGISTERED',
+          message: 'Certificate is not registered for any organization.',
+        },
+      });
+      return;
+    }
+    const instance = await db('instances').where({ id: org.instance_id }).first();
+    if (!instance) {
+      res.status(401).json({
+        error: { code: 'NO_INSTANCE', message: 'Organization has no associated instance.' },
+      });
+      return;
+    }
+    const user = await db('users').where({ id: instance.user_id }).first();
+    if (!user) {
+      res.status(401).json({ error: { code: 'NO_USER', message: 'Instance has no owner.' } });
+      return;
     }
 
-    // Ensure whitelisted + user row exists. Idempotent so concurrent calls
-    // (e.g. React Strict Mode double-invokes useEffect in dev) don't crash on
-    // duplicate-key. Both tables have UNIQUE(email).
-    await db('email_whitelist')
-      .insert({ id: uuidv4(), email, created_by: 'dev-auto-login', created_at: new Date() })
-      .onConflict('email')
-      .ignore();
-    await db('users')
-      .insert({ id: uuidv4(), email, totp_enabled: true, created_at: new Date() })
-      .onConflict('email')
-      .ignore();
-    const user = await db('users').where({ email }).first();
-    if (!user) {
-      return res
-        .status(500)
-        .json({ error: { code: 'USER_NOT_FOUND', message: 'Failed to create or find dev user' } });
+    const wl = await db('email_whitelist').where({ email: user.email }).first();
+    if (!wl || wl.locked_at) {
+      res.status(401).json({ error: { code: 'ACCOUNT_LOCKED', message: 'Account is locked.' } });
+      return;
     }
-    await db('users').where({ id: user.id }).update({ last_login: new Date() });
 
     const { accessToken, refreshToken } = await createTokenPair({
       id: user.id,
@@ -249,84 +318,29 @@ if (isDevEnv() && process.env.DEV_AUTO_LOGIN === 'true') {
       totpEnabled: true,
     });
     res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
-    logger.warn({ role, email, ip: req.ip }, '[DEV_AUTO_LOGIN] issued dev session');
-    res.json({ data: { accessToken, email, role } });
-  });
-}
 
-// POST /auth/client-cert-login → authenticate by client certificate thumbprint
-authRouter.post('/client-cert-login', ...verifyLimiter, async (req: Request, res: Response) => {
-  // Defense-in-depth: only an nginx-verified mTLS handshake may authenticate
-  // here. extractClientCert already enforces X-Client-Verify === 'SUCCESS',
-  // but we reject up front so a forged X-Client-Cert never reaches the lookup
-  // even if that helper is ever changed.
-  if (req.headers['x-client-verify'] !== 'SUCCESS') {
-    res
-      .status(401)
-      .json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
-    return;
-  }
-  const cert = extractClientCert(req);
-  if (!cert) {
-    res
-      .status(401)
-      .json({ error: { code: 'NO_CLIENT_CERT', message: 'No client certificate presented.' } });
-    return;
-  }
-  const org = await db('organizations').where({ client_cert_thumbprint: cert.thumbprint }).first();
-  if (!org) {
-    res.status(401).json({
-      error: {
-        code: 'CERT_NOT_REGISTERED',
-        message: 'Certificate is not registered for any organization.',
-      },
-    });
-    return;
-  }
-  const instance = await db('instances').where({ id: org.instance_id }).first();
-  if (!instance) {
-    res.status(401).json({
-      error: { code: 'NO_INSTANCE', message: 'Organization has no associated instance.' },
-    });
-    return;
-  }
-  const user = await db('users').where({ id: instance.user_id }).first();
-  if (!user) {
-    res.status(401).json({ error: { code: 'NO_USER', message: 'Instance has no owner.' } });
-    return;
-  }
+    writeAuditLog({
+      userEmail: user.email,
+      instanceId: instance.id,
+      resourceType: 'AUTH',
+      operation: 'LOGIN',
+      ipAddress: req.ip || 'unknown',
+    }).catch(() => {});
 
-  const wl = await db('email_whitelist').where({ email: user.email }).first();
-  if (!wl || wl.locked_at) {
-    res.status(401).json({ error: { code: 'ACCOUNT_LOCKED', message: 'Account is locked.' } });
-    return;
-  }
-
-  const { accessToken, refreshToken } = await createTokenPair({
-    id: user.id,
-    email: user.email,
-    totpEnabled: true,
-  });
-  res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
-
-  writeAuditLog({
-    userEmail: user.email,
-    instanceId: instance.id,
-    resourceType: 'AUTH',
-    operation: 'LOGIN',
-    ipAddress: req.ip || 'unknown',
-  }).catch(() => {});
-
-  res.json({ data: { accessToken, email: user.email } });
-});
+    res.json({ data: { accessToken, email: user.email } });
+  }),
+);
 
 // POST /auth/logout
-authRouter.post('/logout', async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refreshToken;
-  const userEmail = req.body?.email || 'unknown';
-  if (refreshToken) {
-    await logout(refreshToken, userEmail, req.ip || 'unknown');
-  }
-  res.clearCookie('refreshToken', { path: '/auth' });
-  res.json({ data: { message: 'Logged out' } });
-});
+authRouter.post(
+  '/logout',
+  asyncHandler(async (req: Request, res: Response) => {
+    const refreshToken = req.cookies?.refreshToken;
+    const userEmail = req.body?.email || 'unknown';
+    if (refreshToken) {
+      await logout(refreshToken, userEmail, req.ip || 'unknown');
+    }
+    res.clearCookie('refreshToken', { path: '/auth' });
+    res.json({ data: { message: 'Logged out' } });
+  }),
+);
