@@ -134,7 +134,7 @@ export function NotificationCenter() {
               </p>
             ) : (
               notifications.map((n) => {
-                const { icon, color } = TYPE_ICON[n.type];
+                const { icon, color } = TYPE_ICON[n.type] ?? TYPE_ICON.info;
                 return (
                   <div
                     key={n.id}

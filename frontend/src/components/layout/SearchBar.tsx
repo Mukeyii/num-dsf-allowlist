@@ -74,7 +74,7 @@ export function SearchBar() {
     if (org && (org.name?.toLowerCase().includes(q) || org.identifier?.toLowerCase().includes(q))) {
       results.push({
         type: 'organization',
-        label: org.name,
+        label: org.name || org.identifier,
         detail: org.identifier,
         cardId: 'organization',
       });

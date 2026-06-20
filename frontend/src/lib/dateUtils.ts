@@ -2,9 +2,16 @@
  * dateUtils.ts – Shared date utility functions.
  */
 
-/** Calculate days remaining until a date string. Negative values = past. */
+/**
+ * Calculate days remaining until a date string. Negative values = past.
+ * Returns a large sentinel for unparseable dates so callers treat them as
+ * "not expiring" (matching the prior NaN-comparison behaviour) instead of
+ * propagating NaN into thresholds and progress bars.
+ */
 export function daysUntil(dateStr: string): number {
-  return Math.floor((new Date(dateStr).getTime() - Date.now()) / 86400000);
+  const t = new Date(dateStr).getTime();
+  if (Number.isNaN(t)) return Number.MAX_SAFE_INTEGER;
+  return Math.floor((t - Date.now()) / 86400000);
 }
 
 type RelTimeKey = 'relJustNow' | 'relAgoMinutes' | 'relAgoHours' | 'relAgoDays';
@@ -19,7 +26,9 @@ export function relTime(
   dateStr: string,
   t: (key: RelTimeKey, params?: Record<string, string | number>) => string,
 ): string {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  const ts = new Date(dateStr).getTime();
+  if (Number.isNaN(ts)) return '';
+  const diff = Math.floor((Date.now() - ts) / 1000);
   if (diff < 60) return t('relJustNow');
   if (diff < 3600) return t('relAgoMinutes', { n: Math.floor(diff / 60) });
   if (diff < 86400) return t('relAgoHours', { n: Math.floor(diff / 3600) });
