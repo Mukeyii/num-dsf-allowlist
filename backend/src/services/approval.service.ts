@@ -13,6 +13,7 @@ import {
   notifyImiOnFirstApproval,
 } from './approval-reminder.service';
 import { siteOfEmail, validateApproval, deriveStatus, ApprovalSig } from '../lib/approvalState';
+import { errCode } from '../lib/errMessage';
 import { logger } from '../lib/logger';
 
 // Clamp to ≥1 day. A 0 or negative value would make deriveStatus's silent-
@@ -172,8 +173,8 @@ export async function approveRequest(
         ...newSig,
         comment: null,
       });
-    } catch (err: any) {
-      if (err?.code === 'ER_DUP_ENTRY') throw new Error('ALREADY_DECIDED');
+    } catch (err: unknown) {
+      if (errCode(err) === 'ER_DUP_ENTRY') throw new Error('ALREADY_DECIDED');
       throw err;
     }
 
@@ -278,11 +279,11 @@ export async function rejectRequest(
         signed_at: new Date(),
         comment,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // UNIQUE(approval_request_id, admin_email): the same admin already signed
       // (e.g. approved then tried to reject). Map to a clean 409 instead of
       // letting the raw driver error escape as a 500 / unhandled rejection.
-      if (err?.code === 'ER_DUP_ENTRY') throw new Error('ALREADY_DECIDED');
+      if (errCode(err) === 'ER_DUP_ENTRY') throw new Error('ALREADY_DECIDED');
       throw err;
     }
 

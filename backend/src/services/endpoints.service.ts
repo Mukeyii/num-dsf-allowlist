@@ -3,6 +3,7 @@
  */
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
+import { errCode } from '../lib/errMessage';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -60,8 +61,8 @@ export async function createEndpoint(
       created_at: now,
       updated_at: now,
     });
-  } catch (err: any) {
-    if (err?.code === 'ER_DUP_ENTRY') throw new Error('ENDPOINT_EXISTS');
+  } catch (err: unknown) {
+    if (errCode(err) === 'ER_DUP_ENTRY') throw new Error('ENDPOINT_EXISTS');
     throw err;
   }
   if (data.ipAddresses?.length) {

@@ -5,6 +5,7 @@
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../lib/logger';
+import { errMessage } from '../lib/errMessage';
 import { parseManifest, type DsfManifest } from '../schemas/marketplace-manifest.schema';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
@@ -96,8 +97,8 @@ async function fetchManifest(owner: string, repo: string, branch: string): Promi
     const result = parseManifest(body);
     if (!result.ok) return { kind: 'error', error: result.error };
     return { kind: 'parsed', data: result.data };
-  } catch (err: any) {
-    return { kind: 'error', error: `manifest fetch failed: ${err?.message || 'unknown'}` };
+  } catch (err: unknown) {
+    return { kind: 'error', error: `manifest fetch failed: ${errMessage(err) || 'unknown'}` };
   }
 }
 
@@ -142,8 +143,8 @@ export async function syncEntry(id: string): Promise<void> {
     try {
       const rel = await ghJson<ReleaseResp>(`${base}/releases/latest`);
       latestTag = rel?.tag_name || null;
-    } catch (err: any) {
-      if (err.message !== 'NOT_FOUND') throw err;
+    } catch (err: unknown) {
+      if (errMessage(err) !== 'NOT_FOUND') throw err;
     }
     let lastCommitAt: Date | null = null;
     try {
@@ -154,16 +155,16 @@ export async function syncEntry(id: string): Promise<void> {
         // an Invalid Date into last_commit_at.
         if (!Number.isNaN(parsed.getTime())) lastCommitAt = parsed;
       }
-    } catch (err: any) {
-      if (err.message !== 'NOT_FOUND') throw err;
+    } catch (err: unknown) {
+      if (errMessage(err) !== 'NOT_FOUND') throw err;
     }
 
     try {
       await syncReleases(id, base);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // No releases (404) is normal; a rate limit still propagates to the outer
       // handler so the batch can stop.
-      if (err.message !== 'NOT_FOUND') throw err;
+      if (errMessage(err) !== 'NOT_FOUND') throw err;
     }
 
     // Parse the optional manifest. The no-clobber invariant: a MANUAL row is
@@ -208,14 +209,13 @@ export async function syncEntry(id: string): Promise<void> {
         sync_error: null,
         updated_at: new Date(),
       });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // A rate limit is transient and not a fault of this entry, so leave its
     // sync_error untouched and let the caller stop the batch.
-    if (err.message === 'RATE_LIMIT') throw err;
+    const message_ = errMessage(err);
+    if (message_ === 'RATE_LIMIT') throw err;
     const message =
-      err.message === 'NOT_FOUND'
-        ? 'repository not found'
-        : `sync failed: ${err.message || 'unknown'}`;
+      message_ === 'NOT_FOUND' ? 'repository not found' : `sync failed: ${message_ || 'unknown'}`;
     await db('marketplace_entries').where({ id }).update({
       sync_error: message,
       updated_at: new Date(),
@@ -232,10 +232,10 @@ export async function syncAll(): Promise<{ ok: number; failed: number; rateLimit
     try {
       await syncEntry(r.id);
       ok += 1;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // A rate limit stops the batch; the throttled entry is neither ok nor
       // failed (it was never really attempted), so it is left uncounted.
-      if (err.message === 'RATE_LIMIT') {
+      if (errMessage(err) === 'RATE_LIMIT') {
         rateLimited = true;
         logger.warn('marketplace sync hit rate limit; aborting batch');
         break;

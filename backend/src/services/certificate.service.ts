@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import { db } from '../db/connection';
 import { writeAuditLog } from './audit.service';
 import { isCaBlacklisted } from './ca-blacklist.service';
+import { errMessage } from '../lib/errMessage';
 import { v4 as uuidv4 } from 'uuid';
 
 // Match BEGIN/END markers for any private-key variant, case-insensitive.
@@ -48,8 +49,8 @@ export function parseCertificate(pem: string): {
       .map((a: any) => `${a.shortName || a.name || a.type}=${a.value}`)
       .join(',');
     return { subject, thumbprint, validUntil, issuerDn };
-  } catch (err: any) {
-    if (err.message === 'PRIVATE_KEY_REJECTED') throw err;
+  } catch (err: unknown) {
+    if (errMessage(err) === 'PRIVATE_KEY_REJECTED') throw err;
     throw new Error('INVALID_PEM');
   }
 }

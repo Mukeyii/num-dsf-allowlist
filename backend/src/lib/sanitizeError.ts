@@ -35,8 +35,8 @@ const KNOWN_ERROR_CODES = new Set([
   'BUNDLE_CORRUPT',
 ]);
 
-export function sanitizeError(err: any): { code: string; message: string } {
-  const msg = err?.message || '';
+export function sanitizeError(err: unknown): { code: string; message: string } {
+  const msg = err instanceof Error ? err.message : '';
   if (KNOWN_ERROR_CODES.has(msg)) {
     return { code: msg, message: msg };
   }
