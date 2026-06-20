@@ -39,6 +39,16 @@ describe('daysUntil', () => {
   it('returns 0 on the same day', () => {
     expect(daysUntil('2026-01-01T12:00:00Z')).toBe(0);
   });
+
+  it('returns the MAX_SAFE_INTEGER sentinel for an unparseable date (no NaN)', () => {
+    const result = daysUntil('not-a-date');
+    expect(Number.isNaN(result)).toBe(false);
+    expect(result).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it('returns the sentinel for an empty date string', () => {
+    expect(daysUntil('')).toBe(Number.MAX_SAFE_INTEGER);
+  });
 });
 
 describe('relTime', () => {
@@ -64,5 +74,15 @@ describe('relTime', () => {
 
   it('renders days ago', () => {
     expect(relTime('2025-12-30T12:00:00Z', t)).toBe('2d ago');
+  });
+
+  it('returns an empty string for an unparseable date (no NaN leak)', () => {
+    const result = relTime('not-a-date', t);
+    expect(result).toBe('');
+    expect(result).not.toContain('NaN');
+  });
+
+  it('returns an empty string for an empty date string', () => {
+    expect(relTime('', t)).toBe('');
   });
 });
