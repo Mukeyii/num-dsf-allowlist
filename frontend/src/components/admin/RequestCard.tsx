@@ -171,7 +171,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
               style={{
                 fontFamily: 'monospace',
                 fontSize: '12px',
-                color: '#6c63ff',
+                color: 'var(--accent)',
                 background: '#ede9ff',
                 padding: '2px 8px',
                 borderRadius: '6px',
@@ -373,7 +373,10 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
 
       {/* TOTP confirmation input */}
       <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#6c63ff' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '18px', color: 'var(--accent)' }}
+        >
           lock
         </span>
         <input
@@ -434,7 +437,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
                 padding: '2px 8px',
                 borderRadius: '6px',
                 background: '#ede9ff',
-                color: '#6c63ff',
+                color: 'var(--accent)',
                 fontWeight: 600,
               }}
             >
