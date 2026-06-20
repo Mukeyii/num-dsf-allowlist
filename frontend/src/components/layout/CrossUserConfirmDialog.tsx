@@ -2,6 +2,7 @@
  * CrossUserConfirmDialog.tsx – Confirmation modal shown when an admin attempts
  * to mutate data on an instance they don't own. Pure presentational.
  */
+import { useEffect, useId, useRef } from 'react';
 import { useI18n } from '../../stores/i18n.store';
 
 interface Props {
@@ -13,11 +14,25 @@ interface Props {
 
 export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }: Props) {
   const { t } = useI18n();
+  const titleId = useId();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    cancelRef.current?.focus();
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, onCancel]);
+
   if (!open) return null;
   return (
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby={titleId}
       style={{
         position: 'fixed',
         inset: 0,
@@ -49,6 +64,7 @@ export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }
             warning
           </span>
           <h2
+            id={titleId}
             style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}
           >
             {t('crossUserDialogTitle')}
@@ -66,6 +82,7 @@ export function CrossUserConfirmDialog({ open, ownerEmail, onConfirm, onCancel }
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
           <button
+            ref={cancelRef}
             onClick={onCancel}
             style={{
               padding: '8px 16px',
