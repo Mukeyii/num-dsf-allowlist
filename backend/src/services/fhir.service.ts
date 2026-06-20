@@ -5,6 +5,7 @@
  */
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
+import type { EndpointRow, CertRow } from '../types/rows';
 
 // Canonical DSF identifier systems (the 'sid' / SystemIDentifier slot). Other
 // AllowList tools in production use these exact URLs — see the reference
@@ -306,14 +307,14 @@ export async function generateFullBundle(): Promise<object> {
     ? await db('certificates').whereIn('organization_id', approvedOrgIds)
     : [];
 
-  const endpointsByOrg = new Map<string, any[]>();
-  for (const ep of allEndpoints) {
+  const endpointsByOrg = new Map<string, EndpointRow[]>();
+  for (const ep of allEndpoints as EndpointRow[]) {
     const list = endpointsByOrg.get(ep.organization_id) ?? [];
     list.push(ep);
     endpointsByOrg.set(ep.organization_id, list);
   }
-  const certsByOrg = new Map<string, any[]>();
-  for (const c of allCerts) {
+  const certsByOrg = new Map<string, CertRow[]>();
+  for (const c of allCerts as CertRow[]) {
     const list = certsByOrg.get(c.organization_id) ?? [];
     list.push(c);
     certsByOrg.set(c.organization_id, list);

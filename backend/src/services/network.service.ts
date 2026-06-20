@@ -5,6 +5,14 @@
  * Dependencies: db
  */
 import { db } from '../db/connection';
+import type {
+  OrganizationRow,
+  EndpointRow,
+  EndpointIpRow,
+  CertRow,
+  ContactRow,
+  MembershipRow,
+} from '../types/rows';
 
 type CertStatus = 'VALID' | 'EXPIRING' | 'EXPIRED' | 'NONE';
 
@@ -58,20 +66,22 @@ export async function getNetworkMap(opts: { isAdmin: boolean }) {
     ) = 'APPROVED'`,
     )
     .select('identifier');
-  const approvedOrgIds: string[] = approvedRows.map((r: any) => r.identifier);
+  const approvedOrgIds: string[] = approvedRows.map(
+    (r: Pick<OrganizationRow, 'identifier'>) => r.identifier,
+  );
 
   if (approvedOrgIds.length === 0) return { organizations: [] };
 
-  const orgs: any[] = await db('organizations').whereIn('identifier', approvedOrgIds);
-  const endpoints: any[] = await db('endpoints').whereIn('organization_id', approvedOrgIds);
+  const orgs: OrganizationRow[] = await db('organizations').whereIn('identifier', approvedOrgIds);
+  const endpoints: EndpointRow[] = await db('endpoints').whereIn('organization_id', approvedOrgIds);
   const endpointIds = endpoints.map((e) => e.identifier);
-  const endpointIps: any[] =
+  const endpointIps: EndpointIpRow[] =
     endpointIds.length > 0 ? await db('endpoint_ips').whereIn('endpoint_id', endpointIds) : [];
-  const contacts: any[] = await db('contacts').whereIn('organization_id', approvedOrgIds);
-  const certs: any[] = await db('certificates').whereIn('organization_id', approvedOrgIds);
+  const contacts: ContactRow[] = await db('contacts').whereIn('organization_id', approvedOrgIds);
+  const certs: CertRow[] = await db('certificates').whereIn('organization_id', approvedOrgIds);
   // Exclude soft-deleted (admin-removed) affiliations, matching fhir.service
   // and the approval snapshot — they are no longer live relationships.
-  const memberships: any[] = await db('memberships')
+  const memberships: MembershipRow[] = await db('memberships')
     .whereIn('organization_id', approvedOrgIds)
     .whereNull('deleted_at');
 

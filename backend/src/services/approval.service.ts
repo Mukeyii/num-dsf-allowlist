@@ -15,6 +15,7 @@ import {
 import { siteOfEmail, validateApproval, deriveStatus, ApprovalSig } from '../lib/approvalState';
 import { errCode } from '../lib/errMessage';
 import { logger } from '../lib/logger';
+import type { OrganizationRow, EndpointRow, EndpointIpRow } from '../types/rows';
 
 // Clamp to ≥1 day. A 0 or negative value would make deriveStatus's silent-
 // consent check (ageMs >= days * DAY_MS) true for a brand-new single APPROVE,
@@ -26,15 +27,19 @@ const SILENT_CONSENT_DAYS = Math.max(
 );
 
 async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = db) {
-  const org = await trx('organizations').where({ instance_id: instanceId }).first();
+  const org: OrganizationRow | undefined = await trx('organizations')
+    .where({ instance_id: instanceId })
+    .first();
   if (!org) return null;
   const contacts = await trx('contacts')
     .where({ organization_id: org.identifier })
     .select('id', 'types', 'name', 'email_validated', 'phone', 'city', 'country_code');
-  const endpoints = await trx('endpoints').where({ organization_id: org.identifier });
-  const ips = await trx('endpoint_ips').whereIn(
+  const endpoints: EndpointRow[] = await trx('endpoints').where({
+    organization_id: org.identifier,
+  });
+  const ips: EndpointIpRow[] = await trx('endpoint_ips').whereIn(
     'endpoint_id',
-    endpoints.map((e: any) => e.identifier),
+    endpoints.map((e) => e.identifier),
   );
   const certificates = await trx('certificates')
     .where({ organization_id: org.identifier })
@@ -46,9 +51,9 @@ async function buildSnapshot(instanceId: string, trx: Knex | Knex.Transaction = 
   return {
     organization: orgSafe,
     contacts,
-    endpoints: endpoints.map((ep: any) => ({
+    endpoints: endpoints.map((ep) => ({
       ...ep,
-      ipAddresses: ips.filter((ip: any) => ip.endpoint_id === ep.identifier),
+      ipAddresses: ips.filter((ip) => ip.endpoint_id === ep.identifier),
     })),
     certificates,
     memberships,
@@ -88,8 +93,8 @@ export async function submitApproval(instanceId: string, userEmail: string, ipAd
     notifyImiOnSubmit(
       id,
       instanceId,
-      (org as any).identifier || instanceId,
-      (org as any).name || 'Unknown',
+      org.identifier || instanceId,
+      org.name || 'Unknown',
       userEmail,
     ).catch((err) => logger.error({ err }, '[ApprovalNotify] notifyImiOnSubmit failed'));
     return trx('approval_requests').where({ id }).first();
