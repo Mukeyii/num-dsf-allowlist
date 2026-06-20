@@ -51,10 +51,19 @@ export function GeoMapPin({
   const initialsColor = isInactive ? '#94a3b8' : color;
   return (
     <g
+      role="button"
+      tabIndex={0}
+      aria-label={org.name || org.identifier}
       style={{ cursor: 'pointer' }}
       onClick={(e) => {
         e.stopPropagation();
         onSelect(org.identifier);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(org.identifier);
+        }
       }}
       onMouseEnter={() => onHover(org.identifier)}
       onMouseLeave={() => onHover(null)}

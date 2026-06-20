@@ -53,10 +53,19 @@ export function GeoMapCluster({
   const visible = matchedCount;
   return (
     <g
+      role="button"
+      tabIndex={0}
+      aria-label={`${group.city ?? '?'} (${total})`}
       style={{ cursor: 'pointer' }}
       onClick={(e) => {
         e.stopPropagation();
         onSelect(key);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(key);
+        }
       }}
       onMouseEnter={() => onHover(key)}
       onMouseLeave={() => onHover(null)}
