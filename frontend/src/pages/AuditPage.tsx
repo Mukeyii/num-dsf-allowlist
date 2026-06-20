@@ -51,7 +51,11 @@ export function AuditPage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#b01e66' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '28px', color: '#b01e66' }}
+          aria-hidden="true"
+        >
           history
         </span>
         <div>

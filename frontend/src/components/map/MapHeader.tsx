@@ -12,7 +12,11 @@ export function MapHeader() {
   return (
     <header style={{ padding: '16px 28px 10px', background: 'var(--bg-card)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b01e66' }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '24px', color: '#b01e66' }}
+          aria-hidden="true"
+        >
           hub
         </span>
         <div>
