@@ -24,10 +24,13 @@ export const KEY_ID = JWT_PUBLIC_KEY
   : 'unknown';
 
 /**
- * Sign a bundle JSON and return { bundle, signature, contentHash }
+ * Sign a bundle JSON and return { bundle, json, signature, contentHash }.
+ * `json` is the exact serialization that was hashed and signed; callers must
+ * send those bytes verbatim so the response matches contentHash.
  */
 export function signBundle(bundle: object): {
   bundle: object;
+  json: string;
   signature: string;
   contentHash: string;
 } {
@@ -40,5 +43,5 @@ export function signBundle(bundle: object): {
     { algorithm: 'RS256', expiresIn: '365d', keyid: KEY_ID } as any,
   );
 
-  return { bundle, signature, contentHash };
+  return { bundle, json, signature, contentHash };
 }

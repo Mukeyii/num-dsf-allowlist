@@ -56,7 +56,7 @@ downloadRouter.get('/bundle', requireAuth, requireInstanceOwnership, async (req,
   }
   try {
     const bundle = await generateBundle(req.instance!.id, endpointId);
-    const { signature, contentHash } = signBundle(bundle);
+    const { json, signature, contentHash } = signBundle(bundle);
     res.setHeader('Content-Type', 'application/fhir+json');
     res.setHeader(
       'Content-Disposition',
@@ -75,7 +75,10 @@ downloadRouter.get('/bundle', requireAuth, requireInstanceOwnership, async (req,
       ipAddress: req.ip || 'unknown',
     }).catch(() => {});
 
-    res.json(bundle);
+    // Send the exact bytes that were hashed and signed. res.json(bundle) would
+    // re-serialize independently, risking a body that no longer matches
+    // X-Content-Hash.
+    res.type('application/fhir+json').send(json);
   } catch (err: unknown) {
     res.status(404).json({ error: sanitizeError(err) });
   }
