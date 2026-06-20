@@ -10,7 +10,7 @@ import { relTime } from '../../lib/dateUtils';
 const TYPE_ICON: Record<string, { icon: string; color: string }> = {
   success: { icon: 'check_circle', color: '#22c55e' },
   error: { icon: 'error', color: '#ef4444' },
-  info: { icon: 'info', color: '#b01e66' },
+  info: { icon: 'info', color: 'var(--primary)' },
 };
 
 export function NotificationCenter() {

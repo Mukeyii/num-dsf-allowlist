@@ -168,7 +168,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             style={{
-              border: `2px dashed ${dragOver ? '#6c63ff' : 'var(--border)'}`,
+              border: `2px dashed ${dragOver ? 'var(--accent)' : 'var(--border)'}`,
               borderRadius: '10px',
               padding: '20px',
               textAlign: 'center',
@@ -181,7 +181,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
               className="material-symbols-outlined"
               style={{
                 fontSize: '32px',
-                color: dragOver ? '#6c63ff' : 'var(--text-muted)',
+                color: dragOver ? 'var(--accent)' : 'var(--text-muted)',
                 display: 'block',
                 marginBottom: '4px',
               }}
@@ -252,7 +252,9 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
                 borderRadius: '10px',
                 border: 'none',
                 background:
-                  newPem.trim() && !newPem.includes('PRIVATE KEY') ? '#6c63ff' : 'var(--bg-hover)',
+                  newPem.trim() && !newPem.includes('PRIVATE KEY')
+                    ? 'var(--accent)'
+                    : 'var(--bg-hover)',
                 color:
                   newPem.trim() && !newPem.includes('PRIVATE KEY') ? '#fff' : 'var(--text-muted)',
                 fontSize: '12px',

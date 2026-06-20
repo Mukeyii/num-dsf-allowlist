@@ -56,7 +56,7 @@ export function CommandPalette() {
         id: 'nav-canvas',
         label: t('cmdGoToCanvas'),
         icon: 'dashboard',
-        color: '#b01e66',
+        color: 'var(--primary)',
         category: t('cmdCategoryNavigation'),
         action: () => {
           navigate('/app');
@@ -67,7 +67,7 @@ export function CommandPalette() {
         id: 'nav-admin',
         label: t('cmdApprovalReview'),
         icon: 'admin_panel_settings',
-        color: '#b01e66',
+        color: 'var(--primary)',
         category: t('cmdCategoryNavigation'),
         action: () => {
           navigate('/app/admin');
@@ -78,7 +78,7 @@ export function CommandPalette() {
         id: 'nav-audit',
         label: t('cmdAuditLog'),
         icon: 'history',
-        color: '#b01e66',
+        color: 'var(--primary)',
         category: t('cmdCategoryNavigation'),
         action: () => {
           navigate('/app/audit');
@@ -89,7 +89,7 @@ export function CommandPalette() {
         id: 'nav-map',
         label: t('cmdNetworkMap'),
         icon: 'hub',
-        color: '#b01e66',
+        color: 'var(--primary)',
         category: t('cmdCategoryNavigation'),
         action: () => {
           navigate('/app/map');

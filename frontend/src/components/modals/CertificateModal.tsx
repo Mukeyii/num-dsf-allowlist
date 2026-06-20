@@ -105,7 +105,7 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             style={{
-              border: `2px dashed ${dragOver ? '#6c63ff' : '#e8eaf0'}`,
+              border: `2px dashed ${dragOver ? 'var(--accent)' : '#e8eaf0'}`,
               borderRadius: '10px',
               padding: '16px',
               textAlign: 'center',
@@ -118,7 +118,7 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
               className="material-symbols-outlined"
               style={{
                 fontSize: '32px',
-                color: dragOver ? '#6c63ff' : '#d4d8e8',
+                color: dragOver ? 'var(--accent)' : '#d4d8e8',
                 display: 'block',
                 marginBottom: '4px',
               }}

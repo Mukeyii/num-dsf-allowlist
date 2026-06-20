@@ -48,7 +48,7 @@ export function Breadcrumbs() {
             ) : (
               <Link
                 to={path}
-                style={{ color: '#6c63ff', textDecoration: 'none', fontWeight: 500 }}
+                style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}
                 onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                 onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
               >

@@ -111,7 +111,7 @@ export function Sidebar() {
                 cursor: 'pointer',
                 fontSize: '11px',
                 fontWeight: 600,
-                color: '#6c63ff',
+                color: 'var(--accent)',
                 padding: '0',
               }}
             >
@@ -185,7 +185,7 @@ export function Sidebar() {
                         flex: 1,
                         fontSize: '11px',
                         fontWeight: isActive ? 700 : 500,
-                        color: isActive ? '#6c63ff' : 'var(--text-primary)',
+                        color: isActive ? 'var(--accent)' : 'var(--text-primary)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -246,7 +246,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = '#b01e66';
+              e.currentTarget.style.color = 'var(--primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
@@ -283,13 +283,13 @@ export function Sidebar() {
                 fontFamily: 'inherit',
                 cursor: 'pointer',
                 background: isAdminRoute && !adminOpen ? '#ede9ff' : 'transparent',
-                color: isAdminRoute && !adminOpen ? '#6c63ff' : 'var(--text-secondary)',
+                color: isAdminRoute && !adminOpen ? 'var(--accent)' : 'var(--text-secondary)',
                 transition: 'all 0.15s',
               }}
               onMouseEnter={(e) => {
                 if (!(isAdminRoute && !adminOpen)) {
                   e.currentTarget.style.background = 'var(--bg-hover)';
-                  e.currentTarget.style.color = '#6c63ff';
+                  e.currentTarget.style.color = 'var(--accent)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -357,14 +357,14 @@ export function Sidebar() {
                         fontSize: '12px',
                         fontWeight: isActive ? 700 : 500,
                         textDecoration: 'none',
-                        color: isActive ? '#6c63ff' : 'var(--text-secondary)',
+                        color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                         background: isActive ? '#ede9ff' : 'transparent',
                         transition: 'all 0.15s',
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background = 'var(--bg-hover)';
-                          e.currentTarget.style.color = '#6c63ff';
+                          e.currentTarget.style.color = 'var(--accent)';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -405,7 +405,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = '#b01e66';
+              e.currentTarget.style.color = 'var(--primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
@@ -438,7 +438,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = '#6c63ff';
+              e.currentTarget.style.color = 'var(--accent)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
@@ -471,7 +471,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = '#b01e66';
+              e.currentTarget.style.color = 'var(--primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
@@ -504,7 +504,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = '#6c63ff';
+              e.currentTarget.style.color = 'var(--accent)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';

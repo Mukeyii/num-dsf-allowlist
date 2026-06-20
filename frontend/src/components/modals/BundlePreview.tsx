@@ -72,7 +72,7 @@ export function BundlePreview({ instanceId }: Props) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
               <span
                 className="material-symbols-outlined"
-                style={{ fontSize: '14px', color: '#6c63ff' }}
+                style={{ fontSize: '14px', color: 'var(--accent)' }}
               >
                 corporate_fare
               </span>
@@ -80,7 +80,7 @@ export function BundlePreview({ instanceId }: Props) {
                 style={{
                   fontSize: '11px',
                   fontWeight: 700,
-                  color: '#6c63ff',
+                  color: 'var(--accent)',
                   textTransform: 'uppercase',
                 }}
               >

@@ -184,7 +184,7 @@ export function NodeDetailsPanel({ org, cluster, isAdmin, onClose, onSelectMembe
                 style={{
                   fontFamily: 'monospace',
                   fontSize: '12px',
-                  color: '#b01e66',
+                  color: 'var(--primary)',
                   margin: '4px 0 0',
                 }}
               >
