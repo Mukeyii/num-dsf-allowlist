@@ -33,15 +33,15 @@ export const caBlacklistApi = {
       `${BASE}/admin/ca-blacklist`,
       { headers: authHeader() },
     ),
-  add: (body: { subjectDn: string; fingerprint?: string; reason?: string }) =>
+  add: (body: { subjectDn: string; fingerprint?: string; reason?: string; totpCode: string }) =>
     axios.post<{ data: { id: string } }>(
       `${BASE}/admin/ca-blacklist`,
       body,
       { headers: authHeader() },
     ),
-  remove: (id: string) =>
+  remove: (id: string, totpCode: string) =>
     axios.delete<{ data: { deleted: true } }>(
       `${BASE}/admin/ca-blacklist/${id}`,
-      { headers: authHeader() },
+      { headers: authHeader(), data: { totpCode } },
     ),
 };

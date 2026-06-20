@@ -740,6 +740,8 @@ export const en = {
   caBlacklistRemovedToast: 'CA removed from blacklist.',
   caBlacklistAddFailed: 'Failed to add CA.',
   caBlacklistRemoveFailed: 'Failed to remove CA from blacklist.',
+  caBlacklistTotpLabel: 'TOTP code',
+  caBlacklistTotpRequired: 'Enter your 6-digit TOTP code.',
   caSubjectDn: 'Issuer Subject DN',
   caSubjectDnPlaceholder: 'CN=Example CA,O=Example,C=DE',
   caReason: 'Reason',

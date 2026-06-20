@@ -749,6 +749,8 @@ export const de: Record<TranslationKey, string> = {
   caBlacklistRemovedToast: 'CA von der Blacklist entfernt.',
   caBlacklistAddFailed: 'CA konnte nicht hinzugefügt werden.',
   caBlacklistRemoveFailed: 'CA konnte nicht von der Blacklist entfernt werden.',
+  caBlacklistTotpLabel: 'TOTP-Code',
+  caBlacklistTotpRequired: 'Bitte 6-stelligen TOTP-Code eingeben.',
   caSubjectDn: 'Aussteller-Subject-DN',
   caSubjectDnPlaceholder: 'CN=Beispiel-CA,O=Beispiel,C=DE',
   caReason: 'Grund',
