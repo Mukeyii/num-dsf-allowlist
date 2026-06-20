@@ -3,12 +3,12 @@ WORKDIR /app
 COPY package*.json ./
 
 FROM base AS dev
-RUN npm install
+RUN npm ci
 COPY . .
 CMD ["npm", "run", "dev"]
 
 FROM base AS build
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 RUN npm prune --omit=dev
