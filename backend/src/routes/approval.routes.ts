@@ -14,6 +14,7 @@ import { requireAuth } from '../middleware/auth.middleware';
 import { requireInstanceOwnership } from '../middleware/instance.middleware';
 import * as svc from '../services/approval.service';
 import { sanitizeError } from '../lib/sanitizeError';
+import { asyncHandler } from '../lib/asyncHandler';
 
 export const approvalRouter = Router({ mergeParams: true });
 
@@ -30,10 +31,20 @@ approvalRouter.post('/submit', requireAuth, requireInstanceOwnership, async (req
   }
 });
 
-approvalRouter.get('/status', requireAuth, requireInstanceOwnership, async (req, res) => {
-  res.json({ data: await svc.getApprovalStatus(req.instance!.id) });
-});
+approvalRouter.get(
+  '/status',
+  requireAuth,
+  requireInstanceOwnership,
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.getApprovalStatus(req.instance!.id) });
+  }),
+);
 
-approvalRouter.get('/history', requireAuth, requireInstanceOwnership, async (req, res) => {
-  res.json({ data: await svc.getApprovalHistory(req.instance!.id) });
-});
+approvalRouter.get(
+  '/history',
+  requireAuth,
+  requireInstanceOwnership,
+  asyncHandler(async (req, res) => {
+    res.json({ data: await svc.getApprovalHistory(req.instance!.id) });
+  }),
+);
