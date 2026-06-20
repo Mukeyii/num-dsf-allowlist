@@ -6,6 +6,7 @@ import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import { normalizeGithubUrl, slugify } from '../schemas/marketplace.schema';
 import { isLicenseOsi, isStale } from '../lib/marketplaceDerived';
+import { parseJsonStringArray as parseStringArray } from '../lib/jsonColumn';
 import { writeAuditLog } from './audit.service';
 
 export type MarketplaceStatus = 'APPROVED' | 'EXPERIMENTAL' | 'DEPRECATED';
@@ -75,20 +76,6 @@ export interface UpdateMetaFields {
   requiredRoles?: string[];
   messageNames?: string[];
   artifactUrl?: string | null;
-}
-
-// Parse a JSON-array column defensively into string[]; a malformed value (a
-// hand-edited row, a legacy NULL) degrades to an empty list rather than throwing.
-function parseStringArray(value: unknown): string[] {
-  if (!value) return [];
-  try {
-    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
-    if (Array.isArray(parsed))
-      return parsed.filter((x: unknown): x is string => typeof x === 'string');
-  } catch {
-    /* fall through to [] */
-  }
-  return [];
 }
 
 function rowToEntry(r: any): MarketplaceEntry {

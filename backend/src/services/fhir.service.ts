@@ -6,6 +6,7 @@
 import { db } from '../db/connection';
 import { v4 as uuidv4 } from 'uuid';
 import type { EndpointRow, CertRow } from '../types/rows';
+import { parseJsonStringArray as readRoles } from '../lib/jsonColumn';
 
 // Canonical DSF identifier systems (the 'sid' / SystemIDentifier slot). Other
 // AllowList tools in production use these exact URLs — see the reference
@@ -20,21 +21,6 @@ const EP_ID_SYSTEM = 'http://dsf.dev/sid/endpoint-identifier';
 // DSF system only.
 const ORG_ROLE_SYSTEM = 'http://dsf.dev/fhir/CodeSystem/organization-role';
 
-// Robustly read the stored roles JSON column. MySQL/Knex returns JSON
-// columns as already-parsed JS arrays in most setups, but tests and older
-// drivers can hand back a string — accept both.
-function readRoles(raw: unknown): string[] {
-  if (Array.isArray(raw)) return raw.filter((r): r is string => typeof r === 'string');
-  if (typeof raw === 'string' && raw.length > 0) {
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed.filter((r): r is string => typeof r === 'string') : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
 const DISCLAIMER_EXTENSION_URL = 'http://dsf.dev/fhir/StructureDefinition/bundle-disclaimer';
 
 // DSF FHIR servers require every emitted resource (and the Bundle envelope)

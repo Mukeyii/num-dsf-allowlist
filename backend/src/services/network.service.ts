@@ -5,6 +5,7 @@
  * Dependencies: db
  */
 import { db } from '../db/connection';
+import { parseJsonStringArray as safeJsonArray } from '../lib/jsonColumn';
 import type {
   OrganizationRow,
   EndpointRow,
@@ -15,17 +16,6 @@ import type {
 } from '../types/rows';
 
 type CertStatus = 'VALID' | 'EXPIRING' | 'EXPIRED' | 'NONE';
-
-function safeJsonArray(raw: unknown): any[] {
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw !== 'string') return [];
-  try {
-    const v = JSON.parse(raw);
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
-  }
-}
 
 function certStatus(validUntils: (Date | string | null)[]): {
   status: CertStatus;
