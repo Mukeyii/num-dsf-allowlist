@@ -100,10 +100,6 @@ export async function verifyTotpCode(userId: string, code: string): Promise<bool
   return true;
 }
 
-export async function enableTotp(userId: string): Promise<void> {
-  await db('users').where({ id: userId }).update({ totp_enabled: true });
-}
-
 // Generate 10 backup codes
 export async function generateBackupCodes(userId: string): Promise<string[]> {
   const codes = Array.from({ length: 10 }, () =>
