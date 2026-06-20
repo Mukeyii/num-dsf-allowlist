@@ -108,7 +108,7 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
         toast.success(t('membershipModalAddSuccess'));
       }
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err, t('membershipModalSaveFailed')));
     }
   }

@@ -121,7 +121,7 @@ export function LoginPage() {
               const decoded: any = jwtDecode(accessToken);
               setTokens(accessToken, { id: decoded.sub, email: decoded.email });
               navigate('/app', { replace: true });
-            } catch (err: any) {
+            } catch (err: unknown) {
               setCertError(getErrorMessage(err, t('loginCertFailed')));
             } finally {
               setCertLoading(false);

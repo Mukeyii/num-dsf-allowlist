@@ -96,7 +96,7 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
         toast.success(t('endpointModalAddSuccess'));
       }
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err, t('endpointModalSaveFailed')));
     }
   }

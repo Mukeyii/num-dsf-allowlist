@@ -98,7 +98,7 @@ export function ApprovalModal({ open, onClose, instanceId }: Props) {
       });
       toast.success(t('approvalModalSubmitSuccess'));
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg = getErrorMessage(err, '');
       if (msg.includes('ALREADY_PENDING')) {
         toast.error(t('approvalModalAlreadyPending'));

@@ -101,7 +101,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
       await approveMut.mutateAsync({ requestId: request.id, totpCode });
       toast.success(t('adminToastApproveSuccess'));
       setTotpCode('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg = getErrorMessage(err, t('adminToastApproveFailed'));
       toast.error(msg);
     }
@@ -123,7 +123,7 @@ export function RequestCard({ request, meEmail }: RequestCardProps) {
       setRejecting(false);
       setComment('');
       setTotpCode('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg = getErrorMessage(err, t('adminToastRejectFailed'));
       toast.error(msg);
     }

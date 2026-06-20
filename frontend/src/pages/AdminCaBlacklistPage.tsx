@@ -28,7 +28,7 @@ export function AdminCaBlacklistPage() {
       toast.success(t('caBlacklistAddedToast'));
       qc.invalidateQueries({ queryKey: ['ca-blacklist'] });
     },
-    onError: (err: any) => toast.error(getErrorMessage(err, t('caBlacklistAddFailed'))),
+    onError: (err: unknown) => toast.error(getErrorMessage(err, t('caBlacklistAddFailed'))),
   });
 
   const removeMut = useMutation({
@@ -37,7 +37,7 @@ export function AdminCaBlacklistPage() {
       toast.success(t('caBlacklistRemovedToast'));
       qc.invalidateQueries({ queryKey: ['ca-blacklist'] });
     },
-    onError: (err: any) => toast.error(getErrorMessage(err, t('caBlacklistRemoveFailed'))),
+    onError: (err: unknown) => toast.error(getErrorMessage(err, t('caBlacklistRemoveFailed'))),
   });
 
   const blacklist: CaBlacklistRow[] = data?.blacklist ?? [];

@@ -65,7 +65,7 @@ export function CertRenewalModal({ open, onClose, instanceId }: Props) {
       });
       toast.success(t('certRenewalSuccess'));
       reset();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err, t('certRenewalFailed')));
     }
   }

@@ -65,7 +65,7 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
       toast.success(t('certModalSaveSuccess'));
       onClose();
       reset();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg = getErrorMessage(err, t('certModalSaveFailed'));
       if (msg.includes('PRIVATE_KEY')) {
         toast.error(t('certModalPrivateKeyDetected'));

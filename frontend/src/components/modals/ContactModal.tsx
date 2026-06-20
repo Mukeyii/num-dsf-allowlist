@@ -107,7 +107,7 @@ export function ContactModal({ open, onClose, instanceId, contactId, defaultValu
         toast.success(t('contactModalAddSuccess'));
       }
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err, t('contactModalSaveFailed')));
     }
   }

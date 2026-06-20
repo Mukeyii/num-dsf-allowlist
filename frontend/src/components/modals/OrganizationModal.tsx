@@ -59,7 +59,7 @@ export function OrganizationModal({ open, onClose, instanceId, defaultValues }: 
       toast.success(t('orgModalSaveSuccess'));
       onClose();
       reset();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err, t('orgModalSaveFailed')));
     }
   }
