@@ -112,6 +112,25 @@ describe('CommandPalette interactions', () => {
     expect(useModals.getState().open).toBe('certificate-add');
   });
 
+  it('re-clamps the selection when the filtered list shrinks before Enter', () => {
+    renderPalette();
+    openPalette();
+
+    const input = screen.getByPlaceholderText(/type a command/i);
+    // Move the selection down a couple of times over the full list.
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    // Type a query that shrinks the list down to a single match.
+    setQuery('Download Allow List');
+    expect(screen.getByText('Download Allow List')).toBeInTheDocument();
+
+    // Enter must run the in-range (first/only) command, not a stale index.
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(useModals.getState().open).toBe('download');
+  });
+
   it('runs the instance-switch command, updating the active instance', () => {
     renderPalette();
     openPalette();

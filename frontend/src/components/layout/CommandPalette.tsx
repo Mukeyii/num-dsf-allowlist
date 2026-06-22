@@ -204,6 +204,12 @@ export function CommandPalette() {
     ? visibleCommands.filter((c) => c.label.toLowerCase().includes(q))
     : visibleCommands;
 
+  // Re-clamp the selection whenever the filtered list shrinks so selectedIndex
+  // never points past the end (which would run the wrong/undefined command).
+  useEffect(() => {
+    setSelectedIndex((i) => Math.min(i, Math.max(filtered.length - 1, 0)));
+  }, [filtered.length]);
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
