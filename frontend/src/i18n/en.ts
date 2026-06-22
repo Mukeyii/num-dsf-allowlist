@@ -406,7 +406,6 @@ export const en = {
   certModalPrivateKeyWarningBody:
     'Paste only the public certificate PEM block. Never include your private key.',
   certModalFieldPem: 'Certificate PEM',
-  certModalFieldPemHint: 'Paste the PEM block starting with -----BEGIN CERTIFICATE-----',
   certModalDropHint: 'Drop a .pem file here, or paste below',
   certModalSaveBtn: 'Save & Parse',
   certModalSaveSuccess: 'Certificate added and parsed successfully.',

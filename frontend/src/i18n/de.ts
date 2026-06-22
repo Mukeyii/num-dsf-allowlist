@@ -409,7 +409,6 @@ export const de: Record<TranslationKey, string> = {
   certModalPrivateKeyWarningBody:
     'Füge nur den öffentlichen Zertifikat-PEM-Block ein. Niemals den privaten Schlüssel einschließen.',
   certModalFieldPem: 'Zertifikat PEM',
-  certModalFieldPemHint: 'PEM-Block einfügen, beginnend mit -----BEGIN CERTIFICATE-----',
   certModalDropHint: '.pem-Datei hier ablegen oder unten einfügen',
   certModalSaveBtn: 'Speichern & Analysieren',
   certModalSaveSuccess: 'Zertifikat erfolgreich hinzugefügt und analysiert.',
