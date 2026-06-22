@@ -31,8 +31,10 @@ export function AppFooter() {
         <img
           src="/logos/IMI-Logo-grad-eng.png"
           alt="IMI"
-          height={16}
-          style={{ display: 'block', opacity: 0.7 }}
+          // Size via inline style, not the height attr — Tailwind preflight's
+          // `img { height: auto }` overrides the attribute and the wide logo
+          // would otherwise fill the footer width.
+          style={{ display: 'block', height: '16px', width: 'auto', opacity: 0.7 }}
         />
       </a>
       <span>{t('footerAffiliation')}</span>
