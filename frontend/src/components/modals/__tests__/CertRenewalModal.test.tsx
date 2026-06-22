@@ -7,7 +7,7 @@
  * directly.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../../test/renderWithProviders';
 
@@ -61,19 +61,15 @@ describe('CertRenewalModal', () => {
 
     await user.click(screen.getByRole('button', { name: /CN=ukm\.de/ }));
     // The modal flags any pasted PEM whose text contains a private-key block.
-    // A short marker exercises that guard without embedding a scanner-tripping
-    // key block (and keeps the keystroke count low so the assertion is stable).
-    await user.type(
-      screen.getByPlaceholderText(/paste PEM content/i),
-      'oops, this still has a PRIVATE KEY',
-    );
+    // Set the value in one atomic fireEvent.change (not char-by-char typing) so
+    // the reactive warning renders in the same synchronous act() flush — there is
+    // no async timing window to lose under heavy parallel CI load. A short
+    // non-PEM marker exercises the guard without tripping the secret scanner.
+    fireEvent.change(screen.getByPlaceholderText(/paste PEM content/i), {
+      target: { value: 'oops, this still has a PRIVATE KEY' },
+    });
 
-    // The warning is reactive on the textarea value; under heavy parallel load
-    // (full suite + coverage) it can mount a beat after the last keystroke
-    // flushes, so wait with a generous timeout rather than the default 1s.
-    expect(
-      await screen.findByText(/contains a PRIVATE KEY/i, undefined, { timeout: 4000 }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/contains a PRIVATE KEY/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^review$/i })).toBeDisabled();
     expect(mutateAsync).not.toHaveBeenCalled();
   });
