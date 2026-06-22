@@ -16,6 +16,7 @@ export const de: Record<TranslationKey, string> = {
   sidebarUserManagement: 'Benutzerverwaltung',
   sidebarPromotions: 'Beförderungen',
   sidebarMarketplace: 'Marktplatz',
+  sidebarResourcesGroup: 'Ressourcen',
   marketplaceTitle: 'Prozess-Marktplatz',
   marketplaceEmpty: 'Noch keine Prozesse registriert.',
   marketplaceAdd: 'Prozess hinzufügen',

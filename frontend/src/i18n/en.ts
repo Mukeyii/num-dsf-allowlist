@@ -15,6 +15,7 @@ export const en = {
   sidebarUserManagement: 'User management',
   sidebarPromotions: 'Promotions',
   sidebarMarketplace: 'Marketplace',
+  sidebarResourcesGroup: 'Resources',
   marketplaceTitle: 'Process Marketplace',
   marketplaceEmpty: 'No processes registered yet.',
   marketplaceAdd: 'Add process',
