@@ -5,12 +5,14 @@
 import React from 'react';
 import { useI18n } from '../../stores/i18n.store';
 import { en, type TranslationKey } from '../../i18n/en';
+import { InfoHint } from '../ui/InfoHint';
 
 interface FormFieldProps {
   label: string;
   required?: boolean;
   error?: string;
   hint?: string;
+  infoKey?: TranslationKey;
   children: React.ReactNode;
 }
 
@@ -24,7 +26,7 @@ function resolveError(error: string, t: (key: TranslationKey) => string): string
   return Object.prototype.hasOwnProperty.call(en, error) ? t(error as TranslationKey) : error;
 }
 
-export function FormField({ label, required, error, hint, children }: FormFieldProps) {
+export function FormField({ label, required, error, hint, infoKey, children }: FormFieldProps) {
   const { t } = useI18n();
   const fieldId = React.useId();
   return (
@@ -32,6 +34,7 @@ export function FormField({ label, required, error, hint, children }: FormFieldP
       <label htmlFor={fieldId} className="block text-xs font-semibold text-slate-600">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
+        {infoKey && <InfoHint text={t(infoKey)} label={t(infoKey)} />}
       </label>
       {React.isValidElement(children)
         ? React.cloneElement(children as React.ReactElement, {
