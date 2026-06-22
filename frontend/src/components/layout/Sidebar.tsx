@@ -24,10 +24,15 @@ export function Sidebar() {
   const [showCreate, setShowCreate] = useState(false);
   const [logoutHover, setLogoutHover] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
   const { pathname } = useLocation();
-  // Highlight the collapsed admin group when the active route is one of its
-  // children, so the user can see where they are without auto-opening.
+  // Highlight a collapsed group when the active route is one of its children,
+  // so the user can see where they are without auto-opening.
   const isAdminRoute = pathname.startsWith('/app/admin') || pathname === '/app/audit';
+  const isResourcesRoute =
+    pathname.startsWith('/app/marketplace') ||
+    pathname === '/app/resources' ||
+    pathname === '/app/skill';
   const [pinnedIds, setPinnedIds] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('dsf-pinned-instances') || '[]');
@@ -419,106 +424,7 @@ export function Sidebar() {
           </Link>
         </div>
 
-        {/* Marketplace link (all authenticated users) */}
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/marketplace"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 10px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = 'var(--accent)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--text-secondary)';
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              extension
-            </span>
-            {t('sidebarMarketplace')}
-          </Link>
-        </div>
-
-        {/* DSF Resources link (all authenticated users) */}
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/resources"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 10px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = 'var(--primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--text-secondary)';
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              menu_book
-            </span>
-            {t('dsfResourcesNavLabel')}
-          </Link>
-        </div>
-
-        {/* Process Skill link (all authenticated users) */}
-        <div style={{ padding: '0 16px', marginTop: '4px' }}>
-          <Link
-            to="/app/skill"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 10px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              textDecoration: 'none',
-              color: 'var(--text-secondary)',
-              background: 'transparent',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bg-hover)';
-              e.currentTarget.style.color = 'var(--primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--text-secondary)';
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              auto_awesome
-            </span>
-            {t('processSkillNavLabel')}
-          </Link>
-        </div>
-
-        {/* Status link */}
+        {/* Status link (all users) */}
         <div style={{ padding: '0 16px', marginTop: '4px' }}>
           <Link
             to="/app/status"
@@ -549,6 +455,119 @@ export function Sidebar() {
             </span>
             {t('status')}
           </Link>
+        </div>
+
+        {/* Resources — collapsible group (all users): the marketplace, DSF
+          reference links, and the process-skill download. Highlights its header
+          when one of its routes is active and the group is collapsed. */}
+        <div style={{ padding: '0 16px', marginTop: '8px' }}>
+          <button
+            type="button"
+            onClick={() => setResourcesOpen((o) => !o)}
+            aria-expanded={resourcesOpen}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 10px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '12px',
+              fontWeight: 600,
+              textAlign: 'left',
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+              background: isResourcesRoute && !resourcesOpen ? '#ede9ff' : 'transparent',
+              color: isResourcesRoute && !resourcesOpen ? 'var(--accent)' : 'var(--text-secondary)',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              if (!(isResourcesRoute && !resourcesOpen)) {
+                e.currentTarget.style.background = 'var(--bg-hover)';
+                e.currentTarget.style.color = 'var(--accent)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!(isResourcesRoute && !resourcesOpen)) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              widgets
+            </span>
+            <span style={{ flex: 1 }}>{t('sidebarResourcesGroup')}</span>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: '18px',
+                transition: 'transform 0.2s ease',
+                transform: resourcesOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            >
+              chevron_right
+            </span>
+          </button>
+
+          {resourcesOpen && (
+            <div
+              style={{
+                marginTop: '4px',
+                marginLeft: '14px',
+                paddingLeft: '10px',
+                borderLeft: '1px solid var(--border)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px',
+              }}
+            >
+              {[
+                { to: '/app/marketplace', icon: 'extension', label: t('sidebarMarketplace') },
+                { to: '/app/resources', icon: 'menu_book', label: t('dsfResourcesNavLabel') },
+                { to: '/app/skill', icon: 'auto_awesome', label: t('processSkillNavLabel') },
+              ].map((item) => {
+                const isActive = pathname === item.to || pathname.startsWith(item.to + '/');
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '7px 10px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: isActive ? 700 : 500,
+                      textDecoration: 'none',
+                      color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                      background: isActive ? '#ede9ff' : 'transparent',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'var(--bg-hover)';
+                        e.currentTarget.style.color = 'var(--accent)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                      }
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </nav>
 
