@@ -124,6 +124,7 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
           label={t('membershipModalFieldParent')}
           required
           error={errors.parentOrganization?.message}
+          infoKey="glossaryParentOrg"
         >
           <select {...register('parentOrganization')} className={selectClass}>
             <option value="">{t('membershipModalFieldParentPlaceholder')}</option>
@@ -152,7 +153,12 @@ export function MembershipModal({ open, onClose, instanceId, membershipId, defau
             ))}
           </select>
         </FormField>
-        <FormField label={t('membershipModalFieldRoles')} required error={errors.roles?.message}>
+        <FormField
+          label={t('membershipModalFieldRoles')}
+          required
+          error={errors.roles?.message}
+          infoKey="glossaryRoles"
+        >
           <Controller
             name="roles"
             control={control}
