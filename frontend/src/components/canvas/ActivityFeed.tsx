@@ -49,7 +49,9 @@ export function ActivityFeed() {
     <div
       style={{
         position: 'fixed',
-        bottom: '20px',
+        // Sit above the persistent AppFooter (the disclaimer bar) so the
+        // floating button never overlaps it.
+        bottom: '48px',
         right: '300px',
         zIndex: 30,
         fontFamily: 'Inter, system-ui, sans-serif',
