@@ -33,6 +33,7 @@ import { adminMarketplaceRouter } from './routes/admin-marketplace.routes';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
 import { randomUUID } from 'crypto';
 import { logger } from './lib/logger';
+import { NOT_FOUND_CODES } from './lib/notFoundCodes';
 
 const app = express();
 
@@ -160,20 +161,6 @@ app.get('/health/ready', async (_req, res) => {
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
 });
-
-// Error codes that map to 404 — exact equality only, so a service throwing
-// 'WHATEVER_NOT_FOUND' doesn't collide with the global handler. Add new codes
-// here explicitly when they appear.
-const NOT_FOUND_CODES = new Set([
-  'NOT_FOUND',
-  'ORGANIZATION_NOT_FOUND',
-  'CONTACT_NOT_FOUND',
-  'ENDPOINT_NOT_FOUND',
-  'MEMBERSHIP_NOT_FOUND',
-  'CERTIFICATE_NOT_FOUND',
-  'REQUEST_NOT_FOUND',
-  'USER_NOT_FOUND',
-]);
 
 // Global error handler
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {

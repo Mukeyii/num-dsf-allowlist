@@ -189,7 +189,7 @@ describe('Memberships API', () => {
       const res = await request(app)
         .delete(`/api/v1/instances/${instanceId}/memberships/${uuidv4()}`)
         .set('Authorization', `Bearer ${token}`);
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('MEMBERSHIP_NOT_FOUND');
     });
   });
