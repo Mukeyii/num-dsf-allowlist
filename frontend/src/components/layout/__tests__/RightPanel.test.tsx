@@ -12,6 +12,15 @@ vi.mock('../../../hooks/useMemberships', () => ({
 vi.mock('../../../hooks/useCertificates', () => ({
   useCertificates: () => ({ data: [] }),
 }));
+vi.mock('../../../hooks/useOrganization', () => ({
+  useOrganization: () => ({ data: { active: true } }),
+}));
+vi.mock('../../../hooks/useContacts', () => ({
+  useContacts: () => ({ data: [] }),
+}));
+vi.mock('../../../hooks/useEndpoints', () => ({
+  useEndpoints: () => ({ data: [] }),
+}));
 
 import { RightPanel } from '../RightPanel';
 
@@ -21,5 +30,7 @@ describe('RightPanel', () => {
     expect(screen.getByRole('heading', { name: /approval status/i })).toBeInTheDocument();
     // memberships fixture has 2 entries -> count is rendered.
     expect(screen.getByText('2')).toBeInTheDocument();
+    // the readiness checklist is mounted alongside the approval-status card.
+    expect(screen.getByText(/ready to submit\?/i)).toBeInTheDocument();
   });
 });

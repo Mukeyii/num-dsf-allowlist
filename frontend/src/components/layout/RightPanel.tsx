@@ -5,6 +5,7 @@ import { useApprovalStatus, useApprovalHistory } from '../../hooks/useApproval';
 import { useMemberships } from '../../hooks/useMemberships';
 import { useCertificates } from '../../hooks/useCertificates';
 import { ExpiryTimeline } from './ExpiryTimeline';
+import { ReadinessChecklist } from './ReadinessChecklist';
 import { useI18n } from '../../stores/i18n.store';
 
 export function RightPanel({ instanceId }: { instanceId: string | null }) {
@@ -62,6 +63,8 @@ export function RightPanel({ instanceId }: { instanceId: string | null }) {
           )}
         </div>
       </div>
+
+      {instanceId && <ReadinessChecklist instanceId={instanceId} />}
 
       <div className="space-y-2">
         <p
