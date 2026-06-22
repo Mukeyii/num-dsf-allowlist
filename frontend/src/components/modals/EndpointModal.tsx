@@ -123,7 +123,7 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
           label={t('endpointModalFieldIdentifier')}
           required
           error={errors.identifier?.message}
-          hint={endpointId ? t('identifierLockedHelp') : undefined}
+          hint={endpointId ? t('identifierLockedHelp') : t('hintEndpointIdentifier')}
         >
           <input
             {...register('identifier')}
@@ -149,6 +149,7 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
         <FormField
           label={t('endpointModalFieldAddress')}
           required
+          infoKey="glossaryFhirEndpoint"
           error={errors.address?.message}
           hint={t('endpointModalFieldAddressHint')}
         >
@@ -171,7 +172,8 @@ export function EndpointModal({ open, onClose, instanceId, endpointId, defaultVa
               {t('endpointModalAddIp')}
             </button>
           </div>
-          <p className="text-[10px] text-slate-400 mb-3">{t('endpointModalIpHint')}</p>
+          <p className="text-[10px] text-slate-400 mb-1">{t('endpointModalIpHint')}</p>
+          <p className="text-[10px] text-slate-400 mb-3">{t('hintEndpointIp')}</p>
           <div className="space-y-3">
             {fields.map((field, index) => (
               <div
