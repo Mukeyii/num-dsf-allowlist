@@ -185,7 +185,7 @@ export function CertificatesCard({ instanceId }: { instanceId: string }) {
               padding: '16px 0',
             }}
           >
-            {t('noData')}
+            {t('emptyCertificatesHint')}
           </p>
         )}
       </div>

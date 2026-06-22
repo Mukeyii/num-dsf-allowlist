@@ -217,7 +217,7 @@ export function ContactsCard({ instanceId }: { instanceId: string }) {
               padding: '12px 0',
             }}
           >
-            {t('noData')}
+            {t('emptyContactsHint')}
           </div>
         )}
       </div>

@@ -201,7 +201,7 @@ export function EndpointsCard({ instanceId }: { instanceId: string }) {
               padding: '12px 0',
             }}
           >
-            {t('noData')}
+            {t('emptyEndpointsHint')}
           </div>
         )}
       </div>

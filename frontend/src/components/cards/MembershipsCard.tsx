@@ -173,7 +173,7 @@ export function MembershipsCard({ instanceId }: { instanceId: string }) {
               padding: '16px 0',
             }}
           >
-            {t('noData')}
+            {t('emptyMembershipsHint')}
           </p>
         )}
       </div>

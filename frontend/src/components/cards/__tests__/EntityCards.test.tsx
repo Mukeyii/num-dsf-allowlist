@@ -129,7 +129,7 @@ describe('OrganizationCard', () => {
   it('renders the empty state when there is no organization', () => {
     mOrg.mockReturnValue(ok(null));
     renderWithProviders(<OrganizationCard instanceId="i1" />);
-    expect(screen.getByText(/No data yet/)).toBeInTheDocument();
+    expect(screen.getByText(/No organization yet/i)).toBeInTheDocument();
   });
 
   it('opens the org-edit modal when Edit is clicked', async () => {
@@ -167,7 +167,7 @@ describe('ContactsCard', () => {
   it('renders the empty state', () => {
     mContacts.mockReturnValue(ok([]));
     renderWithProviders(<ContactsCard instanceId="i1" />);
-    expect(screen.getByText('No data yet.')).toBeInTheDocument();
+    expect(screen.getByText(/No contacts yet/i)).toBeInTheDocument();
   });
 
   it('opens the contact-add modal when Add is clicked', async () => {
@@ -208,7 +208,7 @@ describe('EndpointsCard', () => {
   it('renders the empty state', () => {
     mEndpoints.mockReturnValue(ok([]));
     renderWithProviders(<EndpointsCard instanceId="i1" />);
-    expect(screen.getByText('No data yet.')).toBeInTheDocument();
+    expect(screen.getByText(/No endpoints yet/i)).toBeInTheDocument();
   });
 
   it('opens the endpoint-edit modal for a row when its edit control is clicked', async () => {
@@ -236,7 +236,7 @@ describe('CertificatesCard', () => {
   it('renders the empty state', () => {
     mCerts.mockReturnValue(ok([]));
     renderWithProviders(<CertificatesCard instanceId="i1" />);
-    expect(screen.getByText('No data yet.')).toBeInTheDocument();
+    expect(screen.getByText(/No certificates yet/i)).toBeInTheDocument();
   });
 
   it('shows the loading indicator while certificates are loading', () => {
@@ -268,7 +268,7 @@ describe('MembershipsCard', () => {
   it('renders the empty state', () => {
     mMemberships.mockReturnValue(ok([]));
     renderWithProviders(<MembershipsCard instanceId="i1" />);
-    expect(screen.getByText('No data yet.')).toBeInTheDocument();
+    expect(screen.getByText(/No memberships yet/i)).toBeInTheDocument();
   });
 
   it('opens the membership-add modal when Add is clicked', async () => {

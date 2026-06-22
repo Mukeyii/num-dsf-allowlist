@@ -100,7 +100,7 @@ export function OrganizationCard({ instanceId }: Props) {
             padding: '20px 0',
           }}
         >
-          {t('noData')}
+          {t('emptyOrganizationHint')}
           <br />
           {t('orgCardSetupHint')}
         </div>
