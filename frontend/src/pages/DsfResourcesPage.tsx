@@ -17,7 +17,6 @@ export function DsfResourcesPage() {
         padding: '32px',
         overflowY: 'auto',
         fontFamily: 'Inter, system-ui, sans-serif',
-        maxWidth: '900px',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -68,7 +67,13 @@ export function DsfResourcesPage() {
             />
             {t(cat.headingKey)}
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+              gap: '10px',
+            }}
+          >
             {cat.links.map((link) => (
               <a
                 key={link.url}
