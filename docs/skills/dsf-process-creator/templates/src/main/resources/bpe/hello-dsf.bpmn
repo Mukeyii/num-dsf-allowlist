@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_HelloDsf"
+                  targetNamespace="http://example.org/bpe"
+                  exporter="Camunda Modeler" exporterVersion="5.0.0">
+  <bpmn:process id="example_helloDsfProcess" name="Hello DSF" isExecutable="true" camunda:versionTag="#{version}">
+    <bpmn:startEvent id="StartEvent_Hello" name="start">
+      <bpmn:outgoing>Flow_StartToService</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_Start" messageRef="Message_StartHelloDsf" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_StartToService" sourceRef="StartEvent_Hello" targetRef="HelloDsfService" />
+    <bpmn:serviceTask id="HelloDsfService" name="Hello DSF" camunda:class="org.example.process.service.HelloDsfService">
+      <bpmn:incoming>Flow_StartToService</bpmn:incoming>
+      <bpmn:outgoing>Flow_ServiceToEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_ServiceToEnd" sourceRef="HelloDsfService" targetRef="endHelloRecipient" />
+    <bpmn:endEvent id="endHelloRecipient" name="hello recipient">
+      <bpmn:incoming>Flow_ServiceToEnd</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_End" messageRef="Message_HelloRecipient" camunda:class="org.example.process.message.SendHelloMessage">
+        <bpmn:extensionElements>
+          <camunda:field name="instantiatesCanonical">
+            <camunda:string>http://example.org/bpe/Process/helloDsfProcess|#{version}</camunda:string>
+          </camunda:field>
+          <camunda:field name="profile">
+            <camunda:string>http://example.org/fhir/StructureDefinition/task-hello-recipient|#{version}</camunda:string>
+          </camunda:field>
+          <camunda:field name="messageName">
+            <camunda:string>helloRecipient</camunda:string>
+          </camunda:field>
+        </bpmn:extensionElements>
+      </bpmn:messageEventDefinition>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_StartHelloDsf" name="startHelloDsf" />
+  <bpmn:message id="Message_HelloRecipient" name="helloRecipient" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_HelloDsf">
+    <bpmndi:BPMNPlane id="BPMNPlane_HelloDsf" bpmnElement="example_helloDsfProcess">
+      <bpmndi:BPMNShape id="StartEvent_Hello_di" bpmnElement="StartEvent_Hello">
+        <dc:Bounds x="172" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="178" y="145" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="HelloDsfService_di" bpmnElement="HelloDsfService">
+        <dc:Bounds x="260" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endHelloRecipient_di" bpmnElement="endHelloRecipient">
+        <dc:Bounds x="412" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="392" y="145" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_StartToService_di" bpmnElement="Flow_StartToService">
+        <di:waypoint x="208" y="120" />
+        <di:waypoint x="260" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ServiceToEnd_di" bpmnElement="Flow_ServiceToEnd">
+        <di:waypoint x="360" y="120" />
+        <di:waypoint x="412" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,7 @@
+{
+  "processIdentifiers": ["example_helloDsfProcess"],
+  "dsfVersionMin": "2.1.0",
+  "requiredRoles": ["DIC"],
+  "messageNames": ["startHelloDsf", "helloRecipient"],
+  "artifactUrl": "https://github.com/OWNER/example-process/releases/latest"
+}

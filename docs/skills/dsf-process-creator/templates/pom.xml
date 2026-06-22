@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.example</groupId>
+  <artifactId>example-process</artifactId>
+  <!-- 4-part plugin version MAJOR.MINOR.PATCH.BUILD; -SNAPSHOT while developing.
+       The BPE strips -SNAPSHOT and derives resourceVersion = "1.0" (first 2 parts). -->
+  <version>1.0.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <!-- name/title and publisher are filtered into plugin.properties (see below). -->
+  <description>Example DSF process</description>
+  <organization>
+    <name>Example Organization</name>
+  </organization>
+
+  <properties>
+    <!-- DSF process API v2 version. 2.0.0-2.1.0 exist on Maven Central; 2.1.0 is latest. -->
+    <dsf.version>2.1.0</dsf.version>
+    <!-- Java 17 is the documented floor; 21/25 also compile. Require Maven >= 3.8. -->
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Reproducible build timestamp; also the source of plugin.properties release-date. -->
+    <project.build.outputTimestamp>2025-01-01T00:00:00Z</project.build.outputTimestamp>
+  </properties>
+
+  <dependencies>
+    <!-- The DSF API is supplied by the BPE at runtime: scope=provided, never bundled. -->
+    <dependency>
+      <groupId>dev.dsf</groupId>
+      <artifactId>dsf-bpe-process-api-v2</artifactId>
+      <version>${dsf.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test scope only -->
+    <dependency>
+      <groupId>dev.dsf</groupId>
+      <artifactId>dsf-fhir-validation</artifactId>
+      <version>${dsf.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.camunda.bpm</groupId>
+      <artifactId>camunda-engine</artifactId>
+      <version>7.23.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.camunda.bpm.model</groupId>
+      <artifactId>camunda-bpmn-model</artifactId>
+      <version>7.23.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.5.1</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Test helpers shipped in the API's test classifier. -->
+    <dependency>
+      <groupId>dev.dsf</groupId>
+      <artifactId>dsf-bpe-process-api-v2</artifactId>
+      <version>${dsf.version}</version>
+      <classifier>test-jar</classifier>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Resource filtering: substitute ${project.*} into plugin.properties ONLY.
+         Filtering binary/FHIR resources would corrupt them. -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>plugin.properties</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>plugin.properties</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <!-- Plain JAR. finalName must match artifactId so the BPE derives the plugin name. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <finalName>example-process-${project.version}</finalName>
+        </configuration>
+      </plugin>
+
+      <!-- DSF plugin goals: config-doc markdown + dev TLS cert/bundle generation. -->
+      <plugin>
+        <groupId>dev.dsf</groupId>
+        <artifactId>dsf-maven-plugin</artifactId>
+        <version>${dsf.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-config-doc</goal>
+              <goal>generate-dev-setup-cert-files</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- Packages scanned for @ProcessDocumentation @Value fields. -->
+          <configDocPackages>org.example.process.spring.config</configDocPackages>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Publish the jar to this repo's GitHub Packages registry (mvn deploy). -->
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <!-- Replace OWNER with the GitHub org/user that owns this repository. -->
+      <url>https://maven.pkg.github.com/OWNER/example-process</url>
+    </repository>
+  </distributionManagement>
+</project>

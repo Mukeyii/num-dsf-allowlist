@@ -1,0 +1,74 @@
+# Copy to .github/workflows/ci.yml in the plugin repository.
+# Build + test on push/PR; on a v* tag, release the jar + .sha256 and deploy to GitHub Packages.
+#
+# Supply-chain note: the actions below are pinned to floating major tags for
+# readability. For production, pin every third-party action to a full commit
+# SHA (e.g. `softprops/action-gh-release@<sha>  # v2`) so a moved tag cannot
+# change what runs.
+name: ci
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']
+  pull_request:
+
+# Least privilege: read by default; the tag-gated release job grants its own writes.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build and test
+        run: mvn -B verify
+
+  release:
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the GitHub Release
+      packages: write # publish to GitHub Packages
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Build jar
+        run: mvn -B -DskipTests package
+
+      - name: Compute SHA-256
+        run: |
+          jar=$(ls target/example-process-*.jar)
+          sha256sum "$jar" > "$jar.sha256"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            target/example-process-*.jar
+            target/example-process-*.jar.sha256
+
+      - name: Deploy to GitHub Packages
+        run: mvn -B -DskipTests deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Task xmlns="http://hl7.org/fhir">
+  <meta>
+    <profile value="http://example.org/fhir/StructureDefinition/task-start-hello-dsf|#{version}" />
+  </meta>
+  <instantiatesCanonical value="http://example.org/bpe/Process/helloDsfProcess|#{version}" />
+  <status value="requested" />
+  <intent value="order" />
+  <authoredOn value="#{date}T00:00:00.000+00:00" />
+  <requester>
+    <type value="Organization" />
+    <identifier>
+      <system value="http://dsf.dev/sid/organization-identifier" />
+      <value value="requester.example.org" />
+    </identifier>
+  </requester>
+  <restriction>
+    <recipient>
+      <type value="Organization" />
+      <identifier>
+        <system value="http://dsf.dev/sid/organization-identifier" />
+        <value value="recipient.example.org" />
+      </identifier>
+    </recipient>
+  </restriction>
+  <input>
+    <type>
+      <coding>
+        <system value="http://dsf.dev/fhir/CodeSystem/bpmn-message" />
+        <code value="message-name" />
+      </coding>
+    </type>
+    <valueString value="startHelloDsf" />
+  </input>
+  <input>
+    <type>
+      <coding>
+        <system value="http://example.org/fhir/CodeSystem/example" />
+        <code value="hello-input" />
+      </coding>
+    </type>
+    <valueString value="Hello from requester.example.org" />
+  </input>
+</Task>
