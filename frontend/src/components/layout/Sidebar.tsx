@@ -571,21 +571,6 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* IMI Logo */}
-      <div style={{ padding: '0 16px 12px' }}>
-        <a
-          href="https://www.medizin.uni-muenster.de/imi/das-institut.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="/logos/IMI-Logo-grad-eng.png"
-            alt="IMI"
-            style={{ width: '100%', opacity: 0.7 }}
-          />
-        </a>
-      </div>
-
       {/* User Identity + Logout */}
       <div className="px-3">
         {/* User Card */}
