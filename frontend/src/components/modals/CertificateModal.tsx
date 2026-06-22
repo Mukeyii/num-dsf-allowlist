@@ -95,7 +95,7 @@ export function CertificateModal({ open, onClose, instanceId }: Props) {
           label={t('certModalFieldPem')}
           required
           error={errors.pem?.message}
-          hint={t('certModalFieldPemHint')}
+          hint={t('hintCertificatePem')}
         >
           <div
             onDragOver={(e) => {
