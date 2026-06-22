@@ -44,6 +44,7 @@ export function MarketplaceCard({ entry }: { entry: MarketplaceEntry }) {
         position: 'relative',
         overflow: 'hidden',
         minWidth: 0,
+        height: '100%',
       }}
     >
       {entry.advisorySeverity && (
