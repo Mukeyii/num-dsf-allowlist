@@ -5,7 +5,8 @@ test('admin can add a marketplace entry through the UI', async ({ page }) => {
   test.setTimeout(120_000); // accommodate retry/back-off in loginAs
   await loginAs(page, 'admin');
   // Navigate via sidebar link so AuthBootstrap doesn't remount and lose the
-  // freshly-set admin auth state.
+  // freshly-set admin auth state. Marketplace lives inside the Resources group.
+  await page.getByRole('button', { name: /resources|ressourcen/i }).click();
   await page.getByRole('link', { name: /marketplace|marktplatz/i }).click();
   await page.waitForURL(/\/app\/marketplace/);
   await page.waitForLoadState('networkidle');
