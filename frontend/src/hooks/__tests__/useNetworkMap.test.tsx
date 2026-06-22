@@ -49,16 +49,15 @@ describe('useNetworkMap', () => {
     expect(result.current.data).toEqual({ organizations: [], isAdmin: false });
   });
 
-  // NOTE: the queryFn reads r.data.meta.isAdmin with no guard. A response that
-  // omits `meta` therefore throws inside the queryFn and the query lands in the
-  // error state rather than degrading to a safe default. This test pins that
-  // real behaviour so a future guard change is a deliberate, visible decision.
-  it('errors when the response has no meta block (unguarded meta access)', async () => {
+  // The queryFn guards r.data.meta.isAdmin with optional chaining and a safe
+  // default. A response that omits `meta` therefore degrades to isAdmin=false
+  // and keeps the organizations it does carry, instead of erroring out.
+  it('degrades to isAdmin=false when the response has no meta block', async () => {
     getMap.mockResolvedValue({ data: { data: { organizations: [] } } });
 
     const { result } = renderHook(() => useNetworkMap(), { wrapper });
 
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.data).toBeUndefined();
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual({ organizations: [], isAdmin: false });
   });
 });

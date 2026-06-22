@@ -9,8 +9,8 @@ export function useNetworkMap() {
     queryKey: ['network', 'map'],
     queryFn: () =>
       networkApi.getMap().then((r) => ({
-        organizations: r.data.data.organizations,
-        isAdmin: r.data.meta.isAdmin,
+        organizations: r.data?.data?.organizations ?? [],
+        isAdmin: r.data?.meta?.isAdmin ?? false,
       })),
     staleTime: 60_000,
   });
