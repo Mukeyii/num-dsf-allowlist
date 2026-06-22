@@ -834,6 +834,51 @@ export const en = {
   dsfResourcesDescGithub: 'DSF reference implementation source code.',
   dsfResourcesDescCommunity: 'Team, communication channels, and how to contribute.',
 
+  // Guided canvas — glossary
+  glossaryDic:
+    'DIC = Data Integration Center: integrates and provides a site’s clinical data into the network.',
+  glossaryHrp: 'HRP = Health Research Platform: hosts cross-site research processes.',
+  glossaryDts: 'DTS = Data Transfer Site: relays data between participants.',
+  glossaryFhirEndpoint:
+    'A FHIR Endpoint is the URL where your DSF instance is reachable for the network.',
+  glossaryMtls:
+    'mTLS = mutual TLS: both sides present a certificate to authenticate the connection.',
+  glossaryThumbprint:
+    'The thumbprint is the SHA-256 fingerprint of a certificate, used to identify it.',
+  glossaryParentOrg: 'The parent organization is the network this membership belongs to.',
+  glossaryBundle:
+    'The allow list bundle is the FHIR document the network consumes; it lists approved participants.',
+  glossaryIdentifier:
+    'The identifier is a stable FQDN-style id (e.g. ukm.de) — letters, digits, dot, colon, hyphen.',
+  glossaryRoles: 'Roles describe what your organization does in the network (e.g. DIC, HRP, DTS).',
+
+  // Guided canvas — empty-state hints
+  emptyOrganizationHint:
+    'No organization yet. Add your institution’s master data (name, FQDN identifier, address) to begin.',
+  emptyContactsHint: 'No contacts yet. At least one contact is required before submitting.',
+  emptyEndpointsHint:
+    'No endpoints yet. An endpoint is the FHIR URL where your instance is reachable; at least one is required.',
+  emptyCertificatesHint:
+    'No certificates yet. Upload the public certificate (PEM) used for mTLS; a private key is rejected.',
+  emptyMembershipsHint:
+    'No memberships yet. A membership ties this organization (with a role like DIC/HRP) to a parent network.',
+
+  // Guided canvas — readiness
+  readinessTitle: 'Ready to submit?',
+  readinessReady: 'Ready to submit',
+  readinessOpen: '{count} step(s) left',
+  readinessOrganization: 'Organization',
+  readinessContacts: 'Contact',
+  readinessEndpoints: 'Endpoint',
+  readinessCertificates: 'Valid certificate',
+  readinessMemberships: 'Membership',
+
+  // Guided canvas — form hints
+  hintCertificatePem:
+    'Paste the PUBLIC certificate in PEM format. Never paste a private key — it is rejected.',
+  hintEndpointIdentifier: 'FQDN-style id, e.g. fhir.ukm.de.',
+  hintEndpointIp: 'Mark each IP as FHIR and/or BPE so the network allow-lists it correctly.',
+
   // Schema validation — organization
   identifierTooShort: 'Identifier must be at least 3 characters',
   orgIdentifierInvalidFqdn: 'Must be a valid FQDN (e.g. ukm.de)',

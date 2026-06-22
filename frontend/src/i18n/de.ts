@@ -844,6 +844,55 @@ export const de: Record<TranslationKey, string> = {
   dsfResourcesDescGithub: 'Quellcode der DSF-Referenzimplementierung.',
   dsfResourcesDescCommunity: 'Team, Kommunikationskanäle und wie man beiträgt.',
 
+  // Guided canvas — glossary
+  glossaryDic:
+    'DIC = Data Integration Center: integriert und stellt die klinischen Daten eines Standorts im Netzwerk bereit.',
+  glossaryHrp: 'HRP = Health Research Platform: betreibt standortübergreifende Forschungsprozesse.',
+  glossaryDts: 'DTS = Data Transfer Site: vermittelt Daten zwischen Teilnehmern.',
+  glossaryFhirEndpoint:
+    'Ein FHIR-Endpoint ist die URL, unter der deine DSF-Instanz für das Netzwerk erreichbar ist.',
+  glossaryMtls:
+    'mTLS = mutual TLS: beide Seiten weisen sich per Zertifikat aus, um die Verbindung zu authentifizieren.',
+  glossaryThumbprint:
+    'Der Thumbprint ist der SHA-256-Fingerabdruck eines Zertifikats und dient zu dessen Identifikation.',
+  glossaryParentOrg:
+    'Die übergeordnete Organisation ist der Verbund, zu dem diese Mitgliedschaft gehört.',
+  glossaryBundle:
+    'Das Allow-List-Bundle ist das FHIR-Dokument, das das Netzwerk einliest; es listet freigegebene Teilnehmer.',
+  glossaryIdentifier:
+    'Der Identifier ist eine stabile FQDN-artige ID (z. B. ukm.de) — Buchstaben, Ziffern, Punkt, Doppelpunkt, Bindestrich.',
+  glossaryRoles:
+    'Rollen beschreiben, welche Aufgabe deine Organisation im Netzwerk übernimmt (z. B. DIC, HRP, DTS).',
+
+  // Guided canvas — empty-state hints
+  emptyOrganizationHint:
+    'Noch keine Organisation. Lege die Stammdaten deiner Einrichtung an (Name, FQDN-Identifier, Adresse), um zu starten.',
+  emptyContactsHint:
+    'Noch keine Kontakte. Mindestens ein Kontakt ist vor dem Einreichen erforderlich.',
+  emptyEndpointsHint:
+    'Noch keine Endpoints. Ein Endpoint ist die FHIR-URL, unter der deine Instanz erreichbar ist; mindestens einer ist erforderlich.',
+  emptyCertificatesHint:
+    'Noch keine Zertifikate. Lade das öffentliche Zertifikat (PEM) für mTLS hoch; ein privater Schlüssel wird abgelehnt.',
+  emptyMembershipsHint:
+    'Noch keine Mitgliedschaften. Eine Mitgliedschaft verbindet diese Organisation (mit einer Rolle wie DIC/HRP) mit einem übergeordneten Netzwerk.',
+
+  // Guided canvas — readiness
+  readinessTitle: 'Bereit zum Einreichen?',
+  readinessReady: 'Einreichbereit',
+  readinessOpen: 'Noch {count} Schritt(e) offen',
+  readinessOrganization: 'Organisation',
+  readinessContacts: 'Kontakt',
+  readinessEndpoints: 'Endpoint',
+  readinessCertificates: 'Gültiges Zertifikat',
+  readinessMemberships: 'Mitgliedschaft',
+
+  // Guided canvas — form hints
+  hintCertificatePem:
+    'Füge das ÖFFENTLICHE Zertifikat im PEM-Format ein. Niemals einen privaten Schlüssel — er wird abgelehnt.',
+  hintEndpointIdentifier: 'FQDN-artige ID, z. B. fhir.ukm.de.',
+  hintEndpointIp:
+    'Markiere jede IP als FHIR und/oder BPE, damit das Netzwerk sie korrekt freischaltet.',
+
   // Schema validation — organization
   identifierTooShort: 'Bezeichner muss mindestens 3 Zeichen lang sein',
   orgIdentifierInvalidFqdn: 'Muss ein gültiger FQDN sein (z.B. ukm.de)',
