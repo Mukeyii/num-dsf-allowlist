@@ -37,21 +37,11 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
       <div style={{ padding: '16px', flex: 1, overflowY: 'auto' }}>
         <OnboardingWizard instanceId={instanceId} />
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-organization">
-            <OrganizationCard instanceId={instanceId} />
-          </div>
-          <div id="card-contacts">
-            <ContactsCard instanceId={instanceId} />
-          </div>
-          <div id="card-endpoints">
-            <EndpointsCard instanceId={instanceId} />
-          </div>
-          <div id="card-memberships">
-            <MembershipsCard instanceId={instanceId} />
-          </div>
-          <div id="card-certificates">
-            <CertificatesCard instanceId={instanceId} />
-          </div>
+          <OrganizationCard instanceId={instanceId} />
+          <ContactsCard instanceId={instanceId} />
+          <EndpointsCard instanceId={instanceId} />
+          <MembershipsCard instanceId={instanceId} />
+          <CertificatesCard instanceId={instanceId} />
         </div>
       </div>
     );
@@ -63,23 +53,13 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
         <OnboardingWizard instanceId={instanceId} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap, alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-            <div id="card-organization">
-              <OrganizationCard instanceId={instanceId} />
-            </div>
-            <div id="card-contacts">
-              <ContactsCard instanceId={instanceId} />
-            </div>
+            <OrganizationCard instanceId={instanceId} />
+            <ContactsCard instanceId={instanceId} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-            <div id="card-endpoints">
-              <EndpointsCard instanceId={instanceId} />
-            </div>
-            <div id="card-memberships">
-              <MembershipsCard instanceId={instanceId} />
-            </div>
-            <div id="card-certificates">
-              <CertificatesCard instanceId={instanceId} />
-            </div>
+            <EndpointsCard instanceId={instanceId} />
+            <MembershipsCard instanceId={instanceId} />
+            <CertificatesCard instanceId={instanceId} />
           </div>
         </div>
       </div>
@@ -95,29 +75,19 @@ export function EntityCanvas({ instanceId }: EntityCanvasProps) {
       >
         {/* Column 1: Organization */}
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-organization">
-            <OrganizationCard instanceId={instanceId} />
-          </div>
+          <OrganizationCard instanceId={instanceId} />
         </div>
 
         {/* Column 2: Contacts + Endpoints */}
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-contacts">
-            <ContactsCard instanceId={instanceId} />
-          </div>
-          <div id="card-endpoints">
-            <EndpointsCard instanceId={instanceId} />
-          </div>
+          <ContactsCard instanceId={instanceId} />
+          <EndpointsCard instanceId={instanceId} />
         </div>
 
         {/* Column 3: Memberships + Certificates */}
         <div style={{ display: 'flex', flexDirection: 'column', gap }}>
-          <div id="card-memberships">
-            <MembershipsCard instanceId={instanceId} />
-          </div>
-          <div id="card-certificates">
-            <CertificatesCard instanceId={instanceId} />
-          </div>
+          <MembershipsCard instanceId={instanceId} />
+          <CertificatesCard instanceId={instanceId} />
         </div>
       </div>
     </div>

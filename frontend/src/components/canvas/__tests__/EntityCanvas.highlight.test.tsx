@@ -184,8 +184,9 @@ describe('EntityCanvas resize redraw', () => {
     // Shrink below the single-column breakpoint (innerWidth-500 < 500).
     setViewport(900); // effective width 400 → 1 col, stacked flex, no grid
     expect(grid()).toBeNull();
-    // The organization card is still rendered in the single-column layout.
-    expect(container.querySelector('#card-organization')).not.toBeNull();
+    // The organization card is still rendered in the single-column layout —
+    // exactly once: EntityCanvas no longer wraps it in a duplicate id="card-*".
+    expect(container.querySelectorAll('#card-organization')).toHaveLength(1);
 
     // Widen again → the three-column grid comes back.
     setViewport(1600);

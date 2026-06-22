@@ -1,8 +1,8 @@
 /**
  * EntityCanvas.lines.test.tsx — the TARGET described "SVG relation lines / bezier
  * <path> per FK relation", but the actual EntityCanvas renders no SVG at all: it is
- * a responsive grid that wraps the five entity cards (plus the OnboardingWizard) in
- * `id="card-*"` containers and switches between 1/2/3 columns based on
+ * a responsive grid that renders the five entity cards directly (plus the
+ * OnboardingWizard) and switches between 1/2/3 columns based on
  * window.innerWidth. These tests assert that real rendered structure and the
  * column-breakpoint behavior. Each child card and the wizard are stubbed so the
  * assertions stay deterministic and isolated to EntityCanvas's own layout logic.
@@ -47,12 +47,12 @@ vi.mock('../../cards/MembershipsCard', () => ({
 
 import { EntityCanvas } from '../EntityCanvas';
 
-const CARD_IDS = [
-  'card-organization',
-  'card-contacts',
-  'card-endpoints',
-  'card-memberships',
-  'card-certificates',
+const CARD_TESTIDS = [
+  'organization-card',
+  'contacts-card',
+  'endpoints-card',
+  'memberships-card',
+  'certificates-card',
 ] as const;
 
 function setInnerWidth(width: number) {
@@ -78,16 +78,14 @@ describe('EntityCanvas layout (no SVG relation lines exist)', () => {
     expect(container.querySelectorAll('path')).toHaveLength(0);
   });
 
-  it('renders all five entity-card wrappers plus the onboarding wizard (3-col layout)', () => {
+  it('renders all five entity cards plus the onboarding wizard (3-col layout)', () => {
     setInnerWidth(1600); // 1600 - 500 = 1100 effective → 3 columns
-    const { container } = renderWithProviders(<EntityCanvas instanceId="i1" />);
+    renderWithProviders(<EntityCanvas instanceId="i1" />);
 
-    for (const id of CARD_IDS) {
-      expect(container.querySelector(`#${id}`)).not.toBeNull();
+    for (const testId of CARD_TESTIDS) {
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
     }
     expect(screen.getByTestId('onboarding-wizard')).toBeInTheDocument();
-    expect(screen.getByTestId('organization-card')).toBeInTheDocument();
-    expect(screen.getByTestId('memberships-card')).toBeInTheDocument();
   });
 
   it('threads instanceId down to the wizard and every card', () => {
@@ -123,8 +121,8 @@ describe('EntityCanvas layout (no SVG relation lines exist)', () => {
     // No grid container in the 1-column branch — cards stack in a flex column.
     expect(container.querySelector('div[style*="grid-template-columns"]')).toBeNull();
     // All five cards are still present in the single-column layout.
-    for (const id of CARD_IDS) {
-      expect(container.querySelector(`#${id}`)).not.toBeNull();
+    for (const testId of CARD_TESTIDS) {
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
     }
   });
 });
