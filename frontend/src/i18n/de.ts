@@ -843,6 +843,33 @@ export const de: Record<TranslationKey, string> = {
   dsfResourcesDescGithub: 'Quellcode der DSF-Referenzimplementierung.',
   dsfResourcesDescCommunity: 'Team, Kommunikationskanäle und wie man beiträgt.',
 
+  // Process Skill page
+  processSkillNavLabel: 'Prozess-Skill',
+  processSkillTitle: 'DSF-Prozess-Skill für Claude',
+  processSkillSubtitle:
+    'Ein Claude-Code-Skill, der ein vollständiges DSF-Prozess-Plugin erzeugt — Code, Repository, Release, Wiki und Hub-Eintrag.',
+  processSkillIntro:
+    'Dieser Skill bringt Claude Code bei, ein DSF-Prozess-Plugin (Data Sharing Framework) gegen die aktuelle Process API v2 zu bauen: das BPMN-Modell, die FHIR-Konformitätsressourcen, die Java-Aktivitäten, das GitHub-Repository mit Branches und Releases, das Wiki und den Eintrag auf hub.dsf.dev. Er enthält ein vollständiges, in sich stimmiges Beispiel-Plugin zum Kopieren und Anpassen.',
+  processSkillWhatTitle: 'Inhalt',
+  processSkillWhat1:
+    'SKILL.md — der durchgängige Ablauf mit v1/v2-Entscheidungshilfe und den Routing-Strings, die zusammenpassen müssen.',
+  processSkillWhat2:
+    'Acht Referenzleitfäden: Gerüst, BPMN, FHIR-Ressourcen, Autorisierung, Java-Aktivitäten, Tests, Repository/Release/Wiki und Veröffentlichung.',
+  processSkillWhat3:
+    'Ein Beispiel-Plugin zum Kopieren und Anpassen: Maven-Projekt, ProcessPluginDefinition, Spring-Konfiguration, ein Service-Task und ein Message-Send sowie der vollständige FHIR-Satz (ActivityDefinition, Task-Profile, CodeSystem, ValueSet).',
+  processSkillWhat4:
+    'Projekt-Infrastruktur: ein GitHub-Actions-CI-Workflow, fünf Wiki-Seiten und eine dsf-marketplace.json, die der Marktplatz dieses Portals einlesen kann.',
+  processSkillHowTitle: 'Verwendung',
+  processSkillHow1: 'Skill herunterladen und entpacken.',
+  processSkillHow2:
+    'Den Ordner dsf-process-creator in das Claude-Code-Skill-Verzeichnis legen (~/.claude/skills/).',
+  processSkillHow3:
+    'In Claude Code darum bitten, einen DSF-Prozess zu erstellen — der Skill aktiviert sich und führt durch jeden Schritt.',
+  processSkillDownload: 'Skill herunterladen (.zip)',
+  processSkillDownloadHint: 'Apache-2.0 · für Claude Code',
+  processSkillDocsLinkLabel: 'DSF Process API v2 – Dokumentation',
+  processSkillBuiltWith: 'Mit Claude erstellt',
+
   // Guided canvas — glossary
   glossaryDic:
     'DIC = Data Integration Center: integriert und stellt die klinischen Daten eines Standorts im Netzwerk bereit.',

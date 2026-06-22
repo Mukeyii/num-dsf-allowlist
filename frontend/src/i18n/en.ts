@@ -833,6 +833,33 @@ export const en = {
   dsfResourcesDescGithub: 'DSF reference implementation source code.',
   dsfResourcesDescCommunity: 'Team, communication channels, and how to contribute.',
 
+  // Process Skill page
+  processSkillNavLabel: 'Process Skill',
+  processSkillTitle: 'DSF Process Skill for Claude',
+  processSkillSubtitle:
+    'A Claude Code skill that scaffolds a complete DSF process plugin — code, repository, release, wiki, and hub listing.',
+  processSkillIntro:
+    'This skill teaches Claude Code to build a DSF (Data Sharing Framework) process plugin against the current Process API v2: the BPMN model, the FHIR conformance resources, the Java activities, the GitHub repository with branches and releases, the wiki, and the listing on hub.dsf.dev. It ships a complete, internally consistent example plugin you can copy and adapt.',
+  processSkillWhatTitle: 'What’s inside',
+  processSkillWhat1:
+    'SKILL.md — the end-to-end workflow with a v1/v2 decision guide and the routing strings to keep in sync.',
+  processSkillWhat2:
+    'Eight reference guides: scaffold, BPMN, FHIR resources, authorization, Java activities, testing, repository/release/wiki, and publishing.',
+  processSkillWhat3:
+    'A copy-and-adapt example plugin: Maven project, ProcessPluginDefinition, Spring config, a service task and a message send, plus the full FHIR set (ActivityDefinition, Task profiles, CodeSystem, ValueSet).',
+  processSkillWhat4:
+    'Project plumbing: a GitHub Actions CI workflow, five wiki pages, and a dsf-marketplace.json this portal’s Marketplace can ingest.',
+  processSkillHowTitle: 'How to use it',
+  processSkillHow1: 'Download and unzip the skill.',
+  processSkillHow2:
+    'Place the dsf-process-creator folder in your Claude Code skills directory (~/.claude/skills/).',
+  processSkillHow3:
+    'In Claude Code, ask to create a DSF process — the skill activates and walks through every step.',
+  processSkillDownload: 'Download skill (.zip)',
+  processSkillDownloadHint: 'Apache-2.0 · for Claude Code',
+  processSkillDocsLinkLabel: 'DSF Process API v2 documentation',
+  processSkillBuiltWith: 'Built with Claude',
+
   // Guided canvas — glossary
   glossaryDic:
     'DIC = Data Integration Center: integrates and provides a site’s clinical data into the network.',
