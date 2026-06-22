@@ -75,7 +75,9 @@ export function SearchBar() {
       results.push({
         type: 'organization',
         label: org.name || org.identifier,
-        detail: org.identifier,
+        // Only surface the identifier as the detail line when a name owns the
+        // label — without a name the label already shows the identifier.
+        detail: org.name ? org.identifier : '',
         cardId: 'organization',
       });
     }

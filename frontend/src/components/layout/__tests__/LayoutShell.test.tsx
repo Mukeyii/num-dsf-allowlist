@@ -117,10 +117,11 @@ describe('SearchBar', () => {
     // Atomic change avoids char-by-char races under heavy CI load.
     fireEvent.change(input, { target: { value: 'gamma' } });
 
-    // No `name` was supplied, so both the label and detail fall back to the
-    // identifier — the option's accessible name carries the label fallback.
+    // No `name` was supplied, so the identifier is the label fallback. The
+    // detail line is suppressed in that case, so the identifier must render
+    // exactly once — never duplicated across label and detail.
     const option = screen.getByRole('option', { name: /organization: gamma\.example\.de/i });
-    expect(within(option).getAllByText('gamma.example.de').length).toBeGreaterThan(0);
+    expect(within(option).getAllByText('gamma.example.de')).toHaveLength(1);
   });
 
   it('triggers the canvas highlight when a result is selected', async () => {
