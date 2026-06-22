@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Claude">
+  <title>Claude</title>
+  <g fill="#D97757">
+    <!-- Radial burst mark in Claude's terracotta. Twelve spokes, alternating
+         length, emanating from the centre. -->
+    <rect x="47.5" y="10" width="5" height="34" rx="2.5" transform="rotate(0 50 50)"/>
+    <rect x="47.5" y="16" width="5" height="28" rx="2.5" transform="rotate(30 50 50)"/>
+    <rect x="47.5" y="10" width="5" height="34" rx="2.5" transform="rotate(60 50 50)"/>
+    <rect x="47.5" y="16" width="5" height="28" rx="2.5" transform="rotate(90 50 50)"/>
+    <rect x="47.5" y="10" width="5" height="34" rx="2.5" transform="rotate(120 50 50)"/>
+    <rect x="47.5" y="16" width="5" height="28" rx="2.5" transform="rotate(150 50 50)"/>
+    <rect x="47.5" y="10" width="5" height="34" rx="2.5" transform="rotate(180 50 50)"/>
+    <rect x="47.5" y="16" width="5" height="28" rx="2.5" transform="rotate(210 50 50)"/>
+    <rect x="47.5" y="10" width="5" height="34" rx="2.5" transform="rotate(240 50 50)"/>
+    <rect x="47.5" y="16" width="5" height="28" rx="2.5" transform="rotate(270 50 50)"/>
+    <rect x="47.5" y="10" width="5" height="34" rx="2.5" transform="rotate(300 50 50)"/>
+    <rect x="47.5" y="16" width="5" height="28" rx="2.5" transform="rotate(330 50 50)"/>
+  </g>
+</svg>
