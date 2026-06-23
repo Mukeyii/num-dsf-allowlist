@@ -11,6 +11,7 @@ import { ToastProvider } from './components/ToastProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { getErrorMessage } from './lib/getErrorMessage';
+import { reauthRedirect } from './lib/authMode';
 import { useI18n } from './stores/i18n.store';
 import './index.css';
 import './stores/theme.store';
@@ -68,7 +69,7 @@ axios.interceptors.response.use(
         return axios(originalRequest);
       } catch {
         useAuthStore.getState().clearAuth();
-        window.location.replace('/login');
+        reauthRedirect();
       }
     } else if (
       status === 401 &&
@@ -79,7 +80,7 @@ axios.interceptors.response.use(
       // permission 401). Without _retried we'd loop on refresh forever; instead
       // end the session so the user isn't stuck authenticated-but-broken.
       useAuthStore.getState().clearAuth();
-      window.location.replace('/login');
+      reauthRedirect();
     }
 
     // Global error toasts (avoid duplicates with _handled flag)
