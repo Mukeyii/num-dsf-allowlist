@@ -150,6 +150,13 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
     };
   }, [isAuthenticated]);
 
+  // In cert mode the cert-login attempt drives the CertStatusPage (code=null
+  // while checking, an error code on failure). Check it before the generic
+  // "restoring session" spinner so the cert-specific UX is shown.
+  if (certError !== undefined) {
+    return <CertStatusPage code={certError} />;
+  }
+
   if (!ready) {
     return (
       <div
@@ -179,10 +186,6 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
         </div>
       </div>
     );
-  }
-
-  if (certError !== undefined) {
-    return <CertStatusPage code={certError} />;
   }
 
   return <>{children}</>;
