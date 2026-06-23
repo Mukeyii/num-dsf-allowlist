@@ -110,6 +110,22 @@ The HTTP vhost (port 80) clears any incoming `X-Client-Cert` header to prevent f
 
 To register a thumbprint, the instance owner uploads their cert via the Organization edit modal (the `clientCertThumbprint` field). Admins cannot modify another user's thumbprint.
 
+### Certificate-auth deployment variant (login-screen-free)
+
+An alternative, site-facing stack that **skips the login screen entirely** and signs users in automatically by client certificate at the reverse proxy (see ADR-005). The standard OTP/TOTP stack (`docker-compose.prod.yml`) is unchanged; IMI operators continue to use it.
+
+Prerequisite: each participating organization has a designated login certificate in `organizations.client_cert_thumbprint` (set in the Organization modal of the standard deployment). The certificate's SHA-256 thumbprint is the allow-list gate.
+
+```bash
+docker compose -f docker-compose.cert-auth.yml up -d --build
+```
+
+Differences vs. `docker-compose.prod.yml`:
+- the frontend is built with `VITE_AUTH_MODE=cert` — no login screen; `AuthBootstrap` auto-calls `/auth/client-cert-login`;
+- nginx mounts `nginx/nginx.cert-auth.conf`, which additionally returns `403` for the OTP/TOTP endpoints so they cannot be used even by a crafted request.
+
+A browser must present a client certificate whose thumbprint is registered; otherwise the user sees a status page explaining how to get registered. There is **no OTP fallback** in this variant — IMI admins (who have no organization) use the standard deployment.
+
 ## Scheduled jobs
 
 All UTC, configured in `backend/src/services/scheduler.service.ts`:
