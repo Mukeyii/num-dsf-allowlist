@@ -15,9 +15,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 import { useI18n } from '../stores/i18n.store';
 import { useAuthStore } from '../stores/auth.store';
+import { isCertMode, reauthRedirect } from '../lib/authMode';
+import { CertStatusPage } from '../pages/CertStatusPage';
 
 export function AuthBootstrap({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
+  // undefined = not in cert-error state; null = checking; string = backend error code
+  const [certError, setCertError] = useState<string | null | undefined>(undefined);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const queryClient = useQueryClient();
 
@@ -77,6 +81,23 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
         queryClient.clear();
       })
       .catch(async () => {
+        if (isCertMode()) {
+          setCertError(null); // show the "checking" state while we try the cert
+          try {
+            const res = await authApi.clientCertLogin();
+            const accessToken = res.data.data.accessToken;
+            const decoded: any = jwtDecode(accessToken);
+            useAuthStore.getState().setTokens(accessToken, {
+              id: decoded.sub,
+              email: decoded.email,
+            });
+            queryClient.clear();
+            setCertError(undefined);
+          } catch (e: any) {
+            setCertError(e?.response?.data?.error?.code ?? 'UNKNOWN');
+          }
+          return;
+        }
         if (!import.meta.env.DEV) return;
         try {
           await devLoginAs(undefined);
@@ -114,7 +135,7 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       idleTimer = setTimeout(() => {
         useAuthStore.getState().clearAuth();
         toast.error(useI18n.getState().t('sessionExpired'));
-        window.location.replace('/login');
+        reauthRedirect();
       }, IDLE_MS);
     }
 
@@ -158,6 +179,10 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
         </div>
       </div>
     );
+  }
+
+  if (certError !== undefined) {
+    return <CertStatusPage code={certError} />;
   }
 
   return <>{children}</>;
