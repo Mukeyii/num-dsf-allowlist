@@ -861,6 +861,18 @@ export const en = {
   processSkillDocsLinkLabel: 'DSF Process API v2 documentation',
   processSkillBuiltWith: 'Built with Claude',
 
+  // Certificate-auth status screen (cert deployment variant)
+  certStatusTitle: 'Certificate sign-in',
+  certStatusChecking: 'Checking your certificate…',
+  certStatusNoCert:
+    'No client certificate was presented. Install your certificate in the browser and reload.',
+  certStatusNotRegistered:
+    'Your certificate is not in the allow-list. Ask the IMI operator to register it for your organization.',
+  certStatusNoInstance: 'No workspace is linked to this certificate. Contact the IMI operator.',
+  certStatusLocked: 'This account is locked. Contact the IMI operator.',
+  certStatusGeneric: 'Sign-in with your certificate failed. Contact the IMI operator.',
+  certStatusRetry: 'Retry',
+
   // Guided canvas — glossary
   glossaryDic:
     'DIC = Data Integration Center: integrates and provides a site’s clinical data into the network.',

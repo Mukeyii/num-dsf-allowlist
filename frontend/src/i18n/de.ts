@@ -871,6 +871,20 @@ export const de: Record<TranslationKey, string> = {
   processSkillDocsLinkLabel: 'DSF Process API v2 – Dokumentation',
   processSkillBuiltWith: 'Mit Claude erstellt',
 
+  // Zertifikats-Login-Status (Zert-Deployment-Variante)
+  certStatusTitle: 'Zertifikats-Anmeldung',
+  certStatusChecking: 'Zertifikat wird geprüft…',
+  certStatusNoCert:
+    'Es wurde kein Client-Zertifikat präsentiert. Installiere dein Zertifikat im Browser und lade die Seite neu.',
+  certStatusNotRegistered:
+    'Dein Zertifikat ist nicht in der Allow-List. Bitte den IMI-Betreiber, es für deine Organisation zu registrieren.',
+  certStatusNoInstance:
+    'Diesem Zertifikat ist kein Arbeitsbereich zugeordnet. Kontaktiere den IMI-Betreiber.',
+  certStatusLocked: 'Dieses Konto ist gesperrt. Kontaktiere den IMI-Betreiber.',
+  certStatusGeneric:
+    'Die Anmeldung mit deinem Zertifikat ist fehlgeschlagen. Kontaktiere den IMI-Betreiber.',
+  certStatusRetry: 'Erneut versuchen',
+
   // Guided canvas — glossary
   glossaryDic:
     'DIC = Data Integration Center: integriert und stellt die klinischen Daten eines Standorts im Netzwerk bereit.',
