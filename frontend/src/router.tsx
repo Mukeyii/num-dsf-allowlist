@@ -25,6 +25,7 @@ import { SkillPage } from './pages/SkillPage';
 import { LegalPage } from './pages/LegalPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { useAuthStore } from './stores/auth.store';
+import { isCertMode } from './lib/authMode';
 import { CrossUserGuardProvider } from './components/layout/CrossUserGuardProvider';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -40,10 +41,15 @@ function RootRedirect() {
 
 export const router = createBrowserRouter([
   { path: '/', element: <RootRedirect /> },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/otp', element: <OtpPage /> },
-  { path: '/totp-setup', element: <TotpSetupPage /> },
-  { path: '/totp', element: <TotpPage /> },
+  // In the cert deployment variant there is no login screen — AuthBootstrap
+  // owns the unauthenticated UX, so the OTP routes just bounce to root.
+  { path: '/login', element: isCertMode() ? <Navigate to="/" replace /> : <LoginPage /> },
+  { path: '/otp', element: isCertMode() ? <Navigate to="/" replace /> : <OtpPage /> },
+  {
+    path: '/totp-setup',
+    element: isCertMode() ? <Navigate to="/" replace /> : <TotpSetupPage />,
+  },
+  { path: '/totp', element: isCertMode() ? <Navigate to="/" replace /> : <TotpPage /> },
   {
     path: '/app',
     element: (
